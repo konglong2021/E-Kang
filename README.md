@@ -3,13 +3,13 @@
 
 ## Installation
 
-Duplicate .env.example and rename to .env
--Do a configuration with laravel database 
--Composer update
--npm install
--npm run dev
--php artisan key:generate
--php artisan migrate
+Duplicate .env.example and rename to .env <br />
+-Do a configuration with laravel database  <br />
+-Composer update <br />
+-npm install <br />
+-npm run dev <br />
+-php artisan key:generate <br />
+-php artisan migrate <br />
 
 
 
