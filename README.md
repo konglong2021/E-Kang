@@ -8,6 +8,8 @@ Duplicate .env.example and rename to .env
 -Composer update
 -npm install
 -npm run dev
+-php artisan key:generate
+-php artisan migrate
 
 
 
