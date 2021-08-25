@@ -9,7 +9,7 @@ Duplicate .env.example and rename to .env <br />
 -npm install <br />
 -npm run dev <br />
 -php artisan key:generate <br />
--php artisan migrate <br />
+-php artisan migrate:fresh <br />
 -php artisan serve
 
 
