@@ -24,8 +24,8 @@
                 <x-jet-input id="code" class="block mt-1 w-full" type="text" name="code" :value="old('code')" required />
             </div>
             <div class="mt-4">
-                <x-jet-label for="categorie_id" value="{{ __('Category') }}" />
-                <x-jet-input id="categorie_id" class="block mt-1 w-full" type="number" name="categorie_id" :value="old('categorie_id')" required />
+                <x-jet-label for="brand_category_id" value="{{ __('Category') }}" />
+                <x-jet-input id="brand_category_id" class="block mt-1 w-full" type="number" name="brand_category_id" :value="old('brand_category_id')" required />
             </div>
 
             <div class="mt-4">

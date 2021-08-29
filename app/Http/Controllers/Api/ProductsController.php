@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\product;
-use App\Models\categorie;
 
 class ProductsController extends Controller
 {
@@ -16,8 +16,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = product::all();
-
-        return view('pos.product.index',compact('products'));
+       return response()->json($products);
     }
 
     /**
@@ -27,11 +26,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-       // $categories = categorie::pluck('name', 'id');
-
-        return view('pos.product.create');
-
-        
+        //
     }
 
     /**
@@ -42,40 +37,7 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        // product::create($request->validated());
-        $request->validate([
-            'en_name'     => [
-                'string',
-                'required',
-            ],
-            'kh_name'    => [
-                'required',
-               
-            // ],
-            // // 'code' => [
-            // //     'required',
-            // //     'unique:product',
-            ]
-            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
-           
-        ]);
-        //  dd($request);
-
-        $product = product::create([
-           
-            'en_name' => $request['en_name'],
-            'kh_name' => $request['kh_name'],
-            'code' => $request['code'],
-            'description' => $request['description'],
-            'brand_category_id' => $request['brand_category_id'],
-            'image' => $request['image'],
-   
-        ]);
-        
-        // $product->categories()->sync($request->input('categories', []));
-
-        return redirect()->route('product.index');
-        
+        //
     }
 
     /**

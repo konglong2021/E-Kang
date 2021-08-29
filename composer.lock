@@ -38,10 +38,7 @@
             "autoload": {
                 "psr-4": {
                     "Asm89\\Stack\\": "src/"
-                },
-                "files": [
-                    "app/helpers.php"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -96,10 +93,7 @@
             "autoload": {
                 "psr-4": {
                     "BaconQrCode\\": "src/"
-                },
-                "files": [
-                    "app/helpers.php"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -6031,10 +6025,7 @@
             "autoload": {
                 "psr-4": {
                     "Facade\\FlareClient\\": "src"
-                },
-                "files": [
-                    "src/helpers.php"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [

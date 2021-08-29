@@ -10,7 +10,7 @@
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 {{-- <x-jet-welcome /> --}}
                 <!-- component -->
-    <div class="overflow-x-auto">
+<div class="overflow-x-auto">
         
             <div class="w-full lg:w-5/6">
                 <div class="bg-white shadow-md rounded my-6">
