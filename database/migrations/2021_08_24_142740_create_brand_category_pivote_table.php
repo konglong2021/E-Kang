@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProductsTable extends Migration
+class CreateBrandCategoryPivoteTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,10 @@ class CreateProductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('brand_category', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('brand_category_id')->constrained('brand_category');
-            $table->string('code');
-            $table->string('en_name');
-            $table->string('kh_name');
-            $table->string('description');
-            $table->string('image');
+            $table->foreignId('brand_id')->references('id')->on('brands')->cascadeOnDelete();
+            $table->foreignId('categorie_id')->references('id')->on('categories')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -32,6 +28,6 @@ class CreateProductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('brand_category');
     }
 }
