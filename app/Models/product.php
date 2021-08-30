@@ -9,6 +9,8 @@ class product extends Model
 {
     use HasFactory;
 
+    use softDeletes;
+
     protected $fillable = [
         'categorie_id',
         'code',

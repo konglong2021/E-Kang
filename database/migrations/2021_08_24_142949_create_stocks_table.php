@@ -20,6 +20,7 @@ class CreateStocksTable extends Migration
             $table->decimal('alert');
             $table->double('balance');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

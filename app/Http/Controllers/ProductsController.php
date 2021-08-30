@@ -76,7 +76,7 @@ class ProductsController extends Controller
             'kh_name' => $request['kh_name'],
             'code' => $request['code'],
             'description' => $request['description'],
-            'brand_category_id' => $request['brand_category_id'],
+            'categorie_id' => $request['categorie_id'],
             'image' => $request['image'],
    
         ]);

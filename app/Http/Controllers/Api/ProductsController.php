@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\product;
+use App\Models\categorie;
 
 class ProductsController extends Controller
 {
@@ -21,8 +22,11 @@ class ProductsController extends Controller
 
     public function upload(Request $request)
     {
-        $result = $request->file('file')->store('img');
-        return ["result"=> $result];
+        $destination_path = 'public/img';
+        $image = $request->file('file');
+        $image_name = $image->getClientOriginalName();
+        $path = $request->file('file')->storeAs($destination_path,$image_name);
+        return ["result"=>$path];
 
     }
     /**
@@ -43,7 +47,24 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        $destination_path = 'public/img';
+        $image = $request->file('image');
+        $image_name = $image->getClientOriginalName();
+        $path = $request->file('image')->storeAs($destination_path,$image_name);
+
+        $product = product::create([
+           
+            'en_name' => $request['en_name'],
+            'kh_name' => $request['kh_name'],
+            'code' => $request['code'],
+            'description' => $request['description'],
+            'categorie_id' => $request['categorie_id'],
+            'image' =>  $image_name,
+   
+        ]);
+
+        return response()->json($product);
     }
 
     /**
