@@ -148,7 +148,7 @@
                                         </ul>
                                     </li>
                                     <li class="has-children">
-                                        <a href="#"><i class="fa fa-paint-brush"></i> <span>Sale Menu</span> <i class="fa fa-angle-right arrow"></i></a>
+                                        <a href="#"><i class="fa fa-paint-brush"></i> <span>Sell Menu</span> <i class="fa fa-angle-right arrow"></i></a>
                                         <ul class="child-nav">
                                           <li><a href="layout-fixed-top.html"><i class="fa fa-tasks"></i> <span>VIP Member</span></a></li>
                                             <li><a href="layout-fixed-top.html"><i class="fa fa-tasks"></i> <span>Customer</span></a></li>
