@@ -40,6 +40,15 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+     public function upload(Request $request)
+     {
+         $result = $request->file('file')->store('img');
+         return ["result"=>$request];
+
+     }
+
+
     public function store(Request $request)
     {
         // product::create($request->validated());

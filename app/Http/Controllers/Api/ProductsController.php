@@ -19,6 +19,12 @@ class ProductsController extends Controller
        return response()->json($products);
     }
 
+    public function upload(Request $request)
+    {
+        $result = $request->file('file')->store('img');
+        return ["result"=> $result];
+
+    }
     /**
      * Show the form for creating a new resource.
      *

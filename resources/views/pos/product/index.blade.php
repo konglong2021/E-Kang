@@ -49,8 +49,8 @@
                                        {{$product->image}}
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-success btn-xs btn-labeled">Approve<span class="btn-label btn-label-right"><i class="fa fa-check"></i></span></button>
-                                        <button type="button" class="btn btn-danger btn-xs btn-labeled">Reject<span class="btn-label btn-label-right"><i class="fa fa-times"></i></span></button>
+                                       
+                                        <img src="{{ storage_path("app/img/").$product->image }}" alt="" title=""></a>
                                     </td>
                                 </tr>
                                 @endforeach
