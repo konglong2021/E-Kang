@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="{{asset('backend/css/lobipanel/lobipanel.min.css')}}" media="screen" >
 
         <!-- ========== PAGE STYLES ========== -->
-        
+
         <link rel="stylesheet" href="{{asset('backend/css/icheck/skins/line/blue.css')}}" >
         <link rel="stylesheet" href="{{asset('backend/css/icheck/skins/line/red.css')}}" >
         <link rel="stylesheet" href="{{asset('backend/css/icheck/skins/line/green.css')}}" >
@@ -23,36 +23,39 @@
         <link rel="stylesheet" href="{{asset('backend/css/main.css')}}" media="screen" >
 
         <!-- ========== MODERNIZR ========== -->
+{{--        <script src="{{ mix('js/app.js') }}"></script>--}}
         <script src="{{asset('backend/js/modernizr/modernizr.min.js')}}"></script>
     </head>
     <body class="top-navbar-fixed">
-        <div class="main-wrapper">
+        <div id="app">
+            <div class="main-wrapper">
 
-            <!-- ========== TOP NAVBAR ========== -->
+                <!-- ========== TOP NAVBAR ========== -->
             @include('layouts.navbar')
 
             <!-- ========== WRAPPER FOR BOTH SIDEBARS & MAIN CONTENT ========== -->
-            <div class="content-wrapper">
-                <div class="content-container">
+                <div class="content-wrapper">
+                    <div class="content-container">
 
-                    <!-- ========== LEFT SIDEBAR ========== -->
+                        <!-- ========== LEFT SIDEBAR ========== -->
                     @include('layouts.sidebar')
                     <!-- /.left-sidebar -->
 
-                    <div class="main-page">
+                        <div class="main-page">
+                            <router-view></router-view>
+                            @yield('content')
 
-                       @yield('content')
+                        </div>
+                        <!-- /.main-page -->
+
+
 
                     </div>
-                    <!-- /.main-page -->
-
-                   
-
+                    <!-- /.content-container -->
                 </div>
-                <!-- /.content-container -->
-            </div>
-            <!-- /.content-wrapper -->
+                <!-- /.content-wrapper -->
 
+            </div>
         </div>
         <!-- /.main-wrapper -->
 
@@ -65,7 +68,7 @@
         <script src="{{asset('backend/js/iscroll/iscroll.js')}}"></script>
 
         <!-- ========== PAGE JS FILES ========== -->
-   
+
         <script src="{{asset('backend/js/waypoint/waypoints.min.js')}}"></script>
         <script src="{{asset('backend/js/counterUp/jquery.counterup.min.js')}}"></script>
         <script src="{{asset('backend/js/amcharts/amcharts.js')}}"></script>

@@ -1,7 +1,15 @@
 require('./bootstrap');
 
-import Alpine from 'alpinejs';
+import Vue from "vue"
+import VueRouter from "vue-router"
+Vue.use(VueRouter)
 
-window.Alpine = Alpine;
+import {routes} from "./routes"
 
-Alpine.start();
+const router = new VueRouter({routes})
+window.onload = function () {
+    const app = new Vue({
+        el: "#app",
+        router
+    })
+}
