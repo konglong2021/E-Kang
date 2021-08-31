@@ -19,7 +19,7 @@ class CreatePurchasesTable extends Migration
             $table->foreignId('supplier_id')->constrained('suppliers')->onUpdate('cascade')->onDelete('cascade');
             $table->string('batch')->default('001');  //version or stock in 
             $table->double('subtotal');
-            $table->double('vat')->default(0.1);
+            $table->double('vat')->nullable();
             $table->double('grandtotal');
             $table->timestamps();
         });

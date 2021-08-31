@@ -18,8 +18,8 @@ class CreateOrdersTable extends Migration
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('warehouse_id')->constrained();
             $table->double('subtotal');
-            $table->double('vat')->default(0.1); //default 10%
-            $table->double('discount');
+            $table->double('vat')->nullable(); //default 10%
+            $table->double('discount')->nullable();
             $table->double('grandtotal');
             $table->timestamps();
         });

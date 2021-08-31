@@ -17,8 +17,8 @@ class CreateStocksTable extends Migration
             $table->id();
             $table->foreignId('warehouse_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->decimal('alert');
-            $table->double('balance');
+            $table->decimal('alert')->nullable();
+            $table->double('balance')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
