@@ -22,6 +22,7 @@ class CreateOrdersTable extends Migration
             $table->double('discount')->nullable();
             $table->double('grandtotal');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

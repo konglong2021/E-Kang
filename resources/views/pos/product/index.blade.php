@@ -43,10 +43,13 @@
                                     </td>
                                     <td>{{$product->kh_name}}</td>
                                     <td>
-                                       {{$product->code}}
+                                        {{-- <div class="mb-3"> {!! DNS1D::getBarcodeHTML($product->code, 'CODABAR') !!}</div> --}}
+                                        <div class="mb-3"> {!! DNS1D::getBarcodeHTML($product->code, 'CODABAR') !!}</div>
+                                        <div><small>{{$product->code}} </small>
+                                       
                                     </td>
                                     <td>
-                                        <img src="{{ asset('storage/img/download.jpg') }}" alt="" title="" width="50px" height="50px"></a>
+                                        <img src="{{ asset('storage/img').'/' .$product->image }}" alt="" title="" width="50px" height="50px"></a>
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-success btn-xs btn-labeled">Approve<span class="btn-label btn-label-right"><i class="fa fa-check"></i></span></button>

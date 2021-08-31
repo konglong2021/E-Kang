@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\product;
 use App\Models\categorie;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class ProductsController extends Controller
 {
@@ -47,6 +48,8 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
+        $prefix = date("ymmdd"); 
+        $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         
         $destination_path = 'public/img';
         $image = $request->file('image');
@@ -57,7 +60,7 @@ class ProductsController extends Controller
            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
-            'code' => $request['code'],
+            'code' => $code,
             'description' => $request['description'],
             'categorie_id' => $request['categorie_id'],
             'image' =>  $image_name,

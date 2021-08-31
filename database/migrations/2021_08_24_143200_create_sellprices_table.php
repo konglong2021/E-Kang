@@ -19,6 +19,7 @@ class CreateSellpricesTable extends Migration
             $table->foreignId('member_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->double('unitprice');
             $table->timestamps();
+            
         });
     }
 

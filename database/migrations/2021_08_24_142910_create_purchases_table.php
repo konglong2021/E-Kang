@@ -22,6 +22,7 @@ class CreatePurchasesTable extends Migration
             $table->double('vat')->nullable();
             $table->double('grandtotal');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
