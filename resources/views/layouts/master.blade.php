@@ -92,6 +92,7 @@
 
             });
         </script>
+        @stack('Script')
 
         <!-- ========== ADD custom.js FILE BELOW WITH YOUR CHANGES ========== -->
     </body>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\product;
 use App\Models\categorie;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class ProductsController extends Controller
 {
@@ -27,9 +28,9 @@ class ProductsController extends Controller
      */
     public function create()
     {
-       // $categories = categorie::pluck('name', 'id');
+        $categories = categorie::pluck('name', 'id');
 
-        return view('pos.product.create');
+        return view('pos.product.create',compact('categories'));
 
         
     }
@@ -70,14 +71,23 @@ class ProductsController extends Controller
         ]);
         //  dd($request);
 
+        $prefix = date("ymmdd"); 
+        $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        
+        $destination_path = 'public/img';
+        $image = $request->file('image');
+       
+        $image_name = $image->getClientOriginalName();
+        $path = $request->file('image')->storeAs($destination_path,$image_name);
+
         $product = product::create([
            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
-            'code' => $request['code'],
+            'code' => $code,
             'description' => $request['description'],
             'categorie_id' => $request['categorie_id'],
-            'image' => $request['image'],
+            'image' =>  $image_name,
    
         ]);
         

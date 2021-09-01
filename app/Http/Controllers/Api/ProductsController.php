@@ -21,15 +21,6 @@ class ProductsController extends Controller
        return response()->json($products);
     }
 
-    public function upload(Request $request)
-    {
-        $destination_path = 'public/img';
-        $image = $request->file('file');
-        $image_name = $image->getClientOriginalName();
-        $path = $request->file('file')->storeAs($destination_path,$image_name);
-        return ["result"=>$path];
-
-    }
     /**
      * Show the form for creating a new resource.
      *
