@@ -16,7 +16,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = product::all();
+        $products = product::orderBy('id', 'desc')->get();
 
         return view('pos.product.index',compact('products'));
     }
@@ -61,23 +61,23 @@ class ProductsController extends Controller
             'kh_name'    => [
                 'required',
                
-            // ],
-            // // 'code' => [
-            // //     'required',
-            // //     'unique:product',
-            ]
-            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+         
+            ],
+            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
            
         ]);
         //  dd($request);
 
-        $prefix = date("ymmdd"); 
+         $prefix = date("ymd"); 
         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
+
         
         $destination_path = 'public/img';
         $image = $request->file('image');
        
-        $image_name = $image->getClientOriginalName();
+        // $image_name = $image->getClientOriginalName();
+        $image_name = time().'.'.$request->image->extension(); 
         $path = $request->file('image')->storeAs($destination_path,$image_name);
 
         $product = product::create([
@@ -93,7 +93,7 @@ class ProductsController extends Controller
         
         // $product->categories()->sync($request->input('categories', []));
 
-        return redirect()->route('product.index');
+        return redirect()->route('product.index')->with('success','You have successfully upload image.');
         
     }
 
@@ -105,7 +105,7 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        //
+        return view('product.show', compact('products'));
     }
 
     /**

@@ -17,7 +17,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = product::all();
+        $products = product::orderBy('id', 'desc')->get();
        return response()->json($products);
     }
 
@@ -39,12 +39,13 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        $prefix = date("ymmdd"); 
+        $prefix = date("ymd"); 
         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         
         $destination_path = 'public/img';
         $image = $request->file('image');
-        $image_name = $image->getClientOriginalName();
+        // $image_name = $image->getClientOriginalName();
+        $image_name = time().'.'.$request->image->extension(); 
         $path = $request->file('image')->storeAs($destination_path,$image_name);
 
         $product = product::create([
@@ -58,7 +59,13 @@ class ProductsController extends Controller
    
         ]);
 
-        return response()->json($product);
+        // return response()->json($product);
+        return response()->json([
+            "success" => true,
+            "message" => "File successfully uploaded",
+            "product" =>  $product
+        ]);
+
     }
 
     /**
@@ -69,7 +76,7 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        //
+        return view('users.show', compact('user'));
     }
 
     /**

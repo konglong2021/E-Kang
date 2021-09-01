@@ -18,6 +18,9 @@
         <link rel="stylesheet" href="{{asset('backend/css/icheck/skins/line/blue.css')}}" >
         <link rel="stylesheet" href="{{asset('backend/css/icheck/skins/line/red.css')}}" >
         <link rel="stylesheet" href="{{asset('backend/css/icheck/skins/line/green.css')}}" >
+        @stack('style')
+        
+       
 
         <!-- ========== THEME CSS ========== -->
         <link rel="stylesheet" href="{{asset('backend/css/main.css')}}" media="screen" >
@@ -81,6 +84,7 @@
         <script src="{{asset('backend/js/bar-chart.js')}}"></script>
         <script src="{{asset('backend/js/pie-chart.js')}}"></script>
         <script src="{{asset('backend/js/task-list.js')}}"></script>
+        @stack('JsScript')
         <script>
             $(function(){
 
@@ -90,9 +94,11 @@
                     time: 1000
                 });
 
+                @stack('Script')
+
             });
         </script>
-        @stack('Script')
+      
 
         <!-- ========== ADD custom.js FILE BELOW WITH YOUR CHANGES ========== -->
     </body>
