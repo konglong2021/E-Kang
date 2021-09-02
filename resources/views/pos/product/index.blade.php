@@ -24,6 +24,12 @@
                                 <span class="visible-content">Add Product</span>
                                 <span class="hidden-content"></i>Create</span>
                             </a>
+
+                            @if ($message = Session::get('success'))
+                            <div class="alert alert-success">
+                                <p>{{ $message }}</p>
+                            </div>
+                        @endif
                         
                         </div>
 
@@ -68,7 +74,7 @@
                                        
                                         
                                         <td>
-                                            <a href="#" class="btn btn-success icon-only"><i class="fa fa-pencil"></i></a>
+                                            <a href="{{ route('product.edit', $product->id) }}" class="btn btn-success icon-only"><i class="fa fa-pencil"></i></a>
                                             <a href="#" class="btn btn-warning icon-only"><i class="fa fa-eye"></i></a>
                                             {{-- <a href="" class="btn btn-danger icon-only"><i class="fa fa-trash-o"></i></a> --}}
                                             <form class="inline-block fa" action="{{ route('product.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">

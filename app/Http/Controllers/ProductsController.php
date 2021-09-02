@@ -42,13 +42,6 @@ class ProductsController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function upload(Request $request)
-     {
-         $result = $request->file('file')->store('img');
-         return ["result"=>$request];
-
-     }
-
 
     public function store(Request $request)
     {
@@ -60,25 +53,33 @@ class ProductsController extends Controller
             ],
             'kh_name'    => [
                 'required',
-               
-         
             ],
             // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
            
         ]);
         //  dd($request);
+        
 
          $prefix = date("ymd"); 
-        $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
 
-        
-        $destination_path = 'public/img';
-        $image = $request->file('image');
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+            // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            // $product['image'] = "$image_name";
+        }else{
+            $image_name ="no image";
+        }
+
+        // $destination_path = 'public/img';
+        // $image = $request->file('image');
        
         // $image_name = $image->getClientOriginalName();
-        $image_name = time().'.'.$request->image->extension(); 
-        $path = $request->file('image')->storeAs($destination_path,$image_name);
+        // $image_name = time().'.'.$request->image->extension(); 
+        // $path = $request->file('image')->storeAs($destination_path,$image_name);
 
         $product = product::create([
            
@@ -93,7 +94,7 @@ class ProductsController extends Controller
         
         // $product->categories()->sync($request->input('categories', []));
 
-        return redirect()->route('product.index')->with('success','You have successfully upload image.');
+        return redirect()->route('product.index')->with('success','You have successfully Created.');
         
     }
 
@@ -103,7 +104,7 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(product $products)
     {
         return view('product.show', compact('products'));
     }
@@ -116,7 +117,11 @@ class ProductsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $categories = categorie::pluck('name', 'id');
+
+        $product = product::find($id);
+        // dd($products);
+        return view('pos.product.edit', compact('product', 'categories'));
     }
 
     /**
@@ -126,9 +131,35 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, product $product)
     {
-        //
+        $request->validate([
+            'en_name'     => [
+                'string',
+                'required',
+            ],
+            'kh_name'    => [
+                'required',
+            ]
+        ]);
+  
+        $input = $request->all();
+  
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+            // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            $input['image'] = $image_name;
+        }else{
+            unset($input['image']);
+        }
+          
+        $product->update($input);
+    
+        return redirect()->route('product.index')
+                        ->with('success','Product updated successfully');
     }
 
     /**
@@ -146,9 +177,9 @@ class ProductsController extends Controller
             return redirect()->route('product.index')
                     ->with('message','You have successfully Delected');    
           }else{
-            
+            $product->destroy($id);
             return redirect()->route('product.index')
-                    ->with('message','Can not find image Deleted Fail!');                
+                    ->with('message','Can not find image Fail!');                
                 
               
             

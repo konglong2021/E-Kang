@@ -22,18 +22,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="text-center">
+                <img src="{{ asset('storage/img').'/' .$product->image }}" alt="" title="" width="300px" height="300px" ></a>
+                </div>
                  <div class="panel-body">
                     <div class="col-auto">
-                    <form method="POST" action="{{ route('product.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('product.update', $product->id) }}" enctype="multipart/form-data">
                         @csrf
-            
+                        @method('PUT')
+                       
                         <div class="form-group  col-md-6">
                             <label for="en_name">English Name</label>
-                            <input type="text" class="form-control" id="en_name" name="en_name"  placeholder="Enter English Name">
+                            <input type="text" class="form-control" id="en_name" name="en_name"  placeholder="Enter English Name" value="{{$product->en_name}}">
                         </div>
                         <div class="form-group col-md-6">
                             <label for="kh_name">Khmer Name</label>
-                            <input type="text" class="form-control" id="kh_name" name="kh_name" placeholder="Enter Khmer Name">
+                            <input type="text" class="form-control" id="kh_name" name="kh_name" placeholder="Enter Khmer Name" value="{{$product->kh_name}}">
                         </div>
                         <div class="form-group col-md-6 ">
                             <label for="predefined" class="col-sm-2 col-md-6 control-label">Category Select</label>
@@ -47,25 +51,28 @@
                                         {{ in_array($id,old('categories',[]))? 'selected' : ''}}>
                                         {{$category}}
 
-                                     @endforeach
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="input-group col-md-6">
                             <label class="input-group-text" for="image">Upload Image</label>
-                            <input type="file" class="form-control" name="image" id="image">
+                            <input type="file" class="form-control" name="image" id="image" >
+                           
                         </div>
                        
                         <div class="form-group col-md-12">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="3" >{{$product->description}}</textarea>
                         </div>
 
                        <div class="text-center"> 
-                        <button type="submit" class="btn bg-success btn-wide"><i class="fa fa-check"></i>Save</button>
+                        <button type="submit" class="btn bg-warning btn-wide"><i class="fa fa-check"></i>Update</button>
                         
                        </div>
+                       
                     </form>
+                   
                 </div>
 
                  </div>

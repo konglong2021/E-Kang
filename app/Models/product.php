@@ -21,8 +21,10 @@ class product extends Model
         'image',
     ];
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsToMany(categorie::class);
+        return $this->belongsTo(categorie::class,'categorie_id', 'id');
     }
+
+ 
 }
