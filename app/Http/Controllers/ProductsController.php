@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\product;
 use App\Models\categorie;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class ProductsController extends Controller
 {
@@ -15,7 +16,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = product::all();
+        $products = product::orderBy('id', 'desc')->get();
 
         return view('pos.product.index',compact('products'));
     }
@@ -27,9 +28,9 @@ class ProductsController extends Controller
      */
     public function create()
     {
-       // $categories = categorie::pluck('name', 'id');
+        $categories = categorie::pluck('name', 'id');
 
-        return view('pos.product.create');
+        return view('pos.product.create',compact('categories'));
 
         
     }
@@ -40,13 +41,6 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-
-     public function upload(Request $request)
-     {
-         $result = $request->file('file')->store('img');
-         return ["result"=>$request];
-
-     }
 
 
     public function store(Request $request)
@@ -59,31 +53,48 @@ class ProductsController extends Controller
             ],
             'kh_name'    => [
                 'required',
-               
-            // ],
-            // // 'code' => [
-            // //     'required',
-            // //     'unique:product',
-            ]
-            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+            ],
+            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
            
         ]);
         //  dd($request);
+        
+
+         $prefix = date("ymd"); 
+         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
+
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+            // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            // $product['image'] = "$image_name";
+        }else{
+            $image_name ="no image";
+        }
+
+        // $destination_path = 'public/img';
+        // $image = $request->file('image');
+       
+        // $image_name = $image->getClientOriginalName();
+        // $image_name = time().'.'.$request->image->extension(); 
+        // $path = $request->file('image')->storeAs($destination_path,$image_name);
 
         $product = product::create([
            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
-            'code' => $request['code'],
+            'code' => $code,
             'description' => $request['description'],
-            'brand_category_id' => $request['brand_category_id'],
-            'image' => $request['image'],
+            'categorie_id' => $request['categorie_id'],
+            'image' =>  $image_name,
    
         ]);
         
         // $product->categories()->sync($request->input('categories', []));
 
-        return redirect()->route('product.index');
+        return redirect()->route('product.index')->with('success','You have successfully Created.');
         
     }
 
@@ -93,9 +104,9 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(product $products)
     {
-        //
+        return view('product.show', compact('products'));
     }
 
     /**
@@ -106,7 +117,11 @@ class ProductsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $categories = categorie::pluck('name', 'id');
+
+        $product = product::find($id);
+        // dd($products);
+        return view('pos.product.edit', compact('product', 'categories'));
     }
 
     /**
@@ -116,9 +131,35 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, product $product)
     {
-        //
+        $request->validate([
+            'en_name'     => [
+                'string',
+                'required',
+            ],
+            'kh_name'    => [
+                'required',
+            ]
+        ]);
+  
+        $input = $request->all();
+  
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+            // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            $input['image'] = $image_name;
+        }else{
+            unset($input['image']);
+        }
+          
+        $product->update($input);
+    
+        return redirect()->route('product.index')
+                        ->with('success','Product updated successfully');
     }
 
     /**
@@ -129,6 +170,20 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = product::find($id);
+        if(\Storage::exists('public/img'.'/'.$product->image)){
+            \Storage::delete('public/img'.'/'.$product->image);
+            $product->destroy($id);
+            return redirect()->route('product.index')
+                    ->with('message','You have successfully Delected');    
+          }else{
+            $product->destroy($id);
+            return redirect()->route('product.index')
+                    ->with('message','Can not find image Fail!');                
+                
+              
+            
+          }
+        
     }
 }

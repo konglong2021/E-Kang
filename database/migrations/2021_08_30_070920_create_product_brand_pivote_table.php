@@ -17,7 +17,7 @@ class CreateProductBrandPivoteTable extends Migration
             $table->id();
             $table->foreignId('brand_id')->references('id')->on('brands')->cascadeOnDelete();
             $table->foreignId('product_id')->references('id')->on('products')->cascadeOnDelete();
-            $table->timestamps();
+           
         });
     }
 

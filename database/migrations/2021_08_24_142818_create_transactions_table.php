@@ -22,6 +22,7 @@ class CreateTransactionsTable extends Migration
             $table->string('pay_method')->default('cash');  // default cash
             $table->double('amount'); //payment
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

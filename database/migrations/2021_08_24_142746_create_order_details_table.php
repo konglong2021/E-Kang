@@ -20,6 +20,7 @@ class CreateOrderDetailsTable extends Migration
             $table->decimal('quantity');
             $table->double('sellprice'); //pull data from sellprice table and store here
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
