@@ -139,6 +139,20 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = product::find($id);
+        if(\Storage::exists('public/img'.'/'.$product->image)){
+            \Storage::delete('public/img'.'/'.$product->image);
+            $product->destroy($id);
+            return redirect()->route('product.index')
+                    ->with('message','You have successfully Delected');    
+          }else{
+            
+            return redirect()->route('product.index')
+                    ->with('message','Can not find image Deleted Fail!');                
+                
+              
+            
+          }
+        
     }
 }

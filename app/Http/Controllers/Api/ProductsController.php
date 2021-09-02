@@ -110,6 +110,17 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = product::find($id);
+        if(\Storage::exists('public/img'.'/'.$product->image)){
+            \Storage::delete('public/img'.'/'.$product->image);
+            $product->destroy($id);
+            return response()->json(["message" => "Successfull Delected"] );    
+          }else{
+            
+            return response()->json(["message" => "File does not exists."]                
+                
+              
+            );
+          }
     }
 }
