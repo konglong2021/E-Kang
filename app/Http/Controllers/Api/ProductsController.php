@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\product;
-use App\Models\categorie;
+use App\Models\Product;
+use App\Models\Categorie;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class ProductsController extends Controller
@@ -17,7 +17,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = product::orderBy('id', 'desc')->get();
+        $products = Product::orderBy('id', 'desc')->get();
        return response()->json($products);
     }
 
@@ -48,7 +48,7 @@ class ProductsController extends Controller
         $image_name = time().'.'.$request->image->extension(); 
         $path = $request->file('image')->storeAs($destination_path,$image_name);
 
-        $product = product::create([
+        $product = Product::create([
            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
@@ -110,7 +110,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        $product = product::find($id);
+        $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);
             $product->destroy($id);

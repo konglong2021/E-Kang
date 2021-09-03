@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class categorie extends Model
+class Categorie extends Model
 {
     use HasFactory;
     use softDeletes;
@@ -23,6 +23,6 @@ class categorie extends Model
      */
     public function products()
     {
-        return $this->hasMany(product::class);
+        return $this->hasMany(Product::class);
     }
 }

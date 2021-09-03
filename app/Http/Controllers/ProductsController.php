@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\product;
-use App\Models\categorie;
+use App\Models\Product;
+use App\Models\Categorie;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class ProductsController extends Controller
@@ -16,7 +16,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = product::orderBy('id', 'desc')->get();
+        $products = Product::orderBy('id', 'desc')->get();
 
         return view('pos.product.index',compact('products'));
     }
@@ -28,7 +28,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        $categories = categorie::pluck('name', 'id');
+        $categories = Categorie::pluck('name', 'id');
 
         return view('pos.product.create',compact('categories'));
 
@@ -81,7 +81,7 @@ class ProductsController extends Controller
         // $image_name = time().'.'.$request->image->extension(); 
         // $path = $request->file('image')->storeAs($destination_path,$image_name);
 
-        $product = product::create([
+        $product = Product::create([
            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
@@ -104,7 +104,7 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(product $products)
+    public function show(Product $products)
     {
         return view('product.show', compact('products'));
     }
@@ -117,9 +117,9 @@ class ProductsController extends Controller
      */
     public function edit($id)
     {
-        $categories = categorie::pluck('name', 'id');
+        $categories = Categorie::pluck('name', 'id');
 
-        $product = product::find($id);
+        $product = Product::find($id);
         // dd($products);
         return view('pos.product.edit', compact('product', 'categories'));
     }
@@ -131,7 +131,7 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, product $product)
+    public function update(Request $request, Product $product)
     {
         $request->validate([
             'en_name'     => [
@@ -170,7 +170,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        $product = product::find($id);
+        $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);
             $product->destroy($id);
