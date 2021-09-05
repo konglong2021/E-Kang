@@ -17,7 +17,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('id', 'desc')->get();
+        $products = Product::with('brands')
+        ->orderBy('id', 'desc')->get();
        return response()->json($products);
     }
 
@@ -39,14 +40,35 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        $prefix = date("ymd"); 
-        $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+       
+         $request->validate([
+            'en_name'     => [
+                'string',
+                'required',
+            ],
+            'kh_name'    => [
+                'required',
+            ],
+            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
+           
+        ]);
+        //  dd($request);
         
-        $destination_path = 'public/img';
-        $image = $request->file('image');
-        // $image_name = $image->getClientOriginalName();
-        $image_name = time().'.'.$request->image->extension(); 
-        $path = $request->file('image')->storeAs($destination_path,$image_name);
+
+         $prefix = date("ymd"); 
+         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
+
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+            // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            // $product['image'] = "$image_name";
+        }else{
+            $image_name ="no image";
+        }
+
 
         $product = Product::create([
            
@@ -58,7 +80,6 @@ class ProductsController extends Controller
             'image' =>  $image_name,
    
         ]);
-
         // return response()->json($product);
         return response()->json([
             "success" => true,

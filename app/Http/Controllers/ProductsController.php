@@ -16,7 +16,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('id', 'desc')->get();
+        $products = Product::with('brands')
+        ->orderBy('id', 'desc')->get();
 
         return view('pos.product.index',compact('products'));
     }
