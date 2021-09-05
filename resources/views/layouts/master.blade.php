@@ -23,40 +23,14 @@
         <link rel="stylesheet" href="{{asset('backend/css/main.css')}}" media="screen" >
 
         <!-- ========== MODERNIZR ========== -->
-{{--        <script src="{{ mix('js/app.js') }}"></script>--}}
         <script src="{{asset('backend/js/modernizr/modernizr.min.js')}}"></script>
+
     </head>
     <body class="top-navbar-fixed">
         <div id="app">
-            <div class="main-wrapper">
-
-                <!-- ========== TOP NAVBAR ========== -->
-            @include('layouts.navbar')
-
-            <!-- ========== WRAPPER FOR BOTH SIDEBARS & MAIN CONTENT ========== -->
-                <div class="content-wrapper">
-                    <div class="content-container">
-
-                        <!-- ========== LEFT SIDEBAR ========== -->
-                    @include('layouts.sidebar')
-                    <!-- /.left-sidebar -->
-
-                        <div class="main-page">
-                            <router-view></router-view>
-                            @yield('content')
-
-                        </div>
-                        <!-- /.main-page -->
-
-
-
-                    </div>
-                    <!-- /.content-container -->
-                </div>
-                <!-- /.content-wrapper -->
-
-            </div>
+            <router-view></router-view>
         </div>
+
         <!-- /.main-wrapper -->
 
         <!-- ========== COMMON JS FILES ========== -->
@@ -84,19 +58,9 @@
         <script src="{{asset('backend/js/bar-chart.js')}}"></script>
         <script src="{{asset('backend/js/pie-chart.js')}}"></script>
         <script src="{{asset('backend/js/task-list.js')}}"></script>
-        <script>
-            $(function(){
-
-                // Counter for dashboard stats
-                $('.counter').counterUp({
-                    delay: 10,
-                    time: 1000
-                });
-
-            });
-        </script>
 
         <!-- ========== ADD custom.js FILE BELOW WITH YOUR CHANGES ========== -->
+        <script src="{{ asset('js/app.js') }}"></script>
     </body>
 
 </html>

@@ -1,0 +1,28 @@
+<div class="main-wrapper">
+
+                <!-- ========== TOP NAVBAR ========== -->
+            @include('layouts.navbar')
+
+            <!-- ========== WRAPPER FOR BOTH SIDEBARS & MAIN CONTENT ========== -->
+                <div class="content-wrapper">
+                    <div class="content-container">
+
+                        <!-- ========== LEFT SIDEBAR ========== -->
+                    @include('layouts.sidebar')
+                    <!-- /.left-sidebar -->
+
+                        <div class="main-page">
+                            <router-view></router-view>
+                            @yield('content')
+
+                        </div>
+                        <!-- /.main-page -->
+
+
+
+                    </div>
+                    <!-- /.content-container -->
+                </div>
+                <!-- /.content-wrapper -->
+
+            </div>

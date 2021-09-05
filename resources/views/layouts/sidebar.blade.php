@@ -18,20 +18,24 @@
                 <li class="has-children">
                     <a href="/"><i class="fa fa-dashboard"></i> <span>Dashboard</span> </a>
                 </li>
-               
+
 
                 <li class="nav-header">
                     <span class="">POS System</span>
                 </li>
                 <li class="has-children">
-                    <a href="#"><i class="fa fa-building"></i> <span>Inventory</span> <i class="fa fa-angle-right arrow"></i></a>
+                    <a href="#">
+                        <i class="fa fa-building"></i>
+                        <span>Inventory</span>
+                        <i class="fa fa-angle-right arrow"></i>
+                    </a>
                     <ul class="child-nav">
                         <li><a href="{{ route('supplier.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>
                         <li><a href="{{ route('warehouse.index') }}"><i class="fa fa-tasks"></i> <span>Warehouse</span></a></li>
                         <li><a href="{{ route('brand.index') }}"><i class="fa fa-tasks"></i> <span>Brand</span></a></li>
                         <li><a href="{{ route('category.index') }}"><i class="fa fa-tasks"></i> <span>Category</span></a></li>
-                        <li><a href="{{ route('product.index') }}" ><i class="fa fa-tasks"></i> <span>Products</span></a></li>                                            
-                        <li><a href="{{ route('product.index') }}"><i class="fa fa-tasks"></i> <span>Products Price</span></a></li>                                            
+                        <li><a href="{{ route('product.index') }}" ><i class="fa fa-tasks"></i> <span>Products</span></a></li>
+                        <li><a href="{{ route('product.index') }}"><i class="fa fa-tasks"></i> <span>Products Price</span></a></li>
                     </ul>
                 </li>
                 <li class="has-children">
@@ -54,10 +58,10 @@
                         <li><a href="ui-buttons.html"><i class="fa fa-plane"></i> <span>Users</span></a></li>
                     </ul>
                 </li>
-                
+
             </ul>
             <!-- /.side-nav -->
-         
+
         </div>
         <!-- /.sidebar-nav -->
     </div>
