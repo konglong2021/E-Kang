@@ -20,6 +20,7 @@ class CreatePurchaseDetailsTable extends Migration
             $table->decimal('unitprice');
             $table->decimal('quantity');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

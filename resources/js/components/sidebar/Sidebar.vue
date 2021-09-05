@@ -13,10 +13,11 @@
                         <a v-if="item.icon">
                             <i v-bind:class="item.icon"></i>
                             <span class="cursor-pointer" @click="redirectInventory(item.link)">{{ (item.label) }}</span>
-                            <i class="fa fa-angle-right arrow"></i>
+                            <i v-if="item.subItems" class="fa fa-angle-right arrow"></i>
                             <ul v-if="item.subItems" class="child-nav">
-                                <li  v-for="subItem in item.subItems">
-                                    <a><i v-bind:class="subItem.icon"></i>
+                                <li v-for="subItem in item.subItems">
+                                    <a @click="redirectInventory(subItem.link)">
+                                        <i v-bind:class="subItem.icon"></i>
                                         <span class="cursor-pointer">{{ (subItem.label) }}</span>
                                     </a>
                                 </li>
@@ -58,7 +59,13 @@
                 $('.mobile-nav-toggle').on('click', function(event){
                     event.preventDefault();
                     $('.left-sidebar').toggle();
-                });
+                })
+
+                // Toggle tooltips
+                $('[data-toggle="tooltip"]').tooltip();
+
+                // Toggle popovers
+                $('[data-toggle="popover"]').popover();
 
                 // For custom modal backdrop
                 $('.modal[data-backdrop-color]').on('show.bs.modal hide.bs.modal', function () {
@@ -124,7 +131,7 @@
                 });
 
                 // For Dropdown menu animation
-                var dropdownSelectors = $('.dropdown, .dropup');
+                //var dropdownSelectors = $('.dropdown, .dropup');
 
                 // Custom function to read dropdown data
                 // =========================
@@ -180,7 +187,7 @@
 
                 // Bootstrap API hooks
                 // =========================
-                dropdownSelectors.on({
+               /* dropdownSelectors.on({
                     "show.bs.dropdown": function() {
                         // On show, start in effect
                         var dropdown = dropdownEffectData(this);
@@ -204,8 +211,9 @@
                             });
                         }
                     },
-                });
+                });*/
             });
+
         },
         methods:{
             redirectInventory($route){

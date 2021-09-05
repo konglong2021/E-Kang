@@ -18,6 +18,7 @@ class CreateMembersTable extends Migration
             $table->foreignId('customer_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('title');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

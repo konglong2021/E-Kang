@@ -1,53 +1,84 @@
-<x-guest-layout>
-    <x-jet-authentication-card>
-        <x-slot name="logo">
-            {{-- <x-jet-authentication-card-logo /> --}}
-            <h1>Product</h1>
-        </x-slot>
+@extends('layouts.master')
+@section('content')
+    
 
-        <x-jet-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('product.store') }}">
-            @csrf
-
-            <div>
-                <x-jet-label for="en_name" value="{{ __('English Name') }}" />
-                <x-jet-input id="en_name" class="block mt-1 w-full" type="text" name="en_name" :value="old('en_name')" required autofocus autocomplete="en_name" />
-            </div>
-            <div>
-                <x-jet-label for="kh_name" value="{{ __('ឈ្មោះខ្មែរ') }}" />
-                <x-jet-input id="kh_name" class="block mt-1 w-full" type="text" name="kh_name" :value="old('kh_name')" required autofocus autocomplete="kh_name" />
-            </div>
-
-            <div class="mt-4">
-                <x-jet-label for="code" value="{{ __('Code') }}" />
-                <x-jet-input id="code" class="block mt-1 w-full" type="text" name="code" :value="old('code')" required />
-            </div>
-            <div class="mt-4">
-                <x-jet-label for="brand_category_id" value="{{ __('Category') }}" />
-                <x-jet-input id="brand_category_id" class="block mt-1 w-full" type="number" name="brand_category_id" :value="old('brand_category_id')" required />
-            </div>
-
-            <div class="mt-4">
-                <x-jet-label for="image" value="{{ __('Image') }}" />
-                <x-jet-input id="image" class="block mt-1 w-full" type="text" name="image" required autocomplete="image" />
-            </div>
-
-            <div class="mt-4">
-                <label class="font-semibold text-gray-600 py-2">Description</label>
-                <textarea required="" name="description" id="description" class="w-full min-h-[100px] max-h-[300px] h-28 appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg  py-4 px-4" placeholder="Enter your comapny info" spellcheck="false"></textarea>
-              
-            </div>
-
+<section class="section pt-n">
+ <div class="container-fluid">
+     <div class="row">
+         <div class="col-md-12">
+             <div class="panel border-primary no-border border-3-top">
+                <div class="panel-heading">
+                    <div class="panel-title col-xs-12">
+                        <h5>Products <small>Create Product</small></h5>
+                    </div>
+                    <div class=" text-right">
+                        <div class="text-center">
+                            <a href="{{ route('product.index') }}" class="btn btn-primary btn-animated btn-wide">
+                                <span class="visible-content">Product List</span>
+                                <span class="hidden-content"></i>Back</span>
+                            </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                 <div class="panel-body">
+                    <div class="col-auto">
+                    <form method="POST" action="{{ route('product.store') }}" enctype="multipart/form-data">
+                        @csrf
             
+                        <div class="form-group  col-md-6">
+                            <label for="en_name">English Name</label>
+                            <input type="text" class="form-control" id="en_name" name="en_name"  placeholder="Enter English Name">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="kh_name">Khmer Name</label>
+                            <input type="text" class="form-control" id="kh_name" name="kh_name" placeholder="Enter Khmer Name">
+                        </div>
+                        <div class="form-group col-md-6 ">
+                            <label for="predefined" class="col-sm-2 col-md-6 control-label">Category Select</label>
+                            <div class="col-sm-12">
+                                <select class="form-control" name="categorie_id">
+                                   
+                                    
+                                    @foreach($categories as $id => $category)
 
+                                        <option value="{{$id}}"
+                                        {{ in_array($id,old('categories',[]))? 'selected' : ''}}>
+                                        {{$category}}
 
-            <div class="flex items-center justify-end mt-4">
-            
-                <x-jet-button class="ml-4">
-                    {{ __('Register') }}
-                </x-jet-button>
-            </div>
-        </form>
-    </x-jet-authentication-card>
-</x-guest-layout>
+                                     @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group col-md-6">
+                            <label class="input-group-text" for="image">Upload Image</label>
+                            <input type="file" class="form-control" name="image" id="image">
+                        </div>
+                       
+                        <div class="form-group col-md-12">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+
+                       <div class="text-center"> 
+                        <button type="submit" class="btn bg-success btn-wide"><i class="fa fa-check"></i>Save</button>
+                        
+                       </div>
+                    </form>
+                </div>
+
+                 </div>
+             </div>
+         <!-- /.panel -->
+        </div>
+         <!-- /.col-md-6 -->     
+    </div>
+ <!-- /.col-md-6 -->
+ </div>
+ <!-- /.row -->
+ </div>
+ <!-- /.container-fluid --> 
+</section>
+
+@endsection

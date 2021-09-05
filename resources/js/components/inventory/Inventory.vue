@@ -1,7 +1,7 @@
 <template>
     <default>
-        <div class="main-page">
-            <h1>ffff</h1>
+        <div class="container-fluid">
+            <h1 class="text-center">Inventory Management</h1>
         </div>
     </default>
 </template>

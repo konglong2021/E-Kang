@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::ApiResource('/product','App\Http\Controllers\Api\ProductsController');
-Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
+// Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
 

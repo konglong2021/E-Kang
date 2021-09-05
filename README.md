@@ -3,9 +3,8 @@
 
 ## Installation
 
-Duplicate .env.example and rename to .env <br />
--Do a configuration with laravel database  <br />
--Composer update <br />
+-Copy __.env.example__ file to __.env__ and edit database credentials there
+-Composer install <br />
 -npm install <br />
 -npm run dev <br />
 -php artisan key:generate <br />
