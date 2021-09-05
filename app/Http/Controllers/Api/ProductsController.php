@@ -97,7 +97,8 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        return view('users.show', compact('user'));
+        $product =Product::find($id);
+        return response()->json($product);
     }
 
     /**
@@ -118,9 +119,46 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Product $product)
     {
-        //
+        //  return response()->json($id);
+
+        
+        
+        // $request->validate([
+        //     'en_name'     => [
+        //         'string',
+        //         'required',
+        //     ],
+        //     'kh_name'    => [
+        //         'required',
+        //     ]
+        // ]);
+        // return response()->json($product);
+  
+        $input = $request->all();
+        // return response()->json($input);
+        
+  
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+           
+
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            $input['image'] = $image_name;
+        }else{
+            unset($input['image']);
+        }
+          
+        $product->update($input);
+
+       
+            return response()->json([
+           
+            "message" => "Successfully Updated",
+            "product" =>  $product
+        ]);
     }
 
     /**
@@ -131,6 +169,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
+        
         $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);

@@ -55,6 +55,14 @@
                             <label class="input-group-text" for="image">Upload Image</label>
                             <input type="file" class="form-control" name="image" id="image">
                         </div>
+
+                        <div class="form-group col-md-12">
+                            <select class="form-control select2 {{ $errors->has('roles') ? 'is-invalid' : '' }}" name="brands[]" id="brands" multiple required>
+                                @foreach($brands as $id => $brand)
+                                    <option value="{{ $id }}" {{ in_array($id, old('brands', [])) ? 'selected' : '' }}>{{ $brands }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                        
                         <div class="form-group col-md-12">
                             <label for="description" class="form-label">Description</label>

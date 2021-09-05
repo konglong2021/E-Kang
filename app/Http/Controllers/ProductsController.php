@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Categorie;
+use App\Models\Category;
+use App\Models\Brand;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class ProductsController extends Controller
@@ -29,9 +30,10 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        $categories = Categorie::pluck('name', 'id');
+        $categories = Category::pluck('name', 'id');
+        $brands = Brand::pluck('name', 'id');
 
-        return view('pos.product.create',compact('categories'));
+        return view('pos.product.create',compact('categories','brands'));
 
         
     }
@@ -92,7 +94,10 @@ class ProductsController extends Controller
             'image' =>  $image_name,
    
         ]);
-        
+        $product->brands()->sync($request->input('brands', []));
+        // $category = Category::find([3, 4]);
+        // $product->categories()->attach($category);
+
         // $product->categories()->sync($request->input('categories', []));
 
         return redirect()->route('product.index')->with('success','You have successfully Created.');
@@ -116,11 +121,13 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Product $product)
     {
-        $categories = Categorie::pluck('name', 'id');
+        $categories = Category::pluck('name', 'id');
+        $brands = Brand::pluck('name', 'id');
+        // $categories = Categorie::pluck('name', 'id');
 
-        $product = Product::find($id);
+         $product->load('brands');
         // dd($products);
         return view('pos.product.edit', compact('product', 'categories'));
     }

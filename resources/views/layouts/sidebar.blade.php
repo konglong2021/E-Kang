@@ -26,7 +26,7 @@
                 <li class="has-children">
                     <a href="#"><i class="fa fa-building"></i> <span>Inventory</span> <i class="fa fa-angle-right arrow"></i></a>
                     <ul class="child-nav">
-                        <li><a href="{{ route('supplier.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>
+                        <li><a href="{{ route('suppliers.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>
                         <li><a href="{{ route('warehouse.index') }}"><i class="fa fa-tasks"></i> <span>Warehouse</span></a></li>
                         <li><a href="{{ route('brand.index') }}"><i class="fa fa-tasks"></i> <span>Brand</span></a></li>
                         <li><a href="{{ route('category.index') }}"><i class="fa fa-tasks"></i> <span>Category</span></a></li>

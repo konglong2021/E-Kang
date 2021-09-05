@@ -60,7 +60,13 @@
                             <input type="file" class="form-control" name="image" id="image" >
                            
                         </div>
-                       
+                        <div class="form-group col-md-12">
+                        <select class="form-control select2 {{ $errors->has('brands') ? 'is-invalid' : '' }}" name="brands[]" id="brands" multiple required>
+                            @foreach($brands as $id => $brand)
+                                <option value="{{ $id }}" {{ (in_array($id, old('brands', [])) || $product->brands->contains($id)) ? 'selected' : '' }}>{{ $brands }}</option>
+                            @endforeach
+                        </select>
+                        </div>
                         <div class="form-group col-md-12">
                             <label for="description" class="form-label">Description</label>
                             <textarea class="form-control" id="description" name="description" rows="3" >{{$product->description}}</textarea>
