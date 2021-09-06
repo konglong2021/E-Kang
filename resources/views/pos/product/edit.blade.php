@@ -61,9 +61,9 @@
                            
                         </div>
                         <div class="form-group col-md-12">
-                        <select class="form-control select2 {{ $errors->has('brands') ? 'is-invalid' : '' }}" name="brands[]" id="brands" multiple required>
+                        <select class="form-control select2 " name="brands[]" id="brands" multiple required>
                             @foreach($brands as $id => $brand)
-                                <option value="{{ $id }}" {{ (in_array($id, old('brands', [])) || $product->brands->contains($id)) ? 'selected' : '' }}>{{ $brands }}</option>
+                                <option value="{{ $id }}" {{ (in_array($id, old('brands', [])) || $product->brands->contains($id)) ? 'selected' : '' }}>{{ $brand }}</option>
                             @endforeach
                         </select>
                         </div>
