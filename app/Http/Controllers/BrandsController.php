@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\Brand;
 
-class CategorieController extends Controller
+class BrandsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,7 +15,9 @@ class CategorieController extends Controller
      */
     public function index()
     {
-        //
+        $brands = Brand::orderBy('id', 'desc')->get();
+
+        return view('pos.brand.index',compact('brands'));
     }
 
     /**
@@ -24,6 +28,9 @@ class CategorieController extends Controller
     public function create()
     {
         //
+        
+
+        return view('pos.brand.create');
     }
 
     /**
@@ -34,7 +41,8 @@ class CategorieController extends Controller
      */
     public function store(Request $request)
     {
-        //
+          Brand::create($request->all());
+          return redirect()->route('brand.index')->with('success','You have successfully Created.');
     }
 
     /**
