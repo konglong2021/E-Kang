@@ -3,21 +3,9 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="panel-heading">
-                        <h5>Products <small>Create Product</small></h5>
-                        <div class=" text-right">
-                            <div class="text-center">
-<!--                                <a class="btn btn-primary btn-animated btn-wide">-->
-<!--                                    <span class="visible-content">Product List</span>-->
-<!--                                    <span class="hidden-content">Back</span>-->
-<!--                                </a>-->
-
-                            </div>
-                        </div>
-                    </div>
                     <div class="panel-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
+                            <table class="table table-striped table-bordered table-product-list">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -136,3 +124,12 @@
         }
     }
 </script>
+
+<style>
+    .table-product-list tbody tr td{
+        text-align: center;
+    }
+    .table-product-list thead tr th{
+        text-align: center;
+    }
+</style>

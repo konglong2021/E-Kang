@@ -30,7 +30,7 @@
 
     </head>
     <body class="top-navbar-fixed">
-        <div id="app">
+        <div id="app" class="display-inline-block">
             <router-view></router-view>
         </div>
 
