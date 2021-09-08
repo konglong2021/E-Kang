@@ -1,3 +1,7 @@
+@push('style')
+    <link rel="stylesheet" href="{{asset('backend/css/custom.css')}}" media="screen" >
+@endpush
+
 @extends('layouts.master')
 @section('content')
     
@@ -90,3 +94,7 @@
 </section>
 
 @endsection
+@push('Script')
+               
+<script src="{{asset('backend/js/soft-ui-dashboard.min.js')}}"></script>
+@endpush
