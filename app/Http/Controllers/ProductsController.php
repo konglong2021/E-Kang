@@ -90,7 +90,7 @@ class ProductsController extends Controller
             'kh_name' => $request['kh_name'],
             'code' => $code,
             'description' => $request['description'],
-            'categorie_id' => $request['categorie_id'],
+            'category_id' => $request['category_id'],
             'image' =>  $image_name,
    
         ]);
@@ -112,7 +112,7 @@ class ProductsController extends Controller
      */
     public function show(Product $products)
     {
-        return view('product.show', compact('products'));
+        return view('pos.product.show', compact('products'));
     }
 
     /**
@@ -129,7 +129,7 @@ class ProductsController extends Controller
 
          $product->load('brands');
         // dd($products);
-        return view('pos.product.edit', compact('product', 'categories'));
+        return view('pos.product.edit', compact('product', 'categories','brands'));
     }
 
     /**
@@ -165,6 +165,7 @@ class ProductsController extends Controller
         }
           
         $product->update($input);
+        $product->brands()->sync($request->input('brands', []));
     
         return redirect()->route('product.index')
                         ->with('success','Product updated successfully');

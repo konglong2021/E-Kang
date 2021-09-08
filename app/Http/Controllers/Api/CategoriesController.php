@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product;
-use App\Models\Brand;
 
-class BrandsController extends Controller
+class CategoriesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,9 +14,7 @@ class BrandsController extends Controller
      */
     public function index()
     {
-        $brands = Brand::orderBy('id', 'desc')->paginate(10);
-
-        return view('pos.brand.index',compact('brands'));
+        //
     }
 
     /**
@@ -28,9 +25,6 @@ class BrandsController extends Controller
     public function create()
     {
         //
-        
-
-        return view('pos.brand.create');
     }
 
     /**
@@ -41,8 +35,7 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-          Brand::create($request->all());
-          return redirect()->route('brand.index')->with('success','You have successfully Created.');
+        //
     }
 
     /**
@@ -51,10 +44,9 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Brand $brand)
+    public function show($id)
     {
         //
-        return view('pos.brand.show','brand');
     }
 
     /**
@@ -65,7 +57,7 @@ class BrandsController extends Controller
      */
     public function edit($id)
     {
-        return view('pos.brand.edit');
+        //
     }
 
     /**
@@ -75,15 +67,9 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Brand $brand)
+    public function update(Request $request, $id)
     {
         //
-        $input = $request->all();
-        $brand->update($input);
-
-        return redirect()->route('brand.index')
-        ->with('success','Brand updated successfully');
-            
     }
 
     /**

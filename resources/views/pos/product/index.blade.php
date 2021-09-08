@@ -50,6 +50,8 @@
                                         <th>#</th>
                                         <th>English Name</th>
                                         <th>Khmer Name</th>
+                                        <th>Category</th>
+                                        <th>Brands</th>
                                         <th>Barcode</th>
                                         <th>Image</th>
                                         <th class="ecomm-action-icon">Action</th>
@@ -64,6 +66,12 @@
                                         <td>{{$count++}}</td>
                                         <td>{{$product->en_name}}</td>
                                         <td>{{$product->kh_name}}</td>
+                                        <td>{{$product->categories->name}}</td>
+                                        <td>
+                                            @foreach ($product->brands as $key =>$item)
+                                            <span class="badge bg-info"> {{$item->name}}</span>
+                                            @endforeach
+                                        </td>
                                         <td>
                                             <div class="mb-3"> {!! DNS1D::getBarcodeHTML($product->code, 'CODABAR') !!}</div>
                                             <div><small>{{$product->code}} </small>

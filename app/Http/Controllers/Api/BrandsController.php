@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Product;
+namespace App\Http\Controllers\Api;
 use App\Models\Brand;
+use App\Models\Category;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class BrandsController extends Controller
 {
@@ -15,9 +15,10 @@ class BrandsController extends Controller
      */
     public function index()
     {
-        $brands = Brand::orderBy('id', 'desc')->paginate(10);
-
-        return view('pos.brand.index',compact('brands'));
+        //
+        $brands = Brand::with('categories')
+        ->orderBy('id', 'desc')->paginate(10);
+        return response()->json($brands);
     }
 
     /**
@@ -28,9 +29,6 @@ class BrandsController extends Controller
     public function create()
     {
         //
-        
-
-        return view('pos.brand.create');
     }
 
     /**
@@ -41,8 +39,12 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-          Brand::create($request->all());
-          return redirect()->route('brand.index')->with('success','You have successfully Created.');
+        $brand = Brand::create($request->all());
+        return response()->json([
+            "success" => true,
+            "message" => "File successfully uploaded",
+            "product" =>  $brand
+        ]);
     }
 
     /**
@@ -51,10 +53,10 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Brand $brand)
+    public function show($id)
     {
-        //
-        return view('pos.brand.show','brand');
+        $brand =Brand::find($id);
+        return response()->json($brand);
     }
 
     /**
@@ -65,7 +67,7 @@ class BrandsController extends Controller
      */
     public function edit($id)
     {
-        return view('pos.brand.edit');
+        //
     }
 
     /**
@@ -75,15 +77,17 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Brand $brand)
+    public function update(Request $request, $id)
     {
-        //
         $input = $request->all();
         $brand->update($input);
 
-        return redirect()->route('brand.index')
-        ->with('success','Brand updated successfully');
-            
+       
+            return response()->json([
+           
+            "message" => "Successfully Updated",
+            "brand" =>  $brand
+        ]);
     }
 
     /**
@@ -93,7 +97,14 @@ class BrandsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        //
+    {   
+        $brand = Brand::find($id);
+
+        $brand->destroy($id);
+        return response()->json([
+           
+            "message" => "Successfully Deleted",
+            "brand" =>  $brand
+        ]);
     }
 }

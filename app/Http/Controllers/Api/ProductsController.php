@@ -18,7 +18,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = Product::with('brands')
-        ->orderBy('id', 'desc')->get();
+        ->orderBy('id', 'desc')->paginate(15);
        return response()->json($products);
     }
 
@@ -76,7 +76,7 @@ class ProductsController extends Controller
             'kh_name' => $request['kh_name'],
             'code' => $code,
             'description' => $request['description'],
-            'categorie_id' => $request['categorie_id'],
+            'category_id' => $request['category_id'],
             'image' =>  $image_name,
    
         ]);
