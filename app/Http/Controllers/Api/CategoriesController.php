@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Models\Category;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,7 +15,9 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::with('products')
+        ->orderBy('id', 'desc')->paginate(10);
+        return response()->json($categories);
     }
 
     /**
@@ -35,7 +38,13 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $categories = Category::create($request->all());
+        $categories->brands()->sync($request->input('brands', []));
+        return response()->json([
+            "success" => true,
+            "message" => "Category successfully Created",
+            "product" =>  $categories
+        ]);
     }
 
     /**
@@ -44,9 +53,10 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Category $category)
     {
-        //
+        $category->with('products')->get();
+        return response()->json($category);
     }
 
     /**
@@ -67,9 +77,17 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        $input = $request->all();
+        $category->update($input);
+        $category->brands()->sync($request->input('brands', []));
+       
+            return response()->json([
+           
+            "message" => "Successfully Updated",
+            "category" =>  $category
+        ]);
     }
 
     /**
@@ -80,6 +98,13 @@ class CategoriesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $category = Category::find($id);
+
+        $category->destroy($id);
+        return response()->json([
+           
+            "message" => "Successfully Deleted",
+            "category" =>  $category
+        ]);
     }
 }

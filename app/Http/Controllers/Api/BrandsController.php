@@ -17,6 +17,7 @@ class BrandsController extends Controller
     {
         //
         $brands = Brand::with('categories')
+        ->with('products')
         ->orderBy('id', 'desc')->paginate(10);
         return response()->json($brands);
     }
@@ -42,7 +43,7 @@ class BrandsController extends Controller
         $brand = Brand::create($request->all());
         return response()->json([
             "success" => true,
-            "message" => "File successfully uploaded",
+            "message" => "Brand successfully Created",
             "product" =>  $brand
         ]);
     }
@@ -77,7 +78,7 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,Brand $brand)
     {
         $input = $request->all();
         $brand->update($input);

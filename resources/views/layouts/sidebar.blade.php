@@ -24,6 +24,14 @@
                     <span class="">POS System</span>
                 </li>
                 <li class="has-children">
+                    <a href="#"><i class="fa fa-building"></i> <span>Brands</span> <i class="fa fa-angle-right arrow"></i></a>
+                    <ul class="child-nav">
+                        
+                        <li><a href="{{ route('suppliers.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>
+                                                       
+                    </ul>
+                </li>
+                <li class="has-children">
                     <a href="#"><i class="fa fa-building"></i> <span>Inventory</span> <i class="fa fa-angle-right arrow"></i></a>
                     <ul class="child-nav">
                         <li><a href="{{ route('suppliers.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>

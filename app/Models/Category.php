@@ -36,4 +36,6 @@ class Category extends Model
     {
         return $this->belongsToMany(Brand::class);
     }
+
+  
 }
