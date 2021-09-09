@@ -15,7 +15,6 @@ class CreateMembersTable extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('title');
             $table->timestamps();
             $table->softDeletes();

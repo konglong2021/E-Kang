@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Models\Brand;
-use App\Models\Category;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Supplier;
 
-class BrandsController extends Controller
+class SuppliersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,11 +15,8 @@ class BrandsController extends Controller
      */
     public function index()
     {
-        //
-        $brands = Brand::with('categories')
-        ->with('products')
-        ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($brands);
+        $suppliers = Supplier::orderBy('id', 'desc')->paginate(10);
+        return response()->json($suppliers);
     }
 
     /**
@@ -40,11 +37,11 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-        $brand = Brand::create($request->all());
+        $supplier = Supplier::create($request->all());
         return response()->json([
             "success" => true,
-            "message" => "Brand successfully Created",
-            "brand" =>  $brand
+            "message" => "Supplier successfully Created",
+            "supplier" =>  $supplier
         ]);
     }
 
@@ -56,8 +53,8 @@ class BrandsController extends Controller
      */
     public function show($id)
     {
-        $brand =Brand::find($id);
-        return response()->json($brand);
+        $supplier =Supplier::find($id);
+        return response()->json($supplier);
     }
 
     /**
@@ -78,16 +75,16 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,Brand $brand)
+    public function update(Request $request, Supplier $supplier)
     {
         $input = $request->all();
-        $brand->update($input);
+        $supplier->update($input);
 
        
             return response()->json([
            
             "message" => "Successfully Updated",
-            "brand" =>  $brand
+            "supplier" =>  $supplier
         ]);
     }
 
@@ -98,14 +95,14 @@ class BrandsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {   
-        $brand = Brand::find($id);
+    {
+        $supplier = Supplier::find($id);
 
-        $brand->destroy($id);
+        $supplier->destroy($id);
         return response()->json([
            
             "message" => "Successfully Deleted",
-            "brand" =>  $brand
+            "supplier" =>  $supplier
         ]);
     }
 }

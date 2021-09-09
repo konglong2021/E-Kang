@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSellpricesTable extends Migration
+class CreateMemberProductPivotTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateSellpricesTable extends Migration
      */
     public function up()
     {
-        Schema::create('sellprices', function (Blueprint $table) {
+        Schema::create('member_product', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('member_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->double('unitprice');
+            $table->double('unit_price');            
             $table->timestamps();
-            
         });
     }
 
@@ -30,6 +29,6 @@ class CreateSellpricesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sellprices');
+        Schema::dropIfExists('member_product');
     }
 }

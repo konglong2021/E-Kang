@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::ApiResource('/product','App\Http\Controllers\Api\ProductsController');
 Route::ApiResource('/brand','App\Http\Controllers\Api\BrandsController');
 Route::ApiResource('/category','App\Http\Controllers\Api\CategoriesController');
+Route::ApiResource('/supplier','App\Http\Controllers\Api\SuppliersController');
+Route::ApiResource('/warehouse','App\Http\Controllers\Api\WarehousesController');
+Route::ApiResource('/customer','App\Http\Controllers\Api\CustomersController');
 
 // Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
 

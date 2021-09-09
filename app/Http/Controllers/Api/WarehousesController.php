@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Models\Brand;
-use App\Models\Category;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Warehouse;
 
-class BrandsController extends Controller
+class WarehousesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,11 +15,8 @@ class BrandsController extends Controller
      */
     public function index()
     {
-        //
-        $brands = Brand::with('categories')
-        ->with('products')
-        ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($brands);
+        $warehouses = Warehouse::orderBy('id', 'desc')->paginate(10);
+        return response()->json($suppliers);
     }
 
     /**
@@ -40,11 +37,11 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-        $brand = Brand::create($request->all());
+        $warehouse = Warehouse::create($request->all());
         return response()->json([
             "success" => true,
-            "message" => "Brand successfully Created",
-            "brand" =>  $brand
+            "message" => "warehouse successfully Created",
+            "warehouse" =>  $warehouse
         ]);
     }
 
@@ -56,8 +53,8 @@ class BrandsController extends Controller
      */
     public function show($id)
     {
-        $brand =Brand::find($id);
-        return response()->json($brand);
+        $warehouse =Warehouse::find($id);
+        return response()->json($warehouse);
     }
 
     /**
@@ -78,16 +75,16 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,Brand $brand)
+    public function update(Request $request, Warehouse $warehouse)
     {
         $input = $request->all();
-        $brand->update($input);
+        $warehouse->update($input);
 
        
             return response()->json([
            
             "message" => "Successfully Updated",
-            "brand" =>  $brand
+            "warehouse" =>  $warehouse
         ]);
     }
 
@@ -98,14 +95,14 @@ class BrandsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {   
-        $brand = Brand::find($id);
+    {
+        $warehouse = Warehouse::find($id);
 
-        $brand->destroy($id);
+        $warehouse->destroy($id);
         return response()->json([
            
             "message" => "Successfully Deleted",
-            "brand" =>  $brand
+            "warehouse" =>  $warehouse
         ]);
     }
 }
