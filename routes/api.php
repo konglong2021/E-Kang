@@ -19,6 +19,9 @@ Route::ApiResource('/category','App\Http\Controllers\Api\CategoriesController');
 Route::ApiResource('/supplier','App\Http\Controllers\Api\SuppliersController');
 Route::ApiResource('/warehouse','App\Http\Controllers\Api\WarehousesController');
 Route::ApiResource('/customer','App\Http\Controllers\Api\CustomersController');
+Route::ApiResource('/member','App\Http\Controllers\Api\MembersController');
 
 // Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
-
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});

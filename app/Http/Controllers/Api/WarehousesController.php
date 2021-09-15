@@ -16,7 +16,7 @@ class WarehousesController extends Controller
     public function index()
     {
         $warehouses = Warehouse::orderBy('id', 'desc')->paginate(10);
-        return response()->json($suppliers);
+        return response()->json($warehouses);
     }
 
     /**
