@@ -40,7 +40,7 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-       
+
          $request->validate([
             'en_name'     => [
                 'string',
@@ -50,12 +50,12 @@ class ProductsController extends Controller
                 'required',
             ],
             // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
-           
+
         ]);
         //  dd($request);
-        
 
-         $prefix = date("ymd"); 
+
+         $prefix = date("ymd");
          $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
 
@@ -65,20 +65,21 @@ class ProductsController extends Controller
             $image_name = time().'.'.$request->image->extension();
             $path = $request->file('image')->storeAs($destination_path,$image_name);
             // $product['image'] = "$image_name";
-        }else{
+        }
+        else{
             $image_name ="no image";
         }
 
 
         $product = Product::create([
-           
+
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
             'code' => $code,
             'description' => $request['description'],
             'category_id' => $request['category_id'],
             'image' =>  $image_name,
-   
+
         ]);
 
         $product->brands()->sync($request->input('brands', []));
@@ -125,8 +126,8 @@ class ProductsController extends Controller
     {
         //  return response()->json($id);
 
-        
-        
+
+
         // $request->validate([
         //     'en_name'     => [
         //         'string',
@@ -137,14 +138,14 @@ class ProductsController extends Controller
         //     ]
         // ]);
         // return response()->json($product);
-  
+
         $input = $request->all();
         // return response()->json($input);
-        
-  
+
+
         if ($image = $request->file('image')) {
             $destination_path = 'public/img';
-           
+
 
             $image_name = time().'.'.$request->image->extension();
             $path = $request->file('image')->storeAs($destination_path,$image_name);
@@ -152,12 +153,12 @@ class ProductsController extends Controller
         }else{
             unset($input['image']);
         }
-          
+
         $product->update($input);
         $product->brands()->sync($request->input('brands', []));
-       
+
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "product" =>  $product
         ]);
@@ -171,17 +172,17 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        
+
         $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);
             $product->destroy($id);
-            return response()->json(["message" => "Successfull Delected"] );    
+            return response()->json(["message" => "Successfull Delected"] );
           }else{
-            
-            return response()->json(["message" => "File does not exists."]                
-                
-              
+
+            return response()->json(["message" => "File does not exists."]
+
+
             );
           }
     }
