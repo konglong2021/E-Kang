@@ -46,22 +46,35 @@
                     {{-- <li><a href="#" class=""><i class="fa fa-bell"></i></a></li> --}}
                     {{-- <li><a href="#" class=""><i class="fa fa-comments"></i></a></li> --}}
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">John Doe <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{Auth::user()->name}} <span class="caret"></span></a>
                         <ul class="dropdown-menu profile-dropdown">
                             <li class="profile-menu bg-gray">
                                 <div class="">
                                     <img src="http://placehold.it/60/c2c2c2?text=User" alt="John Doe" class="img-circle profile-img">
                                     <div class="profile-name">
-                                        <h6>John Doe</h6>
-                                        <a href="#">View Profile</a>
+                                        <h6>{{Auth::user()->name}}</h6>
+                                       
                                     </div>
                                     <div class="clearfix"></div>
                                 </div>
                             </li>
-                            <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
-                            <li><a href="#"><i class="fa fa-sliders"></i> Account Details</a></li>
+                            {{-- <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><a href="#"><i class="fa fa-sliders"></i> Account Details</a></li> --}}
                             <li role="separator" class="divider"></li>
-                            <li><a href="#" class="color-danger text-center"><i class="fa fa-sign-out"></i> Logout</a></li>
+
+                           
+                            <li> 
+                                <form method="POST" action="{{ route('logout') }}" class="color-danger text-center">
+                                @csrf
+
+                                <a href="{{ route('logout') }}"
+                                         onclick="event.preventDefault();
+                                                this.closest('form').submit();" >
+                                    <i class="fa fa-sign-out"> Logout</i>
+                                 </a>
+                                </form>
+                              
+                            </li>
                         </ul>
                     </li>
                     <!-- /.dropdown -->

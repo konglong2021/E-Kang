@@ -99,7 +99,7 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        $product =Product::find($id);
+        $product=Product::with('brands')->find($id);
         return response()->json($product);
     }
 

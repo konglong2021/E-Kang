@@ -23,14 +23,7 @@
                 <li class="nav-header">
                     <span class="">POS System</span>
                 </li>
-                <li class="has-children">
-                    <a href="#"><i class="fa fa-building"></i> <span>Brands</span> <i class="fa fa-angle-right arrow"></i></a>
-                    <ul class="child-nav">
-                        
-                        <li><a href="{{ route('suppliers.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>
-                                                       
-                    </ul>
-                </li>
+                
                 <li class="has-children">
                     <a href="#"><i class="fa fa-building"></i> <span>Inventory</span> <i class="fa fa-angle-right arrow"></i></a>
                     <ul class="child-nav">
@@ -38,7 +31,7 @@
                         <li><a href="{{ route('warehouse.index') }}"><i class="fa fa-tasks"></i> <span>Warehouse</span></a></li>
                         <li><a href="{{ route('brand.index') }}"><i class="fa fa-tasks"></i> <span>Brand</span></a></li>
                         <li><a href="{{ route('category.index') }}"><i class="fa fa-tasks"></i> <span>Category</span></a></li>
-                        <li><a href="{{ route('product.index') }}" ><i class="fa fa-tasks"></i> <span>Products</span></a></li>                                            
+                        @can('product_access')<li><a href="{{ route('product.index') }}" ><i class="fa fa-tasks"></i> <span>Products</span></a></li> @endcan                                           
                         <li><a href="{{ route('product.index') }}"><i class="fa fa-tasks"></i> <span>Products Price</span></a></li>                                            
                     </ul>
                 </li>

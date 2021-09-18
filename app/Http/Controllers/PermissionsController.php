@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
-use App\Models\Brand;
-use App\Models\Category;
-use App\Http\Controllers\Controller;
+namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 
-class BrandsController extends Controller
+class PermissionsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,10 +14,6 @@ class BrandsController extends Controller
     public function index()
     {
         //
-        $brands = Brand::with('categories')
-        ->with('products')
-        ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($brands);
     }
 
     /**
@@ -40,13 +34,7 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-        $brand = Brand::create($request->all());
-        $brand->categories()->sync($request->input('categories', []));
-        return response()->json([
-            "success" => true,
-            "message" => "Brand successfully Created",
-            "brand" =>  $brand
-        ]);
+        //
     }
 
     /**
@@ -57,10 +45,7 @@ class BrandsController extends Controller
      */
     public function show($id)
     {
-        $brand = Brand::with('categories')
-        ->with('products')->find($id);
-        // $brand =Brand::find($id);
-        return response()->json($brand);
+        //
     }
 
     /**
@@ -81,17 +66,9 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,Brand $brand)
+    public function update(Request $request, $id)
     {
-        $input = $request->all();
-        $brand->update($input);
-        $brand->categories()->sync($request->input('categories', []));
-       
-            return response()->json([
-           
-            "message" => "Successfully Updated",
-            "brand" =>  $brand
-        ]);
+        //
     }
 
     /**
@@ -101,14 +78,7 @@ class BrandsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {   
-        $brand = Brand::find($id);
-
-        $brand->destroy($id);
-        return response()->json([
-           
-            "message" => "Successfully Deleted",
-            "brand" =>  $brand
-        ]);
+    {
+        //
     }
 }
