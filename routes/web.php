@@ -30,5 +30,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('warehouse', App\Http\Controllers\WarehousesController::class);
     Route::resource('permission', App\Http\Controllers\PermissionsController::class);
     Route::resource('role', App\Http\Controllers\RolesController::class);
+    Route::resource('user', App\Http\Controllers\UsersController::class);
 });
 
