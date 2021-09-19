@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class product extends Model
+class Product extends Model
 {
     use HasFactory;
 
     use softDeletes;
 
     protected $fillable = [
-        'categorie_id',
+        'category_id',
         'code',
         'en_name',
         'kh_name',
@@ -23,7 +23,12 @@ class product extends Model
 
     public function categories()
     {
-        return $this->belongsTo(categorie::class,'categorie_id', 'id');
+        return $this->belongsTo(Category::class,'category_id', 'id');
+    }
+
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class);
     }
 
  

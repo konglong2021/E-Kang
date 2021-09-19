@@ -16,7 +16,7 @@ class CreateBrandCategoryPivoteTable extends Migration
         Schema::create('brand_category', function (Blueprint $table) {
             $table->id();
             $table->foreignId('brand_id')->references('id')->on('brands')->cascadeOnDelete();
-            $table->foreignId('categorie_id')->references('id')->on('categories')->cascadeOnDelete();
+            $table->foreignId('category_id')->references('id')->on('categories')->cascadeOnDelete();
            
         });
     }

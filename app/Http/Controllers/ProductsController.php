@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\product;
-use App\Models\categorie;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Brand;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
+use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductsController extends Controller
 {
@@ -16,7 +19,9 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = product::orderBy('id', 'desc')->get();
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $products = Product::with('brands')
+        ->orderBy('id', 'desc')->get();
 
         return view('pos.product.index',compact('products'));
     }
@@ -28,9 +33,11 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        $categories = categorie::pluck('name', 'id');
+        abort_if(Gate::denies('product_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $categories = Category::pluck('name', 'id');
+        $brands = Brand::pluck('name', 'id');
 
-        return view('pos.product.create',compact('categories'));
+        return view('pos.product.create',compact('categories','brands'));
 
         
     }
@@ -81,17 +88,20 @@ class ProductsController extends Controller
         // $image_name = time().'.'.$request->image->extension(); 
         // $path = $request->file('image')->storeAs($destination_path,$image_name);
 
-        $product = product::create([
+        $product = Product::create([
            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
             'code' => $code,
             'description' => $request['description'],
-            'categorie_id' => $request['categorie_id'],
+            'category_id' => $request['category_id'],
             'image' =>  $image_name,
    
         ]);
-        
+        $product->brands()->sync($request->input('brands', []));
+        // $category = Category::find([3, 4]);
+        // $product->categories()->attach($category);
+
         // $product->categories()->sync($request->input('categories', []));
 
         return redirect()->route('product.index')->with('success','You have successfully Created.');
@@ -104,9 +114,9 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(product $products)
+    public function show(Product $products)
     {
-        return view('product.show', compact('products'));
+        return view('pos.product.show', compact('products'));
     }
 
     /**
@@ -115,13 +125,15 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Product $product)
     {
-        $categories = categorie::pluck('name', 'id');
+        $categories = Category::pluck('name', 'id');
+        $brands = Brand::pluck('name', 'id');
+        // $categories = Categorie::pluck('name', 'id');
 
-        $product = product::find($id);
+         $product->load('brands');
         // dd($products);
-        return view('pos.product.edit', compact('product', 'categories'));
+        return view('pos.product.edit', compact('product', 'categories','brands'));
     }
 
     /**
@@ -131,7 +143,7 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, product $product)
+    public function update(Request $request, Product $product)
     {
         $request->validate([
             'en_name'     => [
@@ -157,6 +169,7 @@ class ProductsController extends Controller
         }
           
         $product->update($input);
+        $product->brands()->sync($request->input('brands', []));
     
         return redirect()->route('product.index')
                         ->with('success','Product updated successfully');
@@ -170,7 +183,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        $product = product::find($id);
+        $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);
             $product->destroy($id);

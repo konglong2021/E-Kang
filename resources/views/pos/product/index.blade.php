@@ -13,30 +13,32 @@
      <div class="row">
          <div class="col-md-12">
              <div class="panel border-primary no-border border-3-top">
+                 @can('product_create')
                 <div class="panel-heading">
                     <div class="panel-title col-xs-12">
                         <h5>Products <small>List All</small></h5>
                     </div>
-
+                  
                     <div class=" text-right">
                         <div class="text-center">
-                            <a href="{{ route('product.create') }}" class="btn btn-primary btn-animated btn-wide">
+                          
+                            
+                            <a href="{{ route('product.create') }}" class="btn btn-primary btn-animated btn-wide "  >
                                 <span class="visible-content">Add Product</span>
                                 <span class="hidden-content"></i>Create</span>
                             </a>
-
+                            
                             @if ($message = Session::get('success'))
                             <div class="alert alert-success">
                                 <p>{{ $message }}</p>
                             </div>
                         @endif
                         
-                        </div>
-
-                       
+                        </div>                     
                     </div>
-
+                   
                 </div>
+                @endcan
                  <div class="panel-body">
 
                     <div class="table-responsive">
@@ -50,6 +52,8 @@
                                         <th>#</th>
                                         <th>English Name</th>
                                         <th>Khmer Name</th>
+                                        <th>Category</th>
+                                        <th>Brands</th>
                                         <th>Barcode</th>
                                         <th>Image</th>
                                         <th class="ecomm-action-icon">Action</th>
@@ -64,6 +68,12 @@
                                         <td>{{$count++}}</td>
                                         <td>{{$product->en_name}}</td>
                                         <td>{{$product->kh_name}}</td>
+                                        <td>{{$product->categories->name}}</td>
+                                        <td>
+                                            @foreach ($product->brands as $key =>$item)
+                                            <span class="badge bg-info"> {{$item->name}}</span>
+                                            @endforeach
+                                        </td>
                                         <td>
                                             <div class="mb-3"> {!! DNS1D::getBarcodeHTML($product->code, 'CODABAR') !!}</div>
                                             <div><small>{{$product->code}} </small>

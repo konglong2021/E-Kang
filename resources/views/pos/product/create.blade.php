@@ -1,3 +1,7 @@
+@push('style')
+    <link rel="stylesheet" href="{{asset('backend/css/custom.css')}}" media="screen" >
+@endpush
+
 @extends('layouts.master')
 @section('content')
     
@@ -38,7 +42,7 @@
                         <div class="form-group col-md-6 ">
                             <label for="predefined" class="col-sm-2 col-md-6 control-label">Category Select</label>
                             <div class="col-sm-12">
-                                <select class="form-control" name="categorie_id">
+                                <select class="form-control" name="category_id">
                                    
                                     
                                     @foreach($categories as $id => $category)
@@ -54,6 +58,14 @@
                         <div class="input-group col-md-6">
                             <label class="input-group-text" for="image">Upload Image</label>
                             <input type="file" class="form-control" name="image" id="image">
+                        </div>
+
+                        <div class="form-group col-md-12">
+                            <select class="form-control select2 " name="brands[]" id="brands" multiple required>
+                                @foreach($brands as $id => $brand)
+                                    <option value="{{ $id }}" {{ in_array($id, old('brands', [])) ? 'selected' : '' }}>{{ $brand }}</option>
+                                @endforeach
+                            </select>
                         </div>
                        
                         <div class="form-group col-md-12">
@@ -82,3 +94,11 @@
 </section>
 
 @endsection
+
+{{-- @push('JsScript')
+<script src="{{asset('backend/js/multi-select-min.js')}}"></script> 
+@endpush
+
+@push('Script')
+               
+@endpush --}}
