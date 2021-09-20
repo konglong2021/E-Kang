@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="product-list">
     <div class="control-panel">
       <div class="panel-top">
         <div class="content-panel-left">
-          <h6>Products</h6>
+          <h6 class="text-info font-size-24 font-weight-bold">ទំនិញទាំងអស់</h6>
           <b-button class="btn btn-sm" href="/create-new-product" variant="info"><i class="fa fa-plus-circle font-size-22"></i></b-button>
         </div>
         <div class="content-panel-right">
@@ -18,28 +18,28 @@
       </div>
     </div>
     <div class="container-list">
-      <div class="content">
-        <div class="content-item" v-for="product in productList">
+      <div class="content" v-if="productList && productList.length > 0">
+        <div class="content-item" @click="updateProduct(product)" v-for="product in productList">
           <div class="content-image">
-            <img height="50px" :image-url="require('@/assets/' + product.image)">
+            <img :src="generateImageUrlDisplay(product.image)">
           </div>
           <div class="content-detail">
-            <strong><span class="title">{{ (product.en_name) }}</span></strong>
-            <span>[FURN_0001]</span>
-            <div>Price: <span >$&nbsp;5.10</span></div>
-            <div>On hand: <span>-1.00</span> <span>Units</span></div>
+            <strong><span class="title font-khmer-os">{{ (product.kh_name) }}</span></strong>
+            <span class="font-khmer-os">({{ (product.en_name) }})</span>
+<!--            <div>Price: <span >$&nbsp;5.10</span></div>-->
+<!--            <div>On hand: <span>-1.00</span> <span>Units</span></div>-->
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
   export default {
     data() {
       return {
         productList: [],
-        tests : [{text: "fff"}, {text: "dddd"}]
       };
     },
     methods: {
@@ -56,13 +56,23 @@
         }
 
       },
+      updateProduct(product){
+        this.$router.push({ path: "create-new-product:productId", name: 'create-new-product', params: { productId: product["id"] }});
+      },
+      generateImageUrlDisplay(img){
+        return  window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+      }
     },
     mounted() {
+      console.log(window.location.protocol + "//" + window.location.hostname + ":8000/");
       this.onInit()
     },
   }
 </script>
 <style scoped>
+  .product-list{
+    font-family: "Khmer OS";
+  }
   .control-panel{
     border-bottom: 1px solid #cccccc;
     display: inline-block;
@@ -108,27 +118,27 @@
     overflow: hidden;
     width: 30%;
   }
+  .content-image img{
+    width: 90px;
+    height: 90px;
+  }
   .content-detail{
     display: inline-block;
     width: 68%;
     font-size: 12px;
   }
   .content-item{
+    border: 1px solid #ced4da;
+    font-family: "Khmer OS";
     display: inline-block;
-    width: 23.45%;
+    margin-bottom: 3px;
+    margin-right: 20px;
     padding: 8px 8px;
     margin-top: 3px;
-    margin-bottom: 3px;
-    margin-right: 10px;
-    margin-left: 10px;
-    border: 1px solid #ced4da;
+    width: 23.45%;
+    cursor: pointer;
   }
-  .content-item:first-child{
-    margin-left: 0;
-  }
-  .content-item:nth-child(5n + 5){
-    margin-left: 0;
-  }
+
   .content-item:last-child{
     margin-right: 0;
   }
@@ -137,5 +147,8 @@
   }
   .font-size-22{
     font-size: 22px;
+  }
+  .font-khmer-os{
+    font-family: "Khmer OS";
   }
 </style>
