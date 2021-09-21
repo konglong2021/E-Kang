@@ -13,7 +13,7 @@
      <div class="row">
          <div class="col-md-12">
              <div class="panel border-primary no-border border-3-top">
-                 @can('product_create')
+                
                 <div class="panel-heading">
                     <div class="panel-title col-xs-12">
                         <h5>Products <small>List All</small></h5>
@@ -32,13 +32,13 @@
                             <div class="alert alert-success">
                                 <p>{{ $message }}</p>
                             </div>
-                        @endif
+                             @endif
                         
                         </div>                     
                     </div>
                    
                 </div>
-                @endcan
+                
                  <div class="panel-body">
 
                     <div class="table-responsive">

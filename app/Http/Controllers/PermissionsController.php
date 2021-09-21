@@ -40,7 +40,7 @@ class PermissionsController extends Controller
      */
     public function store(Request $request)
     {
-        Brand::create($request->all());
+        Permission::create($request->all());
         return redirect()->route('permission.index')->with('success','You have successfully Created.');
     }
 

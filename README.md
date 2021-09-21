@@ -8,9 +8,14 @@
 -npm install <br />
 -npm run dev <br />
 -php artisan key:generate <br />
--php artisan migrate:fresh <br />
+-php artisan migrate:fresh --seed <br />
 -php artisan serve
 
+User Name: admin@admin.com
+Password : password
+
+User Name: user@user.com
+Password : password
 
 
 ## License

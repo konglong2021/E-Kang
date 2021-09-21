@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Brand;
 
 class CategoriesController extends Controller
 {
@@ -15,7 +16,8 @@ class CategoriesController extends Controller
     public function index()
     {
         //
-        $categories = Category::orderBy('id', 'desc')->get();
+        $categories = Category::with('brands')
+                    ->orderBy('id', 'desc')->get();
 
         return view('pos.category.index',compact('categories'));
     }
@@ -27,7 +29,8 @@ class CategoriesController extends Controller
      */
     public function create()
     {
-        return view('pos.category.create');
+        $brands = Brand::pluck('name', 'id');
+        return view('pos.category.create',compact('brands'));
     }
 
     /**
@@ -38,7 +41,8 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        Category::create($request->all());
+        $category= Category::create($request->all());
+        $category->brands()->sync($request->input('brands', []));
         return redirect()->route('category.index')->with('success','You have successfully Created.');
     }
 
@@ -59,9 +63,15 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Category $category)
     {
-        //
+        $brands = Brand::pluck('name', 'id');
+       
+        // $categories = Categorie::pluck('name', 'id');
+
+         $category->load('brands');
+        // dd($products);
+        return view('pos.category.edit', compact('category', 'brands'));
     }
 
     /**
@@ -71,9 +81,12 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        $category->update($request->all());
+        $category->brands()->sync($request->input('brands', []));
+        return redirect()->route('category.index')
+        ->with('success','update successfully');
     }
 
     /**
@@ -84,6 +97,9 @@ class CategoriesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $category = Category::find($id);
+        $category->destroy($id);
+        return redirect()->route('category.index')
+        ->with('success','Delete successfully');
     }
 }

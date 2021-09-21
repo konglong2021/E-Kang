@@ -33,7 +33,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        abort_if(Gate::denies('product_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $categories = Category::pluck('name', 'id');
         $brands = Brand::pluck('name', 'id');
 
@@ -52,6 +52,7 @@ class ProductsController extends Controller
 
     public function store(Request $request)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         // product::create($request->validated());
         $request->validate([
             'en_name'     => [
@@ -116,6 +117,7 @@ class ProductsController extends Controller
      */
     public function show(Product $products)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         return view('pos.product.show', compact('products'));
     }
 
@@ -127,6 +129,7 @@ class ProductsController extends Controller
      */
     public function edit(Product $product)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $categories = Category::pluck('name', 'id');
         $brands = Brand::pluck('name', 'id');
         // $categories = Categorie::pluck('name', 'id');
@@ -145,6 +148,7 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $request->validate([
             'en_name'     => [
                 'string',
@@ -183,6 +187,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);

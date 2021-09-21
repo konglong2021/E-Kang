@@ -36,7 +36,7 @@
                                 <select class="selectpicker" multiple data-live-search="true" name="permissions[]">
                                    
                                     @foreach($permissions as $id => $permission)
-                                    <option value="{{ $id }}" {{ in_array($id, old('permissions', [])) ? 'selected' : '' }}>{{ $permission }}</option>
+                                    <option value="{{ $id }}" {{ (in_array($id, old('permissions', [])) || $role->permissions->contains($id)) ? 'selected' : '' }}>{{ $permission }}</option>
                                     @endforeach
 
                                 </select>
