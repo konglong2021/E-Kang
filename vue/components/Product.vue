@@ -4,7 +4,7 @@
       <div class="panel-top">
         <div class="content-panel-left">
           <h6 class="text-info font-size-24 font-weight-bold">ទំនិញទាំងអស់</h6>
-          <b-button class="btn btn-sm" href="/create-new-product" variant="info">បន្ថែមថ្មី</b-button>
+          <b-button class="btn btn-sm" @click="addNewProdut()" variant="info">បន្ថែមថ្មី</b-button>
         </div>
         <div class="content-panel-right">
           <div class="input-group input-group-sm search-content">
@@ -19,7 +19,7 @@
     </div>
     <div class="container-list">
       <div class="content" v-if="productList && productList.length > 0">
-        <div class="content-item" @click="updateProduct(product)" v-for="product in productList">
+        <div class="content-item" @click="updateProduct(product)" v-for="product  in productList" :key="product.id">
           <div class="content-image">
             <img :src="generateImageUrlDisplay(product.image)">
           </div>
@@ -32,13 +32,18 @@
         </div>
       </div>
     </div>
+    <add-new-product-modal v-model="newProductModal" />
   </div>
 </template>
 
 <script>
   export default {
+  // components: { AddNewProductModal },
     data() {
       return {
+        newProductModal:{
+            showModal:false
+        },
         productList: [],
       };
     },
@@ -61,6 +66,10 @@
       },
       generateImageUrlDisplay(img){
         return  window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+      }
+      ,
+      addNewProdut(){
+          this.newProductModal.showModal = true;//display the modal form
       }
     },
     mounted() {

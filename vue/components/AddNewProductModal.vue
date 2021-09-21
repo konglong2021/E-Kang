@@ -1,6 +1,6 @@
 <template>
     <div>
-      <b-modal id="modal-create-product" size="md"
+      <b-modal id="modal-create-product" ref="product-form-modal" size="xl"
                @hidden="onReset" cancel-title="បោះបង់"
                @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី">
         <b-form enctype="multipart/form-data">
@@ -39,6 +39,30 @@
 
 <script>
   export default {
+    props:{
+      'value':{
+        type:Object,
+        require:true
+      },
+    },
+    watch:{
+       'value.showModal':{
+         //watch value change sent from parent component
+         handler(value){
+           if(value==true){
+              this.$refs['product-form-modal'].show();
+           }
+            
+         },
+         deep:true
+       }
+    },
+    mounted(){
+      var vm = this;
+      console.log(this.value,'myvalue');
+     
+      
+    },
     data() {
       return {
         product: {
@@ -55,6 +79,12 @@
         brands: [{ text: 'Select One', value: null }, {text: 'Samsung', value: 1}, {text: 'PUB G', value: 2}],
       };
     },
+    // mounted(){
+    //   //we weatch the value of model in order to understand it show the modal or not 
+    //   // this.unwatch = this.$watch(this.value,(oldValue,newValue)=>{
+    //   //   console.log('old value',oldValue, newValue );  
+    //   // })
+    // },
     methods: {
       onSubmit(event) {
         event.preventDefault();
@@ -77,6 +107,7 @@
       onReset(event) {
         event.preventDefault();
         // Reset our form values
+        const product = { ... this.product}; //clone object product
         this.product.en_name = '';
         this.product.kh_name = '';
         this.product.category = null;
@@ -85,6 +116,12 @@
         this.product.image = null;
         this.product.sale_price= 0;
         this.product.code= null;
+        const data = {
+          showModal :false,
+          data:product
+        };
+        this.$emit('input', data);//send data back to parent component
+       
       },
     }
   }

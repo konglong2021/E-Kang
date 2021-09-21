@@ -19,7 +19,7 @@
         <span class="input-icon input-icon-left"><i class="fa fa-search"></i></span>
         <b-form-input :id="'input-product'" type="text" class="input-content-search"></b-form-input>
         <span class="input-icon icon-no-border-left-right"><i class="fa fa-keyboard-o"></i></span>
-        <span class="input-icon input-icon-right icon-background" v-b-modal.modal-create-product><i class="fa fa-plus"></i></span>
+        <span class="input-icon input-icon-right icon-background" @click="showModal()"><i class="fa fa-plus"></i></span>
       </div>
       <table class="table">
         <thead>
@@ -38,43 +38,10 @@
         </tbody>
       </table>
 
-      <b-modal id="modal-create-product" size="md"
-               @hidden="onReset" cancel-title="បោះបង់"
-               @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី">
-        <b-form enctype="multipart/form-data">
-          <div class="full-content">
-          </div>
-          <div class="full-content">
-            <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-enname'" class="label-input">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
-              <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="product.en_name" class="input-content"></b-form-input></b-col>
-            </b-row>
-            <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-khname'" class="label-input">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
-              <b-col sm="8"><b-form-input :id="'input-khname'" type="text" v-model="product.kh_name" class="input-content"></b-form-input></b-col>
-            </b-row>
-            <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
-              <b-col sm="8"><b-form-select :id="'input-category'" class="form-control input-content" v-model="product.category" :options="categories"></b-form-select></b-col>
-            </b-row>
-            <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-brand'" class="label-input">ប្រេនទំនិញ</label></b-col>
-              <b-col sm="8"><b-form-select :id="'input-brand'" class="form-control input-content" v-model="product.brand" :options="brands"></b-form-select></b-col>
-            </b-row>
-            <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
-              <b-col sm="8"><b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="product.sale_price"></b-form-input></b-col>
-            </b-row>
-            <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
-              <b-col sm="8"><b-form-textarea :id="'input-description'" class="input-content" v-model="product.description"></b-form-textarea></b-col>
-            </b-row>
-          </div>
-        </b-form>
-      </b-modal>
     </div>
     <div>
     </div>
+    <add-new-product-modal v-model="newProductModal"/> <!--no need to import it will automatically rendering it -->
   </div>
 </template>
 
@@ -82,6 +49,9 @@
   export default {
     data() {
       return {
+        newProductModal:{
+          showModal:false
+        },
         product: {
           en_name: '',
           kh_name: '',
@@ -96,7 +66,24 @@
         brands: [{ text: 'Select One', value: null }, {text: 'Samsung', value: 1}, {text: 'PUB G', value: 2}],
       };
     },
+    watch:{
+      newProductModal:{
+          handler(val){
+              console.log('I am watching modal value',this.newProductModal);
+          },
+          deep:true
+      }
+    },
     methods: {
+      showModal(){
+        //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
+
+        this.newProductModal.showModal = true;
+        alert('Debug me , I am going to popup the modal');
+        console.log('modal data' ,this.newProductModal);
+
+
+      },
       onSubmit(event) {
         event.preventDefault();
         let formData = new FormData();
