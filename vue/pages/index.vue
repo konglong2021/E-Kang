@@ -1,6 +1,5 @@
 <template>
-  <div >
-
+  <div class="main-screen">
       <div>
         <b-button variant="info"><i class="fa fa-backward"></i></b-button>
         <div class="main-menu">

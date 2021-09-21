@@ -9,7 +9,6 @@
                 {{p.price}} {{p.currency}}
             </div>
             <div class="clearboth"></div>
-
         </div>
         <div>
             <div class="total-wrapper pull-right">
@@ -49,14 +48,31 @@ export default {
               currency:'USD',
               img :'/images/default-prod.png'
           }
-      ]
+      ],
+      productList : []
     };
   },
   methods: {
+    async onInitData(){
+      try {
+        const response = await this.$axios.get('/api/product');
+        if(response.data.data){
+          for (let index =0; index < response.data.data.length; index++){
+            this.productList.push(response.data.data[index]);
+          }
+        }
+        console.log(this.productList);
+      } catch (error) {
+        console.log(error);
+      }
+    },
     onSubmit(event) {
       event.preventDefault();
       alert(JSON.stringify(this.form));
-    }
+    },
+  },
+  mounted() {
+    this.onInitData()
   }
 
 }

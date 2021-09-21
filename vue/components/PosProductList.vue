@@ -2,7 +2,7 @@
     <div>
         <div class="product-list-header">
                     <div class="pull-left">
-                        <icon class="fa fa-home fa-3x"></icon>
+                      <i class="fa fa-home fa-3x"></i>
                     </div>
                     <div v-for="c in categories" :key="c.id" class="pull-left category-item">
                         {{c.name}}
@@ -11,7 +11,7 @@
 
         </div>
         <div class="product-list-body">
-                <div  v-for="p in products" :key="p.id"  
+                <div  v-for="p in products" :key="p.id"
                 class="pro-item" >
                 <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }">
                     <div class="pro-price">
@@ -76,7 +76,7 @@ export default {
       alert(JSON.stringify(this.form));
     }
   }
-    
+
 }
 </script>
 <style scoped>
@@ -92,7 +92,7 @@ export default {
     background-color: #000;
     color:#fff;
 }
-.product-list-header 
+.product-list-header
 {
     border-bottom: 2px solid #000;
     display: inline-block;
