@@ -8,5 +8,9 @@
     clear: both;
 }
 .main-page-content{
-  font-family: "Khmer OS";
+  font-family: "Khmer OS Bokor";
+}
+
+body {
+  font-family: "Khmer OS Bokor";
 }

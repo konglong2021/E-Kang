@@ -4,7 +4,7 @@
       <div class="panel-top">
         <div class="content-panel-left">
           <h6 class="text-info font-size-24 font-weight-bold">ទំនិញទាំងអស់</h6>
-          <b-button class="btn btn-sm" href="/create-new-product" variant="info"><i class="fa fa-plus-circle font-size-22"></i></b-button>
+          <b-button class="btn btn-sm" href="/create-new-product" variant="info">បន្ថែមថ្មី</b-button>
         </div>
         <div class="content-panel-right">
           <div class="input-group input-group-sm search-content">
@@ -24,7 +24,7 @@
             <img :src="generateImageUrlDisplay(product.image)">
           </div>
           <div class="content-detail">
-            <strong><span class="title font-khmer-os">{{ (product.kh_name) }}</span></strong>
+            <strong><span class="title">{{ (product.kh_name) }}</span></strong>
             <span class="font-khmer-os">({{ (product.en_name) }})</span>
 <!--            <div>Price: <span >$&nbsp;5.10</span></div>-->
 <!--            <div>On hand: <span>-1.00</span> <span>Units</span></div>-->
@@ -70,9 +70,6 @@
   }
 </script>
 <style scoped>
-  .product-list{
-    font-family: "Khmer OS";
-  }
   .control-panel{
     border-bottom: 1px solid #cccccc;
     display: inline-block;
@@ -129,7 +126,7 @@
   }
   .content-item{
     border: 1px solid #ced4da;
-    font-family: "Khmer OS";
+    /*font-family: "Khmer OS";*/
     display: inline-block;
     margin-bottom: 3px;
     margin-right: 20px;
@@ -149,6 +146,6 @@
     font-size: 22px;
   }
   .font-khmer-os{
-    font-family: "Khmer OS";
+    /*font-family: "Khmer OS";*/
   }
 </style>

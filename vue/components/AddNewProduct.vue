@@ -4,10 +4,7 @@
         <div class="panel-top">
           <div class="content-panel-left">
             <h6 class="text-info font-size-24 font-weight-bold">ទំនិញ/បង្កើតថ្មី</h6>
-<!--            <a href="/product" class="back-to-product-list">ត្រលប់ទៅតារាងទំនិញ</a>-->
             <b-button href="/product" variant="info" class="margin-right-20">ត្រលប់</b-button>
-            <b-button type="submit" variant="primary" class="margin-right-20" @click="onSubmit">រក្សាទុក</b-button>
-            <b-button type="reset" variant="danger" class="margin-right-20" @click="onReset">បោះបង់</b-button>
           </div>
           <div class="panel-bottom"></div>
         </div>
@@ -18,8 +15,8 @@
             <b-tab title="ពត៍មានទូទៅទំនិញ" class="content-tab" active>
               <div class="content-form">
                 <b-form v-if="show" enctype="multipart/form-data">
-                  <div style="display: inline-block; width: 100%">
-                    <div class="options">
+                  <div class="full-content">
+                    <div class="options" style="display: none;">
                       <b-form-checkbox id="is-purchase" name="is-purchase" value="is_purchase" v-model="is_purchases" unchecked-value="not_purchase">ទំនិញនាំចូល</b-form-checkbox>
                     </div>
                     <div class="content-file-upload">
@@ -28,7 +25,7 @@
                       <div v-if="!uploadFile" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
                     </div>
                   </div>
-                  <div style="display: inline-block; width: 100%">
+                  <div class="full-content">
                     <b-row class="my-1">
                       <b-col sm="2"><label :for="'input-enname'" class="label-input">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
                       <b-col sm="4"><b-form-input :id="'input-enname'" type="text" v-model="form.en_name" class="input-content"></b-form-input></b-col>
@@ -41,37 +38,21 @@
                       <b-col sm="2"><label :for="'input-brand'" class="label-input">ប្រេនទំនិញ</label></b-col>
                       <b-col sm="4"><b-form-select :id="'input-brand'" class="form-control input-content" v-model="form.brand" :options="brands"></b-form-select></b-col>
                     </b-row>
-                    <b-row>
+                    <b-row class="my-1">
                       <b-col sm="2"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
                       <b-col sm="4"><b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="form.sale_price"></b-form-input></b-col>
                       <b-col sm="2"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
                       <b-col sm="4"><b-form-textarea :id="'input-description'" class="input-content" v-model="form.description"></b-form-textarea></b-col>
                     </b-row>
+                    <b-row class="my-1">
+                      <b-col sm="2">
+                      </b-col>
+                      <b-col sm="4">
+                        <b-button type="submit" variant="primary" class="margin-right-20" @click="onSubmit">រក្សាទុក</b-button>
+                        <b-button type="reset" variant="danger" class="margin-right-20" @click="onReset">បោះបង់</b-button>
+                      </b-col>
+                    </b-row>
                   </div>
-                </b-form>
-              </div>
-            </b-tab>
-            <b-tab title="ពត៍មានការកម្មង់" class="content-tab" v-if="is_purchases === 'is_purchase'">
-              <div class="content-form">
-                <b-form v-if="is_purchases === 'is_purchase'" enctype="multipart/form-data">
-                  <b-row>
-                    <b-col sm="2"><label :for="'input-warehouse'" class="label-input">ឃ្លាំងទំនិញ</label></b-col>
-                    <b-col sm="4"><b-form-select :id="'input-warehouse'" type="text" class="input-content" v-model="purchases.warehouse" :options="warehouses"></b-form-select></b-col>
-                    <b-col sm="2"><label :for="'input-supplier'" class="label-input">អ្នកផ្គត់ផ្គង់</label></b-col>
-                    <b-col sm="4"><b-form-select :id="'input-supplier'" type="text" class="input-content" v-model="purchases.supplier" :options="suppliers"></b-form-select></b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col sm="2"><label :for="'input-import_date'" class="label-input">ថ្ងៃនាំចូលទំនិញ</label></b-col>
-                    <b-col sm="4"><b-form-input :id="'input-import_date'" type="date" class="input-content" v-model="purchases.import_date"></b-form-input></b-col>
-                    <b-col sm="2"><label :for="'input-import_price'" class="label-input">តម្លៃនាំចូល</label></b-col>
-                    <b-col sm="4"><b-form-input :id="'input-import_price'" type="number" class="input-content" v-model="purchases.import_price"></b-form-input></b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col sm="2"><label :for="'input-quantity'" class="label-input">ចំនួនទំនិញនាំចូល</label></b-col>
-                    <b-col sm="4"><b-form-input :id="'input-quantity'" type="number" class="input-content" v-model="purchases.quantity"></b-form-input></b-col>
-                    <b-col sm="2"><label :for="'input-vat'" class="label-input">ពន្ធ</label></b-col>
-                    <b-col sm="4"><b-form-input :id="'input-vat'" type="number" class="input-content" v-model="purchases.vat"></b-form-input></b-col>
-                  </b-row>
                 </b-form>
               </div>
             </b-tab>
@@ -136,7 +117,7 @@
               console.log(error);
             });
         }
-        else if(this.is_purchases === 'not_purchase'){
+        else if(this.is_purchases === 'is_purchase'){
           formData.append("warehouse", this.purchases.warehouse);
           formData.append("supplier", this.purchases.supplier);
           formData.append("import_date", this.purchases.import_date);
@@ -164,12 +145,12 @@
         this.form.sale_price= 0;
         this.form.code= null;
 
-        this.purchases.warehouse = '';
+        /*this.purchases.warehouse = '';
         this.purchases.supplier = '';
         this.purchases.import_date = null;
         this.purchases.import_price = 0;
         this.purchases.quantity = 0;
-        this.purchases.vat = 0;
+        this.purchases.vat = 0;*/
         // Trick to reset/clear native browser form validation state
         this.show = false;
         this.is_purchases = null;
@@ -209,11 +190,15 @@
 </script>
 
 <style scoped>
+  .full-content{
+    display: inline-block;
+    width: 100%
+  }
   .content-product{
-    font-family: "Khmer OS";
+    font-family: "Khmer OS Bokor" ;
   }
 
-  .control-panel{
+  .content-product .control-panel{
     border-bottom: 1px solid #cccccc;
     display: inline-block;
     margin-bottom: 5px;
@@ -221,44 +206,25 @@
     /*min-height: 85px;*/
     width: 100%;
   }
-  .content-panel-left{
+  .content-product .control-panel .panel-top{
+    display: inline-block;
+    width: 100%;
+  }
+  .content-product .control-panel .panel-top .content-panel-left{
     display: inline-block;
     width: 50%;
     float: left;
   }
-  .panel-top{
-    display: inline-block;
-    width: 100%;
-  }
 
   .container-list{
-    font-family: "Khmer OS";
+    font-family: "Khmer OS Bokor";
   }
 
   .box-shadow{
     box-shadow: 0 5px 20px -15px black;
   }
-  .full-height{
+  .full-height {
     min-height: calc(100vh - 160px);
-  }
-
-  .back-to-product-list{
-    font-family: "Khmer OS";
-    color: #0F9E5E;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-
-  .back-to-product-list:hover{
-    outline: none;
-    text-decoration: none;
-  }
-
-  .content-button{
-    margin-top: 15px;
-    display: inline-block;
-    overflow: hidden;
-    text-align: center;
   }
 
   .margin-right-20{
@@ -269,7 +235,7 @@
     display: inline-block;
     margin: 0 15px;
     width: calc(100% - 30px);
-    font-family: "Khmer OS";
+    font-family: "Khmer OS Bokor";
   }
   .label-input{
     padding-top: 21px;
