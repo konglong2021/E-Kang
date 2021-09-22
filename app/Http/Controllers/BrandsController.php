@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product;
+use App\Models\Category;
 use App\Models\Brand;
 
 class BrandsController extends Controller
@@ -15,7 +15,11 @@ class BrandsController extends Controller
      */
     public function index()
     {
-        $brands = Brand::orderBy('id', 'desc')->paginate(10);
+        //$brands = Brand::orderBy('id', 'desc')->paginate(10);
+          //
+          $brands = Brand::with('categories')
+          
+          ->orderBy('id', 'desc')->paginate(10);
 
         return view('pos.brand.index',compact('brands'));
     }
@@ -28,9 +32,9 @@ class BrandsController extends Controller
     public function create()
     {
         //
-        
+        $categories = Category::pluck('name', 'id');
 
-        return view('pos.brand.create');
+        return view('pos.brand.create',compact('categories'));
     }
 
     /**
@@ -41,7 +45,8 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-          Brand::create($request->all());
+          $brand =Brand::create($request->all());
+          $brand->categories()->sync($request->input('categories', []));
           return redirect()->route('brand.index')->with('success','You have successfully Created.');
     }
 
@@ -63,9 +68,14 @@ class BrandsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Brand $brand)
     {
-        return view('pos.brand.edit');
+        $categories = Category::pluck('name', 'id');
+       
+        // $categories = Categorie::pluck('name', 'id');
+
+         $brand->load('categories');
+        return view('pos.brand.edit',compact('brand','categories'));
     }
 
     /**
@@ -78,8 +88,10 @@ class BrandsController extends Controller
     public function update(Request $request, Brand $brand)
     {
         //
-        $input = $request->all();
-        $brand->update($input);
+        $brand->update($request->all());
+        $brand->categories()->sync($request->input('categories', []));
+
+       
 
         return redirect()->route('brand.index')
         ->with('success','Brand updated successfully');

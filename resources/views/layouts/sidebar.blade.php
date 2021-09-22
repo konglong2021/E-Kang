@@ -43,7 +43,21 @@
                     </ul>
                 </li>
                 
-                <li class="has-children">
+                <li class="has-children 
+                            @if (request()->routeIs('suppliers.*'))
+                            open
+                        @elseif(request()->routeIs('warehouse.*'))
+                            open
+                        @elseif(request()->routeIs('brand.*'))
+                            open
+                        @elseif(request()->routeIs('category.*'))
+                            open
+                        @elseif(request()->routeIs('product.*'))
+                            open
+                        @else
+
+                        @endif
+                ">
                     <a href="#"><i class="fa fa-building"></i> <span>Inventory</span> <i class="fa fa-angle-right arrow"></i></a>
                     <ul class="child-nav">
                         <li><a href="{{ route('suppliers.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>

@@ -49,6 +49,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Name</th>                                       
+                                        <th>Categories</th>                                       
                                         <th class="ecomm-action-icon">Action</th>
                                     </tr>
                                 </thead>
@@ -61,7 +62,11 @@
                                     <tr>
                                         <td>{{$count++}}</td>
                                         <td>{{$brand->name}}</td>                                        
-
+                                        <td>
+                                            @foreach ($brand->categories as $key =>$item)
+                                           <small> <span class="badge bg-info"> {{$item->name}}</span></small>
+                                            @endforeach
+                                        </td>                  
                                         
                                         <td>
                                             <a href="{{ route('brand.edit', $brand->id) }}" class="btn btn-success icon-only"><i class="fa fa-pencil"></i></a>

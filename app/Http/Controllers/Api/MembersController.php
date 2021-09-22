@@ -39,7 +39,7 @@ class MembersController extends Controller
     public function store(Request $request)
     {
         $members = Member::create($request->all());
-        
+        $members->customers()->sync($request->input('customers', []));
         return response()->json([
             "success" => true,
             "message" => "Members successfully Created",
@@ -55,7 +55,7 @@ class MembersController extends Controller
      */
     public function show(Member $member)
     {
-        $member->with('customer')->get();
+        $member->with('customers')->get();
         return response()->json($member);
     }
 
@@ -81,7 +81,7 @@ class MembersController extends Controller
     {
         $input = $request->all();
         $member->update($input);
-        $member->brands()->sync($request->input('members', []));
+        $member->customers()->sync($request->input('customers', []));
        
             return response()->json([
            

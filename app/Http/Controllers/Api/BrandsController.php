@@ -42,6 +42,9 @@ class BrandsController extends Controller
     {
         $brand = Brand::create($request->all());
         $brand->categories()->sync($request->input('categories', []));
+
+        
+        
         return response()->json([
             "success" => true,
             "message" => "Brand successfully Created",
