@@ -49,6 +49,9 @@ class ProductsController extends Controller
             'kh_name'    => [
                 'required',
             ],
+            'sale_price'    => [
+                'required',
+            ],
             // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
 
         ]);
@@ -78,6 +81,7 @@ class ProductsController extends Controller
             'code' => $code,
             'description' => $request['description'],
             'category_id' => $request['category_id'],
+            'sale_price' => $request['sale_price'],
             'image' =>  $image_name,
 
         ]);

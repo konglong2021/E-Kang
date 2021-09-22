@@ -31,14 +31,19 @@
                     <form method="POST" action="{{ route('product.store') }}" enctype="multipart/form-data">
                         @csrf
             
-                        <div class="form-group  col-md-6">
+                        <div class="form-group  col-md-5">
                             <label for="en_name">English Name</label>
                             <input type="text" class="form-control" id="en_name" name="en_name"  placeholder="Enter English Name">
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-5">
                             <label for="kh_name">Khmer Name</label>
                             <input type="text" class="form-control" id="kh_name" name="kh_name" placeholder="Enter Khmer Name">
                         </div>
+                        <div class="form-group col-md-2">
+                            <label for="sale_price">Sell Price</label>
+                            <input type="number" class="form-control" id="sale_price" name="sale_price" placeholder="Enter Price ">
+                        </div>
+
                         <div class="form-group col-md-6 ">
                             <label for="predefined" class="col-sm-2 col-md-6 control-label">Category Select</label>
                             <div class="col-sm-12">

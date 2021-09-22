@@ -62,10 +62,13 @@ class ProductsController extends Controller
             'kh_name'    => [
                 'required',
             ],
+            'sale_price'    => [
+                'required',
+            ],
             // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
            
         ]);
-        //  dd($request);
+        //   dd($request);
         
 
          $prefix = date("ymd"); 
@@ -82,23 +85,26 @@ class ProductsController extends Controller
             $image_name ="no image";
         }
 
-        // $destination_path = 'public/img';
-        // $image = $request->file('image');
-       
-        // $image_name = $image->getClientOriginalName();
-        // $image_name = time().'.'.$request->image->extension(); 
-        // $path = $request->file('image')->storeAs($destination_path,$image_name);
+        $input = $request->all();
+        $input['code']=$code;
+        $input['image']=$image_name;
 
-        $product = Product::create([
+        // dd($input);
+        $product = Product::create($input);
+
+
+        // $product = Product::create([
            
-            'en_name' => $request['en_name'],
-            'kh_name' => $request['kh_name'],
-            'code' => $code,
-            'description' => $request['description'],
-            'category_id' => $request['category_id'],
-            'image' =>  $image_name,
+        //     'en_name' => $request['en_name'],
+        //     'kh_name' => $request['kh_name'],
+        //     'sale_price' => $request['sale_price'],
+        //     'code' => $code,
+        //     'description' => $request['description'],
+        //     'category_id' => $request['category_id'],
+        //     'image' =>  $image_name,
    
-        ]);
+        // ]);
+
         $product->brands()->sync($request->input('brands', []));
         // $category = Category::find([3, 4]);
         // $product->categories()->attach($category);

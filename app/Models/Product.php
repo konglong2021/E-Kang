@@ -19,6 +19,7 @@ class Product extends Model
         'kh_name',
         'description',
         'image',
+        'sale_price',
     ];
 
     public function categories()

@@ -52,6 +52,7 @@
                                         <th>#</th>
                                         <th>English Name</th>
                                         <th>Khmer Name</th>
+                                        <th>Sale Price</th>
                                         <th>Category</th>
                                         <th>Brands</th>
                                         <th>Barcode</th>
@@ -68,6 +69,7 @@
                                         <td>{{$count++}}</td>
                                         <td>{{$product->en_name}}</td>
                                         <td>{{$product->kh_name}}</td>
+                                        <td>{{$product->sale_price}}</td>
                                         <td>{{$product->categories->name}}</td>
                                         <td>
                                             @foreach ($product->brands as $key =>$item)
