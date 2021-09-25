@@ -14,3 +14,11 @@
 body {
   font-family: "Khmer OS Bokor";
 }
+.head-title {
+  font-weight: bold;
+  color: #000;
+  
+}
+.btn-wrapper{
+  padding-left: 2px;
+}

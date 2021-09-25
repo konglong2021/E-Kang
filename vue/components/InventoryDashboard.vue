@@ -3,41 +3,58 @@
     <div class="control-panel">
       <div class="panel-top">
         <div class="content-panel-left">
-          <h6>Inventory Overview</h6>
+          <h3 class="head-title">Inventory Overview</h3>
         </div>
         <div class="content-panel-right">
+           <b-container class="col-6 mx-auto menu-wrapper">
+            <b-row>
+              <b-col>
+              
           <div class="input-group input-group-sm search-content">
              <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
             <input class="form-control input-search-box" type="search" placeholder="Search..."/>
           </div>
+              </b-col>
+              <div class="btn-wrapper">
+                  <b-button href="#"  size="sm" variant="primary" title="Import product from Supplier">
+                    Import 
+                    <i class="fa fa-cart-plus" aria-hidden="true"></i>
+                  </b-button>
+              </div>
+               <b-col>
+                  <b-button href="#"  title="Add new Product" size="sm" variant="primary" @click="showModal()">
+                    New Product 
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                  </b-button>
+              </b-col>
+            </b-row>
+           </b-container>
         </div>
         <div class="panel-bottom"></div>
       </div>
     </div>
     <div class="content-product">
-      <div class="input-group input-group-sm content-product-input">
-        <span class="input-icon input-icon-left"><i class="fa fa-search"></i></span>
-        <b-form-input :id="'input-product'" type="text" class="input-content-search"></b-form-input>
-        <span class="input-icon icon-no-border-left-right"><i class="fa fa-keyboard-o"></i></span>
-        <span class="input-icon input-icon-right icon-background" @click="showModal()"><i class="fa fa-plus"></i></span>
-      </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ឈ្មោះទំនិញជាអង់គ្លេស</th>
-            <th>ឈ្មោះទំនិញជាខ្មែរ</th>
-            <th>តម្លៃលក់</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+    
+ 
+  <b-table
+      :items="items"
+      :fields="fields"
+      stacked="md"
+      show-empty
+      small
+      
+    >
 
+      <template #cell(actions)="row">
+        <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+          <i class="fa fa-eye"></i>
+        </b-button>
+        <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+          <i class="fa fa-edit"></i>
+        </b-button>
+      </template>
+      <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+    </b-table>
     </div>
     <div>
     </div>
@@ -52,6 +69,27 @@
         newProductModal:{
           showModal:false
         },
+        items:[
+          {
+            name_en:'IPhone SX',
+            name_kh:'អាយផូន SX',
+            sell_price:10.0,
+            import_price:20.0,
+            qty:10,
+            store:'Main Store'
+            
+          }
+        ],
+         fields: [
+          { key: 'name_en', label: 'Name' },
+          { key: 'name_kh', label: 'Name(KH)' },
+          { key: 'sell_price', label: 'Sell Price' },
+          { key: 'import_price', label: 'Import Price' },
+          { key: 'qty', label: 'Qty' },
+          { key: 'store', label: 'Store' },
+          
+          { key: 'actions', label: 'Actions' }
+        ],
         product: {
           en_name: '',
           kh_name: '',
@@ -75,6 +113,14 @@
       }
     },
     methods: {
+      viewDetail(item,index,target){
+        console.log(item, index, target);
+        alert('detail click '+index);
+      },
+      adjustStock( item,index,target ){
+           console.log(item, index, target);
+           alert('adjust stock click '+index);
+      },
       showModal(){
         //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
 
@@ -119,136 +165,6 @@
 </script>
 
 <style scoped>
-  .inventory-dashboard-content{
-    display: inline-block;
-    width: 100%;
-  }
-  .control-panel{
-    border-bottom: 1px solid #cccccc;
-    display: inline-block;
-    margin-bottom: 5px;
-    padding: 5px 16px;
-    width: 100%;
-  }
-  .content-panel-left{
-    display: inline-block;
-    width: 50%;
-    float: left;
-    color: #8f8f8f;
-  }
-  .content-panel-right{
-    display: inline-block;
-    width: 50%;
-    float: left;
-  }
-  .panel-top{
-    display: inline-block;
-    width: 100%;
-  }
-  .search-content{
-    border-bottom: 1px solid #ced4da;
-  }
-  .button-search-box{
-    background-color: #fff;
-    border: 1px solid #fff;
-    line-height: 1.7;
-  }
-  .input-search-box{
-    border: none;
-  }
-  .input-search-box:focus, .input-search-box:active{
-    box-shadow: none;
-  }
 
-  .content-product{
-    display: inline-block;
-    padding-left: 16px;
-    width: 100%;
-  }
-  .content-product .content-product-input{
-    max-width: 20%;
-    margin-bottom: 25px;
-  }
-  .content-product .content-product-input .input-icon{
-    background-color: #fff;
-    border: 1px solid #ced4da;
-    line-height: 1.8;
-    padding: 0 12px;
-    font-size: 22px;
-    cursor: pointer;
-  }
-  .content-product .content-product-input .icon-background{
-      background-color: #f8f9fa;
-  }
-  .content-product .content-product-input .icon-no-border-left-right{
-    border-left: none;
-    border-right: none;
-  }
-  .content-product .content-product-input .input-icon-left{
-    border-right: none;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-  }
-  .content-product .content-product-input .input-icon-right{
-    border-left: none;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
-  .content-product .content-product-input .input-content-search{
-    border-top: 1px solid #ced4da;
-    border-bottom: 1px solid #ced4da;
-    border-right: none;
-    border-left: none;
-    padding: 20px 0;
-  }
-  .content-product .content-product-input .input-content-search:focus{
-    outline: none;
-    box-shadow: none;
-  }
-
-  .content-card{
-    display: inline-block;
-    padding: 5px 16px;
-    width: 100%;
-  }
-  .card-item{
-    border: 1px solid #ced4da;
-    display: inline-block;
-    padding: 8px 16px;
-    margin: 5px 10px;
-    min-width: 150px;
-    width: 300px;
-    height: 140px;
-  }
-  .card-item-header-title-left{
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 0;
-    margin-top: 0;
-    display: block;
-    float: left;
-  }
-  .card-item-header-title-left a {
-    color: #17a2b8;
-  }
-  .card-item-header-title-left a:hover{
-    text-decoration: none;
-  }
-  .card-item-header-section{
-    display: inline-block;
-    float: right;
-  }
-  .card-item-header-section a {
-    color: #666666;
-  }
-
-  .card-content{
-    display: inline-block;
-    margin-top: 16px;
-    width: 100%;
-  }
-  .card-content a:hover{
-    text-decoration: none;
-  }
 </style>
 
