@@ -1,6 +1,6 @@
 <template>
   <div class="main-inventory">
-    <InventoryTopBar/>
+    <user-topbar/>
     <Nuxt />
   </div>
 </template>
