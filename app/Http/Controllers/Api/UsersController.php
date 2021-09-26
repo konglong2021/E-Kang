@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Models\User;
-use App\Models\Role;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class UsersController extends Controller
 {
@@ -20,8 +22,7 @@ class UsersController extends Controller
     {
         $users = User::with('roles')
         ->orderBy('id', 'desc')->get();
-        
-        return view('pos.user.index',compact('users'));
+        return response()->json($users);
     }
 
     /**
@@ -31,10 +32,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        $roles = Role::pluck('title', 'id');
-        
-
-        return view('pos.user.create',compact('roles'));
+        //
     }
 
     /**
@@ -58,7 +56,7 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
-            // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
+          
            
         ]);
         //Hash::make($input['password'])
@@ -69,9 +67,13 @@ class UsersController extends Controller
             'password' => Hash::make($request['password']),
         ]);
 
-        
-       
-        return redirect()->route('user.index')->with('success','You have successfully Created.');
+        $token =  $user->createToken('Apptoken')->plainTextToken;
+        return response()->json([
+            "success" => true,
+            "message" => "User successfully Created",
+            "user" =>  $user,
+            "Token" => $token
+        ]);
     }
 
     /**
@@ -82,7 +84,9 @@ class UsersController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+        // $brand =Brand::find($id);
+        return response()->json($user);
     }
 
     /**
@@ -91,15 +95,9 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user)
+    public function edit($id)
     {
-        $roles = Role::pluck('title', 'id');
-        
-        // $categories = Categorie::pluck('name', 'id');
-
-         $user->load('roles');
-        // dd($products);
-        return view('pos.user.edit', compact('user', 'roles'));
+        //
     }
 
     /**
@@ -109,7 +107,7 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'name'     => [
@@ -123,11 +121,12 @@ class UsersController extends Controller
         ]);
         
         $user->update($request->all());
-        $user->roles()->sync($request->input('roles', []));
-
-        return redirect()->route('user.index')
-        ->with('success','update successfully');
-
+        $user->roles()->sync(json_decode($request->input('roles', [])));
+        return response()->json([
+           
+            "message" => "Successfully Updated",
+            "user" =>  $user
+        ]);
     }
 
     /**
@@ -139,8 +138,59 @@ class UsersController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+        return response()->json([
+           
+            "message" => "Successfully Deleted",
+            "user" =>  $user
+        ]);
+    }
 
-        return redirect()->route('user.index')
-        ->with('success','Delete successfully');
+
+    public function logout(Request $request)
+    {
+        auth()->user()->tokens()->delete();
+        return [
+            'message' => 'Logged Out'
+        ];
+    }
+
+    public function login(Request $request)
+    {
+        $attr = $request->validate([
+            'password'     => [
+                'string',
+                'required',
+            ],
+            'email'    => [
+                'email',
+                'required',
+            ],
+        ]);
+
+        $user = User::where('email',$request['email'])->first();
+
+        // if(!$user || !Hash::check($request['password'], $user->password))
+        // {
+        //     return response()->json([
+        //         'message' => 'Email and Password invalid'
+        //     ],401);
+        // }
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+        // if (!Auth::attempt($attr)) {
+        //     return $this->error('Credentials not match', 401);
+        // }
+
+        $token =  $user->createToken('Apptoken')->plainTextToken;
+        return response()->json([
+            "success" => true,
+            "message" => "Loging in Successfully",
+            "user" =>  $user,
+            "Token" => $token
+        ]);
     }
 }

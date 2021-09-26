@@ -13,15 +13,28 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::ApiResource('/product','App\Http\Controllers\Api\ProductsController');
-Route::ApiResource('/brand','App\Http\Controllers\Api\BrandsController');
-Route::ApiResource('/category','App\Http\Controllers\Api\CategoriesController');
-Route::ApiResource('/supplier','App\Http\Controllers\Api\SuppliersController');
-Route::ApiResource('/warehouse','App\Http\Controllers\Api\WarehousesController');
-Route::ApiResource('/customer','App\Http\Controllers\Api\CustomersController');
-Route::ApiResource('/member','App\Http\Controllers\Api\MembersController');
+
+//Public Route
+Route::post('/login',[App\Http\Controllers\Api\UsersController::class,'login']);
+
+
 
 // Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Authentication 
+Route::group(['middleware' => ['auth:sanctum']],function(){
+
+    Route::post('/logout',[App\Http\Controllers\Api\UsersController::class,'logout']);
+    Route::ApiResource('/brand','App\Http\Controllers\Api\BrandsController');
+    Route::ApiResource('/product','App\Http\Controllers\Api\ProductsController');
+    Route::ApiResource('/category','App\Http\Controllers\Api\CategoriesController');
+    Route::ApiResource('/supplier','App\Http\Controllers\Api\SuppliersController');
+    Route::ApiResource('/warehouse','App\Http\Controllers\Api\WarehousesController');
+    Route::ApiResource('/customer','App\Http\Controllers\Api\CustomersController');
+    Route::ApiResource('/member','App\Http\Controllers\Api\MembersController');
+    Route::ApiResource('/user','App\Http\Controllers\Api\UsersController');
+
 });
