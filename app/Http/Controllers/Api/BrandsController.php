@@ -41,7 +41,7 @@ class BrandsController extends Controller
     public function store(Request $request)
     {
         $brand = Brand::create($request->all());
-        $brand->categories()->sync($request->input('categories', []));
+        $brand->categories()->sync(json_decode($request->input('categories', [])));
 
         
         
@@ -88,7 +88,7 @@ class BrandsController extends Controller
     {
         $input = $request->all();
         $brand->update($input);
-        $brand->categories()->sync($request->input('categories', []));
+        $brand->categories()->sync(json_decode($request->input('categories', [])));
        
             return response()->json([
            

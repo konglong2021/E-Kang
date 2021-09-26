@@ -86,7 +86,7 @@ class ProductsController extends Controller
 
         ]);
 
-        $product->brands()->sync($request->input('brands', []));
+        $product->brands()->sync(json_decode($request->input('brands', [])));
         // return response()->json($product);
         return response()->json([
             "success" => true,
@@ -157,9 +157,9 @@ class ProductsController extends Controller
         }else{
             unset($input['image']);
         }
-
+        
         $product->update($input);
-        $product->brands()->sync($request->input('brands', []));
+        $product->brands()->sync(json_decode($request->input('brands', [])));
 
             return response()->json([
 
