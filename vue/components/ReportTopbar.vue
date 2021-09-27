@@ -10,31 +10,17 @@
     <div class="content-menu-text">
       <ul class="list-menu-text">
         <li class="menu-text-item">
-          <a href="/inventory">
-            <span><i class="fa fa-balance-scale" aria-hidden="true"></i> Inventory</span>
+          <a href="/report-daily">
+            <span><i class="fa fa-calendar-plus-o" aria-hidden="true"></i>Sales Daily</span>
           </a>
         </li>
         <li class="menu-text-item">
-          <a href="/categories">
-            <span> <i class="fa fa-cogs" aria-hidden="true"></i> 
-  Categories</span>
+          <a href="/report-monthly">
+            <span> <i class="fa fa-calendar" aria-hidden="true"></i>
+  Sale Monthly</span>
           </a>
         </li>
-        <li class="menu-text-item">
-          <a href="/brands">
-            <span> <i class="fa fa-asterisk" aria-hidden="true"></i> Brands</span>
-          </a>
-        </li>
-        <li class="menu-text-item">
-          <a href="/products">
-            <span><i class="fa fa-gift" aria-hidden="true"></i> Products</span>
-          </a>
-        </li>
-        <li class="menu-text-item">
-          <a href="/loyalty">
-            <span><i class="fa fa-trophy" aria-hidden="true"></i> Loyalty</span>
-          </a>
-        </li>
+
     
       </ul>
     </div>

@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Categorie;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
+use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Hash;
 
 class ProductsController extends Controller
 {
@@ -17,6 +20,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        
         $products = Product::with('brands')
         ->orderBy('id', 'desc')->paginate(15);
        return response()->json($products);
@@ -86,7 +91,7 @@ class ProductsController extends Controller
 
         ]);
 
-        $product->brands()->sync($request->input('brands', []));
+        $product->brands()->sync(json_decode($request->input('brands', [])));
         // return response()->json($product);
         return response()->json([
             "success" => true,
@@ -157,9 +162,9 @@ class ProductsController extends Controller
         }else{
             unset($input['image']);
         }
-
+        
         $product->update($input);
-        $product->brands()->sync($request->input('brands', []));
+        $product->brands()->sync(json_decode($request->input('brands', [])));
 
             return response()->json([
 
