@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 //Public Route
 Route::post('/login',[App\Http\Controllers\Api\UsersController::class,'login']);
+Route::ApiResource('/purchase','App\Http\Controllers\Api\PurchasesController');
 
 
 
