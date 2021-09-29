@@ -11,11 +11,15 @@
   "dependencies": {
     "@fortawesome/vue-fontawesome": "^2.0.2",
     "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/i18n": "^7.0.3",
     "@nuxtjs/proxy": "^2.1.0",
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.15.1",
-    "nuxt": "^2.15.7"
+    "jquery": "^3.6.0",
+    "nuxt": "^2.15.7",
+    "nuxt-vue-multiselect": "^1.0.4",
+    "vue-i18n": "^8.26.1"
   },
   "devDependencies": {
     "@nuxtjs/fontawesome": "^1.1.2"

@@ -9,6 +9,12 @@
 }
 .main-page-content{
   font-family: "Khmer OS Bokor";
+  min-height: calc(100vh - 130px);
+  background-color: #f8f9fa;
+}
+
+.content-background-color{
+  background-color: #FFFFFF;
 }
 
 body {
@@ -17,8 +23,35 @@ body {
 .head-title {
   font-weight: bold;
   color: #000;
-  
+
 }
 .btn-wrapper{
   padding-left: 2px;
+}
+
+.width-40-percentage{
+  width: 40%;
+}
+.width-60-percentage{
+  width: 60%;
+}
+
+.margin-top-25{
+  margin-top: 25px;
+}
+
+.full-content{
+  display: inline-block;
+  width: 100%;
+}
+.full-container{
+  display: inline-block;
+  width: 100%;
+  min-height: calc(100vh - 150px);
+}
+
+.user-select-none{
+  user-select: none !important;
+  -ms-user-select: none !important;
+  -moz-user-select: none !important;
 }

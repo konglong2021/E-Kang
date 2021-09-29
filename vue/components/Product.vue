@@ -78,6 +78,7 @@
     },
   }
 </script>
+
 <style scoped>
   .control-panel{
     border-bottom: 1px solid #cccccc;
