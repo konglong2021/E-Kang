@@ -8,8 +8,10 @@ use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\Stock;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class PurchasesController extends Controller
 {
@@ -44,16 +46,38 @@ class PurchasesController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'subtotal'     => [
+                'required',
+            ],
+            'grandtotal'    => [
+                'required',
+            ],
+            'supplier_id'    => [
+                'required',
+            ],
+            'warehouse_id'    => [
+                'required',
+            ],
+            'purchases'    => [
+                'required',
+            ],
+        ]);
+
+        // try{
+
+        DB::transaction(function () use ($request){
         $purchase = new Purchase();
         $purchase->warehouse_id = $request->warehouse_id;
         $purchase->supplier_id = $request->supplier_id;
-        $purchase->user_id = $request->user_id;
+        $purchase->user_id = auth()->user()->id;
         $purchase->batch = $request->batch;
         $purchase->subtotal = $request->subtotal;
         $purchase->vat = $request->vat;
         $purchase->grandtotal = $request->grandtotal;
         $purchase->save();
 
+        
         $purchase_details= $request->purchases; // purchase is the array of purchase details
        
         foreach($purchase_details as $item)
@@ -61,12 +85,11 @@ class PurchasesController extends Controller
             
             $pdetail = PurchaseDetail::create([
 
-            'purchase_id' => $item['purchase_id'],
+            'purchase_id' => $purchase->id,
             'product_id' => $item['product_id'],
             'unitprice' => $item['unitprice'],
             'quantity' => $item['quantity'],
-            
-            
+        
             
            ] );
 
@@ -89,15 +112,20 @@ class PurchasesController extends Controller
                 ]);
             }
         }
+        
+
+         }); 
+        // }catch(\Exception $exception){
+        //     return response()->json('Something Wrong Please Try Again');
+        // }
 
         return response()->json([
 
             "message" => "Successfully Created",
-            "purchase" =>  $purchase,
-            "stock" =>  $stock,
+
         ]);
 
-        
+      
 
         // $user = User::where('email', request('email'))->first();
  

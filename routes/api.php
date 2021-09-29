@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 //Public Route
 Route::post('/login',[App\Http\Controllers\Api\UsersController::class,'login']);
-Route::ApiResource('/purchase','App\Http\Controllers\Api\PurchasesController');
 
 
 
@@ -37,5 +36,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/customer','App\Http\Controllers\Api\CustomersController');
     Route::ApiResource('/member','App\Http\Controllers\Api\MembersController');
     Route::ApiResource('/user','App\Http\Controllers\Api\UsersController');
+    Route::ApiResource('/purchase','App\Http\Controllers\Api\PurchasesController');
+
 
 });
