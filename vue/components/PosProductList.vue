@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="pos-product-list">
         <div class="product-list-header">
                     <div class="pull-left">
                       <i class="fa fa-home fa-3x"></i>
@@ -13,7 +13,7 @@
         <div class="product-list-body">
                 <div  v-for="p in products" :key="p.id"
                 class="pro-item" >
-                <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }">
+                <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
                     <div class="pro-price">
                         {{p.price}} {{p.currency}}
                     </div>
@@ -29,7 +29,7 @@
 </template>
 <script>
 export default {
-    data() {
+  data() {
     return {
       categories : [
           {
@@ -70,55 +70,58 @@ export default {
       ]
     };
   },
+  watch:{
+  },
   methods: {
     onSubmit(event) {
       event.preventDefault();
       alert(JSON.stringify(this.form));
+    },
+    selectProductItem(item){
+      this.$emit('selectProduct', item);
     }
   }
-
 }
 </script>
 <style scoped>
-.category-item {
-    padding: 10px;
-    text-align: left;
-    vertical-align: center;
-    cursor: pointer;
-    min-width: 100px;
+  .category-item {
+      padding: 10px;
+      text-align: left;
+      vertical-align: center;
+      cursor: pointer;
+      min-width: 100px;
 
-}
-.category-item:hover {
-    background-color: #000;
-    color:#fff;
-}
-.product-list-header
-{
-    border-bottom: 2px solid #000;
-    display: inline-block;
-    width: 100%;
-    z-index: 1000;
-}
-.pro-item {
-    float: left;
-    background:#fff;
-    padding: 5px;
-    border-radius: 10px;
-    margin: 2px;
-    min-width: 150px;
-    cursor: pointer;
-}
-.pro-img {
-    background-repeat: no-repeat;
-    padding: 50px;
+  }
+  .category-item:hover {
+      background-color: #000;
+      color:#fff;
+  }
+  .product-list-header {
+      border-bottom: 2px solid #000;
+      display: inline-block;
+      width: 100%;
+      z-index: 1000;
+  }
+  .pro-item {
+      float: left;
+      background:#fff;
+      padding: 5px;
+      border-radius: 10px;
+      margin: 2px;
+      min-width: 150px;
+      cursor: pointer;
+  }
+  .pro-img {
+      background-repeat: no-repeat;
+      padding: 50px;
 
-}
-.pro-price{
-    color :#fff;
-    background-color: #000;
-    border-radius: 5px;
-    position: absolute;
-    margin-top: -53px;
-    margin-left: -10px;
-}
+  }
+  .pro-price{
+      color :#fff;
+      background-color: #000;
+      border-radius: 5px;
+      position: absolute;
+      margin-top: -53px;
+      margin-left: -10px;
+  }
 </style>

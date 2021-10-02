@@ -80,14 +80,7 @@
           code: null,
 
         },
-        purchases:{
-          import_date: null,
-          import_price: 0,
-          warehouse: null,
-          supplier: null,
-          quantity: 0,
-          vat: 0
-        },
+
         categories: [{ text: 'Select One', value: null }, {text: 'Screen', value: 1}, {text: 'Headset', value: 2}, {text: 'chargers', value: 3}],
         brands: [{ text: 'Select One', value: null }, {text: 'Samsung', value: 1}, {text: 'PUB G', value: 2}],
         warehouses: [{ text: 'Select One', value: null }, {text: 'A', value: 1}, {text: 'B', value: 2}],
@@ -106,7 +99,7 @@
         formData.append("category_id", this.form.category);
         formData.append("brands", this.form.brand);
         formData.append("description", this.form.description);
-        formData.append("image", this.form.image);
+        formData.append("image", this.uploadFile);
 
         if(this.is_purchases === 'not_purchase'){
           this.$axios.post('/api/product', formData)
@@ -190,10 +183,6 @@
 </script>
 
 <style scoped>
-  .full-content{
-    display: inline-block;
-    width: 100%
-  }
   .content-product{
     font-family: "Khmer OS Bokor" ;
   }

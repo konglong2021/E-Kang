@@ -9,7 +9,7 @@
            <b-container class="col-6 mx-auto menu-wrapper">
             <b-row>
               <b-col>
-              
+
           <div class="input-group input-group-sm search-content">
              <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
             <input class="form-control input-search-box" type="search" placeholder="Search..."/>
@@ -17,13 +17,13 @@
               </b-col>
               <div class="btn-wrapper">
                   <b-button href="#"  size="sm" variant="primary" title="Import product from Supplier">
-                    Import 
+                    Import
                     <i class="fa fa-cart-plus" aria-hidden="true"></i>
                   </b-button>
               </div>
                <b-col>
                   <b-button href="#"  title="Add new Product" size="sm" variant="primary" @click="showModal()">
-                    New Product 
+                    New Product
                     <i class="fa fa-plus" aria-hidden="true"></i>
                   </b-button>
               </b-col>
@@ -34,29 +34,25 @@
       </div>
     </div>
     <div class="content-product">
-    
- 
-  <b-table
-      :items="items"
-      :fields="fields"
-      stacked="md"
-      show-empty
-      small
-      
-    >
+      <b-table
+          :items="items"
+          :fields="fields"
+          stacked="md"
+          show-empty
+          small
 
-      <template #cell(actions)="row">
-        <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-          <i class="fa fa-eye"></i>
-        </b-button>
-        <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-          <i class="fa fa-edit"></i>
-        </b-button>
-      </template>
-      <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-    </b-table>
-    </div>
-    <div>
+        >
+
+          <template #cell(actions)="row">
+            <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+              <i class="fa fa-eye"></i>
+            </b-button>
+            <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+              <i class="fa fa-edit"></i>
+            </b-button>
+          </template>
+          <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+        </b-table>
     </div>
     <add-new-product-modal v-model="newProductModal"/> <!--no need to import it will automatically rendering it -->
   </div>
@@ -77,17 +73,17 @@
             import_price:20.0,
             qty:10,
             store:'Main Store'
-            
+
           }
         ],
-         fields: [
+        fields: [
           { key: 'name_en', label: 'Name' },
           { key: 'name_kh', label: 'Name(KH)' },
           { key: 'sell_price', label: 'Sell Price' },
           { key: 'import_price', label: 'Import Price' },
           { key: 'qty', label: 'Qty' },
           { key: 'store', label: 'Store' },
-          
+
           { key: 'actions', label: 'Actions' }
         ],
         product: {
@@ -129,36 +125,6 @@
         console.log('modal data' ,this.newProductModal);
 
 
-      },
-      onSubmit(event) {
-        event.preventDefault();
-        let formData = new FormData();
-        formData.append("en_name", this.product.en_name);
-        formData.append("kh_name", this.product.kh_name);
-        formData.append("category_id", this.product.category);
-        formData.append("brands", this.product.brand);
-        formData.append("description", this.product.description);
-        formData.append("image", this.product.image);
-
-        this.$axios.post('/api/product', formData)
-          .then(function (response) {
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      },
-      onReset(event) {
-        event.preventDefault();
-        // Reset our form values
-        this.product.en_name = '';
-        this.product.kh_name = '';
-        this.product.category = null;
-        this.product.description = '';
-        this.product.brand = null;
-        this.product.image = null;
-        this.product.sale_price= 0;
-        this.product.code= null;
       },
     }
   }

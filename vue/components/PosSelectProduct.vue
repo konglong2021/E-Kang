@@ -1,10 +1,13 @@
 <template>
     <div>
-        <div v-for="p in products" :key="p.id"  class="p-item">
-            <div style="width:85%" class="pull-left">
-                    <div class="p-name">{{p.name}}  </div>
-                    <div class="p-qty"> {{p.qty}}  / Unit</div>
-                </div>
+        <div v-for="p in products" :key="p.id"  class="p-item user-select-none">
+            <div style="width:85%; user-select: none;" class="pull-left user-select-none"  v-on:blur="closeMenu" v-on:contextmenu="openMenu(p)">
+              <div class="p-name user-select-none">{{p.name}}  </div>
+              <div class="p-qty user-select-none"> {{p.qty}}  / Unit</div>
+              <div v-show="p.id == productSelect.id">
+                <context-menu v-model="contextMenu"></context-menu>
+              </div>
+            </div>
             <div style="width:15%; text-align:right" class="pull-right p-price" >
                 {{p.price}} {{p.currency}}
             </div>
@@ -12,8 +15,8 @@
         </div>
         <div>
             <div class="total-wrapper pull-right">
-                <div class="total">Total : xxx USD </div>
-                <div class="total"> Total : xx Riel </div>
+              <div class="total">Sub Total : {{calculate("USD")}} USD </div>
+                <div class="total">Sub Total : {{calculate("Riel")}} Riel </div>
                 <div class="tax"> Taxes: 100</div>
             </div>
         </div>
@@ -21,36 +24,25 @@
 </template>
 <script>
 export default {
-    data() {
+  props: {
+    products: Array
+  },
+  data() {
     return {
-      products : [
-          {
-              id:1,
-              name : 'Prod1',
-              qty :10,
-              price: 10.9,
-              currency : 'USD',
-              img :'/images/default-prod.png'
-          },
-          {
-              id : 2,
-              name : 'Prod2',
-              qty :10,
-              price : 20,
-              currency:'Riel',
-              img :'/images/default-prod.png'
-          },
-          {
-              id: 3,
-              name : 'Prod3',
-              qty :10,
-              price : 20,
-              currency:'USD',
-              img :'/images/default-prod.png'
-          }
-      ],
-      productList : []
+      contextMenu:{
+        showMenu:false,
+      },
+      productList : [],
+      productSelect: {},
     };
+  },
+  watch:{
+    contextMenu:{
+      handler(val){
+        console.log(this.contextMenu, this.productSelect);
+      },
+      deep:true
+    }
   },
   methods: {
     async onInitData(){
@@ -61,7 +53,6 @@ export default {
             this.productList.push(response.data.data[index]);
           }
         }
-        console.log(this.productList);
       } catch (error) {
         console.log(error);
       }
@@ -70,11 +61,27 @@ export default {
       event.preventDefault();
       alert(JSON.stringify(this.form));
     },
+    calculate($currency){
+      let total = [];
+
+      Object.entries(this.products).forEach(([key, val]) => {
+        if(val.currency === $currency){
+          total.push(val.price * val.qty);
+        }
+      });
+      return total.reduce(function(total, num){ return total + num }, 0);
+    },
+    openMenu: function(data) {
+      this.productSelect = data;
+      this.contextMenu.showMenu = true;
+    },
+    closeMenu(){
+      this.contextMenu.showMenu = false;
+    }
   },
   mounted() {
-    this.onInitData()
-  }
-
+    this.onInitData();
+  },
 }
 </script>
 <style  scoped>
@@ -91,8 +98,9 @@ export default {
         font-size: 15px;
     }
     .p-item {
-        border-bottom: solid 1px #ccc;
-        cursor: pointer;
+      border-bottom: solid 1px #ccc;
+      cursor: pointer;
+      position: relative;
     }
     .p-item:hover{
         background-color: #ccc;
@@ -105,5 +113,10 @@ export default {
     .total {
         font-weight: bold;
         font-size: 30px;
+    }
+    .content-product-select .user-select-none{
+      user-select: none !important;
+      -ms-user-select: none !important;
+      -moz-user-select: none !important;
     }
 </style>
