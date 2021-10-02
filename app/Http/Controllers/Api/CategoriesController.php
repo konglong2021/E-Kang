@@ -38,7 +38,11 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        $categories = Category::create($request->all());
+        $categories = Category::create([
+            'name' => $request->name,
+            'kh_name' => $request->kh_name,
+            'description' => $request->description,
+        ]);
         $brands = json_encode($request->brands);
         $categories->brands()->sync(json_decode($brands));
         return response()->json([
