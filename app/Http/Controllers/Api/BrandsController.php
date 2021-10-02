@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -17,9 +18,22 @@ class BrandsController extends Controller
     {
         //
         $brands = Brand::with('categories')
-        ->with('products')
+        ->withCount('products')
         ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($brands);
+
+        $brandAttr = $brands->map(function (Brand $brand){
+            $brandobj = $brand->toArray();
+            $brandobj['product_count'] = $brand->products->count();
+            return $brandobj;
+        });
+        //  $brandproduct = Brand::with(['products'=>function($query){
+        //     $query->withCount('id');
+        // }])->get();
+        
+        return response()->json([
+        'brands' =>   $brands,
+        // 'brandobj' =>    $brandAttr
+        ]);
     }
 
     /**
@@ -40,8 +54,15 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-        $brand = Brand::create($request->all());
-        $brand->categories()->sync(json_decode($request->input('categories', [])));
+            $brand = Brand::create([
+            'name' => $request['name'],
+            'kh_name' => $request['kh_name'],
+            'description' => $request['description']
+        ]);
+        
+        $categories = json_encode($request->categories);
+
+        $brand->categories()->sync(json_decode($categories));
 
         
         
@@ -88,7 +109,8 @@ class BrandsController extends Controller
     {
         $input = $request->all();
         $brand->update($input);
-        $brand->categories()->sync(json_decode($request->input('categories', [])));
+        $categories = json_encode($request->categories);
+        $brand->categories()->sync(json_decode($categories));
        
             return response()->json([
            

@@ -15,7 +15,7 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('products')
+        $categories = Category::withCount('products')
         ->orderBy('id', 'desc')->paginate(10);
         return response()->json($categories);
     }
@@ -39,7 +39,8 @@ class CategoriesController extends Controller
     public function store(Request $request)
     {
         $categories = Category::create($request->all());
-        $categories->brands()->sync(json_decode($request->input('brands', [])));
+        $brands = json_encode($request->brands);
+        $categories->brands()->sync(json_decode($brands));
         return response()->json([
             "success" => true,
             "message" => "Category successfully Created",
@@ -81,7 +82,8 @@ class CategoriesController extends Controller
     {
         $input = $request->all();
         $category->update($input);
-        $category->brands()->sync(json_decode($request->input('brands', [])));
+        $brands = json_encode($request->brands);
+        $category->brands()->sync(json_decode($brands));
        
             return response()->json([
            
