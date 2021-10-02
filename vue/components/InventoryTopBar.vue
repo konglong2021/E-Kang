@@ -16,8 +16,7 @@
         </li>
         <li class="menu-text-item">
           <a href="/categories">
-            <span> <i class="fa fa-cogs" aria-hidden="true"></i> 
-  Categories</span>
+            <span> <i class="fa fa-cogs" aria-hidden="true"></i> Categories </span>
           </a>
         </li>
         <li class="menu-text-item">
@@ -35,11 +34,11 @@
             <span><i class="fa fa-trophy" aria-hidden="true"></i> Loyalty</span>
           </a>
         </li>
-    
       </ul>
     </div>
   </b-navbar>
 </template>
+
 <style >
   .inventory-bar{
     background-color:#232d3b;
@@ -99,7 +98,7 @@
     }
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
-        
+
   }
   .font-size-23{
     font-size: 23px;

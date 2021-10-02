@@ -29,7 +29,7 @@ class BrandsController extends Controller
         //  $brandproduct = Brand::with(['products'=>function($query){
         //     $query->withCount('id');
         // }])->get();
-        
+
         return response()->json([
         'brands' =>   $brands,
         // 'brandobj' =>    $brandAttr
@@ -59,13 +59,13 @@ class BrandsController extends Controller
             'kh_name' => $request['kh_name'],
             'description' => $request['description']
         ]);
-        
+
         $categories = json_encode($request->categories);
 
         $brand->categories()->sync(json_decode($categories));
 
-        
-        
+
+
         return response()->json([
             "success" => true,
             "message" => "Brand successfully Created",
@@ -111,9 +111,8 @@ class BrandsController extends Controller
         $brand->update($input);
         $categories = json_encode($request->categories);
         $brand->categories()->sync(json_decode($categories));
-       
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "brand" =>  $brand
         ]);
@@ -126,12 +125,12 @@ class BrandsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {   
+    {
         $brand = Brand::find($id);
 
         $brand->destroy($id);
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "brand" =>  $brand
         ]);

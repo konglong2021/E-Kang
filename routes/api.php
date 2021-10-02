@@ -16,7 +16,10 @@ use Illuminate\Support\Facades\Route;
 
 //Public Route
 Route::post('/login',[App\Http\Controllers\Api\UsersController::class,'login']);
-
+//Route::ApiResource('/brand','App\Http\Controllers\Api\BrandsController');
+//Route::ApiResource('/category','App\Http\Controllers\Api\CategoriesController');
+//Route::ApiResource('/product','App\Http\Controllers\Api\ProductsController');
+//Route::ApiResource('/purchase','App\Http\Controllers\Api\PurchasesController');
 
 
 // Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
@@ -24,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Authentication 
+// Authentication
 Route::group(['middleware' => ['auth:sanctum']],function(){
 
     Route::post('/logout',[App\Http\Controllers\Api\UsersController::class,'logout']);

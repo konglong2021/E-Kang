@@ -24,32 +24,27 @@ export default {
   methods: {
     selectProduct($data){
       if(!empty($data)){
-        let item = $data;
-        let itemFoundObj = this.findDuplicateProductItem($data);
-        if(itemFoundObj !== null && itemFoundObj['data'] !== null){
-          this.productSelectList.splice(itemFoundObj['index'], 1);
-          item["qty"] = (itemFoundObj['data']["qty"] + 1);
+        let foundItemIndex = this.findDuplicateProductItem(this.productSelectList, $data);
+        if(foundItemIndex === undefined){
+          if(!$data.hasOwnProperty("qty")){
+            $data["qty"] = 1;
+          }
+          this.productSelectList.push($data);
         }
-        else {
-          item["qty"] = 1;
+        else if(foundItemIndex !== undefined){
+          this.productSelectList[foundItemIndex]["qty"] = Number(this.productSelectList[foundItemIndex]["qty"]) + 1;
         }
-
-        this.productSelectList.push(item);
       }
     },
-    findDuplicateProductItem($item){
-      if(this.productSelectList && this.productSelectList.length > 0 ){
-        for (let index=0; index < this.productSelectList.length; index++){
-          if(this.productSelectList[index]["id"] === $item["id"]){
-            let returnObj = [];
-            returnObj['data'] = this.productSelectList[index];
-            returnObj['index'] = index;
-            return returnObj;
+    findDuplicateProductItem(productSelectList, $item){
+      if(productSelectList && productSelectList.length > 0 ){
+        for (let index=0; index < productSelectList.length; index++){
+          if(productSelectList[index]["id"] === $item["id"]){
+            return index;
           }
         }
       }
-      return null;
-    }
+    },
   },
   mounted() {
   }

@@ -16,6 +16,7 @@ class CategoriesController extends Controller
     public function index()
     {
         $categories = Category::withCount('products')
+            ->with('brands')
         ->orderBy('id', 'desc')->paginate(10);
         return response()->json($categories);
     }
@@ -88,9 +89,8 @@ class CategoriesController extends Controller
         $category->update($input);
         $brands = json_encode($request->brands);
         $category->brands()->sync(json_decode($brands));
-       
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "category" =>  $category
         ]);
@@ -108,7 +108,7 @@ class CategoriesController extends Controller
 
         $category->destroy($id);
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "category" =>  $category
         ]);

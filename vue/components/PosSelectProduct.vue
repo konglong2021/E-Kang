@@ -1,12 +1,9 @@
 <template>
     <div>
         <div v-for="p in products" :key="p.id"  class="p-item user-select-none">
-            <div style="width:85%; user-select: none;" class="pull-left user-select-none"  v-on:blur="closeMenu" v-on:contextmenu="openMenu(p)">
-              <div class="p-name user-select-none">{{p.name}}  </div>
-              <div class="p-qty user-select-none"> {{p.qty}}  / Unit</div>
-              <div v-show="p.id == productSelect.id">
-                <context-menu v-model="contextMenu"></context-menu>
-              </div>
+            <div style="width:85%; user-select: none;" class="pull-left">
+              <div class="p-name user-select-none">{{p.name}} </div>
+              <div class="p-qty user-select-none"> {{ (p.qty) }}  / Unit</div>
             </div>
             <div style="width:15%; text-align:right" class="pull-right p-price" >
                 {{p.price}} {{p.currency}}
@@ -25,7 +22,7 @@
 <script>
 export default {
   props: {
-    products: Array
+    products: [],
   },
   data() {
     return {
@@ -42,6 +39,9 @@ export default {
         console.log(this.contextMenu, this.productSelect);
       },
       deep:true
+    },
+    products(){
+      console.log(this.products);
     }
   },
   methods: {
@@ -71,17 +71,14 @@ export default {
       });
       return total.reduce(function(total, num){ return total + num }, 0);
     },
-    openMenu: function(data) {
-      this.productSelect = data;
-      this.contextMenu.showMenu = true;
-    },
-    closeMenu(){
-      this.contextMenu.showMenu = false;
-    }
   },
   mounted() {
     this.onInitData();
+    console.log(this.products);
   },
+  computed:{
+    activeSection(){ return this.active;}
+  }
 }
 </script>
 <style  scoped>

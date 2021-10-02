@@ -71,11 +71,12 @@
            }
          },
          deep:true
-       }
+       },
     },
     mounted(){
       let vm = this;
       console.log(this.value,'myvalue');
+
       this.getBrands();
       this.getCategories();
     },
@@ -157,6 +158,7 @@
         formData.append("image", this.uploadFile);
         formData.append("sale_price", this.product.sale_price);
         formData.append("brands" , JSON.stringify(brands));
+
         this.$axios.post('/api/product', formData)
           .then(function (response) {
             commit('setMessage', {response: 'success', type: type});
@@ -169,7 +171,10 @@
       hideModal() {
         this.$refs['product-form-modal'].hide();
       },
-    }
+      viewDetail($data){
+        console.log("data",$data);
+      },
+    },
   }
 </script>
 

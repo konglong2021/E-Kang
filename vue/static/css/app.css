@@ -29,6 +29,10 @@ body {
   padding-left: 2px;
 }
 
+.margin-right-20-percentage{
+  margin-right: 20px;
+}
+
 .width-40-percentage{
   width: 40%;
 }
@@ -54,4 +58,16 @@ body {
   user-select: none !important;
   -ms-user-select: none !important;
   -moz-user-select: none !important;
+}
+
+.content-product-full-height{
+  height: calc(100vh - 150px)
+}
+
+.content-loading{
+  margin: 0 auto;
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  text-align: center;
 }
