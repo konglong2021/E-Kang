@@ -71,3 +71,6 @@ body {
   width: 100%;
   text-align: center;
 }
+.active-item-product{
+  background-color: #ccc;
+}

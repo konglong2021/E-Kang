@@ -2,8 +2,8 @@
 <b-container fluid class="bv-example-row">
   <b-row>
     <b-col cols="4" class="content-product-select">
-      <PosSelectProduct :products="productSelectList" />
-      <PosCalculator />
+      <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" />
+      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>
     </b-col>
     <b-col cols="8" class="product-list">
         <PosProductList @selectProduct="selectProduct($event)" />
@@ -12,42 +12,74 @@
 </b-container>
 </template>
 <script>
-import {empty} from "../.nuxt/utils";
 
 export default {
     layout:'posui',
   data(){
     return {
-      productSelectList: []
+      productSelectList: [],
+      productItem: {},
+      calculateItem: {},
     }
   },
   methods: {
     selectProduct($data){
-      if(!empty($data)){
-        let foundItemIndex = this.findDuplicateProductItem(this.productSelectList, $data);
-        if(foundItemIndex === undefined){
-          if(!$data.hasOwnProperty("qty")){
+      //this.productItem = JSON.parse(JSON.stringify($data));
+      if($data){
+        if(!$data.hasOwnProperty("qty")){
+          if(this.productSelectList.length === 0){
             $data["qty"] = 1;
+            this.productSelectList.push($data);
           }
-          this.productSelectList.push($data);
+          else {
+            let foundItem = false;
+            for(let i=0; i < this.productSelectList.length; i++){
+              if(this.productSelectList[i]["id"] === $data["id"]){
+                let itemTemp = JSON.parse(JSON.stringify(this.productSelectList[i]));
+                itemTemp["qty"] = Number(itemTemp['qty']) + 1;
+                this.$set(this.productSelectList, i, itemTemp);
+                foundItem = true;
+                break;
+              }
+            }
+            if(foundItem === false){
+              $data["qty"] = 1;
+              this.productSelectList.push($data);
+            }
+          }
         }
-        else if(foundItemIndex !== undefined){
-          this.productSelectList[foundItemIndex]["qty"] = Number(this.productSelectList[foundItemIndex]["qty"]) + 1;
+        else {
+          let foundItem = false;
+          for(let i=0; i < this.productSelectList.length; i++){
+            if(this.productSelectList[i]["id"] === $data["id"]){
+              let itemTemp = JSON.parse(JSON.stringify(this.productSelectList[i]));
+              itemTemp["qty"] = Number(itemTemp['qty']) + 1;
+              this.$set(this.productSelectList, i, itemTemp);
+              foundItem = true;
+              break;
+            }
+          }
+          if(foundItem === false){
+            $data["qty"] = 1;
+            this.productSelectList.push($data);
+          }
         }
       }
     },
-    findDuplicateProductItem(productSelectList, $item){
-      if(productSelectList && productSelectList.length > 0 ){
-        for (let index=0; index < productSelectList.length; index++){
-          if(productSelectList[index]["id"] === $item["id"]){
-            return index;
-          }
+    selectedItem($item){
+      this.calculateItem = $item;
+    },
+    increaseQty($event){
+      for(let index=0; index < this.productSelectList.length; index++) {
+        if (this.productSelectList[index]["id"] === $event["id"]) {
+          let itemTemp = JSON.parse(JSON.stringify(this.productSelectList[index]));
+          itemTemp["qty"] = Number($event["qty"]);
+          this.$set(this.productSelectList, index, itemTemp);
+          this.calculateItem = itemTemp;
         }
       }
     },
   },
-  mounted() {
-  }
 }
 </script>
 
