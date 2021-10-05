@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Resources\BrandResource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class BrandsController extends Controller
 {
@@ -17,23 +19,15 @@ class BrandsController extends Controller
     public function index()
     {
         //
-        $brands = Brand::with('categories')
+        $brands = Brand::withCount('categories')
         ->withCount('products')
         ->orderBy('id', 'desc')->paginate(10);
 
-        $brandAttr = $brands->map(function (Brand $brand){
-            $brandobj = $brand->toArray();
-            $brandobj['product_count'] = $brand->products->count();
-            return $brandobj;
-        });
-        //  $brandproduct = Brand::with(['products'=>function($query){
-        //     $query->withCount('id');
-        // }])->get();
+        // return response()->json([
+        // 'brands' =>   $brands,
+        // ]);
 
-        return response()->json([
-        'brands' =>   $brands,
-        // 'brandobj' =>    $brandAttr
-        ]);
+        return BrandResource::collection($brands)->response();
     }
 
     /**
