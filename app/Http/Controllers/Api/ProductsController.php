@@ -92,7 +92,8 @@ class ProductsController extends Controller
 
         ]);
 
-        $product->brands()->sync(json_decode($request->input('brands', [])));
+        $brands = json_encode($request->brands);
+        $product->brands()->sync(json_decode($brands));
         // return response()->json($product);
         return response()->json([
             "success" => true,
@@ -134,20 +135,7 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //  return response()->json($id);
 
-
-
-        // $request->validate([
-        //     'en_name'     => [
-        //         'string',
-        //         'required',
-        //     ],
-        //     'kh_name'    => [
-        //         'required',
-        //     ]
-        // ]);
-        // return response()->json($product);
 
         $input = $request->all();
         // return response()->json($input);
@@ -165,7 +153,9 @@ class ProductsController extends Controller
         }
 
         $product->update($input);
-        $product->brands()->sync(json_decode($request->input('brands', [])));
+
+        $brands = json_encode($request->brands);
+        $product->brands()->sync(json_decode($brands));
 
             return response()->json([
 

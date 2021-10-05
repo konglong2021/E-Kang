@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 use App\Models\Category;
-
+use App\Http\Resources\CategoriesResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
 
 class CategoriesController extends Controller
 {
@@ -17,8 +19,8 @@ class CategoriesController extends Controller
     {
         $categories = Category::withCount('products')
             ->with('brands')
-        ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($categories);
+             ->orderBy('id', 'desc')->paginate(10);
+        return CategoriesResource::collection($categories)->response();
     }
 
     /**
@@ -59,9 +61,9 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        $category->with('products')->get();
+        $category=Category::with('products')->find($id);
         return response()->json($category);
     }
 

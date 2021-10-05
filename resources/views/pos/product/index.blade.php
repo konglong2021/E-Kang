@@ -105,6 +105,9 @@
                                         <th>#</th>
                                         <th>English Name</th>
                                         <th>Khmer Name</th>
+                                        <th>Sale Price</th>
+                                        <th>Category</th>
+                                        <th>Brands</th>
                                         <th>Barcode</th>
                                         <th>Image</th>
                                         <th class="ecomm-action-icon">Action</th>
