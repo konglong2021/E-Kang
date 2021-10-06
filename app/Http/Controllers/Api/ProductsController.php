@@ -18,13 +18,24 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-//        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        $products = Product::with('brands')
+        if (empty($request->all())) {
+            $products = Product::with('brands')
             ->with('categories')
             ->orderBy('id', 'desc')->paginate(15);
+        }else {
+          $query = $request->input('search');
+          $products= Product::where('en_name','like','%'.$query.'%')
+                        ->orwhere('kh_name','like','%'.$query.'%')
+                        ->orwhere('code','like','%'.$query.'%')
+                        ->orderBy('id','desc')->paginate(15);
+        }
+
+         //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
+//        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        
        return response()->json($products);
     }
 

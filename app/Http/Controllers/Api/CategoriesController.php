@@ -15,11 +15,20 @@ class CategoriesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::withCount('products')
-            ->with('brands')
-             ->orderBy('id', 'desc')->paginate(10);
+        if (empty($request->all())) {
+            $categories = Category::withCount('products')
+                        ->with('brands')
+                        ->orderBy('id', 'desc')->paginate(10);
+        }else {
+          $query = $request->input('search');
+          $categories= Category::where('name','like','%'.$query.'%')
+                        ->orwhere('kh_name','like','%'.$query.'%')
+                        ->orderBy('id','desc')->paginate(15);
+        }
+
+        
         return CategoriesResource::collection($categories)->response();
     }
 

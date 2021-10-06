@@ -16,12 +16,20 @@ class BrandsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $brands = Brand::withCount('categories')
-        ->withCount('products')
-        ->orderBy('id', 'desc')->paginate(10);
+        if (empty($request->all())) {
+            $brands = Brand::withCount('categories')
+                    ->withCount('products')
+                    ->orderBy('id', 'desc')->paginate(10);
+        }else {
+          $query = $request->input('search');
+          $brands= Brand::where('name','like','%'.$query.'%')
+                        ->orwhere('kh_name','like','%'.$query.'%')
+                        ->orderBy('id','desc')->paginate(15);
+        }
+
+        
 
         // return response()->json([
         // 'brands' =>   $brands,
