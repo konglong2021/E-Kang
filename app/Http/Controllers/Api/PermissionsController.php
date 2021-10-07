@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Permission;
 use Illuminate\Http\Request;
-use App\Models\Customer;
 
-class CustomersController extends Controller
+class PermissionsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +15,8 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $customer = Customer::orderBy('id', 'desc')->paginate(10);
-        return response()->json($customer);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $permissions = Permission::orderBy('id', 'desc')->paginate(10);
+        return response()->json($permissions);
     }
 
     /**
@@ -37,11 +27,13 @@ class CustomersController extends Controller
      */
     public function store(Request $request)
     {
-        $customer = Customer::create($request->all());
+        $permissions = Permission::create($request->all());
+        // $customers = json_encode($request->customers);
+        // $members->customers()->sync(json_decode($customers));
         return response()->json([
             "success" => true,
-            "message" => "customer successfully Created",
-            "customer" =>  $customer
+            "message" => "Permission successfully Created",
+            "permission" =>  $permissions
         ]);
     }
 
@@ -49,23 +41,12 @@ class CustomersController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Permission $permission)
     {
-        $customer =Customer::find($id);
-        return response()->json($customer);
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return response()->json($permission);
     }
 
     /**
@@ -75,16 +56,17 @@ class CustomersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, Permission $permission)
     {
         $input = $request->all();
-        $customer->update($input);
+        $permission->update($input);
+        // $customers = json_encode($request->customers);
+        // $member->customers()->sync(json_decode($customers));
 
-
-            return response()->json([
+        return response()->json([
 
             "message" => "Successfully Updated",
-            "customer" =>  $customer
+            "permission" =>  $permission
         ]);
     }
 
@@ -92,17 +74,16 @@ class CustomersController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
-        $customer = Customer::find($id);
+        $permission = Permission::find($id);
 
-        $customer->destroy($id);
+        $permission->destroy($id);
         return response()->json([
-
             "message" => "Successfully Deleted",
-            "customer" =>  $customer
+            "category" =>  $permission
         ]);
     }
 }

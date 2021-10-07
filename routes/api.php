@@ -40,6 +40,8 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/member','App\Http\Controllers\Api\MembersController');
     Route::ApiResource('/user','App\Http\Controllers\Api\UsersController');
     Route::ApiResource('/purchase','App\Http\Controllers\Api\PurchasesController');
+    Route::ApiResource('/permission','App\Http\Controllers\Api\PermissionsController');
+    Route::ApiResource('/role','App\Http\Controllers\Api\RolesController');
 
 
 });
