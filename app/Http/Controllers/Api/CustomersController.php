@@ -49,7 +49,7 @@ class CustomersController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -100,7 +100,6 @@ class CustomersController extends Controller
 
         $customer->destroy($id);
         return response()->json([
-
             "message" => "Successfully Deleted",
             "customer" =>  $customer
         ]);

@@ -43,5 +43,11 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/permission','App\Http\Controllers\Api\PermissionsController');
     Route::ApiResource('/role','App\Http\Controllers\Api\RolesController');
 
-
+    //Search Route
+    Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
+    Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
+    Route::post('/brand/search',[App\Http\Controllers\Api\BrandsController::class,'index'])->name('brand.search');
 });
+
+
+
