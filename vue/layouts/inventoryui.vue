@@ -4,6 +4,7 @@
     <Nuxt />
   </div>
 </template>
+
 <style>
   .main-pos {
     background-color: #dedede;
@@ -13,7 +14,6 @@
     background-color: #eff3f6;
        height: 100vh;
   }
-  
 
   .inventory-dashboard-content{
     display: inline-block;
@@ -149,7 +149,6 @@
   .card-content a:hover{
     text-decoration: none;
   }
-
   .content-panel-right .col{
     padding-left: 1px;
     padding-right: 1px;

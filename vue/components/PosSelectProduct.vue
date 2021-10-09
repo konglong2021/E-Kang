@@ -1,12 +1,10 @@
 <template>
     <div>
-        <div v-for="p in products" :key="p.id"  class="p-item user-select-none">
-            <div style="width:85%; user-select: none;" class="pull-left user-select-none"  v-on:blur="closeMenu" v-on:contextmenu="openMenu(p)">
-              <div class="p-name user-select-none">{{p.name}}  </div>
-              <div class="p-qty user-select-none"> {{p.qty}}  / Unit</div>
-              <div v-show="p.id == productSelect.id">
-                <context-menu v-model="contextMenu"></context-menu>
-              </div>
+        <div v-for="p in products" v-bind:key="p.id" class="p-item"
+             @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}">
+            <div style="width:85%;" class="pull-left">
+              <div class="p-name">{{ p.name }} </div>
+              <div class="p-qty"> {{ (p.qty) }}  / Unit</div>
             </div>
             <div style="width:15%; text-align:right" class="pull-right p-price" >
                 {{p.price}} {{p.currency}}
@@ -25,24 +23,47 @@
 <script>
 export default {
   props: {
-    products: Array
+    // product: Object,
+    products: [],
   },
   data() {
     return {
-      contextMenu:{
-        showMenu:false,
-      },
       productList : [],
-      productSelect: {},
+      // products: [],
+      selected: undefined,
     };
   },
   watch:{
-    contextMenu:{
-      handler(val){
-        console.log(this.contextMenu, this.productSelect);
-      },
-      deep:true
-    }
+    // product: {
+    //   handler(val){
+    //     let that = this;
+    //     if(val){
+    //       if(!val.hasOwnProperty("qty")){
+    //         if(this.products.length === 0){
+    //           val["qty"] = 1;
+    //           this.products.push(val);
+    //         }
+    //         else {
+    //           let foundItem = false;
+    //           let elmFound = {};
+    //           for(let i=0; i < this.products.length; i++){
+    //             if(this.products[i]["id"] === val["id"]){
+    //               let itemTemp = JSON.parse(JSON.stringify(this.products[i]));
+    //               itemTemp["qty"] = Number(itemTemp['qty']) + 1;
+    //               this.$set(this.products, i, itemTemp);
+    //               foundItem = true;
+    //               break;
+    //             }
+    //           }
+    //           if(foundItem === false){
+    //             val["qty"] = 1;
+    //             this.products.push(val);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   },
   methods: {
     async onInitData(){
@@ -71,13 +92,10 @@ export default {
       });
       return total.reduce(function(total, num){ return total + num }, 0);
     },
-    openMenu: function(data) {
-      this.productSelect = data;
-      this.contextMenu.showMenu = true;
+    selectedItem($item){
+      this.selected = $item.id;
+      this.$emit("selectedItem", $item);
     },
-    closeMenu(){
-      this.contextMenu.showMenu = false;
-    }
   },
   mounted() {
     this.onInitData();

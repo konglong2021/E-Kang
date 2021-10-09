@@ -45,7 +45,8 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
     'nuxt-vue-multiselect',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    '@nuxtjs/toast',
   ],
 
   axios: {
@@ -72,6 +73,19 @@ export default {
         }
       }
     }
+  },
+
+  toast: {
+    position: 'top-center',
+    register: [ // Register custom toasts
+      {
+        name: 'my-error',
+        message: 'Oops...Something went wrong',
+        options: {
+          type: 'error'
+        }
+      }
+    ]
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

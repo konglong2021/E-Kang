@@ -56,7 +56,7 @@
                                 <tbody>
                                     
                                     <?php
-                                                $count=1;
+                                         $count=1;
                                     ?>
                                      @foreach ($categories as $category)
                                     <tr>

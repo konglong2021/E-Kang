@@ -1,5 +1,5 @@
 <template>
-    <div class="cal">
+    <div class="cal" style="position: relative !important;">
         <table class="tbl-cal col-12">
             <tbody>
             <tr>
@@ -7,13 +7,13 @@
                     <i class="fa fa-user"> </i>
                     Customer
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(1)">
                     1
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(2)">
                     2
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(3)">
                     3
                 </td>
                 <td>
@@ -25,13 +25,13 @@
                     <i class="fa fa-money"> </i>
                     Payment
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(4)">
                     4
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(5)">
                     5
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(6)">
                     6
                 </td>
                 <td>
@@ -40,13 +40,13 @@
             </tr>
             <tr>
 
-                <td>
+                <td @click="submitNumberIncrease(7)">
                     7
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(8)">
                     8
                 </td>
-                <td>
+                <td @click="submitNumberIncrease(9)">
                     9
                 </td>
                 <td>
@@ -55,8 +55,8 @@
             </tr>
              <tr>
 
-                <td>
-                    +/-
+                <td @click="increaseQty()">
+                    +
                 </td>
                 <td>
                     0
@@ -73,6 +73,39 @@
     </div>
 
 </template>
+
+<script>
+  export default {
+    props: {
+      productItem: Object,
+    },
+    watch: {
+      productItem: {
+        handler(value){
+          console.log(value);
+          this.dataSelected = JSON.parse(JSON.stringify(value));
+        }
+      }
+    },
+    data(){
+      return {
+        dataSelected: null,
+        numberIncrease: 0,
+      }
+    },
+    methods: {
+      submitNumberIncrease($number){
+        this.numberIncrease = Number($number);
+      },
+      increaseQty(){
+        let itemTemp = JSON.parse(JSON.stringify(this.dataSelected));
+        itemTemp["qty"] = Number(itemTemp['qty']) + Number(this.numberIncrease);
+        this.$emit("listenAction", itemTemp);
+      },
+    },
+  }
+</script>
+
 <style scoped>
     .cal {
         position: fixed;

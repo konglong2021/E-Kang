@@ -1,8 +1,3 @@
-@push('style')
-<link rel="stylesheet" href="{{asset('backend/js/DataTables/datatables.min.css')}}" >
-@endpush
-
-
 @extends('layouts.master')
 @section('content')
     
@@ -40,59 +35,56 @@
                  <div class="panel-body">
 
                     <div class="table-responsive">
-                        
-                    
-                                            <!-- /.table-responsive -->
-
-                            <table id="example" class="display table table-striped table-bordered" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Name</th>                                       
-                                        <th>Categories</th>                                       
-                                        <th class="ecomm-action-icon">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    
-                                    <?php
-                                                $count=1;
-                                    ?>
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>     
+                                    <th>Khmer Name</th>
+                                    <th>Categories</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                         $count=1;
+                                ?>
                                      @foreach ($brands as $brand)
-                                    <tr>
-                                        <td>{{$count++}}</td>
-                                        <td>{{$brand->name}}</td>                                        
-                                        <td>
-                                            @foreach ($brand->categories as $key =>$item)
-                                           <small> <span class="badge bg-info"> {{$item->name}}</span></small>
-                                            @endforeach
-                                        </td>                  
+                                <tr>
+                                    <th scope="row">{{$count++}}</th>
+                                    <td>
+                                        <b>{{$brand->name}}</b><br>
+                                        <small class="text-muted">{{$brand->description}}</small>
+                                    </td>
+                                    <td><b>{{$brand->kh_name}}</b></td>
+
+                                    <td>
+                                        @foreach ($brand->categories as $key =>$item)
+                                        <span class="label label-success label-bordered">{{$item->name}}</span>
+                                        @endforeach
+                                       
+
+                                    </td>
+                                    <td>
                                         
-                                        <td>
-                                            <a href="{{ route('brand.edit', $brand->id) }}" class="btn btn-success icon-only"><i class="fa fa-pencil"></i></a>
-                                            <a href="#" class="btn btn-warning icon-only"><i class="fa fa-eye"></i></a>
-                                            {{-- <a href="" class="btn btn-danger icon-only"><i class="fa fa-trash-o"></i></a> --}}
-                                            <form class="inline-block fa" action="{{ route('brand.destroy', $brand->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                                                <input type="hidden" name="_method" value="DELETE">
-                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                {{-- <input type="submit" class="btn btn-danger icon-only" value="Delete"><i class="fa fa-trash-o"></i> --}}
-                                                <button type="submit" class="btn btn-danger icon-only"><i class="fa fa-trash-o"></i></button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                   
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Name</th>
-                                      
-                                        <th class="ecomm-action-icon">Action</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                                       
+                                        <a href="{{ route('brand.edit', $brand->id) }}" class="btn btn-success icon-only"><i class="fa fa-pencil"></i></a>
+                                            
+                                        {{-- <a href="" class="btn btn-danger icon-only"><i class="fa fa-trash-o"></i></a> --}}
+                                        <form class="inline-block fa" action="{{ route('brand.destroy', $brand->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            {{-- <input type="submit" class="btn btn-danger icon-only" value="Delete"><i class="fa fa-trash-o"></i> --}}
+                                            <button type="submit" class="btn btn-danger icon-only"><i class="fa fa-trash-o"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            
+                        </table>
+                        <div class="text-center">{{ $brands->links() }}</div> 
+                    </div>
 
                  </div>
              </div>
@@ -108,19 +100,3 @@
 </section>
 
 @endsection
-
-@push('JsScript')
-<script src="{{asset('backend/js/prism/prism.js')}}"></script>
-<script src="{{asset('backend/js/DataTables/datatables.min.js')}}"></script>
-<script src="{{asset('backend/js/counterUp/jquery.counterup.min.js')}}"></script>
-@endpush
-
-@push('Script')
-                // Counter for dashboard stats
-              
-
-                // data table
-                $('#example').DataTable();
-            
-@endpush
-

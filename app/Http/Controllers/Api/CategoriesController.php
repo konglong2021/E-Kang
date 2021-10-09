@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 use App\Models\Category;
-
+use App\Http\Resources\CategoriesResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
 
 class CategoriesController extends Controller
 {
@@ -13,11 +15,21 @@ class CategoriesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('products')
-        ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($categories);
+        if (empty($request->all())) {
+            $categories = Category::withCount('products')
+                        ->with('brands')
+                        ->orderBy('id', 'desc')->paginate(10);
+        }else {
+          $query = $request->input('search');
+          $categories= Category::where('name','like','%'.$query.'%')
+                        ->orwhere('kh_name','like','%'.$query.'%')
+                        ->orderBy('id','desc')->paginate(15);
+        }
+
+        
+        return CategoriesResource::collection($categories)->response();
     }
 
     /**
@@ -38,8 +50,13 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        $categories = Category::create($request->all());
-        $categories->brands()->sync(json_decode($request->input('brands', [])));
+        $categories = Category::create([
+            'name' => $request->name,
+            'kh_name' => $request->kh_name,
+            'description' => $request->description,
+        ]);
+        $brands = json_encode($request->brands);
+        $categories->brands()->sync(json_decode($brands));
         return response()->json([
             "success" => true,
             "message" => "Category successfully Created",
@@ -53,9 +70,9 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        $category->with('products')->get();
+        $category=Category::with('products')->find($id);
         return response()->json($category);
     }
 
@@ -81,10 +98,10 @@ class CategoriesController extends Controller
     {
         $input = $request->all();
         $category->update($input);
-        $category->brands()->sync(json_decode($request->input('brands', [])));
-       
+        $brands = json_encode($request->brands);
+        $category->brands()->sync(json_decode($brands));
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "category" =>  $category
         ]);
@@ -102,7 +119,7 @@ class CategoriesController extends Controller
 
         $category->destroy($id);
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "category" =>  $category
         ]);

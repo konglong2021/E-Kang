@@ -15,8 +15,10 @@ class Customer extends Model
         'name',
         'address',
         'phone',
-       
+
     ];
+
+
 
     public function members()
     {

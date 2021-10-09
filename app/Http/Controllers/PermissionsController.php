@@ -72,7 +72,7 @@ class PermissionsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Permission $permission)
     {
@@ -94,6 +94,6 @@ class PermissionsController extends Controller
         $permission = Permission::find($id);
         $permission->destroy($id);
         return redirect()->route('permission.index')
-                    ->with('message','Deleted');   
+                    ->with('message','Deleted');
     }
 }

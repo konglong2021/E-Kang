@@ -18,12 +18,24 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if (empty($request->all())) {
+            $products = Product::with('brands')
+            ->with('categories')
+            ->orderBy('id', 'desc')->paginate(15);
+        }else {
+          $query = $request->input('search');
+          $products= Product::where('en_name','like','%'.$query.'%')
+                        ->orwhere('kh_name','like','%'.$query.'%')
+                        ->orwhere('code','like','%'.$query.'%')
+                        ->orderBy('id','desc')->paginate(15);
+        }
+
+         //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
+//        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         
-        $products = Product::with('brands')
-        ->orderBy('id', 'desc')->paginate(15);
        return response()->json($products);
     }
 
@@ -91,7 +103,8 @@ class ProductsController extends Controller
 
         ]);
 
-        $product->brands()->sync(json_decode($request->input('brands', [])));
+        $brands = json_encode($request->brands);
+        $product->brands()->sync(json_decode($brands));
         // return response()->json($product);
         return response()->json([
             "success" => true,
@@ -133,20 +146,7 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //  return response()->json($id);
 
-
-
-        // $request->validate([
-        //     'en_name'     => [
-        //         'string',
-        //         'required',
-        //     ],
-        //     'kh_name'    => [
-        //         'required',
-        //     ]
-        // ]);
-        // return response()->json($product);
 
         $input = $request->all();
         // return response()->json($input);
@@ -162,9 +162,11 @@ class ProductsController extends Controller
         }else{
             unset($input['image']);
         }
-        
+
         $product->update($input);
-        $product->brands()->sync(json_decode($request->input('brands', [])));
+
+        $brands = json_encode($request->brands);
+        $product->brands()->sync(json_decode($brands));
 
             return response()->json([
 

@@ -13,7 +13,8 @@ class Brand extends Model
 
     protected $fillable = [
         'name',
-        'kh_name'
+        'kh_name',
+        'description',
        
     ];
     

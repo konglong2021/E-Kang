@@ -15,9 +15,9 @@ class MembersController extends Controller
      */
     public function index()
     {
-        $members = Category::with('customers')
+        $members = Member::with('customers')
         ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($categories);
+        return response()->json($members);
     }
 
     /**
@@ -39,7 +39,8 @@ class MembersController extends Controller
     public function store(Request $request)
     {
         $members = Member::create($request->all());
-        $members->customers()->sync(json_decode($request->input('customers', [])));
+        // $customers = json_encode($request->customers);
+        // $members->customers()->sync(json_decode($customers));
         return response()->json([
             "success" => true,
             "message" => "Members successfully Created",
@@ -81,7 +82,8 @@ class MembersController extends Controller
     {
         $input = $request->all();
         $member->update($input);
-        $member->customers()->sync(json_decode($request->input('customers', [])));
+        // $customers = json_encode($request->customers);
+        // $member->customers()->sync(json_decode($customers));
        
             return response()->json([
            
