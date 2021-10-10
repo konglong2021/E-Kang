@@ -47,13 +47,54 @@ export default {
     'nuxt-vue-multiselect',
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
+    '@nuxtjs/auth',
   ],
 
   axios: {
     baseURL: 'http://localhost:8000', // Used as fallback if no runtime config is provided
+    headers: {
+      common: {
+        Accept: 'application/json, text/plain, */*'
+      }
+    },
   },
   proxy: {
     '/api/': { target: 'http://localhost:8000', pathRewrite: {'^/api/': ''}, changeOrigin: true }
+  },
+  router: {
+    middleware: ['auth']
+  },
+  auth: {
+    redirect: {
+      login: '/login',
+      logout: '/logout',
+      home: '/'
+    },
+    strategies: {
+      local: {
+        endpoints: {
+          login: {
+            url: "/api/login",
+            method: "post",
+            propertyName: "data.token",
+
+          },
+          logout: false,
+          user: {
+            url: "/api/user",
+            method: "get",
+            propertyName: "data.user",
+          },
+        },
+        tokenType: 'Bearer',
+        tokenName: 'x-auth',
+        autoFetchUser: false
+      },
+    },
+    watchLoggedIn: false,
+    localStorage: {
+      prefix: 'auth.'
+    },
   },
 
   i18n: {

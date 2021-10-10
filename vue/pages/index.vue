@@ -47,7 +47,11 @@
 
 <script>
 export default {
-  layout: "main"
+  layout: "main",
+  mounted() {
+    console.log(this.$auth);
+    console.log(this.$store.state.auth.user);
+  }
 };
 </script>
 <style  scoped>
@@ -63,5 +67,5 @@ export default {
     .main-menu .btn i {
       margin-top: 5px;
     }
-  
+
 </style>
