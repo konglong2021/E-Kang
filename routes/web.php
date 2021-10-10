@@ -33,3 +33,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('user', App\Http\Controllers\UsersController::class);
 });
 
+
+Route::get('/docs', function () {
+    return view('swagger.index');
+});
