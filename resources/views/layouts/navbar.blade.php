@@ -58,8 +58,8 @@
                                     <div class="clearfix"></div>
                                 </div>
                             </li>
-                            {{-- <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
-                            <li><a href="#"><i class="fa fa-sliders"></i> Account Details</a></li> --}}
+                            <li><a href="{{ route('profile.show') }}"><i class="fa fa-cog"></i> Settings</a></li>
+                            {{-- <li><a href="#"><i class="fa fa-sliders"></i> Account Details</a></li> --}}
                             <li role="separator" class="divider"></li>
 
                            

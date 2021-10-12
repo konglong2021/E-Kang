@@ -24,7 +24,40 @@
                     <span class="">POS System</span>
                 </li>
                 
-                <li class="has-children">
+                <li class="has-children 
+                        @if (request()->routeIs('user.*'))
+                            open
+                        @elseif(request()->routeIs('role.*'))
+                            open
+                        @elseif(request()->routeIs('permission.*'))
+                            open
+                        @else
+
+                        @endif
+                ">
+                    <a href="#"><i class="fa fa-building"></i> <span>Users Manager</span> <i class="fa fa-angle-right arrow"></i></a>
+                    <ul class="child-nav">
+                        <li><a href="{{ route('user.index') }}"><i class="fa fa-tasks"></i> <span>User</span></a></li>
+                        <li><a href="{{ route('role.index') }}"><i class="fa fa-sitemap"></i> <span>Roles</span></a></li>
+                        <li><a href="{{ route('permission.index') }}"><i class="fa fa-tasks"></i> <span>Permissions</span></a></li>                    
+                    </ul>
+                </li>
+                
+                <li class="has-children 
+                            @if (request()->routeIs('suppliers.*'))
+                            open
+                        @elseif(request()->routeIs('warehouse.*'))
+                            open
+                        @elseif(request()->routeIs('brand.*'))
+                            open
+                        @elseif(request()->routeIs('category.*'))
+                            open
+                        @elseif(request()->routeIs('product.*'))
+                            open
+                        @else
+
+                        @endif
+                ">
                     <a href="#"><i class="fa fa-building"></i> <span>Inventory</span> <i class="fa fa-angle-right arrow"></i></a>
                     <ul class="child-nav">
                         <li><a href="{{ route('suppliers.index') }}"><i class="fa fa-sitemap"></i> <span>Supplier</span></a></li>
@@ -35,7 +68,8 @@
                         <li><a href="{{ route('product.index') }}"><i class="fa fa-tasks"></i> <span>Products Price</span></a></li>                                            
                     </ul>
                 </li>
-                <li class="has-children">
+
+                <li class="has-children" >
                     <a href="#"><i class="fa fa-paint-brush"></i> <span>Sale Menu</span> <i class="fa fa-angle-right arrow"></i></a>
                     <ul class="child-nav">
                       <li><a href="layout-fixed-top.html"><i class="fa fa-tasks"></i> <span>VIP Member</span></a></li>

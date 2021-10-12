@@ -30,7 +30,19 @@
                         <div class="form-group  col-md-6 ">
                             <label for="name">Name</label>
                             <input type="text" class="form-control" id="name" name="name"  placeholder="Enter Category Name">
-                            <div class="col-md-6"> 
+                            <div class="col-md-6 ">
+                                <label><strong>Brands :</strong></label>
+                                <select class="selectpicker" multiple data-live-search="true" name="brands[]">
+                                   
+                                    @foreach($brands as $id => $brand)
+                                    <option value="{{ $id }}" {{ in_array($id, old('brands', [])) ? 'selected' : '' }}>{{ $brand }}</option>
+                                    @endforeach
+
+                                </select>
+                            </div>
+
+                            <br/>
+                            <div class="col-md-6"> <br/><br/>
                                 <button type="submit" class="btn bg-success btn-wide"><i class="fa fa-check"></i>Save</button>
                                 
                             </div>
@@ -57,3 +69,22 @@
 </section>
 
 @endsection
+
+@push('JsScript')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <style type="text/css">
+        .dropdown-toggle{
+            height: 40px;
+            width: 400px !important;
+        }
+    </style>
+@endpush
+
+@push('Script')
+        $(document).ready(function() {
+            $('select').selectpicker();
+        });     
+@endpush

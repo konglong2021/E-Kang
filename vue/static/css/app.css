@@ -2,7 +2,75 @@
     background: url(/images/home-menu-bg-overlay.svg), linear-gradient(to right bottom, #77717e, #c9a8a9);
     background-size: cover;
     height: 100vh;
+    font-family: "Khmer OS"
 }
 .clearboth{
     clear: both;
+}
+.main-page-content{
+  font-family: "Khmer OS Bokor";
+  min-height: calc(100vh - 130px);
+  background-color: #f8f9fa;
+}
+
+.content-background-color{
+  background-color: #FFFFFF;
+}
+
+body {
+  font-family: "Khmer OS Bokor";
+}
+.head-title {
+  font-weight: bold;
+  color: #000;
+
+}
+.btn-wrapper{
+  padding-left: 2px;
+}
+
+.margin-right-20-percentage{
+  margin-right: 20px;
+}
+
+.width-40-percentage{
+  width: 40%;
+}
+.width-60-percentage{
+  width: 60%;
+}
+
+.margin-top-25{
+  margin-top: 25px;
+}
+
+.full-content{
+  display: inline-block;
+  width: 100%;
+}
+.full-container{
+  display: inline-block;
+  width: 100%;
+  min-height: calc(100vh - 150px);
+}
+
+.user-select-none{
+  user-select: none !important;
+  -ms-user-select: none !important;
+  -moz-user-select: none !important;
+}
+
+.content-product-full-height{
+  height: calc(100vh - 150px)
+}
+
+.content-loading{
+  margin: 0 auto;
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+.active-item-product{
+  background-color: #ccc;
 }

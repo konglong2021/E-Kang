@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
+use App\Models\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class RolesController extends Controller
 {
@@ -13,7 +17,10 @@ class RolesController extends Controller
      */
     public function index()
     {
-        //
+        $roles = Role::with('permissions')
+        ->orderBy('id', 'desc')->get();
+
+        return view('pos.role.index',compact('roles'));
     }
 
     /**
@@ -23,7 +30,8 @@ class RolesController extends Controller
      */
     public function create()
     {
-        //
+        $permissions = Permission::pluck('title', 'id');
+        return view('pos.role.create',compact('permissions'));
     }
 
     /**
@@ -34,7 +42,9 @@ class RolesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $role= Role::create($request->all());
+        $role->permissions()->sync($request->input('permissions', []));
+        return redirect()->route('role.index')->with('success','You have successfully Created.');
     }
 
     /**
@@ -54,9 +64,15 @@ class RolesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Role $role)
     {
-        //
+        $permissions = Permission::pluck('title', 'id');
+       
+        // $categories = Categorie::pluck('name', 'id');
+
+         $role->load('permissions');
+        // dd($products);
+        return view('pos.role.edit', compact('role', 'permissions'));
     }
 
     /**
@@ -66,9 +82,12 @@ class RolesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Role $role)
     {
-        //
+        $role->update($request->all());
+        $role->permissions()->sync($request->input('permissions', []));
+        return redirect()->route('role.index')
+        ->with('success','update successfully');
     }
 
     /**
@@ -79,6 +98,9 @@ class RolesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $role = Role::find($id);
+        $role->destroy($id);
+        return redirect()->route('role.index')
+        ->with('success','Delete successfully');
     }
 }

@@ -28,7 +28,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('category', App\Http\Controllers\CategoriesController::class);
     Route::resource('suppliers', App\Http\Controllers\SuppliersController::class);
     Route::resource('warehouse', App\Http\Controllers\WarehousesController::class);
-    Route::resource('permissions', App\Http\Controllers\PermissionsController::class);
-    Route::resource('roles', App\Http\Controllers\RolesController::class);
+    Route::resource('permission', App\Http\Controllers\PermissionsController::class);
+    Route::resource('role', App\Http\Controllers\RolesController::class);
+    Route::resource('user', App\Http\Controllers\UsersController::class);
 });
 
+
+Route::get('/docs', function () {
+    return view('swagger.index');
+});

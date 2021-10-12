@@ -33,7 +33,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        abort_if(Gate::denies('product_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $categories = Category::pluck('name', 'id');
         $brands = Brand::pluck('name', 'id');
 
@@ -52,6 +52,7 @@ class ProductsController extends Controller
 
     public function store(Request $request)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         // product::create($request->validated());
         $request->validate([
             'en_name'     => [
@@ -61,10 +62,13 @@ class ProductsController extends Controller
             'kh_name'    => [
                 'required',
             ],
+            'sale_price'    => [
+                'required',
+            ],
             // 'image' => ['nullable', 'mimes:jpg,jpeg,png', 'max:10048'],
            
         ]);
-        //  dd($request);
+        //   dd($request);
         
 
          $prefix = date("ymd"); 
@@ -81,23 +85,26 @@ class ProductsController extends Controller
             $image_name ="no image";
         }
 
-        // $destination_path = 'public/img';
-        // $image = $request->file('image');
-       
-        // $image_name = $image->getClientOriginalName();
-        // $image_name = time().'.'.$request->image->extension(); 
-        // $path = $request->file('image')->storeAs($destination_path,$image_name);
+        $input = $request->all();
+        $input['code']=$code;
+        $input['image']=$image_name;
 
-        $product = Product::create([
+        // dd($input);
+        $product = Product::create($input);
+
+
+        // $product = Product::create([
            
-            'en_name' => $request['en_name'],
-            'kh_name' => $request['kh_name'],
-            'code' => $code,
-            'description' => $request['description'],
-            'category_id' => $request['category_id'],
-            'image' =>  $image_name,
+        //     'en_name' => $request['en_name'],
+        //     'kh_name' => $request['kh_name'],
+        //     'sale_price' => $request['sale_price'],
+        //     'code' => $code,
+        //     'description' => $request['description'],
+        //     'category_id' => $request['category_id'],
+        //     'image' =>  $image_name,
    
-        ]);
+        // ]);
+
         $product->brands()->sync($request->input('brands', []));
         // $category = Category::find([3, 4]);
         // $product->categories()->attach($category);
@@ -116,6 +123,7 @@ class ProductsController extends Controller
      */
     public function show(Product $products)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         return view('pos.product.show', compact('products'));
     }
 
@@ -127,6 +135,7 @@ class ProductsController extends Controller
      */
     public function edit(Product $product)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $categories = Category::pluck('name', 'id');
         $brands = Brand::pluck('name', 'id');
         // $categories = Categorie::pluck('name', 'id');
@@ -145,6 +154,7 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $request->validate([
             'en_name'     => [
                 'string',
@@ -183,6 +193,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
+        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $product = Product::find($id);
         if(\Storage::exists('public/img'.'/'.$product->image)){
             \Storage::delete('public/img'.'/'.$product->image);

@@ -1,13 +1,12 @@
 <template>
-  <div >
-
+  <div class="main-screen">
       <div>
         <b-button variant="info"><i class="fa fa-backward"></i></b-button>
         <div class="main-menu">
-          <b-container class="col-6 mx-auto">
+          <b-container class="col-6 mx-auto menu-wrapper">
             <b-row>
               <b-col>
-                <b-button href="#"  variant="dark">
+                <b-button href="/users"  variant="dark">
                   <i class="fa fa-user fa-3x" > </i> <div>
                   User Management
                 </div>
@@ -32,7 +31,7 @@
 
               </b-col>
               <b-col>
-                <b-button href="#"  variant="warning">
+                <b-button href="/report-daily"  variant="warning">
                   <i class="fa fa-area-chart fa-4x" > </i> <div>
                   Reporting
                 </div>
@@ -48,7 +47,11 @@
 
 <script>
 export default {
-  layout: "main"
+  layout: "main",
+  mounted() {
+    console.log(this.$auth);
+    console.log(this.$store.state.auth.user);
+  }
 };
 </script>
 <style  scoped>
@@ -56,7 +59,13 @@ export default {
     padding-top :100px;
   }
   .main-menu .btn {
-    min-width: 200px;
+    padding-top: 10px;
+    min-width: 150px;
     min-height: 150px;
+    margin:10px 2px;
   }
+    .main-menu .btn i {
+      margin-top: 5px;
+    }
+
 </style>

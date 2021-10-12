@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class PermissionsController extends Controller
 {
@@ -13,7 +16,10 @@ class PermissionsController extends Controller
      */
     public function index()
     {
-        //
+        // abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $permissions = Permission::all();
+
+        return view('pos.permission.index',compact('permissions'));
     }
 
     /**
@@ -23,7 +29,7 @@ class PermissionsController extends Controller
      */
     public function create()
     {
-        //
+        return view('pos.permission.create');
     }
 
     /**
@@ -34,7 +40,8 @@ class PermissionsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Permission::create($request->all());
+        return redirect()->route('permission.index')->with('success','You have successfully Created.');
     }
 
     /**
@@ -43,9 +50,9 @@ class PermissionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Permission $permission)
     {
-        //
+        return view('pos.permission.show','permission');
     }
 
     /**
@@ -56,7 +63,8 @@ class PermissionsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $permission = Permission::find($id);
+        return view('pos.permission.edit',compact('permission'));
     }
 
     /**
@@ -64,11 +72,15 @@ class PermissionsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Permission $permission)
     {
-        //
+        $input = $request->all();
+        $permission->update($input);
+
+        return redirect()->route('permission.index')
+        ->with('success','Brand updated successfully');
     }
 
     /**
@@ -79,6 +91,9 @@ class PermissionsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $permission = Permission::find($id);
+        $permission->destroy($id);
+        return redirect()->route('permission.index')
+                    ->with('message','Deleted');
     }
 }

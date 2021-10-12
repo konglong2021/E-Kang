@@ -11,33 +11,34 @@
       <ul class="list-menu-text">
         <li class="menu-text-item">
           <a href="/inventory">
-            <span>Inventory</span>
+            <span><i class="fa fa-balance-scale" aria-hidden="true"></i> Inventory</span>
           </a>
         </li>
         <li class="menu-text-item">
-          <a>
-            <span>Categories</span>
+          <a href="/categories">
+            <span> <i class="fa fa-cogs" aria-hidden="true"></i> Categories </span>
           </a>
         </li>
         <li class="menu-text-item">
-          <a>
-            <span>Brands</span>
+          <a href="/brands">
+            <span> <i class="fa fa-asterisk" aria-hidden="true"></i> Brands</span>
           </a>
         </li>
         <li class="menu-text-item">
-          <a href="/product">
-            <span>Products</span>
+          <a href="/products">
+            <span><i class="fa fa-gift" aria-hidden="true"></i> Products</span>
           </a>
         </li>
         <li class="menu-text-item">
-          <a>
-            <span>Reports</span>
+          <a href="/loyalty">
+            <span><i class="fa fa-trophy" aria-hidden="true"></i> Loyalty</span>
           </a>
         </li>
       </ul>
     </div>
   </b-navbar>
 </template>
+
 <style >
   .inventory-bar{
     background-color:#232d3b;
@@ -63,6 +64,7 @@
     padding: 0 10px;
     height: 50px;
   }
+
   .content-menu-icon .list-menu .list-menu-item a {
     display: inline-block;
     position: relative;
@@ -91,8 +93,12 @@
   .content-menu-text .list-menu-text .menu-text-item a {
     color: #FFFFFF !important;
   }
+    .content-menu-text .list-menu-text .menu-text-item:hover{
+ background-color: #000;
+    }
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
+
   }
   .font-size-23{
     font-size: 23px;

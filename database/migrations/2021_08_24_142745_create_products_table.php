@@ -21,6 +21,7 @@ class CreateProductsTable extends Migration
             $table->string('kh_name');
             $table->string('description');
             $table->string('image')->nullable();
+            $table->double('sale_price'); 
             $table->timestamps();
             $table->softDeletes();
         });

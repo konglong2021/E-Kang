@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid class="bv-example-row">
+  <b-container fluid class="bv-example-row main-page-content">
     <b-row>
       <InventoryDashboard/>
     </b-row>

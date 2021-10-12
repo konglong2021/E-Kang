@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Resources\BrandResource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class BrandsController extends Controller
 {
@@ -13,13 +16,26 @@ class BrandsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $brands = Brand::with('categories')
-        ->with('products')
-        ->orderBy('id', 'desc')->paginate(10);
-        return response()->json($brands);
+        if (empty($request->all())) {
+            $brands = Brand::withCount('categories')
+                    ->withCount('products')
+                    ->orderBy('id', 'desc')->paginate(10);
+        }else {
+          $query = $request->input('search');
+          $brands= Brand::where('name','like','%'.$query.'%')
+                        ->orwhere('kh_name','like','%'.$query.'%')
+                        ->orderBy('id','desc')->paginate(15);
+        }
+
+        
+
+        // return response()->json([
+        // 'brands' =>   $brands,
+        // ]);
+
+        return BrandResource::collection($brands)->response();
     }
 
     /**
@@ -40,8 +56,18 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-        $brand = Brand::create($request->all());
-        $brand->categories()->sync($request->input('categories', []));
+            $brand = Brand::create([
+            'name' => $request['name'],
+            'kh_name' => $request['kh_name'],
+            'description' => $request['description']
+        ]);
+
+        $categories = json_encode($request->categories);
+
+        $brand->categories()->sync(json_decode($categories));
+
+
+
         return response()->json([
             "success" => true,
             "message" => "Brand successfully Created",
@@ -85,10 +111,10 @@ class BrandsController extends Controller
     {
         $input = $request->all();
         $brand->update($input);
-        $brand->categories()->sync($request->input('categories', []));
-       
+        $categories = json_encode($request->categories);
+        $brand->categories()->sync(json_decode($categories));
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "brand" =>  $brand
         ]);
@@ -101,12 +127,12 @@ class BrandsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {   
+    {
         $brand = Brand::find($id);
 
         $brand->destroy($id);
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "brand" =>  $brand
         ]);
