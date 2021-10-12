@@ -21,8 +21,8 @@ Password : password
 Base Url/docs
 Example: http://127.0.0.1:8000/docs
 
-Generate Token
-Copy Token that generated to Authorize value with prefix "Bearer"
+## Generate Token
+Copy Token that generated to Authorize value with prefix "Bearer" <br />
 EX: "Bearer 1|TS371L0biXLGkWV69PwTE3ZYUcw4wj9cpAxMHWEO"
 
 ## License
