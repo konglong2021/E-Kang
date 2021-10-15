@@ -30,7 +30,7 @@ class RolesController extends Controller
     public function store(Request $request)
     {
         $role= Role::create($request->all());
-        $permissions = json_encode($request->permissions);
+        $permissions = ($request->permissions);
         $role->permissions()->sync(json_decode($permissions));
         return response()->json([
            'message' => 'Created Sucessfully',
@@ -60,7 +60,7 @@ class RolesController extends Controller
     public function update(Request $request, Role $role)
     {
         $role->update($request->all());
-        $permissions = json_encode($request->permissions);
+        $permissions = ($request->permissions);
         $role->permissions()->sync(json_decode($permissions));
         return response()->json([
             'message' => 'Update Successfully',

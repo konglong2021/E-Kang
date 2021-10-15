@@ -101,6 +101,7 @@ class OrdersController extends Controller
                 // 'alert' => 0,
                 // 'total' => $item['quantity'],
                 // ]);
+                DB::rollBack();
                 return response()->json("No item in Stock");
             }
         }

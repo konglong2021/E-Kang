@@ -103,7 +103,7 @@ class ProductsController extends Controller
 
         ]);
 
-        $brands = json_encode($request->brands);
+        $brands = ($request->brands);
         $product->brands()->sync(json_decode($brands));
         // return response()->json($product);
         return response()->json([
@@ -165,7 +165,7 @@ class ProductsController extends Controller
 
         $product->update($input);
 
-        $brands = json_encode($request->brands);
+        $brands = ($request->brands);
         $product->brands()->sync(json_decode($brands));
 
             return response()->json([
