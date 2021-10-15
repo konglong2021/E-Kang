@@ -47,10 +47,9 @@
 
 <script>
 export default {
+  middleware: "local-auth",
   layout: "main",
   mounted() {
-    console.log(this.$auth);
-    console.log(this.$store.state.auth.user);
   }
 };
 </script>

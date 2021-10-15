@@ -11,20 +11,20 @@
            <b-container class="col-6 mx-auto menu-wrapper">
             <b-row>
               <b-col>
-              
+
           <div class="input-group input-group-sm search-content">
              <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
             <input class="form-control input-search-box" type="search" placeholder="Search..."/>
           </div>
               </b-col>
               <div class="btn-wrapper">
-                   <b-button href="#"  title="Add new Category" size="sm" variant="primary" 
+                   <b-button href="#"  title="Add new Category" size="sm" variant="primary"
                    @click="showModal()">
-                    New User 
+                    New User
                     <i class="fa fa-plus" aria-hidden="true"></i>
                   </b-button>
               </div>
-        
+
             </b-row>
            </b-container>
         </div>
@@ -32,15 +32,15 @@
       </div>
     </div>
     <div class="content-product">
-    
- 
+
+
   <b-table
       :items="items"
       :fields="fields"
       stacked="md"
       show-empty
       small
-      
+
     >
 
       <template #cell(actions)="row">
@@ -56,7 +56,7 @@
     </div>
     <div>
     </div>
-    
+
   </div>
       <b-modal id="modal-create-category" ref="brand-form-modal" size="lg"
                @hidden="onReset" cancel-title="Cacnel"
@@ -77,7 +77,7 @@
               <b-col sm="4"><label :for="'input-category'" class="label-input">Parent</label></b-col>
               <b-col sm="8"><b-form-select :id="'input-category'" class="form-control input-content" v-model="category.category" :options="categories"></b-form-select></b-col>
             </b-row>
-        
+
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-description'" class="label-input">Description</label></b-col>
               <b-col sm="8"><b-form-textarea :id="'input-description'" class="input-content" v-model="category.description"></b-form-textarea></b-col>
@@ -90,6 +90,7 @@
 </template>
 <script>
   export default {
+    middleware: "local-auth",
     layout:'userui',
     data(){
       return {
@@ -101,17 +102,17 @@
             state:1,
             last_login:'2021-01-01',
             roles:'Admin, Demo, Normal'
-            
+
 
           }
         ],
          fields: [
              { key: 'username', label: 'Username' },
           { key: 'name', label: 'Name' },
-           {key:'state',label:'Status'} ,      
+           {key:'state',label:'Status'} ,
           {key:'last_login',label:'Last Login'},
-          
-          
+
+
           {key:'roles',label:'Roles'},
           { key: 'actions', label: 'Actions' },
         ],
