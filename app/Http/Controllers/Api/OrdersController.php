@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Purchase;
-use App\Models\PurchaseDetail;
 use App\Models\Stock;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-class PurchasesController extends Controller
+
+class OrdersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,20 +23,10 @@ class PurchasesController extends Controller
      */
     public function index()
     {
-        $purchase = Purchase::with('purchasedetails')
+        $orders = Order::with('orderdetails')
                   ->orderBy('id', 'desc')->paginate(10);
 
-       return response()->json($purchase);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+       return response()->json($orders);
     }
 
     /**
@@ -53,13 +44,13 @@ class PurchasesController extends Controller
             'grandtotal'    => [
                 'required',
             ],
-            'supplier_id'    => [
+            'customer_id'    => [
                 'required',
             ],
             'warehouse_id'    => [
                 'required',
             ],
-            'purchases'    => [
+            'items'    => [
                 'required',
             ],
         ]);
@@ -67,27 +58,27 @@ class PurchasesController extends Controller
         // try{
 
         DB::transaction(function () use ($request){
-        $purchase = new Purchase();
-        $purchase->warehouse_id = $request->warehouse_id;
-        $purchase->supplier_id = $request->supplier_id;
-        $purchase->user_id = auth()->user()->id;
-        $purchase->batch = $request->batch;
-        $purchase->subtotal = $request->subtotal;
-        $purchase->vat = $request->vat;
-        $purchase->grandtotal = $request->grandtotal;
-        $purchase->save();
+        $orders = new Order();
+        $orders->warehouse_id = $request->warehouse_id;
+        $orders->customer_id = $request->customer_id;
+        $orders->user_id = auth()->user()->id;
+        $orders->subtotal = $request->subtotal;
+        $orders->vat = $request->vat;
+        $orders->discount = $request->discount;
+        $orders->grandtotal = $request->grandtotal;
+        $orders->save();
 
         
-        $purchase_details= $request->purchases; // purchase is the array of purchase details
+        $orders_items= $request->items; // purchase is the array of purchase details
        
-        foreach($purchase_details as $item)
+        foreach($orders_items as $item)
         {
             
-            $pdetail = PurchaseDetail::create([
+            $pdetail = OrderDetail::create([
 
-            'purchase_id' => $purchase->id,
+            'order_id' => $orders->id,
             'product_id' => $item['product_id'],
-            'unitprice' => $item['unitprice'],
+            'sellprice' => $item['sellprice'],
             'quantity' => $item['quantity'],
         
             
@@ -103,13 +94,14 @@ class PurchasesController extends Controller
                 $stock->total = $stock->total + $item['quantity'];
                 $stock->update();
             } else {
-                $stock = Stock::create([
-                'product_id' => $item['product_id'],
-                'warehouse_id' => $request['warehouse_id'],
+                // $stock = Stock::create([
+                // 'product_id' => $item['product_id'],
+                // 'warehouse_id' => $request['warehouse_id'],
                 
-                'alert' => 0,
-                'total' => $item['quantity'],
-                ]);
+                // 'alert' => 0,
+                // 'total' => $item['quantity'],
+                // ]);
+                return response()->json("No item in Stock");
             }
         }
         
@@ -122,25 +114,6 @@ class PurchasesController extends Controller
             "message" => "Successfully Created",
 
         ]);
-
-      
-
-        // $user = User::where('email', request('email'))->first();
- 
-        //     if ($user !== null) {
-        //         $user->update(['name' => request('name')]);
-        //     } else {
-        //         $user = User::create([
-        //         'email' => request('email'),
-        //         'name' => request('name'),
-        //         ]);
-        //     }
-
-        // $user = User::updateOrCreate(
-        //     ['email' =>  request('email')],
-        //     ['name' => request('name')]
-        // );
-
     }
 
     /**
@@ -150,17 +123,6 @@ class PurchasesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
     {
         //
     }
