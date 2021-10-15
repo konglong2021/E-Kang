@@ -14,7 +14,8 @@
 <script>
 
 export default {
-    layout:'posui',
+  middleware: "local-auth",
+  layout:'posui',
   data(){
     return {
       productSelectList: [],
