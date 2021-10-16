@@ -101,7 +101,8 @@ class OrdersController extends Controller
                 // 'alert' => 0,
                 // 'total' => $item['quantity'],
                 // ]);
-                return response()->json("No item in Stock");
+                return response()->json("No item in Stock",402);
+                
             }
         }
         
