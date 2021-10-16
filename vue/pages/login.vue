@@ -4,9 +4,7 @@
       <b-row>
           <div class="col-lg-6 mx-auto login-form">
               <div class="mx-auto">
-                  <center>
-                <img src="/images/logo.png" width="150px"  />
-                  </center>
+                  <center><h2>Login</h2></center>
               </div>
         <b-form @submit.prevent="onSubmit">
           <b-form-group
@@ -61,13 +59,16 @@ export default {
   },
   methods: {
     async onSubmit(event) {
-      let data = {email : this.form.email, password : this.form.password};
-      let res = await this.$auth.loginWith('local', {data : data});
-      let user = res.data.user;
-      this.$auth.setUser(user);
-      localStorage.setItem("user-token", ("Bearer " + res.data.Token));
-      await this.$router.push("/");
+      let response = await this.$axios.post('/api/login', this.form);
+      let token = response.data.Token;
+      let user = response.data.user;
+      await this.$store.commit('auth/setToken', token);
+      await this.$store.commit('auth/updateUser', user);
+      console.log("Login " + this.$store.getters['auth/token']);
+      await this.$router.push('/');
     }
+  },
+  mounted(){
   }
 };
 </script>

@@ -62,7 +62,7 @@ class BrandsController extends Controller
             'description' => $request['description']
         ]);
 
-        $categories = json_encode($request->categories);
+        $categories = ($request->categories);
 
         $brand->categories()->sync(json_decode($categories));
 
@@ -111,7 +111,7 @@ class BrandsController extends Controller
     {
         $input = $request->all();
         $brand->update($input);
-        $categories = json_encode($request->categories);
+        $categories = ($request->categories);
         $brand->categories()->sync(json_decode($categories));
             return response()->json([
 

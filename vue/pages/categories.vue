@@ -89,6 +89,7 @@
 </template>
 <script>
   export default {
+    middleware: "local-auth",
     layout:'inventoryui',
     data(){
       return {

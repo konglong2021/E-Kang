@@ -89,6 +89,7 @@
 </template>
 <script>
   export default {
+    middleware: "local-auth",
     layout:'inventoryui',
     data(){
       return {
@@ -118,7 +119,13 @@
     },
     methods:{
       async getCategories(){
-        const response = await this.$axios.get('/api/category');
+        let token = localStorage.getItem("user-token");
+        let configHeader = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': token
+        };
+        const response = await this.$axios.get('/api/category', { headers: configHeader });
         if(response.data.hasOwnProperty("data")){
           for(let index=0; index < response.data.data.length; index++){
             this.categories.push({name : response.data.data[index]["name"], value : response.data.data[index]["id"]});
@@ -127,7 +134,13 @@
       },
       async getBrands(){
         this.isLoading = true;
-        const response = await this.$axios.get('/api/brand');
+        let token = localStorage.getItem("user-token");
+        let configHeader = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': token
+        };
+        const response = await this.$axios.get('/api/brand', { headers: configHeader });
         if(response.data.hasOwnProperty("data")){
           this.isLoading = false;
           let items = [];
@@ -158,12 +171,10 @@
             categories.push(this.brand.category[i]["value"]);
           }
         }
-
-        //dataSubmit["en_name"] = this.brand.en_name;
-       // dataSubmit["kh_name"] = this.brand.kh_name;
+        dataSubmit["kh_name"] = this.brand.kh_name;
         dataSubmit["name"] = this.brand.en_name;
         dataSubmit["categories"] = JSON.stringify(categories);
-       // dataSubmit["description"] = this.brand.description;
+        dataSubmit["description"] = this.brand.description;
 
         this.$toast.info("submit data in progress").goAway(1000);
         this.$axios.post('/api/brand', dataSubmit)

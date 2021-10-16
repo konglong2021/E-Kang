@@ -176,9 +176,6 @@
         this.$axios.get('/api/purchase')
           .then(function (response) {
             console.log(response.data);
-            // if(response.data.hasOwnProperty("data")){
-            //
-            // }
           })
           .catch(function (error) {
             console.log(error);
