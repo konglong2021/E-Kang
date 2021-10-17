@@ -75,8 +75,6 @@
     },
     mounted(){
       let vm = this;
-      console.log(this.value,'myvalue');
-
       this.getBrands();
       this.getCategories();
     },
@@ -142,7 +140,7 @@
         };
         reader.readAsDataURL($event.target.files[0]);
       },
-      onSubmit(event) {
+      async onSubmit(event) {
         let brands= [];
         let formData = new FormData();
 
@@ -159,14 +157,12 @@
         formData.append("sale_price", this.product.sale_price);
         formData.append("brands" , JSON.stringify(brands));
 
-        this.$axios.post('/api/product', formData)
-          .then(function (response) {
-            commit('setMessage', {response: 'success', type: type});
-            this.hideModal();
-          })
-          .catch(function (error) {
-            console.log(error);
-        });
+        let response = await this.$axios.post('/api/product', formData);
+        if(response.hasOwnProperty("data") && response.data && response.data.hasOwnProperty("product")){
+          let itemProduct = response.data.product;
+          await this.$emit("checkingProductAdd", itemProduct);
+          await this.hideModal();
+        }
       },
       hideModal() {
         this.$refs['product-form-modal'].hide();
