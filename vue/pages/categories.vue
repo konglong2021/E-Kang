@@ -95,12 +95,6 @@
       return {
         categories:[],
         items:[
-          // {
-          //   name:'Phone ',
-          //   parent:'--ROOT--',
-          //   total_product:10,
-          //
-          // }
         ],
         fields: [
           { key: 'name', label: 'Name' },
@@ -125,6 +119,7 @@
       },
       async getCategories(){
         this.isLoading = true;
+        this.$toast.info("submit data in progress").goAway(1000);
         const response = await this.$axios.get('/api/category');
         if(response.data.hasOwnProperty("data")){
           this.isLoading = false;
@@ -142,7 +137,7 @@
             item['name'] = categoryItem["name"];
             item['parent'] = "--ROOT--";
             item['brand'] = brands.join(", ");
-            item['total_product'] = categoryItem["products"].length;
+            item['products_count'] = categoryItem["products_count"];
             items.push(item);
           }
           this.items = items;
@@ -167,6 +162,7 @@
         this.$axios.post('/api/category', dataSubmit)
           .then(function (response) {
             if(response.data.hasOwnProperty("data")){
+              console.log(response.data);
               this.$toast.success("submit data is successfully").goAway(1500);
               this.hideModal();
             }

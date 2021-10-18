@@ -70,7 +70,6 @@
       return {
          newProductModal:{
            showModal:false,
-           editedItem: null
          },
         items:[],
         fields: [
@@ -83,6 +82,17 @@
         category:{}, //new item for category
         isLoading: false,
     }
+    },
+    watch:{
+      newProductModal:{
+        handler(val){
+          if(val && val.hasOwnProperty("data") && val.data !== null){
+            console.log("product ", val.data);
+            this.items.push(val.data);
+          }
+        },
+        deep:true
+      }
     },
     methods:{
       async  getListProducts(){

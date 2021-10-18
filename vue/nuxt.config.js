@@ -42,12 +42,14 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    // "@nuxt/types",
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
     'nuxt-vue-multiselect',
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
     'cookie-universal-nuxt',
+    '@nuxtjs/moment',
   ],
 
   axios: {
@@ -56,7 +58,7 @@ export default {
       common: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: null,
+        Authorization: '',
       }
     },
   },

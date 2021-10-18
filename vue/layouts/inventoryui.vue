@@ -22,7 +22,7 @@
   .control-panel{
     border-bottom: 1px solid #cccccc;
     display: inline-block;
-    margin-bottom: 5px;
+    /*margin-bottom: 5px;*/
     padding: 5px 16px;
     width: 100%;
   }
@@ -63,6 +63,7 @@
     width: 100%;
     background-color: #fff;
     border-radius: 5px;
+    padding-top: 10px;
   }
   .content-product .content-product-input{
     max-width: 20%;
