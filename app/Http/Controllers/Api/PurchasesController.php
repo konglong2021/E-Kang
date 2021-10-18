@@ -114,7 +114,7 @@ class PurchasesController extends Controller
         }
         
 
-         }); 
+            }); 
 //End of transaction
 
         return response()->json([

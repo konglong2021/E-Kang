@@ -31,6 +31,10 @@ class Product extends Model
     {
         return $this->belongsToMany(Brand::class);
     }
+    public function stock()
+    {
+        return $this->hasMany(Stock::class);
+    }
 
  
 }
