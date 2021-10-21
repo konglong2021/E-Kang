@@ -17,7 +17,7 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('warehouse_id')->constrained();
-            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade');
             $table->double('subtotal');
             $table->double('vat')->nullable(); //default 10%
             $table->double('discount')->nullable();

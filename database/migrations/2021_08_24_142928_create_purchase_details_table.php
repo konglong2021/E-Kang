@@ -15,8 +15,8 @@ class CreatePurchaseDetailsTable extends Migration
     {
         Schema::create('purchase_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purchase_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('purchase_id')->constrained()->onUpdate('cascade');
+            $table->foreignId('product_id')->constrained()->onUpdate('cascade');
             $table->decimal('unitprice');
             $table->decimal('quantity');
             $table->timestamps();

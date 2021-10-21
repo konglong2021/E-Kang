@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Stock;
+use App\Models\StockOut;
 use App\Models\Warehouse;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StockController extends Controller
 {
@@ -88,6 +90,16 @@ class StockController extends Controller
                         return response()->json("Please Check Input Stock",403);
         
                     }
+
+                    $pdetail = StockOut::create([
+
+                        'from_warehouse' => $item['warehouse_id'],
+                        'product_id' => $item['product_id'],
+                        'to_warehouse' => $request['to_warehouse'],
+                        'quantity' => $item['quantity'],
+                        'user_id' => auth()->user()->id
+                    
+                       ] );
                 }
                 return response()->json("Successfully Stock Transfer");
         
