@@ -6,6 +6,7 @@ export default async ({ $axios, store }) => {
   if (process.server) {
     if (token) {
       $axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+      $axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
     }
     else {
       delete $axios.defaults.headers.common.Authorization;

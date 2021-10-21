@@ -1,118 +1,157 @@
 <template>
   <div class="inventory-dashboard-content main-page-content">
-    <div class="control-panel">
-      <div class="panel-top">
-        <div class="content-panel-left">
-          <h3 class="head-title">Inventory Overview</h3>
-        </div>
-        <div class="content-panel-right">
-           <b-container class="col-12 mx-auto menu-wrapper">
-            <b-row>
-              <b-col>
-                <div class="input-group input-group-sm search-content">
-                  <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                  <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+    <div class="content-loading" v-if="loadingFields && (loadingFields.productListLoading || loadingFields.supplierListLoading || loadingFields.warehouseListLoading)">
+      <div class="spinner-grow text-muted"></div>
+    </div>
+    <div v-if="!loadingFields.productListLoading && !loadingFields.supplierListLoading && !loadingFields.warehouseListLoading">
+      <div class="control-panel">
+        <div class="panel-top">
+          <div class="content-panel-left">
+            <h3 class="head-title">Inventory Overview</h3>
+          </div>
+          <div class="content-panel-right">
+            <b-container class="col-12 mx-auto menu-wrapper">
+              <b-row>
+                <b-col>
+                  <div class="input-group input-group-sm search-content">
+                    <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
+                    <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                  </div>
+                </b-col>
+
+                <div class="btn-wrapper">
+                  <b-button href="#" size="sm" variant="primary" title="Import product from Supplier">
+                    <span class="margin-span-btn">Import</span>
+                    <i class="fa fa-cart-plus" aria-hidden="true"></i>
+                  </b-button>
                 </div>
-              </b-col>
-
-              <div class="btn-wrapper">
-                <b-button href="#" size="sm" variant="primary" title="Import product from Supplier">
-                  Import<i class="fa fa-cart-plus" aria-hidden="true"></i>
-                </b-button>
-              </div>
-              <div class="btn-wrapper margin-right-20-percentage">
-                <b-button href="#" title="Add new Product" size="sm" variant="primary" @click="showModal()">
-                  New Product<i class="fa fa-plus" aria-hidden="true"></i>
-                </b-button>
-              </div>
-              <div class="btn-wrapper margin-right-20-percentage">
-                <b-button href="#" title="Add new Supplier" size="sm" variant="primary"  @click="showSupplierModal()">
-                  New Supplier<i class="fa fa-plus" aria-hidden="true"></i>
-                </b-button>
-              </div>
-              <div class="btn-wrapper">
-                <b-button href="#" title="Add new WareHouse" size="sm" variant="primary"  @click="showWareHouseModal()">
-                  New WareHouse<i class="fa fa-plus" aria-hidden="true"></i>
-                </b-button>
-              </div>
-            </b-row>
-           </b-container>
+                <div class="btn-wrapper margin-right-20-percentage">
+                  <b-button href="#" title="Add new Product" size="sm" variant="primary" @click="showModal()">
+                    <span class="margin-span-btn">New Product</span>
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                  </b-button>
+                </div>
+                <div class="btn-wrapper margin-right-20-percentage">
+                  <b-button href="#" title="Add new Supplier" size="sm" variant="primary"  @click="showSupplierModal()">
+                    <span class="margin-span-btn">New Supplier</span>
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                  </b-button>
+                </div>
+                <div class="btn-wrapper">
+                  <b-button href="#" title="Add new WareHouse" size="sm" variant="primary"  @click="showWareHouseModal()">
+                    <span class="margin-span-btn">New WareHouse</span>
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                  </b-button>
+                </div>
+              </b-row>
+            </b-container>
+          </div>
+          <div class="panel-bottom"></div>
         </div>
-        <div class="panel-bottom"></div>
+      </div>
+      <div class="content-product">
+        <div class="content-data">
+          <div class="btn-wrapper margin-btn" v-if="!isShowFormAddProductInPurchase">
+            <b-button href="#" size="sm" variant="primary" title="Add new purchase record" @click="showPurchaseModal()">
+              <span class="margin-span-btn">Stock In</span>
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            </b-button>
+            <b-button href="#" size="sm" variant="primary" title="Check stock record" @click="showStockTable()">
+              <span class="margin-span-btn">Check Stock</span>
+            </b-button>
+          </div>
+          <div class="display-inline-block" v-if="isShowFormAddProductInPurchase" style="margin-bottom: 10px; width: 30%;">
+            <div>
+              <label class="label-with">Supplier</label>
+              <b-form-select :disabled="suppliers.length === 0" class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
+            </div>
+            <div>
+              <label class="label-with">Store</label>
+              <b-form-select :disabled="warehouses.length === 0" class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label class="label-with">Vat</label>
+              <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
+            </div>
+            <b-button
+              href="#" size="sm" variant="primary"
+              title="Add product to stock"
+              :disabled="warehouses.length === 0 && suppliers.length === 0"
+              @click="showExistingProductModal()">Add product to stock</b-button>
+            <b-button
+              v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
+              href="#" size="sm" variant="primary"
+              title="Save stock" @click="submitPurchase()"
+            >Save purchase</b-button>
+            <b-button
+              href="#" size="sm" variant="primary"
+              title="Discard stock" @click="discardPurchase()"
+            >Discard add stock</b-button>
+          </div>
+          <div style="margin-top: 5px;" v-if="isShowFormAddProductInPurchase">
+            <h4 style="font-weight: 700;">Product list</h4>
+            <b-table
+              :items="items"
+              :fields="fields"
+              stacked="md"
+              show-empty
+              small
+
+            >
+              <template #cell(actions)="row">
+                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetailProductAdd(row.item, row.index, $event.target)" class="mr-1">
+                  <i class="fa fa-eye"></i>
+                </b-button>
+                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProductAdd(row.item, row.index, $event.target)">
+                  <i class="fa fa-edit"></i>
+                </b-button>
+              </template>
+              <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+            </b-table>
+          </div>
+          <div v-if="!isShowFormAddProductInPurchase && !isShowStockTable">
+            <b-table
+              :items="purchaseItems"
+              :fields="purchaseFields"
+              stacked="md"
+              show-empty
+              small
+            >
+              <template #cell(actions)="row">
+                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetailStock(row.item, row.index, $event.target)" class="mr-1">
+                  <i class="fa fa-eye"></i>
+                </b-button>
+                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+                  <i class="fa fa-edit"></i>
+                </b-button>
+              </template>
+              <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+            </b-table>
+          </div>
+          <div v-if="isShowStockTable">
+            <div class="content-loading" v-if="loadingFields.stockLoading">
+              <div class="spinner-grow text-muted"></div>
+            </div>
+            <b-button
+              class="margin-btn" href="#" size="sm"
+              variant="primary" title="Back to inventory dashboard"
+              @click="backToDashboard()"
+              v-if="!loadingFields.stockLoading"
+            >
+              <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+            </b-button>
+            <b-table v-if="!loadingFields.stockLoading"
+              :items="stockItems"
+              :fields="stockFields"
+              stacked="md"
+              show-empty
+              small
+            >
+            </b-table>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="content-product">
-      <div class="btn-wrapper margin-btn" v-if="!isShowFormAddProductInPurchase">
-        <b-button href="#" size="sm" variant="primary" title="Add new purchase record" @click="showPurchaseModal()">
-          new purchase<i class="fa fa-plus" aria-hidden="true"></i>
-        </b-button>
-      </div>
-      <div class="display-inline-block" v-if="isShowFormAddProductInPurchase" style="margin-bottom: 10px; width: 30%;">
-        <div>
-            <label class="label-with">Supplier</label>
-            <b-form-select class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
-        </div>
-        <div>
-          <label class="label-with">Store</label>
-          <b-form-select class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
-        </div>
-        <div style="margin-bottom: 20px;">
-          <label class="label-with">Vat</label>
-          <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
-        </div>
-        <b-button
-          href="#" size="sm" variant="primary"
-          title="Add product to purchase"
-          @click="showExistingProductModal()">Add product to purchase</b-button>
-        <b-button
-          v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
-          href="#" size="sm" variant="primary"
-          title="Save purchase" @click="submitPurchase()"
-        >Save purchase</b-button>
-      </div>
-      <div style="margin-top: 5px;" v-if="isShowFormAddProductInPurchase">
-        <h4 style="font-weight: 700;">Product list</h4>
-        <b-table
-          :items="items"
-          :fields="fields"
-          stacked="md"
-          show-empty
-          small
-
-        >
-          <template #cell(actions)="row">
-            <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-              <i class="fa fa-eye"></i>
-            </b-button>
-            <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-              <i class="fa fa-edit"></i>
-            </b-button>
-          </template>
-          <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-        </b-table>
-      </div>
-      <div v-if="!isShowFormAddProductInPurchase">
-          <b-table
-            :items="purchaseItems"
-            :fields="purchaseFields"
-            stacked="md"
-            show-empty
-            small
-
-          >
-            <template #cell(actions)="row">
-              <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                <i class="fa fa-eye"></i>
-              </b-button>
-              <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-                <i class="fa fa-edit"></i>
-              </b-button>
-            </template>
-            <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-          </b-table>
-      </div>
-    </div>
-
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
              @hidden="onResetSupplier" cancel-title="Cacnel"
@@ -198,15 +237,13 @@
 </template>
 
 <script>
-  import {empty} from "../.nuxt/utils";
-
   export default {
     data() {
       return {
         newProductModal:{
           showModal:false
         },
-        loadingFields: [],
+        loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: false},
         items:[],
         fields: [
           { key: 'en_name', label: 'Name' },
@@ -224,10 +261,20 @@
           { key: 'code', label: 'QR Code' },
           { key: 'sale_price', label: 'Sell Price' },
           { key: 'import_price', label: 'Import Price' },
-          { key: 'qty', label: 'Qty' },
+          { key: 'product_qty', label: 'Qty' },
           { key: 'store', label: 'Store' },
           { key : 'supplier', label: "Supplier"},
           { key: 'actions', label: 'Actions' }
+        ],
+        stockItems:[],
+        stockFields: [
+          { key: 'en_name', label: 'Name' },
+          { key: 'kh_name', label: 'Name(KH)' },
+          { key: 'code', label: 'QR Code' },
+          { key: 'sale_price', label: 'Sell Price' },
+          { key: 'product_qty', label: 'Qty' },
+          { key: 'store', label: 'Store' },
+          { key : 'supplier', label: "Supplier"},
         ],
         product: {
           en_name: '',
@@ -261,6 +308,7 @@
         isShowFormPurchase: false,
         isAddExistingProduct: false,
         isShowFormAddProductInPurchase: false,
+        isShowStockTable: false,
         purchase_product_selected: [],
         product_select: {
           en_name: '',
@@ -272,18 +320,63 @@
           id: '',
         },
         vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
+        stock: {
+          en_name: null,
+          kh_name: null,
+          code: null,
+          sale_price: 0,
+          product_qty: 0,
+          store: null,
+          supplier: null,
+        },
       };
     },
     watch:{
       newProductModal:{
-          handler(val){
-          },
-          deep:true
+        handler(val){
+        },
+        deep:true
       }
     },
     methods: {
+      showStockTable(){
+        this.isShowStockTable = true;
+        let vm = this;
+        vm.stockItems = [];
+        vm.loadingFields.stockLoading = true;
+        vm.$axios.get('/api/stock')
+          .then(function (response) {
+            if(response.data.data){
+              vm.loadingFields.stockLoading = false;
+              let dataStock = response.data.data;
+              if(dataStock && dataStock.length > 0){
+                for (let i=0; i < dataStock.length; i++){
+                  vm.stock = {};
+                  let product = dataStock[i]["product"];
+                  vm.stock.store = dataStock[i]["warehouse"]["name"] + " (" + dataStock[i]["warehouse"]["address"] + ")";
+                  vm.stock.product_qty = dataStock[i]["total"].toString();
+                  vm.stock.en_name = product["en_name"];
+                  vm.stock.kh_name = product["kh_name"];
+                  vm.stock.code = product["code"];
+                  vm.stock.sale_price = product["sale_price"].toString();
+                  vm.stock.supplier = "";
+                  vm.stockItems.push(vm.stock);
+                }
+              }
+            }
+          })
+          .catch(function (error) {
+            vm.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+          });
+      },
       checkAddProduct(){
         this.isAddExistingProduct = !this.isAddExistingProduct;
+      },
+      backToDashboard(){
+        this.isAddMoreProduct = false;
+        this.isShowStockTable = false;
+        this.isShowFormAddProductInPurchase = false;
       },
       async onResetExistingProduct(){
         this.product_select = {};
@@ -312,70 +405,85 @@
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
+      viewDetailProductAdd(item, index, target){
+        alert('detail click ' + index);
+      },
+      adjustProductAdd(item, index, target){
+        let removeItemId = null;
+        for(let j=0; j < this.items.length; j++){
+          if(this.items[j]['id'] === item.id){
+            removeItemId = j;
+            break;
+          }
+        }
+        if(removeItemId !== null){
+          this.items.slice(removeItemId, 1);
+        }
+      },
 
       async getProductList(){
         let vm = this;
+        vm.loadingFields.productListLoading = true;
         await this.$axios.get('/api/product').then(function (response) {
-            if(response && response.hasOwnProperty("data")){
-              this.$toast.success("submit data is successfully").goAway(1500);
-              let dataResponse = response.data.data;
-              if(dataResponse){
-                for(let index=0; index < dataResponse.length; index++){
-                  let productItem =  { text: '', value: null};
-                  productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
-                  productItem.value = dataResponse[index].id;
-                  this.products.push(productItem);
-                  this.productList.push(dataResponse[index]);
-                }
+          vm.loadingFields.productListLoading = false;
+          if(response && response.hasOwnProperty("data")){
+            let dataResponse = response.data.data;
+            if(dataResponse){
+              for(let index=0; index < dataResponse.length; index++){
+                let productItem =  { text: '', value: null};
+                productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
+                productItem.value = dataResponse[index].id;
+                vm.products.push(productItem);
+                vm.productList.push(dataResponse[index]);
               }
             }
+          }
         }).catch(function (error) {
-          vm.$toast.error("submit data is getting error").goAway(2000);
           console.log(error);
+          vm.$toast.error("getting data error ").goAway(2000);
         });
       },
       async getAllWarehouse(){
         let vm = this;
+        this.loadingFields.warehouseListLoading = true;
         await this.$axios.get('/api/warehouse').then(function (response) {
-           if(response && response.hasOwnProperty("data")){
-             this.$toast.success("submit data is successfully").goAway(1500);
-             if(response.data.data){
-               let data = response.data.data;
-               for(let index=0; index < data.length; index++){
-                 let warehouseItem =  { text: '', value: null};
-                 warehouseItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
-                 warehouseItem.value = data[index]["id"];
-                 this.warehouses.push(warehouseItem);
-               }
-             }
-           }
+          vm.loadingFields.warehouseListLoading = false;
+          if(response && response.hasOwnProperty("data")){
+            if(response.data.data){
+              let data = response.data.data;
+              for(let index=0; index < data.length; index++){
+                let warehouseItem =  { text: '', value: null};
+                warehouseItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
+                warehouseItem.value = data[index]["id"];
+                vm.warehouses.push(warehouseItem);
+              }
+            }
+          }
         }).catch(function (error) {
-          vm.$toast.error("submit data is getting error").goAway(2000);
           console.log(error);
+          vm.$toast.error("Getting data error").goAway(3000);
         });
       },
       async getAllSupplier(){
         let vm = this;
+        vm.loadingFields.supplierListLoading = true;
         await this.$axios.get('/api/supplier')
           .then(function (response) {
+            vm.loadingFields.supplierListLoading = false;
             if(response && response.hasOwnProperty("data")){
-              this.$toast.success("submit data is successful").goAway(1500);
               if(response.data.data){
                 let data = response.data.data;
                 for(let index=0; index < data.length; index++){
                   let supplierItem =  { text: '', value: null};
                   supplierItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                   supplierItem.value = data[index]["id"];
-                  this.suppliers.push(supplierItem);
+                  vm.suppliers.push(supplierItem);
                 }
               }
             }
-
           }).catch(function (error) {
-            if(!empty(error)) {
-              vm.$toast.error("submit data is getting error").goAway(2000);
-            }
             console.log(error);
+            vm.$toast.error("Getting data error").goAway(3000);
           });
 
       },
@@ -396,27 +504,10 @@
         }
       },
 
-      async getAllData(){
-        let vm = this;
-        await this.$axios.get('/api/purchase')
-          .then(function (response) {
-            if(response){
-              this.$toast.success("submit data is successful").goAway(1500);
-            }
-          })
-          .catch(function (error) {
-            if(!empty(error)){
-              vm.$toast.error("submit data is getting error").goAway(2000);
-            }
-            console.log(error);
-          });
-      },
-      viewDetail(item,index,target){
-        this.$toast.error('Error while authenticating');
-        alert('detail click ' + index);
+      viewDetailStock(item, index, target){
       },
       adjustStock( item,index,target ){
-           alert('adjust stock click '+index);
+        alert('adjust stock click '+index);
       },
 
       showModal(){
@@ -432,16 +523,24 @@
       onResetSupplier(){},
       onSubmitSupplier(){
         let vm = this;
-        this.$toast.info("submit data in progress").goAway(1000);
+
+        vm.loadingFields.supplierListLoading = true;
+        vm.$toast.info("Submit data is starting").goAway(1500);
         this.$axios.post('/api/supplier', this.supplier)
           .then(function (response) {
-            if(response){
-              vm.$toast.success("submit data is successful").goAway(1500);
+            vm.$toast.success("Submit data is successful").goAway(2000);
+            if(response.data.supplier){
+              vm.loadingFields.supplierListLoading = false;
+              let data = response.data.supplier;
+              let supplierItem =  { text: '', value: null};
+              supplierItem.text = data["name"] + "(" + data["address"] + ")";
+              supplierItem.value = data["id"];
+              vm.suppliers.push(supplierItem);
             }
-            this.hideModal();
+            vm.hideModal();
           })
           .catch(function (error) {
-            this.$toast.error("submit data is getting error").goAway(2000);
+            vm.$toast.error("getting data error ").goAway(2500);
             console.log(error);
           });
       },
@@ -453,16 +552,24 @@
       onResetWareHouse(){},
       onSubmitWareHouse(){
         let vm = this;
-        this.$toast.info("submit data in progress").goAway(1000);
+
+        vm.loadingFields.warehouseListLoading = true;
+        vm.$toast.info("Data starting submit").goAway(1500);
         this.$axios.post('/api/warehouse', this.warehouse)
           .then(function (response) {
-            if(response){
-              this.$toast.success("submit data is successfully").goAway(1500);
+            if(response.data.warehouse){
+              vm.loadingFields.warehouseListLoading = false;
+              vm.$toast.success("Submit data successfully").goAway(2000);
+              let data = response.data.warehouse;
+              let warehouseItem =  { text: '', value: null};
+              warehouseItem.text = data["name"] + "(" + data["address"] + ")";
+              warehouseItem.value = data["id"];
+              vm.warehouses.push(warehouseItem);
               this.hideModal();
             }
           })
           .catch(function (error) {
-            vm.$toast.error("submit data is getting error").goAway(2000);
+            vm.$toast.error("getting data error ").goAway(3000);
             console.log(error);
           });
       },
@@ -474,12 +581,15 @@
         var day = (dd<10) ? '0'+dd : dd;
         var month = (mm<10) ? '0'+mm : mm;
         var yyyy = today.getFullYear();
-
-        return day+'/'+month+'/'+yyyy;
+        return day+'_'+month+'_'+yyyy;
       },
 
       showPurchaseModal(){
         this.isShowFormAddProductInPurchase = true;
+        this.isShowStockTable = false;
+      },
+      discardPurchase(){
+        this.isShowFormAddProductInPurchase = false;
       },
       async submitPurchase(){
         let dataSubmit = {};
@@ -504,18 +614,44 @@
         dataSubmit["subtotal"] = subtotal;
         dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(this.purchase.vat)));
         let vm = this;
-        this.$toast.info("submit data in progress").goAway(1000);
+        vm.loadingFields.stockLoading = true;
+        vm.$toast.info("Data starting submit").goAway(1500);
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
             if(response){
-              this.$toast.success("submit data is successful").goAway(1500);
+              vm.loadingFields.stockLoading = false;
+              vm.$toast.success("Submit data successfully").goAway(2000);
             }
           })
           .catch(function (error) {
-            if(error){
-              vm.$toast.error("submit data is getting error").goAway(2000);
-            }
             console.log(error);
+            vm.$toast.success("Submit data getting error").goAway(3000);
+          });
+      },
+      async getDataPurchase(){
+        let vm = this;
+        await this.$axios.get('/api/purchase')
+          .then(function (response) {
+            if(response.data.data){
+              let responsePurchases = response.data.data;
+              if(responsePurchases && responsePurchases.length > 0){
+                for (let index=0; index < responsePurchases.length; index++){
+                  // let purchasedetails = responsePurchases[index].purchasedetails;
+                  // let item = {};
+                  // for(let k=0; k< purchasedetails.length; k++){
+                  //   item.en_name = product["en_name"];
+                  //   item.kh_name = product["kh_name"];
+                  //   item.code = product["code"];
+                  //   item.sale_price = product["sale_price"];
+                  //   item.image = product["image"];
+                  // }
+                }
+              }
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+            vm.$toast.success("Submit data getting error").goAway(3000);
           });
       },
 
@@ -533,7 +669,7 @@
       },
     },
     mounted() {
-      this.getAllData();
+      this.getDataPurchase();
       this.getProductList();
       this.getAllWarehouse();
       this.getAllSupplier();

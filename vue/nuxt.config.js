@@ -42,7 +42,6 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
-    // "@nuxt/types",
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
     'nuxt-vue-multiselect',
@@ -53,14 +52,16 @@ export default {
   ],
 
   axios: {
-    baseURL: 'http://localhost:8000', // Used as fallback if no runtime config is provided
+    baseURL: 'http://localhost:8000',
     headers: {
       common: {
+        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: '',
       }
     },
+    proxy: true,
   },
   proxy: {
     '/api/': { target: 'http://localhost:8000', pathRewrite: {'^/api/': ''}, changeOrigin: true }
