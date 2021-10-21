@@ -15,8 +15,8 @@ class CreateTransactionsTable extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('order_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade');
+            $table->foreignId('order_id')->constrained()->onUpdate('cascade');
             $table->double('paid'); // deposite or the money have been paid
             $table->double('balance');  // the remain
             $table->string('pay_method')->default('cash');  // default cash

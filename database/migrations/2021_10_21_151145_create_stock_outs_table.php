@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrderDetailsTable extends Migration
+class CreateStockOutsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class CreateOrderDetailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_details', function (Blueprint $table) {
+        Schema::create('stock_outs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->onUpdate('cascade');
             $table->foreignId('product_id')->constrained()->onUpdate('cascade');
+            $table->unsignedBigInteger('from_warehouse');
+            $table->foreign('from_warehouse')->references('id')->on('warehouses');
+            $table->unsignedBigInteger('to_warehouse');
+            $table->foreign('to_warehouse')->references('id')->on('warehouses');
             $table->decimal('quantity');
-            $table->double('sellprice'); //pull data from sellprice table and store here
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -31,6 +33,6 @@ class CreateOrderDetailsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_details');
+        Schema::dropIfExists('stock_outs');
     }
 }
