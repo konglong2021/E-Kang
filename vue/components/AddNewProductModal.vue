@@ -40,7 +40,7 @@
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-brand'" class="label-input">ប្រេនទំនិញ</label></b-col>
               <b-col sm="8">
-                <multiselect class="input-content" v-model="product.brand" :options="brands" track-by="name" label="name" :multiple="true" :show-labels="false" aria-placeholder="Select brands"></multiselect>
+                <multiselect class="input-content" v-model="product.brand" :options="brands" track-by="name" label="name" :show-labels="false" :multiple="true" aria-placeholder="Select brands"></multiselect>
               </b-col>
             </b-row>
             <b-row class="my-1">
@@ -68,22 +68,10 @@
         type:Object,
         require:true
       },
-    },
-    watch:{
-       'value.showModal':{
-         //watch value change sent from parent component
-         handler(value){
-           if(value==true){
-              this.$refs['product-form-modal'].show();
-           }
-         },
-         deep:true
-       },
-    },
-    mounted(){
-      let vm = this;
-      this.getBrands();
-      this.getCategories();
+      productItemSelected: {
+        type:Object,
+        require:false
+      },
     },
     data() {
       return {
@@ -103,6 +91,28 @@
         file: null,
         errors: [],
       };
+    },
+    watch:{
+      'value.showModal':{
+         //watch value change sent from parent component
+         handler(value){
+           if(value==true){
+              this.$refs['product-form-modal'].show();
+           }
+         },
+         deep:true
+      },
+      productItemSelected: {
+        deep: true,
+        handler: function(selectedProduct){
+          console.log(selectedProduct);
+          this.product = selectedProduct;
+        }
+      }
+    },
+    mounted(){
+      this.getBrands();
+      this.getCategories();
     },
     methods: {
       checkForm: function (e) {
@@ -178,21 +188,39 @@
       async onSubmit(event) {
         let brands= [];
         let formData = new FormData();
-       if(this.checkForm(event) === false){
-          if(this.product.brand && this.product.brand.length > 0){
-            for(let index=0; index < this.product.brand.length; index++){
-              brands.push(this.product.brand[index]["value"]);
-            }
+        if(this.product.brand && this.product.brand.length > 0){
+          for(let index=0; index < this.product.brand.length; index++){
+            brands.push(this.product.brand[index]["value"]);
           }
-          formData.append("en_name", this.product.en_name);
-          formData.append("kh_name", this.product.kh_name);
-          formData.append("category_id", this.product.category);
-          formData.append("description", this.product.description);
-          formData.append("image", this.uploadFile);
-          formData.append("sale_price", this.product.sale_price);
-          formData.append("brands" , JSON.stringify(brands));
-          let vm = this;
+        }
+        formData.append("en_name", this.product.en_name);
+        formData.append("kh_name", this.product.kh_name);
+        formData.append("category_id", this.product.category);
+        formData.append("description", this.product.description);
+        formData.append("image", this.uploadFile);
+        formData.append("sale_price", this.product.sale_price);
+        formData.append("brands" , JSON.stringify(brands));
+        let vm = this;
 
+        if(this.product.hasOwnProperty("id") && this.product.id){
+          formData.append("sale_price", this.product.id);
+          formData.append("_method", "PUT");
+
+          this.$toast.info("Data starting submit").goAway(1500);
+          await this.$axios.post('/api/product/' + this.product.id, formData)
+            .then(function (response) {
+              if(response){
+                vm.$toast.success("Submit data successfully").goAway(2000);
+                vm.hideModal();
+                this.product = {};
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+              vm.$toast.error("Submit data getting error").goAway(3000);
+            });
+        }
+        else {
           this.$toast.info("Data starting submit").goAway(1500);
           await this.$axios.post('/api/product', formData)
             .then(function (response) {
@@ -207,10 +235,11 @@
               console.log(error);
               vm.$toast.error("Submit data getting error").goAway(3000);
             });
-       }
+        }
       },
       hideModal() {
         this.$refs['product-form-modal'].hide();
+        this.product = {};
       },
       viewDetail($data){
         console.log("data",$data);

@@ -121,3 +121,20 @@ body {
 .margin-span-btn{
   margin-right: 5px;
 }
+
+.margin-5{
+  margin-top: 5px;
+}
+
+.font-700{
+  font-weight: 700;
+}
+
+.content-field-purchase{
+  margin-bottom: 10px;
+  width: 40%;
+}
+
+.margin-bottom-20{
+  margin-bottom: 20px;
+}

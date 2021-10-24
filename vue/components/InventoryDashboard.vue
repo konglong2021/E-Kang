@@ -56,11 +56,11 @@
               <span class="margin-span-btn">Stock In</span>
               <i class="fa fa-plus" aria-hidden="true"></i>
             </b-button>
-            <b-button href="#" size="sm" variant="primary" title="Check stock record" @click="showStockTable()">
+            <b-button href="#" size="sm" variant="primary" title="Check stock record" @click="showStockTable()" style="display:none;">
               <span class="margin-span-btn">Check Stock</span>
             </b-button>
           </div>
-          <div class="display-inline-block" v-if="isShowFormAddProductInPurchase" style="margin-bottom: 10px; width: 30%;">
+          <div class="display-inline-block content-field-purchase" v-if="isShowFormAddProductInPurchase">
             <div>
               <label class="label-with">Supplier</label>
               <b-form-select :disabled="suppliers.length === 0" class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
@@ -69,27 +69,29 @@
               <label class="label-with">Store</label>
               <b-form-select :disabled="warehouses.length === 0" class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
             </div>
-            <div style="margin-bottom: 20px;">
+            <div class="margin-bottom-20">
               <label class="label-with">Vat</label>
               <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
             </div>
-            <b-button
-              href="#" size="sm" variant="primary"
-              title="Add product to stock"
-              :disabled="warehouses.length === 0 && suppliers.length === 0"
-              @click="showExistingProductModal()">Add product to stock</b-button>
-            <b-button
-              v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
-              href="#" size="sm" variant="primary"
-              title="Save stock" @click="submitPurchase()"
-            >Save purchase</b-button>
-            <b-button
-              href="#" size="sm" variant="primary"
-              title="Discard stock" @click="discardPurchase()"
-            >Discard add stock</b-button>
+            <div class="display-inline-block">
+              <b-button
+                href="#" size="sm" variant="primary"
+                title="Add product to stock"
+                :disabled="warehouses.length === 0 && suppliers.length === 0"
+                @click="showExistingProductModal()">Add product to stock</b-button>
+              <b-button
+                v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
+                href="#" size="sm" variant="primary"
+                title="Save stock" @click="submitPurchase()"
+              >Save purchase</b-button>
+              <b-button
+                href="#" size="sm" variant="primary"
+                title="Discard stock" @click="discardPurchase()"
+              >Discard add stock</b-button>
+            </div>
           </div>
-          <div style="margin-top: 5px;" v-if="isShowFormAddProductInPurchase">
-            <h4 style="font-weight: 700;">Product list</h4>
+          <div class="margin-5" v-if="isShowFormAddProductInPurchase">
+            <h4 class="font-700">Product list</h4>
             <b-table
               :items="items"
               :fields="fields"
@@ -99,54 +101,31 @@
 
             >
               <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetailProductAdd(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProductAdd(row.item, row.index, $event.target)">
+                <b-button size="sm" title="Adjust product select" variant="success" @click="adjustProductAdd(row.item, row.index, $event.target)">
                   <i class="fa fa-edit"></i>
+                </b-button>
+                <b-button size="sm" variant="primary" title="Remove product select from list"  @click="showRemoveProductSelect(row.item, row.index, $event.target)" class="mr-1">
+                  <i class="fa fa-trash-o"></i>
                 </b-button>
               </template>
               <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
             </b-table>
           </div>
-          <div v-if="!isShowFormAddProductInPurchase && !isShowStockTable">
-            <b-table
-              :items="purchaseItems"
-              :fields="purchaseFields"
-              stacked="md"
-              show-empty
-              small
-            >
-              <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetailStock(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
-              </template>
-              <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-            </b-table>
-          </div>
-          <div v-if="isShowStockTable">
+          <div>
             <div class="content-loading" v-if="loadingFields.stockLoading">
               <div class="spinner-grow text-muted"></div>
             </div>
-            <b-button
-              class="margin-btn" href="#" size="sm"
-              variant="primary" title="Back to inventory dashboard"
-              @click="backToDashboard()"
-              v-if="!loadingFields.stockLoading"
-            >
-              <i class="fa fa-angle-double-left" aria-hidden="true"></i>
-            </b-button>
-            <b-table v-if="!loadingFields.stockLoading"
+            <b-table v-if="!loadingFields.stockLoading && isShowStockTable"
               :items="stockItems"
               :fields="stockFields"
               stacked="md"
               show-empty
               small
             >
+              <template #cell(image)="row">
+                <div class="pro-img" :style="{ backgroundImage: `url('${row.item.image}')` }">
+                </div>
+              </template>
             </b-table>
           </div>
         </div>
@@ -154,7 +133,7 @@
     </div>
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
-             @hidden="onResetSupplier" cancel-title="Cacnel"
+             @hidden="onResetSupplier" cancel-title="Cancel"
              @ok="onSubmitSupplier" ok-title="Save" title="New Supplier">
       <b-form enctype="multipart/form-data">
         <div class="full-content">
@@ -188,7 +167,7 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
-             @hidden="onResetWareHouse" cancel-title="Cacnel"
+             @hidden="onResetWareHouse" cancel-title="Cancel"
              @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
       <b-form enctype="multipart/form-data">
         <div class="full-content">
@@ -210,7 +189,7 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
-             @hidden="onResetExistingProduct" cancel-title="Cacnel"
+             @hidden="onResetExistingProduct" cancel-title="Cancel"
              @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product">
       <b-form enctype="multipart/form-data">
         <div class="full-content" v-if="products && products.length > 0">
@@ -222,7 +201,7 @@
               </div>
               <div class="form-group form-content-detail">
                 <label class="label-with">Import price</label>
-                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price"></b-form-input>
+                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" disabled="product_select.isDisableField === true"></b-form-input>
               </div>
               <div class="form-group form-content-detail">
                 <label class="label-with">Qty</label>
@@ -232,6 +211,11 @@
           </div>
         </div>
       </b-form>
+    </b-modal>
+    <b-modal id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
+             cancel-title="No"
+             @ok="removeProductAdd(product_select)" ok-title="Yes">
+      <h3 class="center">Are you sure want to remove product select from list?</h3>
     </b-modal>
   </div>
 </template>
@@ -270,11 +254,11 @@
         stockFields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
+          { key: 'image', label: 'Icon' },
           { key: 'code', label: 'QR Code' },
           { key: 'sale_price', label: 'Sell Price' },
           { key: 'product_qty', label: 'Qty' },
           { key: 'store', label: 'Store' },
-          { key : 'supplier', label: "Supplier"},
         ],
         product: {
           en_name: '',
@@ -318,6 +302,8 @@
           qty: 0,
           store: null,
           id: '',
+          import_price: 0,
+          isDisableField: false,
         },
         vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
         stock: {
@@ -329,6 +315,7 @@
           store: null,
           supplier: null,
         },
+        removeProductSelect: {},
       };
     },
     watch:{
@@ -358,8 +345,8 @@
                   vm.stock.en_name = product["en_name"];
                   vm.stock.kh_name = product["kh_name"];
                   vm.stock.code = product["code"];
+                  vm.stock.image = product["image"];
                   vm.stock.sale_price = product["sale_price"].toString();
-                  vm.stock.supplier = "";
                   vm.stockItems.push(vm.stock);
                 }
               }
@@ -382,8 +369,10 @@
         this.product_select = {};
       },
       onSubmitExistingProduct($product){
+        let items = [];
         if(this.items && this.items.length > 0){
           let index = 0,isFound = false;
+          items = this.cloneObject(this.items);
           for (let i=0; i < this.items.length; i++){
             if(this.items[i]["id"] === $product["id"]){
               index = i;
@@ -395,23 +384,38 @@
             this.items[index]["qty"] = parseInt(this.items[index]["qty"]) + parseInt($product["qty"]);
           }
           else {
-            this.items.push($product);
+            items.push($product);
           }
         }
         else {
-          this.items.push($product);
+          items.push($product);
         }
+        this.items = this.cloneObject(items);
+        this.product_select = {
+          en_name: '',
+          kh_name: '',
+          code: null,
+          sale_price: 0,
+          qty: 0,
+          store: null,
+          id: '',
+        };
       },
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
-      viewDetailProductAdd(item, index, target){
-        alert('detail click ' + index);
-      },
       adjustProductAdd(item, index, target){
+        this.product_select = item;
+        this.$refs['existing-product-form-modal'].show();
+      },
+      showRemoveProductSelect(item, index, target){
+        this.removeProductSelect = item;
+        this.$refs['remove-existing-product-form-modal'].show();
+      },
+      removeProductAdd(){
         let removeItemId = null;
         for(let j=0; j < this.items.length; j++){
-          if(this.items[j]['id'] === item.id){
+          if(this.items[j]['id'] === this.removeProductSelect.id){
             removeItemId = j;
             break;
           }
@@ -490,18 +494,38 @@
 
       selectedProduct(productList, productId){
         this.isAddMoreProduct = true;
-        if(productList &&  productList.length > 0){
-          for(let index = 0; index < productList.length; index++) {
-            if(productId === productList[index]["id"]){
-              this.product_select.id = productList[index].id;
-              this.product_select.en_name = productList[index].en_name;
-              this.product_select.kh_name = productList[index].kh_name;
-              this.product_select.code = productList[index].code;
-              this.product_select.sale_price = parseFloat(productList[index].sale_price);
-              break;
+        let isFoundAlreadyAdd = false;
+
+        if(this.items.length > 0){
+          console.log(productId);
+          for(let k = 0; k < this.items.length; k++) {
+            console.log(this.items[k]["id"]);
+            if(this.items[k]["id"] === productId){
+              isFoundAlreadyAdd = true;
+              this.product_select.en_name = this.items[k].en_name;
+              this.product_select.kh_name = this.items[k].kh_name;
+              this.product_select.code = this.items[k].code;
+              this.product_select.sale_price = parseFloat(this.items[k].sale_price);
+              this.product_select.import_price = parseFloat(this.items[k].import_price);
+              this.product_select.isDisableField = this.items[k]["id"] === productId;
             }
           }
         }
+        if(!isFoundAlreadyAdd){
+          if(productList &&  productList.length > 0){
+            for(let index = 0; index < productList.length; index++) {
+              if(productId === productList[index]["id"]){
+                this.product_select.id = productList[index].id;
+                this.product_select.en_name = productList[index].en_name;
+                this.product_select.kh_name = productList[index].kh_name;
+                this.product_select.code = productList[index].code;
+                this.product_select.sale_price = parseFloat(productList[index].sale_price);
+                break;
+              }
+            }
+          }
+        }
+
       },
 
       viewDetailStock(item, index, target){
@@ -590,6 +614,11 @@
       },
       discardPurchase(){
         this.isShowFormAddProductInPurchase = false;
+        this.items = [];
+        this.purchase.supplier = null;
+        this.purchase.warehouse = null;
+        this.purchase.vat = null;
+        this.isShowStockTable = true;
       },
       async submitPurchase(){
         let dataSubmit = {};
@@ -636,15 +665,6 @@
               let responsePurchases = response.data.data;
               if(responsePurchases && responsePurchases.length > 0){
                 for (let index=0; index < responsePurchases.length; index++){
-                  // let purchasedetails = responsePurchases[index].purchasedetails;
-                  // let item = {};
-                  // for(let k=0; k< purchasedetails.length; k++){
-                  //   item.en_name = product["en_name"];
-                  //   item.kh_name = product["kh_name"];
-                  //   item.code = product["code"];
-                  //   item.sale_price = product["sale_price"];
-                  //   item.image = product["image"];
-                  // }
                 }
               }
             }
@@ -667,12 +687,17 @@
           await this.productList.push($event);
         }
       },
+
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      }
     },
     mounted() {
       this.getDataPurchase();
       this.getProductList();
       this.getAllWarehouse();
       this.getAllSupplier();
+      this.showStockTable();
     }
   }
 </script>

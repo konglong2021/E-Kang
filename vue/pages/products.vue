@@ -31,7 +31,7 @@
             <div class="panel-bottom"></div>
           </div>
         </div>
-        <div class="content-product"v-bind:class="{ 'content-product-full-height': isLoading }">
+        <div class="content-product" v-bind:class="{ 'content-product-full-height': isLoading }">
           <div class="content-loading" v-if="isLoading">
             <div class="spinner-grow text-muted"></div>
           </div>
@@ -43,11 +43,16 @@
                 show-empty
                 small
             >
+              <template #cell(image)="row">
+                <div class="content-image">
+                  <img :src="generateImageUrlDisplay(row.item.image)">
+                </div>
+              </template>
               <template #cell(actions)="row">
                 <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                   <i class="fa fa-eye"></i>
                 </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProduct(row.item, row.index, $event.target)">
                   <i class="fa fa-edit"></i>
                 </b-button>
               </template>
@@ -57,7 +62,7 @@
         </div>
         <div>
         </div>
-        <add-new-product-modal v-model="newProductModal" /> <!--no need to import it will automatically rendering it -->
+        <add-new-product-modal v-model="newProductModal" :productItemSelected="productItemSelected" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
       </div>
     </b-row>
   </b-container>
@@ -74,6 +79,7 @@
         items:[],
         fields: [
           { key: 'name', label: 'Name' },
+          { key: 'image', label: 'Icon' },
           { key: 'category', label: 'Category' },
           { key: 'brand', label: 'Brand' },
           { key: 'loyalty', label: 'Loyalty' },
@@ -81,15 +87,14 @@
         ],
         category:{}, //new item for category
         isLoading: false,
-    }
+        productItemSelected: {},
+        responseProductList : [],
+        brandList: [],
+      }
     },
     watch:{
       newProductModal:{
         handler(val){
-          if(val && val.hasOwnProperty("data") && val.data !== null){
-            console.log("product ", val.data);
-            this.items.push(val.data);
-          }
         },
         deep:true
       }
@@ -101,6 +106,7 @@
         if(response.data.hasOwnProperty("data")){
           this.isLoading = false;
           let items = [];
+          this.responseProductList = response.data.data;
           for(let index=0; index < response.data.data.length; index++){
             let productItem = response.data.data[index];
             let newItem = {};
@@ -111,27 +117,76 @@
                 brands.push(productItem["brands"][i]["name"]);
               }
             }
+            newItem['id'] = productItem["id"];
             newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
             newItem['category'] = productItem["categories"]["name"];
             newItem['brand'] = brands.join(", ");
             newItem['loyalty'] = "N/A";
+            newItem['image'] = productItem["image"];
+            newItem['brands'] = productItem["brands"];
+            newItem['categories'] = productItem["categories"];
+            newItem['description'] = productItem["description"];
+            newItem['sale_price'] = productItem["sale_price"];
+            newItem['code'] = productItem["code"];
+            newItem["en_name"] = productItem["en_name"];
+            newItem["kh_name"] = productItem["kh_name"];
             items.push(newItem);
           }
           this.items = items;
         }
       },
+
       showModal(){
         //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
-        //alert('Debug me , I am going to popup the modal');
-        console.log('modal data' ,this.newProductModal);
       },
       viewDetail(item, index, target){
 
+      },
+      adjustProduct(item, index, target){
+        this.newProductModal.showModal = true;
+        this.productItemSelected = {};
+        this.productItemSelected.id = item["id"];
+        this.productItemSelected.en_name = item["en_name"];
+        this.productItemSelected.kh_name = item["kh_name"];
+        this.productItemSelected.category = item["categories"]["id"];
+        this.productItemSelected.image = item["image"];
+        let brandList = [];
+        if(item["brands"] && item["brands"].length > 0){
+          for (let index=0; index < item["brands"].length; index++){
+            brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
+          }
+          this.productItemSelected.brand = brandList;
+        }
+        this.productItemSelected.description = item["description"];
+        this.productItemSelected.sale_price = item["sale_price"];
+        this.productItemSelected.code = item["code"];
+      },
+      async checkingProductAdd($event){
+        if($event){
+          await this.items.push($event);
+        }
+      },
+      generateImageUrlDisplay(img){
+        return  window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
       }
     },
     mounted() {
       this.getListProducts();
+
     }
   }
 </script>
+
+<style scoped>
+  .content-image{
+    display: table-cell;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+  }
+  .content-image img{
+    max-width: 100%;
+    max-height: 100%;
+  }
+</style>
