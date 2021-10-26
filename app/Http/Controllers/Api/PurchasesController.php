@@ -12,20 +12,22 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\PurchasesResource;
 
 class PurchasesController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
         $purchase = Purchase::with('purchasedetails')
                   ->orderBy('id', 'desc')->paginate(10);
 
-       return response()->json($purchase);
+        return PurchasesResource::collection($purchase)->response();
+//       return response()->json($purchase);
     }
 
     /**
@@ -77,27 +79,27 @@ class PurchasesController extends Controller
         $purchase->grandtotal = $request->grandtotal;
         $purchase->save();
 
-        
+
         $purchase_details= $request->purchases; // purchase is the array of purchase details
-       
+
         foreach($purchase_details as $item)
         {
-            
+
             $pdetail = PurchaseDetail::create([
 
             'purchase_id' => $purchase->id,
             'product_id' => $item['product_id'],
             'unitprice' => $item['unitprice'],
             'quantity' => $item['quantity'],
-        
-            
+
+
            ] );
 
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)
             ->first();
-            
-            
+
+
 
             if ($stock !== null) {
                 $stock->total = $stock->total + $item['quantity'];
@@ -106,15 +108,15 @@ class PurchasesController extends Controller
                 $stock = Stock::create([
                 'product_id' => $item['product_id'],
                 'warehouse_id' => $request['warehouse_id'],
-                
+
                 'alert' => 0,
                 'total' => $item['quantity'],
                 ]);
             }
         }
-        
 
-            }); 
+
+            });
 //End of transaction
 
         return response()->json([
@@ -123,10 +125,10 @@ class PurchasesController extends Controller
 
         ]);
 
-      
+
 
         // $user = User::where('email', request('email'))->first();
- 
+
         //     if ($user !== null) {
         //         $user->update(['name' => request('name')]);
         //     } else {

@@ -23,7 +23,7 @@ class StockController extends Controller
     {
         $stocks = Stock::with('product')
                 ->with('warehouse')->paginate(15);
-        
+
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();
     }
@@ -36,7 +36,7 @@ class StockController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $request->validate([
             'items'    => [
                 'required',
@@ -48,23 +48,23 @@ class StockController extends Controller
 
         // try{
         if(Warehouse::find($request->to_warehouse)!==null){
-            
+
             // DB::transaction(function () use ($request){
-                
+
                 $items= $request->items; // purchase is the array of purchase details
-               
+
                 foreach($items as $item)
                 {
-                    
+
                     $stock = Stock::where('product_id',$item['product_id'])
                     ->where('warehouse_id',$item['warehouse_id'])
                     ->first();
-                    
+
                     $stockin = Stock::where('product_id',$item['product_id'])
                     ->where('warehouse_id',$request['to_warehouse'])
                     ->first();
-                    
-        
+
+
                     if ($stock !== null) {
                         $stock->total = $stock->total - $item['quantity'];
                         if($stock->total<0){
@@ -79,16 +79,16 @@ class StockController extends Controller
                             $stock = Stock::create([
                                 'product_id' => $item['product_id'],
                                 'warehouse_id' => $request['to_warehouse'],
-                                
+
                                 'alert' => 0,
                                 'total' => $item['quantity'],
                                 ]);
                         }
-                        
-        
+
+
                     } else {
                         return response()->json("Please Check Input Stock",403);
-        
+
                     }
 
                     $pdetail = StockOut::create([
@@ -98,16 +98,16 @@ class StockController extends Controller
                         'to_warehouse' => $request['to_warehouse'],
                         'quantity' => $item['quantity'],
                         'user_id' => auth()->user()->id
-                    
+
                        ] );
                 }
                 return response()->json("Successfully Stock Transfer");
-        
-            //  }); 
+
+            //  });
         } else{
             return response()->json("Warehouse Id Is not valid", 403);
         }
-        
+
     }
 
     /**
@@ -118,7 +118,7 @@ class StockController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**
