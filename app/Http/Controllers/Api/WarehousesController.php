@@ -3,20 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\WarehousesResource;
 use Illuminate\Http\Request;
 use App\Models\Warehouse;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class WarehousesController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
         $warehouses = Warehouse::orderBy('id', 'desc')->paginate(10);
-        return response()->json($warehouses);
+
+        return WarehousesResource::collection($warehouses)->response();
+        //return response()->json($warehouses);
     }
 
     /**
@@ -80,9 +84,9 @@ class WarehousesController extends Controller
         $input = $request->all();
         $warehouse->update($input);
 
-       
+
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "warehouse" =>  $warehouse
         ]);
@@ -100,7 +104,7 @@ class WarehousesController extends Controller
 
         $warehouse->destroy($id);
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "warehouse" =>  $warehouse
         ]);
