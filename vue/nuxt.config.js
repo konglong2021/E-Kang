@@ -52,7 +52,7 @@ export default {
   ],
 
   axios: {
-    baseURL: 'http://localhost:8000',
+    baseURL: 'https://obscure-garden-41392.herokuapp.com/',
     headers: {
       common: {
         'Access-Control-Allow-Origin': '*',
