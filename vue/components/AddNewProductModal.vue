@@ -8,7 +8,8 @@
             <div class="content-file-upload">
               <b-form-file id="file" name="file" class="input-file" v-on:change="onFileChange" plain></b-form-file>
               <div id="output" v-if="uploadFile" class="img"></div>
-              <div v-if="!uploadFile" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
+              <div v-if="!uploadFile && (!product.image || product.image === 'no image')" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
+              <div v-if="!uploadFile && (product.image || product.image !== 'no image')" class="img" :style="{ backgroundImage: `url('${generateImageUrlDisplay(product.image)}')` }"></div>
             </div>
           </div>
           <div class="full-content">
@@ -105,7 +106,6 @@
       productItemSelected: {
         deep: true,
         handler: function(selectedProduct){
-          console.log(selectedProduct);
           this.product = selectedProduct;
         }
       }
@@ -184,6 +184,7 @@
           document.getElementById("output").setAttribute("style","background-image: url(" + e.target.result + ')');
         };
         reader.readAsDataURL($event.target.files[0]);
+        console.log(this.product.image);
       },
       async onSubmit(event) {
         let brands= [];
@@ -211,8 +212,20 @@
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
+                let itemProduct = response.data.product;
+                vm.$emit("checkingProductAdd", itemProduct);
                 vm.hideModal();
-                this.product = {};
+                vm.product =
+                  {
+                    en_name: '',
+                    kh_name: '',
+                    category: null,
+                    brand: null,
+                    description: '',
+                    image: null,
+                    sale_price: 0,
+                    code: null,
+                  };
               }
             })
             .catch(function (error) {
@@ -226,7 +239,22 @@
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
+                let brandList = response.data.Brands;
                 let itemProduct = response.data.product;
+                let newDataBrand = [];
+                if(vm.brands.length > 0){
+                  for (let index =0; index < vm.brands.length; index++){
+                    for(let k=0; k< brandList.length; k++){
+                      if(brandList[k] === vm.brands[index].id){
+                        newDataBrand.push(vm.brands[index]);
+                        break;
+                      }
+                    }
+                  }
+                }
+                if(brandList.length > 0){
+                  itemProduct.brands = brandList;
+                }
                 vm.$emit("checkingProductAdd", itemProduct);
                 vm.hideModal();
               }
@@ -244,6 +272,11 @@
       viewDetail($data){
         console.log("data",$data);
       },
+      generateImageUrlDisplay(img){
+        if (typeof window !== "undefined") {
+          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+        }
+      }
     },
   }
 </script>

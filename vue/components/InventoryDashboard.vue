@@ -60,34 +60,42 @@
               <span class="margin-span-btn">Check Stock</span>
             </b-button>
           </div>
-          <div class="display-inline-block content-field-purchase" v-if="isShowFormAddProductInPurchase">
-            <div>
-              <label class="label-with">Supplier</label>
-              <b-form-select :disabled="suppliers.length === 0" class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
+          <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase">
+            <div class="display-inline-block content-field-purchase float-left" >
+              <div>
+                <label class="label-with">Supplier</label>
+                <b-form-select :disabled="suppliers.length === 0" class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
+              </div>
+              <div class="margin-bottom-20">
+                <label class="label-with">Store</label>
+                <b-form-select :disabled="warehouses.length === 0" class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
+              </div>
+              <div class="display-inline-block">
+                <b-button
+                  href="#" size="sm" variant="primary"
+                  title="Add product to stock"
+                  :disabled="warehouses.length === 0 && suppliers.length === 0"
+                  @click="showExistingProductModal()">Add product to stock</b-button>
+                <b-button
+                  v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
+                  href="#" size="sm" variant="primary"
+                  title="Save stock" @click="submitPurchase()"
+                >Save purchase</b-button>
+                <b-button
+                  href="#" size="sm" variant="primary"
+                  title="Discard stock" @click="discardPurchase()"
+                >Discard add stock</b-button>
+              </div>
             </div>
-            <div>
-              <label class="label-with">Store</label>
-              <b-form-select :disabled="warehouses.length === 0" class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
-            </div>
-            <div class="margin-bottom-20">
-              <label class="label-with">Vat</label>
-              <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
-            </div>
-            <div class="display-inline-block">
-              <b-button
-                href="#" size="sm" variant="primary"
-                title="Add product to stock"
-                :disabled="warehouses.length === 0 && suppliers.length === 0"
-                @click="showExistingProductModal()">Add product to stock</b-button>
-              <b-button
-                v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
-                href="#" size="sm" variant="primary"
-                title="Save stock" @click="submitPurchase()"
-              >Save purchase</b-button>
-              <b-button
-                href="#" size="sm" variant="primary"
-                title="Discard stock" @click="discardPurchase()"
-              >Discard add stock</b-button>
+            <div class="display-inline-block content-field-purchase float-right">
+              <div>
+                <label class="label-with">Vat</label>
+                <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
+              </div>
+              <div class="margin-bottom-20">
+                <label class="label-with">Batch</label>
+                <b-form-input class="form-control select-content-inline display-inline-block" v-model="purchase.batch"></b-form-input>
+              </div>
             </div>
           </div>
           <div class="margin-5" v-if="isShowFormAddProductInPurchase">
@@ -116,14 +124,14 @@
               <div class="spinner-grow text-muted"></div>
             </div>
             <b-table v-if="!loadingFields.stockLoading && isShowStockTable"
-              :items="stockItems"
-              :fields="stockFields"
-              stacked="md"
-              show-empty
-              small
+                     :items="stockItems"
+                     :fields="stockFields"
+                     stacked="md"
+                     show-empty
+                     small
             >
               <template #cell(image)="row">
-                <div class="pro-img" :style="{ backgroundImage: `url('${row.item.image}')` }">
+                <div class="pro-img">
                 </div>
               </template>
             </b-table>
@@ -201,7 +209,7 @@
               </div>
               <div class="form-group form-content-detail">
                 <label class="label-with">Import price</label>
-                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" disabled="product_select.isDisableField === true"></b-form-input>
+                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" :disabled="isDisabledImportPrice === true"></b-form-input>
               </div>
               <div class="form-group form-content-detail">
                 <label class="label-with">Qty</label>
@@ -316,6 +324,8 @@
           supplier: null,
         },
         removeProductSelect: {},
+        isDisabledImportPrice : false,
+        isUpdateProductAdd: false,
       };
     },
     watch:{
@@ -357,14 +367,6 @@
             console.log(error);
           });
       },
-      checkAddProduct(){
-        this.isAddExistingProduct = !this.isAddExistingProduct;
-      },
-      backToDashboard(){
-        this.isAddMoreProduct = false;
-        this.isShowStockTable = false;
-        this.isShowFormAddProductInPurchase = false;
-      },
       async onResetExistingProduct(){
         this.product_select = {};
       },
@@ -373,6 +375,7 @@
         if(this.items && this.items.length > 0){
           let index = 0,isFound = false;
           items = this.cloneObject(this.items);
+
           for (let i=0; i < this.items.length; i++){
             if(this.items[i]["id"] === $product["id"]){
               index = i;
@@ -381,7 +384,9 @@
             }
           }
           if(isFound === true){
-            this.items[index]["qty"] = parseInt(this.items[index]["qty"]) + parseInt($product["qty"]);
+            if(this.product_select["isUpdateProductAdd"] !== true){
+              items[index]["qty"] = parseInt(items[index]["qty"]) + parseInt($product["qty"]);
+            }
           }
           else {
             items.push($product);
@@ -390,6 +395,7 @@
         else {
           items.push($product);
         }
+
         this.items = this.cloneObject(items);
         this.product_select = {
           en_name: '',
@@ -399,13 +405,52 @@
           qty: 0,
           store: null,
           id: '',
+          import_price: 0,
+          isDisableField: false,
         };
+        this.isDisabledImportPrice = false;
       },
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
+      selectedProduct(productList, productId){
+        this.isAddMoreProduct = true;
+        let isFoundAlreadyAdd = false;
+
+        if(this.items.length > 0){
+          for(let k = 0; k < this.items.length; k++) {
+            if(this.items[k]["id"] === productId){
+              this.isDisabledImportPrice = this.items[k]["id"] === productId;
+              isFoundAlreadyAdd = true;
+              this.product_select.id = this.items[k].id;
+              this.product_select.en_name = this.items[k].en_name;
+              this.product_select.kh_name = this.items[k].kh_name;
+              this.product_select.code = this.items[k].code;
+              this.product_select.sale_price = parseFloat(this.items[k].sale_price);
+              this.product_select.import_price = parseFloat(this.items[k].import_price);
+              break;
+            }
+          }
+        }
+        if(!isFoundAlreadyAdd){
+          if(productList &&  productList.length > 0){
+            for(let index = 0; index < productList.length; index++) {
+              if(productId === productList[index]["id"]){
+                this.product_select.id = productList[index].id;
+                this.product_select.en_name = productList[index].en_name;
+                this.product_select.kh_name = productList[index].kh_name;
+                this.product_select.code = productList[index].code;
+                this.product_select.sale_price = parseFloat(productList[index].sale_price);
+                this.isDisabledImportPrice = false;
+                break;
+              }
+            }
+          }
+        }
+      },
       adjustProductAdd(item, index, target){
         this.product_select = item;
+        this.product_select["isUpdateProductAdd"] = true;
         this.$refs['existing-product-form-modal'].show();
       },
       showRemoveProductSelect(item, index, target){
@@ -492,42 +537,6 @@
 
       },
 
-      selectedProduct(productList, productId){
-        this.isAddMoreProduct = true;
-        let isFoundAlreadyAdd = false;
-
-        if(this.items.length > 0){
-          console.log(productId);
-          for(let k = 0; k < this.items.length; k++) {
-            console.log(this.items[k]["id"]);
-            if(this.items[k]["id"] === productId){
-              isFoundAlreadyAdd = true;
-              this.product_select.en_name = this.items[k].en_name;
-              this.product_select.kh_name = this.items[k].kh_name;
-              this.product_select.code = this.items[k].code;
-              this.product_select.sale_price = parseFloat(this.items[k].sale_price);
-              this.product_select.import_price = parseFloat(this.items[k].import_price);
-              this.product_select.isDisableField = this.items[k]["id"] === productId;
-            }
-          }
-        }
-        if(!isFoundAlreadyAdd){
-          if(productList &&  productList.length > 0){
-            for(let index = 0; index < productList.length; index++) {
-              if(productId === productList[index]["id"]){
-                this.product_select.id = productList[index].id;
-                this.product_select.en_name = productList[index].en_name;
-                this.product_select.kh_name = productList[index].kh_name;
-                this.product_select.code = productList[index].code;
-                this.product_select.sale_price = parseFloat(productList[index].sale_price);
-                break;
-              }
-            }
-          }
-        }
-
-      },
-
       viewDetailStock(item, index, target){
       },
       adjustStock( item,index,target ){
@@ -572,20 +581,20 @@
       showWareHouseModal(){
         this.$refs['warehouse-form-modal'].show();
       },
-
       onResetWareHouse(){},
-      onSubmitWareHouse(){
+      async onSubmitWareHouse(){
         let vm = this;
 
         vm.loadingFields.warehouseListLoading = true;
         vm.$toast.info("Data starting submit").goAway(1500);
-        this.$axios.post('/api/warehouse', this.warehouse)
+
+        await this.$axios.post('/api/warehouse', this.warehouse)
           .then(function (response) {
             if(response.data.warehouse){
               vm.loadingFields.warehouseListLoading = false;
               vm.$toast.success("Submit data successfully").goAway(2000);
               let data = response.data.warehouse;
-              let warehouseItem =  { text: '', value: null};
+              let warehouseItem =  { text: '', value: null };
               warehouseItem.text = data["name"] + "(" + data["address"] + ")";
               warehouseItem.value = data["id"];
               vm.warehouses.push(warehouseItem);
@@ -593,8 +602,8 @@
             }
           })
           .catch(function (error) {
-            vm.$toast.error("getting data error ").goAway(3000);
             console.log(error);
+            vm.$toast.error("Submit data getting error").goAway(3000);
           });
       },
 
@@ -624,7 +633,7 @@
         let dataSubmit = {};
         dataSubmit["warehouse_id"] = this.purchase.warehouse;
         dataSubmit["supplier_id"] = this.purchase.supplier;
-        dataSubmit["batch"] = "V_" + this.getCurrentDate();
+        dataSubmit["batch"] = "V_" + this.purchase.batch;
 
         let purchaseDetail = [];
         let subtotal = 0;

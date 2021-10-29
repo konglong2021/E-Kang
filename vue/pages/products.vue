@@ -43,11 +43,6 @@
                 show-empty
                 small
             >
-              <template #cell(image)="row">
-                <div class="content-image">
-                  <img :src="generateImageUrlDisplay(row.item.image)">
-                </div>
-              </template>
               <template #cell(actions)="row">
                 <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                   <i class="fa fa-eye"></i>
@@ -63,6 +58,50 @@
         <div>
         </div>
         <add-new-product-modal v-model="newProductModal" :productItemSelected="productItemSelected" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
+        <b-modal
+          id="modal-view-product" ref="view-product-form-modal" size="lg"
+          title="Product View" title-class="text-center mx-auto" hide-footer
+        >
+          <b-form enctype="multipart/form-data" v-if="productView !== null && productView !== undefined">
+            <div class="product-data data">
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-enname'" class="label-input">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-enname'" type="text" v-model="productView.en_name" class="input-content" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-khname'" class="label-input">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-khname'" type="text" v-model="productView.kh_name" class="input-content" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-category'" class="form-control input-content" v-model="productView.category" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="productView.sale_price" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
+                <b-col sm="8">
+                  <b-form-textarea :id="'input-description'" class="input-content" v-model="productView.description" disabled></b-form-textarea>
+                </b-col>
+              </b-row>
+            </div>
+            <div v-if="productView.image !== null" class="product-data image">
+              <div class="pro-item">
+                <img :src="generateImageUrlDisplay(productView.image)">
+              </div>
+            </div>
+          </b-form>
+        </b-modal>
       </div>
     </b-row>
   </b-container>
@@ -79,7 +118,7 @@
         items:[],
         fields: [
           { key: 'name', label: 'Name' },
-          { key: 'image', label: 'Icon' },
+          { key: 'code', label: 'BarCode'},
           { key: 'category', label: 'Category' },
           { key: 'brand', label: 'Brand' },
           { key: 'loyalty', label: 'Loyalty' },
@@ -90,6 +129,7 @@
         productItemSelected: {},
         responseProductList : [],
         brandList: [],
+        productView: {},
       }
     },
     watch:{
@@ -135,13 +175,13 @@
           this.items = items;
         }
       },
-
       showModal(){
         //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
       },
       viewDetail(item, index, target){
-
+        this.productView = item;
+        this.$refs['view-product-form-modal'].show();
       },
       adjustProduct(item, index, target){
         this.newProductModal.showModal = true;
@@ -163,12 +203,26 @@
         this.productItemSelected.code = item["code"];
       },
       async checkingProductAdd($event){
+        let foundItem = false, indexItem = null;
         if($event){
-          await this.items.push($event);
+          if(this.items.length > 0){
+            for (let i=0; i < this.items.length; i++){
+              if($event.id === this.items[i].id){
+                foundItem = true;
+                this.items[indexItem] = $event;
+                break;
+              }
+            }
+          }
+          if(!foundItem){
+            await this.items.push($event);
+          }
         }
       },
       generateImageUrlDisplay(img){
-        return  window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+        if (typeof window !== "undefined") {
+          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+        }
       }
     },
     mounted() {
@@ -179,14 +233,28 @@
 </script>
 
 <style scoped>
-  .content-image{
-    display: table-cell;
-    width: 100px;
-    height: 100px;
-    text-align: center;
+  .product-data{
+    display: inline-block;
+    float: left;
   }
-  .content-image img{
-    max-width: 100%;
-    max-height: 100%;
+  .data{
+    width: 76%;
+    margin: 5px;
   }
+  .image{
+    width: 22%;
+  }
+  .pro-item {
+    width:100%;
+    height:250px;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden
+  }
+  .pro-item img {
+    flex-shrink:0;
+    -webkit-flex-shrink: 0;
+    height: 100%;
+  }
+
 </style>
