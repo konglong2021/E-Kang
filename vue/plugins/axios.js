@@ -1,6 +1,6 @@
 export default ({ $axios, store  }) => {
 
-  $axios.setBaseURL('http://localhost:8000');
+  $axios.setBaseURL('https://radiant-tor-18088.herokuapp.com');
   $axios.setHeader('Access-Control-Allow-Origin', '*');
 
   //const token = store.getters['auth/token'];

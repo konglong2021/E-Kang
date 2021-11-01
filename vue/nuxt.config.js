@@ -48,11 +48,11 @@ export default {
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
     'cookie-universal-nuxt',
-    '@nuxtjs/moment',
+
   ],
 
   axios: {
-    baseURL: 'https://obscure-garden-41392.herokuapp.com/',
+    baseURL: 'obscure-garden-41392.herokuapp.com/',
     headers: {
       common: {
         'Access-Control-Allow-Origin': '*',
@@ -63,8 +63,9 @@ export default {
     },
     proxy: true,
   },
+ //https://radiant-tor-18088.herokuapp.com/
   proxy: {
-    '/api/': { target: 'http://localhost:8000', pathRewrite: {'^/api/': ''}, changeOrigin: true }
+    '/api/': { target: 'https://radiant-tor-18088.herokuapp.com/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
   },
   router: {
     middleware: ['local-auth', 'check-auth']
