@@ -24,7 +24,7 @@ class PurchasesController extends Controller
     public function index()
     {
         $purchase = Purchase::with('purchasedetails')
-                  ->orderBy('id', 'desc')->paginate(10);
+                  ->orderBy('id', 'desc')->paginate(8);
 
         return PurchasesResource::collection($purchase)->response();
 //       return response()->json($purchase);

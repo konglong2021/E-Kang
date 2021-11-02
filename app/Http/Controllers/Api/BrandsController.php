@@ -21,12 +21,12 @@ class BrandsController extends Controller
         if (empty($request->all())) {
             $brands = Brand::withCount('categories')
                     ->withCount('products')
-                    ->orderBy('id', 'desc')->paginate(10);
+                    ->orderBy('id', 'desc')->paginate(8);
         }else {
           $query = $request->input('search');
           $brands= Brand::where('name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(15);
+                        ->orderBy('id','desc')->paginate(8);
         }
 
         
