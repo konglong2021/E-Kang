@@ -204,7 +204,6 @@
         let vm = this;
 
         if(this.product.hasOwnProperty("id") && this.product.id){
-          formData.append("sale_price", this.product.id);
           formData.append("_method", "PUT");
 
           this.$toast.info("Data starting submit").goAway(1500);

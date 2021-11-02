@@ -20,15 +20,15 @@ class CategoriesController extends Controller
         if (empty($request->all())) {
             $categories = Category::withCount('products')
                         ->with('brands')
-                        ->orderBy('id', 'desc')->paginate(10);
+                        ->orderBy('id', 'desc')->paginate(8);
         }else {
           $query = $request->input('search');
           $categories= Category::where('name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(15);
+                        ->orderBy('id','desc')->paginate(8);
         }
 
-        
+
         return CategoriesResource::collection($categories)->response();
     }
 

@@ -14,7 +14,7 @@
 
               <div class="input-group input-group-sm search-content">
                  <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchProduct()" @change="handleClick" />
               </div>
                   </b-col>
                   <div class="btn-wrapper">
@@ -35,24 +35,31 @@
           <div class="content-loading" v-if="isLoading">
             <div class="spinner-grow text-muted"></div>
           </div>
-          <div v-if="items && items.length > 0 && !isLoading">
-            <b-table
+          <div v-if="!isLoading">
+            <div v-if="items">
+              <b-table
                 :items="items"
                 :fields="fields"
+                :per-page="0"
+                :current-page="currentPage"
                 stacked="md"
                 show-empty
                 small
-            >
-              <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProduct(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
-              </template>
-            <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-            </b-table>
+              >
+                <template #cell(actions)="row">
+                  <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                    <i class="fa fa-eye"></i>
+                  </b-button>
+                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProduct(row.item, row.index, $event.target)">
+                    <i class="fa fa-edit"></i>
+                  </b-button>
+                </template>
+                <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+              </b-table>
+            </div>
+            <div class="content-pagination">
+              <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
+            </div>
           </div>
         </div>
         <div>
@@ -112,10 +119,13 @@
     layout:'inventoryui',
     data(){
       return {
-         newProductModal:{
+        newProductModal:{
            showModal:false,
          },
-        items:[],
+        searchInput: null,
+        perPage: 8,
+        currentPage: 1,
+        items: null,
         fields: [
           { key: 'name', label: 'Name' },
           { key: 'code', label: 'BarCode'},
@@ -124,12 +134,13 @@
           { key: 'loyalty', label: 'Loyalty' },
           { key: 'actions', label: 'Actions' }
         ],
-        category:{}, //new item for category
+        category: {}, //new item for category
         isLoading: false,
         productItemSelected: {},
         responseProductList : [],
         brandList: [],
         productView: {},
+        totalRows: 0,
       }
     },
     watch:{
@@ -137,13 +148,25 @@
         handler(val){
         },
         deep:true
+      },
+      currentPage: {
+        handler: function(value) {
+          this.getListProducts().catch(error => {
+            console.error(error)
+          });
+        }
       }
     },
     methods:{
       async  getListProducts(){
         this.isLoading = true;
-        const response = await this.$axios.get('/api/product');
-        if(response.data.hasOwnProperty("data")){
+        const response = await this.$axios.get('/api/product'+ "?page=" + this.currentPage);
+        if(response.hasOwnProperty('data')){
+          this.perPage = response.data["per_page"];
+          this.currentPage = response.data['current_page'];
+          this.totalRows = response.data['total'];
+        }
+        if(response.data.hasOwnProperty("data")) {
           this.isLoading = false;
           let items = [];
           this.responseProductList = response.data.data;
@@ -151,7 +174,6 @@
             let productItem = response.data.data[index];
             let newItem = {};
             let brands = [];
-
             if(productItem["brands"] && productItem["brands"].length > 0){
               for(let i =0; i < productItem["brands"].length; i++){
                 brands.push(productItem["brands"][i]["name"]);
@@ -159,7 +181,7 @@
             }
             newItem['id'] = productItem["id"];
             newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-            newItem['category'] = productItem["categories"]["name"];
+            // newItem['category'] = productItem["categories"]["name"];
             newItem['brand'] = brands.join(", ");
             newItem['loyalty'] = "N/A";
             newItem['image'] = productItem["image"];
@@ -172,7 +194,7 @@
             newItem["kh_name"] = productItem["kh_name"];
             items.push(newItem);
           }
-          this.items = items;
+          this.items = this.cloneObject(items);
         }
       },
       showModal(){
@@ -223,12 +245,69 @@
         if (typeof window !== "undefined") {
           return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
         }
-      }
+      },
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
+      async searchProduct(){
+        this.isLoading = true;
+        const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
+        if(response){
+          this.isLoading = false;
+          if(response.hasOwnProperty('data')){
+            this.perPage = response.data["per_page"];
+            this.currentPage = response.data['current_page'];
+            this.totalRows = response.data['total'];
+          }
+          if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
+            let items = [];
+            this.responseProductList = response.data.data;
+            for(let index=0; index < response.data.data.length; index++){
+              let productItem = response.data.data[index];
+              let newItem = {};
+              let brands = [];
+              if(productItem["brands"] && productItem["brands"].length > 0){
+                for(let i =0; i < productItem["brands"].length; i++){
+                  brands.push(productItem["brands"][i]["name"]);
+                }
+              }
+              newItem['id'] = productItem["id"];
+              newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
+              // newItem['category'] = productItem["categories"]["name"];
+              newItem['brand'] = brands.join(", ");
+              newItem['loyalty'] = "N/A";
+              newItem['image'] = productItem["image"];
+              newItem['brands'] = productItem["brands"];
+              newItem['categories'] = productItem["categories"];
+              newItem['description'] = productItem["description"];
+              newItem['sale_price'] = productItem["sale_price"];
+              newItem['code'] = productItem["code"];
+              newItem["en_name"] = productItem["en_name"];
+              newItem["kh_name"] = productItem["kh_name"];
+              items.push(newItem);
+            }
+            this.items = this.cloneObject(items);
+          }
+          else{
+            this.items = [];
+          }
+        }
+      },
+      handleClick(e) {
+        if(e.target.value === '' || e.target.value === null || e.target.value === undefined){
+          this.searchInput = '';
+          this.getListProducts();
+        }
+      },
     },
     mounted() {
       this.getListProducts();
-
-    }
+    },
+    computed:{
+      rows() {
+        return this.items.length
+      }
+    },
   }
 </script>
 

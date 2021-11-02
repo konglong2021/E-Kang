@@ -106,7 +106,6 @@
               stacked="md"
               show-empty
               small
-
             >
               <template #cell(actions)="row">
                 <b-button size="sm" title="Adjust product select" variant="success" @click="adjustProductAdd(row.item, row.index, $event.target)">
@@ -265,7 +264,7 @@
           { key: 'image', label: 'Icon' },
           { key: 'code', label: 'QR Code' },
           { key: 'sale_price', label: 'Sell Price' },
-          { key: 'product_qty', label: 'Qty' },
+          { key: 'product_qty', label: 'Total in stock' },
           { key: 'store', label: 'Store' },
         ],
         product: {

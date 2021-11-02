@@ -142,3 +142,10 @@ body {
 .width-10-percentage{
   width: 10%;
 }
+
+.content-pagination{
+  display: inline-block;
+  margin-right: 10px;
+  margin-left: 10px;
+  float: right;
+}
