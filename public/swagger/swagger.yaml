@@ -129,8 +129,33 @@ paths:
             '400':
               description: Bad request
           security:
-            - api_key: []            
-   
+            - api_key: []
+  /category/search:      
+    post:
+      tags:
+        - Category
+      summary: Search Category
+      description: 'Search Category with this API'
+      operationId: searchCategory
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: search
+        in: query
+        description: Something in Category
+        required: true
+        type: string
+      responses:
+        '405':
+          description: Invalid input     
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+      security:
+        - api_key: []                       
   /brand:
     get:
       tags:
@@ -230,7 +255,33 @@ paths:
             '400':
               description: Bad request
           security:
-            - api_key: []        
+            - api_key: []
+  /brand/search:      
+    post:
+      tags:
+        - Brand
+      summary: Search Brand
+      description: 'Search Brand with this API'
+      operationId: searchBrand
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: search
+        in: query
+        description: Something in Brand
+        required: true
+        type: string
+      responses:
+        '405':
+          description: Invalid input     
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+      security:
+        - api_key: []                      
 
 securityDefinitions:
   api_key:

@@ -34,6 +34,16 @@
             <span><i class="fa fa-trophy" aria-hidden="true"></i> Loyalty</span>
           </a>
         </li>
+        <li class="menu-text-item">
+          <a href="/supplier">
+            <span> <i class="fa fa-truck" aria-hidden="true"></i> Supplier </span>
+          </a>
+        </li>
+        <li class="menu-text-item">
+          <a href="/ware-house">
+            <span> <i class="fa fa-home" aria-hidden="true"></i> WareHouse </span>
+          </a>
+        </li>
       </ul>
     </div>
   </b-navbar>

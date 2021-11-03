@@ -6,17 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Warehouse extends Model
+class OrderDetail extends Model
 {
     use HasFactory;
     use softDeletes;
+
+    protected $table = 'order_details';
+
     protected $fillable = [
-        'name',
-        'address',
+        'order_id',
+        'product_id',
+        'sellprice',
+        'quantity',
+       
     ];
 
-    public function stock()
+    public function order()
     {
-        return $this->hasMany(Stock::class);
+        return $this->belongsToMany(Order::class);
     }
 }

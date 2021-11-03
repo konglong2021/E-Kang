@@ -43,6 +43,13 @@ body {
 .margin-top-25{
   margin-top: 25px;
 }
+.display-inline-block{
+  display: inline-block;
+}
+
+.full-with{
+  width: 100%;
+}
 
 .full-content{
   display: inline-block;
@@ -73,4 +80,72 @@ body {
 }
 .active-item-product{
   background-color: #ccc;
+}
+
+.form-content-detail{
+  display: inline-block;
+  width: 100%;
+}
+
+.select-content-inline{
+  width: 68%;
+  height: auto !important;
+  padding: 3px !important;
+}
+
+.label-with{
+  width: 30%;
+}
+
+.content-label{
+  max-width: 8%;
+}
+
+.content-input{
+  max-width: 60%;
+}
+
+.margin-btn{
+  margin-left: 0;
+  margin-right: 20px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.form-header-title{
+  margin-bottom: 30px;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.margin-span-btn{
+  margin-right: 5px;
+}
+
+.margin-5{
+  margin-top: 5px;
+}
+
+.font-700{
+  font-weight: 700;
+}
+
+.content-field-purchase{
+  margin-bottom: 10px;
+  width: 40%;
+}
+
+.margin-bottom-20{
+  margin-bottom: 20px;
+}
+
+.width-10-percentage{
+  width: 10%;
+}
+
+.content-pagination{
+  display: inline-block;
+  margin-right: 10px;
+  margin-left: 10px;
+  float: right;
 }

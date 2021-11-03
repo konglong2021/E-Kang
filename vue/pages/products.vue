@@ -14,7 +14,7 @@
 
               <div class="input-group input-group-sm search-content">
                  <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchProduct()" @change="handleClick" />
               </div>
                   </b-col>
                   <div class="btn-wrapper">
@@ -31,96 +31,309 @@
             <div class="panel-bottom"></div>
           </div>
         </div>
-        <div class="content-product"v-bind:class="{ 'content-product-full-height': isLoading }">
+        <div class="content-product" v-bind:class="{ 'content-product-full-height': isLoading }">
           <div class="content-loading" v-if="isLoading">
             <div class="spinner-grow text-muted"></div>
           </div>
-          <div v-if="items && items.length > 0 && !isLoading">
-            <b-table
+          <div v-if="!isLoading">
+            <div v-if="items">
+              <b-table
                 :items="items"
                 :fields="fields"
+                :per-page="0"
+                :current-page="currentPage"
                 stacked="md"
                 show-empty
                 small
-            >
-              <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
-              </template>
-            <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-            </b-table>
+              >
+                <template #cell(actions)="row">
+                  <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                    <i class="fa fa-eye"></i>
+                  </b-button>
+                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProduct(row.item, row.index, $event.target)">
+                    <i class="fa fa-edit"></i>
+                  </b-button>
+                </template>
+                <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+              </b-table>
+            </div>
+            <div class="content-pagination">
+              <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
+            </div>
           </div>
         </div>
         <div>
         </div>
-        <add-new-product-modal v-model="newProductModal" /> <!--no need to import it will automatically rendering it -->
+        <add-new-product-modal v-model="newProductModal" :productItemSelected="productItemSelected" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
+        <b-modal
+          id="modal-view-product" ref="view-product-form-modal" size="lg"
+          title="Product View" title-class="text-center mx-auto" hide-footer
+        >
+          <b-form enctype="multipart/form-data" v-if="productView !== null && productView !== undefined">
+            <div class="product-data data">
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-enname'" class="label-input">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-enname'" type="text" v-model="productView.en_name" class="input-content" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-khname'" class="label-input">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-khname'" type="text" v-model="productView.kh_name" class="input-content" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-category'" class="form-control input-content" v-model="productView.category" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="productView.sale_price" disabled></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
+                <b-col sm="8">
+                  <b-form-textarea :id="'input-description'" class="input-content" v-model="productView.description" disabled></b-form-textarea>
+                </b-col>
+              </b-row>
+            </div>
+            <div v-if="productView.image !== null" class="product-data image">
+              <div class="pro-item">
+                <img :src="generateImageUrlDisplay(productView.image)">
+              </div>
+            </div>
+          </b-form>
+        </b-modal>
       </div>
     </b-row>
   </b-container>
 </template>
 <script>
   export default {
+    middleware: "local-auth",
     layout:'inventoryui',
     data(){
       return {
-         newProductModal:{
+        newProductModal:{
            showModal:false,
-           editedItem: null
          },
-        items:[],
+        searchInput: null,
+        perPage: 8,
+        currentPage: 1,
+        items: null,
         fields: [
           { key: 'name', label: 'Name' },
+          { key: 'code', label: 'BarCode'},
           { key: 'category', label: 'Category' },
           { key: 'brand', label: 'Brand' },
           { key: 'loyalty', label: 'Loyalty' },
           { key: 'actions', label: 'Actions' }
         ],
-        category:{}, //new item for category
+        category: {}, //new item for category
         isLoading: false,
-    }
+        productItemSelected: {},
+        responseProductList : [],
+        brandList: [],
+        productView: {},
+        totalRows: 0,
+      }
+    },
+    watch:{
+      newProductModal:{
+        handler(val){
+        },
+        deep:true
+      },
+      currentPage: {
+        handler: function(value) {
+          this.getListProducts().catch(error => {
+            console.error(error)
+          });
+        }
+      }
     },
     methods:{
       async  getListProducts(){
         this.isLoading = true;
-        const response = await this.$axios.get('/api/product');
-        if(response.data.hasOwnProperty("data")){
+        const response = await this.$axios.get('/api/product'+ "?page=" + this.currentPage);
+        if(response.hasOwnProperty('data')){
+          this.perPage = response.data["per_page"];
+          this.currentPage = response.data['current_page'];
+          this.totalRows = response.data['total'];
+        }
+        if(response.data.hasOwnProperty("data")) {
           this.isLoading = false;
           let items = [];
+          this.responseProductList = response.data.data;
           for(let index=0; index < response.data.data.length; index++){
             let productItem = response.data.data[index];
             let newItem = {};
             let brands = [];
-
             if(productItem["brands"] && productItem["brands"].length > 0){
               for(let i =0; i < productItem["brands"].length; i++){
                 brands.push(productItem["brands"][i]["name"]);
               }
             }
+            newItem['id'] = productItem["id"];
             newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-            newItem['category'] = productItem["categories"]["name"];
+            // newItem['category'] = productItem["categories"]["name"];
             newItem['brand'] = brands.join(", ");
             newItem['loyalty'] = "N/A";
+            newItem['image'] = productItem["image"];
+            newItem['brands'] = productItem["brands"];
+            newItem['categories'] = productItem["categories"];
+            newItem['description'] = productItem["description"];
+            newItem['sale_price'] = productItem["sale_price"];
+            newItem['code'] = productItem["code"];
+            newItem["en_name"] = productItem["en_name"];
+            newItem["kh_name"] = productItem["kh_name"];
             items.push(newItem);
           }
-          this.items = items;
+          this.items = this.cloneObject(items);
         }
       },
       showModal(){
         //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
-        //alert('Debug me , I am going to popup the modal');
-        console.log('modal data' ,this.newProductModal);
       },
       viewDetail(item, index, target){
-
-      }
+        this.productView = item;
+        this.$refs['view-product-form-modal'].show();
+      },
+      adjustProduct(item, index, target){
+        this.newProductModal.showModal = true;
+        this.productItemSelected = {};
+        this.productItemSelected.id = item["id"];
+        this.productItemSelected.en_name = item["en_name"];
+        this.productItemSelected.kh_name = item["kh_name"];
+        this.productItemSelected.category = item["categories"]["id"];
+        this.productItemSelected.image = item["image"];
+        let brandList = [];
+        if(item["brands"] && item["brands"].length > 0){
+          for (let index=0; index < item["brands"].length; index++){
+            brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
+          }
+          this.productItemSelected.brand = brandList;
+        }
+        this.productItemSelected.description = item["description"];
+        this.productItemSelected.sale_price = item["sale_price"];
+        this.productItemSelected.code = item["code"];
+      },
+      async checkingProductAdd($event){
+        let foundItem = false, indexItem = null;
+        if($event){
+          if(this.items.length > 0){
+            for (let i=0; i < this.items.length; i++){
+              if($event.id === this.items[i].id){
+                foundItem = true;
+                this.items[indexItem] = $event;
+                break;
+              }
+            }
+          }
+          if(!foundItem){
+            await this.items.push($event);
+          }
+        }
+      },
+      generateImageUrlDisplay(img){
+        if (typeof window !== "undefined") {
+          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+        }
+      },
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
+      async searchProduct(){
+        this.isLoading = true;
+        const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
+        if(response){
+          this.isLoading = false;
+          if(response.hasOwnProperty('data')){
+            this.perPage = response.data["per_page"];
+            this.currentPage = response.data['current_page'];
+            this.totalRows = response.data['total'];
+          }
+          if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
+            let items = [];
+            this.responseProductList = response.data.data;
+            for(let index=0; index < response.data.data.length; index++){
+              let productItem = response.data.data[index];
+              let newItem = {};
+              let brands = [];
+              if(productItem["brands"] && productItem["brands"].length > 0){
+                for(let i =0; i < productItem["brands"].length; i++){
+                  brands.push(productItem["brands"][i]["name"]);
+                }
+              }
+              newItem['id'] = productItem["id"];
+              newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
+              // newItem['category'] = productItem["categories"]["name"];
+              newItem['brand'] = brands.join(", ");
+              newItem['loyalty'] = "N/A";
+              newItem['image'] = productItem["image"];
+              newItem['brands'] = productItem["brands"];
+              newItem['categories'] = productItem["categories"];
+              newItem['description'] = productItem["description"];
+              newItem['sale_price'] = productItem["sale_price"];
+              newItem['code'] = productItem["code"];
+              newItem["en_name"] = productItem["en_name"];
+              newItem["kh_name"] = productItem["kh_name"];
+              items.push(newItem);
+            }
+            this.items = this.cloneObject(items);
+          }
+          else{
+            this.items = [];
+          }
+        }
+      },
+      handleClick(e) {
+        if(e.target.value === '' || e.target.value === null || e.target.value === undefined){
+          this.searchInput = '';
+          this.getListProducts();
+        }
+      },
     },
     mounted() {
       this.getListProducts();
-    }
+    },
+    computed:{
+      rows() {
+        return this.items.length
+      }
+    },
   }
 </script>
+
+<style scoped>
+  .product-data{
+    display: inline-block;
+    float: left;
+  }
+  .data{
+    width: 76%;
+    margin: 5px;
+  }
+  .image{
+    width: 22%;
+  }
+  .pro-item {
+    width:100%;
+    height:250px;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden
+  }
+  .pro-item img {
+    flex-shrink:0;
+    -webkit-flex-shrink: 0;
+    height: 100%;
+  }
+
+</style>

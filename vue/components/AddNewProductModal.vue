@@ -8,44 +8,52 @@
             <div class="content-file-upload">
               <b-form-file id="file" name="file" class="input-file" v-on:change="onFileChange" plain></b-form-file>
               <div id="output" v-if="uploadFile" class="img"></div>
-              <div v-if="!uploadFile" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
+              <div v-if="!uploadFile && (!product.image || product.image === 'no image')" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
+              <div v-if="!uploadFile && (product.image || product.image !== 'no image')" class="img" :style="{ backgroundImage: `url('${generateImageUrlDisplay(product.image)}')` }"></div>
             </div>
           </div>
           <div class="full-content">
+            <b-row>
+              <b-col sm="12">
+                <div v-if="errors.length">
+                  <b class="text-danger">Please input all data:</b>
+                </div>
+              </b-col>
+            </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-enname'" class="label-input">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
               <b-col sm="8">
-                <b-form-input :id="'input-enname'" type="text" v-model="product.en_name" class="input-content"></b-form-input>
+                <b-form-input :id="'input-enname'" type="text" v-model="product.en_name" class="input-content" required></b-form-input>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-khname'" class="label-input">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
               <b-col sm="8">
-                <b-form-input :id="'input-khname'" type="text" v-model="product.kh_name" class="input-content"></b-form-input>
+                <b-form-input :id="'input-khname'" type="text" v-model="product.kh_name" class="input-content" required></b-form-input>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
               <b-col sm="8">
-                <b-form-select :id="'input-category'" class="form-control input-content" v-model="product.category" :options="categories"></b-form-select>
+                <b-form-select :id="'input-category'" class="form-control input-content" v-model="product.category" :options="categories" required></b-form-select>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-brand'" class="label-input">ប្រេនទំនិញ</label></b-col>
               <b-col sm="8">
-                <multiselect class="input-content" v-model="product.brand" :options="brands" track-by="name" label="name" :multiple="true" :show-labels="false" aria-placeholder="Select brands"></multiselect>
+                <multiselect class="input-content" v-model="product.brand" :options="brands" track-by="name" label="name" :show-labels="false" :multiple="true" aria-placeholder="Select brands"></multiselect>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
               <b-col sm="8">
-                <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="product.sale_price"></b-form-input>
+                <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="product.sale_price" required></b-form-input>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
               <b-col sm="8">
-                <b-form-textarea :id="'input-description'" class="input-content" v-model="product.description"></b-form-textarea>
+                <b-form-textarea :id="'input-description'" class="input-content" v-model="product.description" required></b-form-textarea>
               </b-col>
             </b-row>
           </div>
@@ -61,24 +69,10 @@
         type:Object,
         require:true
       },
-    },
-    watch:{
-       'value.showModal':{
-         //watch value change sent from parent component
-         handler(value){
-           if(value==true){
-              this.$refs['product-form-modal'].show();
-           }
-         },
-         deep:true
-       },
-    },
-    mounted(){
-      let vm = this;
-      console.log(this.value,'myvalue');
-
-      this.getBrands();
-      this.getCategories();
+      productItemSelected: {
+        type:Object,
+        require:false
+      },
     },
     data() {
       return {
@@ -96,9 +90,58 @@
         },
         uploadFile: null,
         file: null,
+        errors: [],
       };
     },
+    watch:{
+      'value.showModal':{
+         //watch value change sent from parent component
+         handler(value){
+           if(value==true){
+              this.$refs['product-form-modal'].show();
+           }
+         },
+         deep:true
+      },
+      productItemSelected: {
+        deep: true,
+        handler: function(selectedProduct){
+          this.product = selectedProduct;
+        }
+      }
+    },
+    mounted(){
+      this.getBrands();
+      this.getCategories();
+    },
     methods: {
+      checkForm: function (e) {
+        this.errors = [];
+
+        if (!this.product.category) {
+          this.errors.push("categor required.");
+        }
+        if (!this.product.en_name) {
+          this.errors.push('English name required.');
+        }
+        if (!this.product.kh_name) {
+          this.errors.push('Khmer name required.');
+        }
+        if (!this.product.kh_name) {
+          this.errors.push('Khmer name required.');
+        }
+        if (!this.product.sale_price) {
+          this.errors.push('Selling price required.');
+        }
+        if (!this.product.description) {
+          this.errors.push('Description required.');
+        }
+
+        if (!this.errors.length) {
+          return true;
+        }
+        e.preventDefault();
+      },
       async getBrands(){
         const response = await this.$axios.get('/api/brand');
         if(response.data.data){
@@ -141,11 +184,11 @@
           document.getElementById("output").setAttribute("style","background-image: url(" + e.target.result + ')');
         };
         reader.readAsDataURL($event.target.files[0]);
+        console.log(this.product.image);
       },
-      onSubmit(event) {
+      async onSubmit(event) {
         let brands= [];
         let formData = new FormData();
-
         if(this.product.brand && this.product.brand.length > 0){
           for(let index=0; index < this.product.brand.length; index++){
             brands.push(this.product.brand[index]["value"]);
@@ -158,22 +201,81 @@
         formData.append("image", this.uploadFile);
         formData.append("sale_price", this.product.sale_price);
         formData.append("brands" , JSON.stringify(brands));
+        let vm = this;
 
-        this.$axios.post('/api/product', formData)
-          .then(function (response) {
-            commit('setMessage', {response: 'success', type: type});
-            this.hideModal();
-          })
-          .catch(function (error) {
-            console.log(error);
-        });
+        if(this.product.hasOwnProperty("id") && this.product.id){
+          formData.append("_method", "PUT");
+
+          this.$toast.info("Data starting submit").goAway(1500);
+          await this.$axios.post('/api/product/' + this.product.id, formData)
+            .then(function (response) {
+              if(response){
+                vm.$toast.success("Submit data successfully").goAway(2000);
+                let itemProduct = response.data.product;
+                vm.$emit("checkingProductAdd", itemProduct);
+                vm.hideModal();
+                vm.product =
+                  {
+                    en_name: '',
+                    kh_name: '',
+                    category: null,
+                    brand: null,
+                    description: '',
+                    image: null,
+                    sale_price: 0,
+                    code: null,
+                  };
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+              vm.$toast.error("Submit data getting error").goAway(3000);
+            });
+        }
+        else {
+          this.$toast.info("Data starting submit").goAway(1500);
+          await this.$axios.post('/api/product', formData)
+            .then(function (response) {
+              if(response){
+                vm.$toast.success("Submit data successfully").goAway(2000);
+                let brandList = response.data.Brands;
+                let itemProduct = response.data.product;
+                let newDataBrand = [];
+                if(vm.brands.length > 0){
+                  for (let index =0; index < vm.brands.length; index++){
+                    for(let k=0; k< brandList.length; k++){
+                      if(brandList[k] === vm.brands[index].id){
+                        newDataBrand.push(vm.brands[index]);
+                        break;
+                      }
+                    }
+                  }
+                }
+                if(brandList.length > 0){
+                  itemProduct.brands = brandList;
+                }
+                vm.$emit("checkingProductAdd", itemProduct);
+                vm.hideModal();
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+              vm.$toast.error("Submit data getting error").goAway(3000);
+            });
+        }
       },
       hideModal() {
         this.$refs['product-form-modal'].hide();
+        this.product = {};
       },
       viewDetail($data){
         console.log("data",$data);
       },
+      generateImageUrlDisplay(img){
+        if (typeof window !== "undefined") {
+          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+        }
+      }
     },
   }
 </script>

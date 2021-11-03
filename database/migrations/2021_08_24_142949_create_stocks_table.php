@@ -15,10 +15,10 @@ class CreateStocksTable extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('warehouse_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('warehouse_id')->constrained()->onUpdate('cascade');
+            $table->foreignId('product_id')->constrained()->onUpdate('cascade');
             $table->decimal('alert')->nullable();
-            $table->double('balance')->nullable();
+            $table->double('total')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

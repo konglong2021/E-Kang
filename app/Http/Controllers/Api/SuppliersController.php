@@ -15,7 +15,7 @@ class SuppliersController extends Controller
      */
     public function index()
     {
-        $suppliers = Supplier::orderBy('id', 'desc')->paginate(10);
+        $suppliers = Supplier::orderBy('id', 'desc')->paginate(8);
         return response()->json($suppliers);
     }
 

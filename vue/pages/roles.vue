@@ -57,6 +57,7 @@
 </template>
 <script>
 export default {
+  middleware: "local-auth",
   layout: "userui",
   data() {
     return {

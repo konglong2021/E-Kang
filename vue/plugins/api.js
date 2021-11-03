@@ -3,13 +3,15 @@ export default function ({ $axios }, inject) {
   const api = $axios.create({
     headers: {
       common: {
-        Accept: 'text/plain, */*'
-      }
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': window.localStorage.getItem('user-token')
+      },
     }
-  })
+  });
 
   // Set baseURL to something different
-  api.setBaseURL('http://localhost:8000')
+  api.setBaseURL('https://radiant-tor-18088.herokuapp.com/');
 
   // Inject to context as $api
   inject('api', api)

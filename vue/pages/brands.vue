@@ -34,26 +34,30 @@
               <div class="spinner-grow text-muted"></div>
             </div>
             <div v-if="items && items.length > 0 && !isLoading">
-              <b-table
-                :items="items"
-                :fields="fields"
-                stacked="md"
-                show-empty
-                small
+              <b-table class="content-table-body"
+                       :items="items"
+                       :fields="fields"
+                       :per-page="0"
+                       :current-page="currentPage"
+                       stacked="md"
+                       show-empty
+                       small
               >
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                     <i class="fa fa-eye"></i>
                   </b-button>
-                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustBrand(row.item, row.index, $event.target)">
                     <i class="fa fa-edit"></i>
                   </b-button>
                 </template>
                 <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
               </b-table>
+              <div class="content-pagination">
+                <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
+              </div>
             </div>
           </div>
-          <div></div>
       </div>
       <b-modal id="modal-create-category" ref="brand-form-modal" size="lg"
                @hidden="onReset" cancel-title="Cacnel"
@@ -89,18 +93,14 @@
 </template>
 <script>
   export default {
+    middleware: "local-auth",
     layout:'inventoryui',
     data(){
       return {
         categories:[],
-        items:[
-          // {
-          //   name:'Phone ',
-          //   parent:'--ROOT--',
-          //   total_product:10,
-          //   categories: "Test",
-          // }
-        ],
+        perPage: 8,
+        currentPage: 1,
+        items:[],
         fields: [
           { key: 'name', label: 'Name' },
           { key: 'parent', label: 'Parent' },
@@ -110,6 +110,16 @@
         ],
         brand:{},
         isLoading: false,
+        totalRows: 0,
+      }
+    },
+    watch : {
+      currentPage: {
+        handler: function(value) {
+          this.getBrands().catch(error => {
+            console.error(error)
+          });
+        }
       }
     },
     mounted() {
@@ -127,7 +137,12 @@
       },
       async getBrands(){
         this.isLoading = true;
-        const response = await this.$axios.get('/api/brand');
+        const response = await this.$axios.get('/api/brand' + "?page=" + this.currentPage);
+        if(response.data.hasOwnProperty('meta')){
+          this.perPage = response.data.meta["per_page"];
+          this.currentPage = response.data.meta['current_page'];
+          this.totalRows = response.data.meta['total'];
+        }
         if(response.data.hasOwnProperty("data")){
           this.isLoading = false;
           let items = [];
@@ -146,7 +161,8 @@
             item['total_product'] = brandItem["products_count"];
             items.push(item);
           }
-          this.items = items;
+          this.items = this.cloneObject(items);
+          console.log(this.items);
         }
       },
       onReset(){},
@@ -158,12 +174,10 @@
             categories.push(this.brand.category[i]["value"]);
           }
         }
-
-        //dataSubmit["en_name"] = this.brand.en_name;
-       // dataSubmit["kh_name"] = this.brand.kh_name;
+        dataSubmit["kh_name"] = this.brand.kh_name;
         dataSubmit["name"] = this.brand.en_name;
         dataSubmit["categories"] = JSON.stringify(categories);
-       // dataSubmit["description"] = this.brand.description;
+        dataSubmit["description"] = this.brand.description;
 
         this.$toast.info("submit data in progress").goAway(1000);
         this.$axios.post('/api/brand', dataSubmit)
@@ -180,7 +194,32 @@
       },
       showModal(){
         this.$refs['brand-form-modal'].show();
+      },
+      viewDetail(item, index, target){
+        this.categoryView = item;
+        this.$refs['view-category-form-modal'].show();
+      },
+      adjustBrand(item, index, target){
+        this.$refs['category-form-modal'].show();
+        this.categoryItemSelected = {};
+        this.categoryItemSelected.id = item["id"];
+        this.categoryItemSelected.kh_name = item["kh_name"];
+        this.categoryItemSelected.en_name = item["en_name"];
+        this.categoryItemSelected.parent = "--ROOT--";
+        this.categoryItemSelected.products_count = item["products_count"];
+        let brandList = [];
+        if(item["brands"] && item["brands"].length > 0){
+          for (let index=0; index < item["brands"].length; index++){
+            brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
+          }
+          this.categoryItemSelected.brand = brandList;
+        }
+      },
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
       }
+    },
+    computed:{
     },
 
   }

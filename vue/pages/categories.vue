@@ -35,6 +35,8 @@
               <b-table
                   :items="items"
                   :fields="fields"
+                  :per-page="0"
+                  :current-page="currentPage"
                   stacked="md"
                   show-empty
                   small
@@ -43,12 +45,15 @@
                   <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                     <i class="fa fa-eye"></i>
                   </b-button>
-                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustCategory(row.item, row.index, $event.target)">
                     <i class="fa fa-edit"></i>
                   </b-button>
                 </template>
                   <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
               </b-table>
+              <div class="content-pagination">
+                <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
+              </div>
             </div>
           </div>
       </div>
@@ -67,10 +72,6 @@
                 <b-col sm="4"><label :for="'input-khname'" class="label-input">Name(KH)</label></b-col>
                 <b-col sm="8"><b-form-input :id="'input-khname'" type="text" v-model="category.kh_name" class="input-content"></b-form-input></b-col>
               </b-row>
-              <b-row class="my-1" style="display: none;">
-                <b-col sm="4"><label :for="'input-category'" class="label-input">Parent</label></b-col>
-                <b-col sm="8"><b-form-select :id="'input-category'" class="form-control input-content" v-model="category.category" :options="categories"></b-form-select></b-col>
-              </b-row>
               <b-row class="my-1">
                 <b-col sm="4"><label :for="'input-category'" class="label-input">Brands</label></b-col>
                 <b-col sm="8">
@@ -84,23 +85,45 @@
             </div>
           </b-form>
         </b-modal>
+      <b-modal id="modal-view-product" ref="view-product-form-modal" size="lg"
+        title="Product View" title-class="text-center mx-auto" hide-footer
+      >
+        <b-form enctype="multipart/form-data" v-if="categoryView !== null && categoryView !== undefined">
+          <div class="full-content">
+            <b-row class="my-1">
+              <b-col sm="4"><label :for="'input-enname'" class="label-input">Name</label></b-col>
+              <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="categoryItemSelected.en_name" class="input-content"></b-form-input></b-col>
+            </b-row>
+            <b-row class="my-1">
+              <b-col sm="4"><label :for="'input-khname'" class="label-input">Name(KH)</label></b-col>
+              <b-col sm="8"><b-form-input :id="'input-khname'" type="text" v-model="categoryItemSelected.kh_name" class="input-content"></b-form-input></b-col>
+            </b-row>
+            <b-row class="my-1">
+              <b-col sm="4"><label :for="'input-category'" class="label-input">Brands</label></b-col>
+              <b-col sm="8">
+<!--                <multiselect class="input-content" v-model="category.brand" :options="brands" track-by="name" label="name" :multiple="true" :show-labels="false" aria-placeholder="Select brands"></multiselect>-->
+              </b-col>
+            </b-row>
+            <b-row class="my-1">
+              <b-col sm="4"><label :for="'input-description'" class="label-input">Description</label></b-col>
+              <b-col sm="8"><b-form-textarea :id="'input-description'" class="input-content" v-model="categoryItemSelected.description"></b-form-textarea></b-col>
+            </b-row>
+          </div>
+        </b-form>
+      </b-modal>
     </b-row>
   </b-container>
 </template>
 <script>
   export default {
+    middleware: "local-auth",
     layout:'inventoryui',
     data(){
       return {
         categories:[],
-        items:[
-          // {
-          //   name:'Phone ',
-          //   parent:'--ROOT--',
-          //   total_product:10,
-          //
-          // }
-        ],
+        perPage: 8,
+        currentPage: 1,
+        items:[],
         fields: [
           { key: 'name', label: 'Name' },
           { key: 'parent', label: 'Parent' },
@@ -111,11 +134,23 @@
         category: {}, //new item for category
         brands: [],
         isLoading: false,
+        categoryItemSelected: {},
+        categoryView : {},
+        totalRows: 0,
+      }
+    },
+    watch : {
+      currentPage: {
+        handler: function(value) {
+          this.getCategories().catch(error => {
+            console.error(error)
+          });
+        }
       }
     },
     methods:{
       async onGetBrand(){
-        const response = await this.$axios.get('/api/brand');
+        const response = await this.$axios.get('/api/brand'+ "?page=" + this.currentPage);
         if(response.data.data){
           for(let index=0; index < response.data.data.length; index++){
             this.brands.push({name : response.data.data[index]["name"], value : response.data.data[index]["id"]});
@@ -125,6 +160,11 @@
       async getCategories(){
         this.isLoading = true;
         const response = await this.$axios.get('/api/category');
+        if(response.data.hasOwnProperty('meta')){
+          this.perPage = response.data.meta["per_page"];
+          this.currentPage = response.data.meta['current_page'];
+          this.totalRows = response.data.meta['total'];
+        }
         if(response.data.hasOwnProperty("data")){
           this.isLoading = false;
           let items = [];
@@ -138,17 +178,18 @@
                 brands.push(categoryItem["brands"][i]["name"]);
               }
             }
-            item['name'] = categoryItem["name"];
+            item['kh_name'] = categoryItem["kh_name"];
+            item['en_name'] = categoryItem["en_name"];
             item['parent'] = "--ROOT--";
             item['brand'] = brands.join(", ");
-            item['total_product'] = categoryItem["products"].length;
+            item['products_count'] = categoryItem["products_count"];
             items.push(item);
           }
           this.items = items;
         }
       },
       onReset(){},
-      onSubmit(){
+      async onSubmit(){
         let dataSubmit = {};
         let brands = [];
         if(this.category.brand && this.category.brand.length > 0){
@@ -162,27 +203,82 @@
         dataSubmit["brand"] = JSON.stringify(brands);
         dataSubmit["description"] = this.category.description;
 
-        this.$toast.info("submit data in progress").goAway(1000);
-        this.$axios.post('/api/category', dataSubmit)
-          .then(function (response) {
-            if(response.data.hasOwnProperty("data")){
-              this.$toast.success("submit data is successfully").goAway(1500);
-              this.hideModal();
-            }
-          })
-          .catch(function (error) {
-            this.$toast.success("submit data is getting error").goAway(2000);
-            console.log(error);
-          });
+        if(this.product.hasOwnProperty("id") && this.product.id){
+          formData.append("_method", "PUT");
+
+          this.$toast.info("Data starting submit").goAway(1500);
+          await this.$axios.post('/api/category' + this.category.id, dataSubmit)
+            .then(function (response) {
+              if(response){
+                this.$toast.success("Submit data successfully").goAway(2000);
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+              this.$toast.error("Submit data getting error").goAway(3000);
+            });
+        }
+        else{
+          this.$toast.info("submit data in progress").goAway(1000);
+          await this.$axios.post('/api/category', dataSubmit)
+            .then(function (response) {
+              if(response.data.hasOwnProperty("data")){
+                let categoryItem = response.data.data;
+                let brands = [];
+                let item = {};
+
+                if(categoryItem["brands"] && categoryItem["brands"].length > 0){
+                  for(let i =0; i < categoryItem["brands"].length; i++){
+                    brands.push(categoryItem["brands"][i]["name"]);
+                  }
+                }
+                item['name'] = categoryItem["name"];
+                item['parent'] = "--ROOT--";
+                item['brand'] = brands.join(", ");
+                item['products_count'] = categoryItem["products_count"];
+                this.items.push(item);
+                this.$toast.success("submit data is successfully").goAway(1500);
+                this.hideModal();
+              }
+            })
+            .catch(function (error) {
+              this.$toast.success("submit data is getting error").goAway(2000);
+              console.log(error);
+            });
+        }
       },
       showModal(){
         this.$refs['category-form-modal'].show();
-      }
+      },
+      viewDetail(item, index, target){
+        this.categoryView = item;
+        this.$refs['view-category-form-modal'].show();
+      },
+      adjustCategory(item, index, target){
+        this.$refs['category-form-modal'].show();
+        this.category = {};
+        this.category.id = item["id"];
+        this.category.kh_name = item["kh_name"];
+        this.category.en_name = item["en_name"];
+        this.category.description = item["description"];
+        let brandList = [];
+        if(item["brands"] && item["brands"].length > 0){
+          for (let index=0; index < item["brands"].length; index++){
+            brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
+          }
+          this.category.brand = brandList;
+        }
+      },
     },
     mounted() {
       this.onGetBrand();
       this.getCategories();
-    }
+    },
+    computed:{
+      rows() {
+        return this.items.length
+      }
+    },
   }
 </script>
 

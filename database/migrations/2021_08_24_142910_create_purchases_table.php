@@ -15,9 +15,9 @@ class CreatePurchasesTable extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('warehouse_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('supplier_id')->constrained('suppliers')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('warehouse_id')->constrained()->onUpdate('cascade');
+            $table->foreignId('supplier_id')->constrained('suppliers')->onUpdate('cascade');
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade');
             $table->string('batch')->default('001');  //version or stock in 
             $table->double('subtotal');
             $table->double('vat')->nullable();

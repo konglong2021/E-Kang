@@ -27,6 +27,7 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/axios',
+    '~/plugins/axios',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -37,7 +38,6 @@ export default {
     '@nuxtjs/fontawesome'
   ],
 
-
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/bootstrap
@@ -47,55 +47,32 @@ export default {
     'nuxt-vue-multiselect',
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
-    '@nuxtjs/auth',
+    'cookie-universal-nuxt',
+
   ],
 
   axios: {
-    baseURL: 'http://localhost:8000', // Used as fallback if no runtime config is provided
+    baseURL: 'obscure-garden-41392.herokuapp.com/',
     headers: {
       common: {
-        Accept: 'application/json, text/plain, */*'
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: '',
       }
     },
+    proxy: true,
   },
+ //https://radiant-tor-18088.herokuapp.com/
   proxy: {
-    '/api/': { target: 'http://localhost:8000', pathRewrite: {'^/api/': ''}, changeOrigin: true }
+    '/api/': { target: 'https://radiant-tor-18088.herokuapp.com/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
   },
   router: {
-    middleware: ['auth']
+    middleware: ['local-auth', 'check-auth']
   },
-  auth: {
-    redirect: {
-      login: '/login',
-      logout: '/logout',
-      home: '/'
-    },
-    strategies: {
-      local: {
-        endpoints: {
-          login: {
-            url: "/api/login",
-            method: "post",
-            propertyName: "data.token",
 
-          },
-          logout: false,
-          user: {
-            url: "/api/user",
-            method: "get",
-            propertyName: "data.user",
-          },
-        },
-        tokenType: 'Bearer',
-        tokenName: 'x-auth',
-        autoFetchUser: false
-      },
-    },
-    watchLoggedIn: false,
-    localStorage: {
-      prefix: 'auth.'
-    },
-  },
+  ssr: true,
+  target: 'server',
 
   i18n: {
     locales: ['en', 'fr', 'es'],
@@ -115,7 +92,6 @@ export default {
       }
     }
   },
-
   toast: {
     position: 'top-center',
     register: [ // Register custom toasts
@@ -129,7 +105,13 @@ export default {
     ]
   },
 
+  // mode: 'spa',
+  // devtools: true,
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+  },
+  server: {
+    host: 'pos.local',
+  },
 }

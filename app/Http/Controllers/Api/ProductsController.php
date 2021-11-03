@@ -29,13 +29,13 @@ class ProductsController extends Controller
           $products= Product::where('en_name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
                         ->orwhere('code','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(15);
+                        ->orderBy('id','desc')->paginate(8);
         }
 
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
 //        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        
+
        return response()->json($products);
     }
 
@@ -87,9 +87,8 @@ class ProductsController extends Controller
             // $product['image'] = "$image_name";
         }
         else{
-            $image_name ="no image";
+            $image_name ="no image created";
         }
-
 
         $product = Product::create([
 
@@ -103,7 +102,7 @@ class ProductsController extends Controller
 
         ]);
 
-        $brands = json_encode($request->brands);
+        $brands = ($request->brands);
         $product->brands()->sync(json_decode($brands));
         // return response()->json($product);
         return response()->json([
@@ -114,42 +113,12 @@ class ProductsController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $product=Product::with('brands')->find($id);
-        return response()->json($product);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Product $product)
     {
 
 
         $input = $request->all();
-        // return response()->json($input);
+//         return response()->json($input);
 
 
         if ($image = $request->file('image')) {
@@ -165,13 +134,15 @@ class ProductsController extends Controller
 
         $product->update($input);
 
-        $brands = json_encode($request->brands);
+        $brands =($request->brands) ;
         $product->brands()->sync(json_decode($brands));
+        $brandsStr = implode(",", json_decode($brands));
 
             return response()->json([
 
             "message" => "Successfully Updated",
-            "product" =>  $product
+            "product" =>  $product,
+                "Brands" => $brandsStr
         ]);
     }
 
