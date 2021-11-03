@@ -31,7 +31,7 @@ class ProductsController extends Controller
           $products= Product::where('en_name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
                         ->orwhere('code','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(8);
+                        ->orderBy('id','desc')->paginate(15);
         }
 
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
