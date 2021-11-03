@@ -24,8 +24,9 @@ class ProductsController extends Controller
             $products = Product::with('brands')
             ->with('categories')
             ->orderBy('id', 'desc')->paginate(8);
-        }
-        else {
+
+        }else {
+
           $query = $request->input('search');
           $products= Product::where('en_name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')

@@ -15,7 +15,7 @@ class PermissionsController extends Controller
      */
     public function index()
     {
-        $permissions = Permission::orderBy('id', 'desc')->paginate(10);
+        $permissions = Permission::orderBy('id', 'desc')->paginate(8);
         return response()->json($permissions);
     }
 

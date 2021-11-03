@@ -22,7 +22,7 @@ class StockController extends Controller
     public function index()
     {
         $stocks = Stock::with('product')
-                ->with('warehouse')->paginate(15);
+                ->with('warehouse')->paginate(8);
 
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();
@@ -138,6 +138,17 @@ class StockController extends Controller
         ]);
     }
 
+    public function stockout()
+    {
+        $stocks = StockOut::with('product')
+                ->with('warehouse')
+                ->get();
+               
+
+        return response()->json($stocks);
+         // return StockResource::collection($stocks)->response();
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -148,4 +159,6 @@ class StockController extends Controller
     {
         //
     }
+
+   
 }
