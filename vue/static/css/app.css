@@ -118,6 +118,9 @@ body {
   font-weight: 900;
 }
 
+.padding-top-20{
+  padding-top: 20px;
+}
 .margin-span-btn{
   margin-right: 5px;
 }
@@ -148,4 +151,12 @@ body {
   margin-right: 10px;
   margin-left: 10px;
   float: right;
+}
+
+.calculator-product-content{
+  margin-top: 15px;
+  display: inline-block;
+  overflow-y: auto;
+  height: 400px;
+  width: 100%;
 }

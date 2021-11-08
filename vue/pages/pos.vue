@@ -1,11 +1,11 @@
 <template>
 <b-container fluid class="bv-example-row">
   <b-row>
-    <b-col cols="4" class="content-product-select">
+    <b-col cols="5" class="content-product-select">
       <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" />
-      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>
+<!--      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>-->
     </b-col>
-    <b-col cols="8" class="product-list">
+    <b-col cols="7" class="product-list">
         <PosProductList @selectProduct="selectProduct($event)" />
     </b-col>
   </b-row>
@@ -21,6 +21,7 @@ export default {
       productSelectList: [],
       productItem: {},
       calculateItem: {},
+      productSelectItem: {},
     }
   },
   methods: {
@@ -71,6 +72,7 @@ export default {
       this.calculateItem = $item;
     },
     increaseQty($event){
+      this.productSelectItem = $event;
       for(let index=0; index < this.productSelectList.length; index++) {
         if (this.productSelectList[index]["id"] === $event["id"]) {
           let itemTemp = JSON.parse(JSON.stringify(this.productSelectList[index]));
@@ -81,6 +83,23 @@ export default {
       }
     },
   },
+
+  mounted() {
+    let self = this;
+    window.addEventListener('keyup', function(ev) {
+      console.log(ev);
+      if(ev.keyCode === 12){
+        for(let i=0; i < self.productSelectList.length; i++){
+          if(self.productSelectList[i]["id"] === self.calculateItem["id"]){
+            let itemTemp = JSON.parse(JSON.stringify(self.productSelectList[i]));
+            itemTemp["qty"] = Number(itemTemp['qty']) + 5;
+            self.$set(self.productSelectList, i, itemTemp);
+            break;
+          }
+        }
+      }
+    });
+  }
 }
 </script>
 
@@ -88,7 +107,7 @@ export default {
   .product-list{
       border-left: 2px solid #000;
       background: #eff3f6;
-      height: 95vh;
+    height: calc(100vh - 50px);
   }
   .content-product-select .user-select-none{
     user-select: none !important;

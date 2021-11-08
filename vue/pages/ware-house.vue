@@ -1,11 +1,11 @@
 <template>
   <b-container fluid class="bv-example-row main-page-content">
     <b-row>
-      <div class="display-inline-block full-with">
-        <div class="content-loading" v-if="loadingFields">
-          <div class="spinner-grow text-muted"></div>
-        </div>
-        <div class="inventory-dashboard-content main-page-content" v-if="!loadingFields">
+      <div class="content-loading" v-if="loadingFields">
+        <div class="spinner-grow text-muted"></div>
+      </div>
+      <div class="display-inline-block full-with" v-if="!loadingFields">
+        <div class="inventory-dashboard-content main-page-content">
           <div class="control-panel">
             <div class="panel-top">
               <div class="content-panel-left">
@@ -36,17 +36,12 @@
             </div>
           </div>
           <div class="content-product">
-
-
             <b-table
               :items="items"
               :fields="fields"
               stacked="md"
               show-empty
-              small
-
-            >
-
+              small>
               <template #cell(actions)="row">
                 <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                   <i class="fa fa-eye"></i>
@@ -100,15 +95,17 @@
           { key: 'actions', label: 'Actions' }
         ],
         warehouse: {},
-        loadingFields: false,
+        loadingFields: true,
         perPage: 8,
         currentPage: 1,
         totalRows: 0,
+        dataView: {},
       }
     },
     watch : {
       currentPage: {
         handler: function(value) {
+          this.loadingFields = true;
           this.getListData().catch(error => {
             console.error(error)
           });
@@ -118,7 +115,6 @@
     methods:{
       async getListData(){
         let vm = this;
-        vm.loadingFields = true;
         await this.$axios.get('/api/warehouse').then(function (response) {
           vm.loadingFields = false;
           if(response.data.hasOwnProperty('meta')){
@@ -126,9 +122,9 @@
             vm.currentPage = response.data.meta['current_page'];
             vm.totalRows = response.data.meta['total'];
           }
-          if(response && response.hasOwnProperty("data")){
-            if(response.data){
-              vm.items = this.cloneObject(response.data);
+          if(response && response.data.hasOwnProperty("data")){
+            if(response.data.data){
+              vm.items = vm.cloneObject(response.data.data);
             }
           }
         }).catch(function (error) {
@@ -147,6 +143,7 @@
       }
     },
     mounted() {
+      this.loadingFields = true;
       this.getListData();
     }
   }

@@ -3723,6 +3723,11 @@ ini@^1.3.5:
   version "1.3.8"
   resolved "https://registry.npmjs.org/ini/-/ini-1.3.8.tgz"
 
+inputmask-core@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/inputmask-core/-/inputmask-core-2.2.0.tgz#79a75f7f3a4d3312ae95fd2b55a2366a7c91dfba"
+  integrity sha1-eadffzpNMxKulf0rVaI2anyR37o=
+
 inquirer@^7.3.3:
   version "7.3.3"
   resolved "https://registry.npmjs.org/inquirer/-/inquirer-7.3.3.tgz"
@@ -6823,6 +6828,13 @@ vue-i18n@^8.25.0, vue-i18n@^8.26.1:
   version "8.26.1"
   resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.26.1.tgz#56419bcb2414a01e0e9046fe1883d0edd421bf41"
 
+vue-input-mask@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/vue-input-mask/-/vue-input-mask-0.0.11.tgz#16589c819779fa7bb0bcf572c5ebcfff8e0453b2"
+  integrity sha512-QiY67mNW7DlUsCQXmeCOGUw2nz/hUF+Z7lEGlKrOeh6M46buzZlqsPis4ZOgJazX3gml/y8hKRq7uGJXRaBDJg==
+  dependencies:
+    vue "^2.4.4"
+
 vue-loader@^15.9.7:
   version "15.9.8"
   resolved "https://registry.npmjs.org/vue-loader/-/vue-loader-15.9.8.tgz"
@@ -6846,6 +6858,11 @@ vue-multiselect@^2.1.6:
 vue-no-ssr@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/vue-no-ssr/-/vue-no-ssr-1.1.1.tgz#875f3be6fb0ae41568a837f3ac1a80eaa137b998"
+
+vue-numeric-keyboard@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/vue-numeric-keyboard/-/vue-numeric-keyboard-0.0.11.tgz#c87337d0bcffc9ee4cf0c736d230acf6a2a4eeb6"
+  integrity sha1-yHM30Lz/ye5M8Mc20jCs9qKk7rY=
 
 vue-router@^3.5.1:
   version "3.5.2"
@@ -6886,7 +6903,7 @@ vue-toasted@^1.1.28:
   version "1.1.28"
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.28.tgz#dbabb83acc89f7a9e8765815e491d79f0dc65c26"
 
-vue@^2.6.12:
+vue@^2.4.4, vue@^2.6.12:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
 

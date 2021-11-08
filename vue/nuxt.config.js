@@ -28,6 +28,8 @@ export default {
   plugins: [
     '~/plugins/axios',
     '~/plugins/axios',
+    '~/plugins/vue-input-mask',
+    '~/plugins/number-only',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

@@ -543,12 +543,8 @@
       },
 
       showModal(){
-        //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
-        //alert('Debug me , I am going to popup the modal');
-        //console.log('modal data' ,this.newProductModal);
       },
-
       showSupplierModal(){
         this.$refs['supplier-form-modal'].show();
       },
@@ -576,7 +572,6 @@
             console.log(error);
           });
       },
-
       showWareHouseModal(){
         this.$refs['warehouse-form-modal'].show();
       },
@@ -605,17 +600,6 @@
             vm.$toast.error("Submit data getting error").goAway(3000);
           });
       },
-
-      getCurrentDate(){
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var day = (dd<10) ? '0'+dd : dd;
-        var month = (mm<10) ? '0'+mm : mm;
-        var yyyy = today.getFullYear();
-        return day+'_'+month+'_'+yyyy;
-      },
-
       showPurchaseModal(){
         this.isShowFormAddProductInPurchase = true;
         this.isShowStockTable = false;
