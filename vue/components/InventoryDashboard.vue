@@ -234,7 +234,7 @@
         newProductModal:{
           showModal:false
         },
-        loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: false},
+        loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: true},
         items:[],
         fields: [
           { key: 'en_name', label: 'Name' },
@@ -640,8 +640,38 @@
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
             if(response){
+              vm.isShowFormAddProductInPurchase = false;
+              vm.isShowStockTable = true;
               vm.loadingFields.stockLoading = false;
               vm.$toast.success("Submit data successfully").goAway(2000);
+              if(response.data.message){
+                vm.loadingFields.stockLoading = true;
+                vm.$axios.get('/api/stock')
+                .then(function (response) {
+                    if(response.data.data){
+                      vm.loadingFields.stockLoading = false;
+                      let dataStock = response.data.data;
+                      if(dataStock && dataStock.length > 0){
+                        for (let i=0; i < dataStock.length; i++){
+                          vm.stock = {};
+                          let product = dataStock[i]["product"];
+                          vm.stock.store = dataStock[i]["warehouse"]["name"] + " (" + dataStock[i]["warehouse"]["address"] + ")";
+                          vm.stock.product_qty = dataStock[i]["total"].toString();
+                          vm.stock.en_name = product["en_name"];
+                          vm.stock.kh_name = product["kh_name"];
+                          vm.stock.code = product["code"];
+                          vm.stock.image = product["image"];
+                          vm.stock.sale_price = product["sale_price"].toString();
+                          vm.stockItems.push(vm.stock);
+                        }
+                      }
+                    }
+                })
+                .catch(function (error) {
+                    vm.$toast.error("getting data error ").goAway(2000);
+                    console.log(error);
+                });
+              }
             }
           })
           .catch(function (error) {

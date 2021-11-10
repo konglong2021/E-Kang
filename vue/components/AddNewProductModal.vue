@@ -107,6 +107,9 @@
         deep: true,
         handler: function(selectedProduct){
           this.product = selectedProduct;
+          console.log(selectedProduct["category_id"]);
+          this.product['category'] = this.filterCategoriesData(selectedProduct["category_id"]);
+          console.log(this.product);
         }
       }
     },
@@ -143,20 +146,34 @@
         e.preventDefault();
       },
       async getBrands(){
-        const response = await this.$axios.get('/api/brand');
-        if(response.data.data){
-          for(let index=0; index < response.data.data.length; index++){
-            this.brands.push({name : response.data.data[index]["name"], value : response.data.data[index]["id"]});
-          }
-        }
+        let vm = this;
+        await vm.$axios.get('/api/brand')
+          .then(function (response) {
+            if(response.data.data){
+              for(let index=0; index < response.data.data.length; index++){
+                vm.brands.push({name : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+              }
+            }
+        })
+          .catch(function (error) {
+            vm.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+          });
       },
       async getCategories(){
-        const response = await this.$axios.get('/api/category');
-        if(response.data.data){
-          for(let index=0; index < response.data.data.length; index++){
-            this.categories.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+        let vm = this;
+        vm.$axios.get('/api/category')
+          .then(function (response) {
+            if(response.data.data){
+              for(let index=0; index < response.data.data.length; index++){
+                vm.categories.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+            }
           }
-        }
+        })
+        .catch(function (error) {
+            vm.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+        });
       },
       onReset(event) {
         event.preventDefault();
@@ -203,11 +220,11 @@
         formData.append("brands" , JSON.stringify(brands));
         let vm = this;
 
-        if(this.product.hasOwnProperty("id") && this.product.id){
+        if(vm.product.hasOwnProperty("id") && vm.product.id){
           formData.append("_method", "PUT");
 
-          this.$toast.info("Data starting submit").goAway(1500);
-          await this.$axios.post('/api/product/' + this.product.id, formData)
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.post('/api/product/' + vm.product.id, formData)
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
@@ -233,12 +250,12 @@
             });
         }
         else {
-          this.$toast.info("Data starting submit").goAway(1500);
-          await this.$axios.post('/api/product', formData)
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.post('/api/product', formData)
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
-                let brandList = response.data.Brands;
+
                 let itemProduct = response.data.product;
                 let newDataBrand = [];
                 if(vm.brands.length > 0){
@@ -251,8 +268,11 @@
                     }
                   }
                 }
-                if(brandList.length > 0){
-                  itemProduct.brands = brandList;
+                if(response.data.hasOwnProperty("Brands")){
+                  let brandList = response.data.Brands;
+                  if(brandList.length > 0){
+                    itemProduct.brands = brandList;
+                  }
                 }
                 vm.$emit("checkingProductAdd", itemProduct);
                 vm.hideModal();
@@ -273,7 +293,18 @@
       },
       generateImageUrlDisplay(img){
         if (typeof window !== "undefined") {
-          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+          if((img !== "no image" && img !== "no image created")){
+            return (window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img) ;
+          }
+        }
+      },
+      filterCategoriesData(category_id){
+        if(this.categories.length > 0){
+          for (let k=0; k < this.categories.length; k++){
+            if(category_id === this.categories[k]["value"]){
+              return this.categories[k]["value"];
+            }
+          }
         }
       }
     },

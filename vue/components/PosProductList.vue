@@ -61,17 +61,30 @@ export default {
   methods: {
     async getListProduct(){
       let vm = this;
-      await vm.$axios.get('/api/product').then(function (response) {
+      await vm.$axios.get('/api/stock').then(function (response) {
         if(response && response.hasOwnProperty("data")){
           let dataResponse = response.data.data;
           if(dataResponse){
-            for(let index=0; index < dataResponse.length; index++){
-              let productItem =  { id: '', name: null, price : 0, currency:'USD', img :''};
-              productItem.id = dataResponse[index].id;
-              productItem.name = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
-              productItem.price = dataResponse[index].sale_price;
-              productItem.img = dataResponse[index].image !== "no image" ? vm.generateImageUrlDisplay(dataResponse[index].image) : dataResponse[index].image;
-              vm.products.push(productItem);
+            for(let i=0; i < dataResponse.length; i++){
+              let productList = dataResponse[i].product;
+              if(productList && productList.length > 0){
+                for(let index=0; index < productList.length; index++){
+                  let productItem =  { id: '', name: null, price : 0, currency:'USD', img :''};
+                  productItem.id = productList[index].id;
+                  productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
+                  productItem.price = productList[index].sale_price;
+                  productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
+                  vm.products.push(productItem);
+                }
+              }
+              else if(productList && productList.hasOwnProperty("id")){
+                let productItem =  { id: '', name: null, price : 0, currency:'USD', img :''};
+                productItem.id = productList.id;
+                productItem.name = productList.en_name + " (" + productList.kh_name + ")";
+                productItem.price = productList.sale_price;
+                productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
+                vm.products.push(productItem);
+              }
             }
           }
           console.log(vm.products);

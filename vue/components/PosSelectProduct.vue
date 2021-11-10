@@ -1,8 +1,10 @@
 <template>
     <div class="display-inline-block full-with">
-        <div class="calculator-product-content">
-          <div v-for="p in products" v-bind:key="p.id" class="p-item"
-               @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}">
+        <div  class="calculator-product-content">
+          <div
+            v-for="p in products" v-bind:key="p.id" class="p-item"
+            @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
+          >
             <div style="width:70%;" class="pull-left">
               <div class="p-name">{{ p.name }} </div>
               <div class="p-qty"> {{ (p.qty) }}  / Unit</div>
@@ -10,11 +12,11 @@
             <div style="width:15%; text-align:left" class="pull-left p-price" >
               {{p.price}} {{p.currency}}
             </div>
-            <div v-if="selected && selected == p.id" style="width:15%; text-align:right" class="pull-right p-price" >
+            <div v-if="selected && selected === p.id" style="width:15%; text-align:right" class="pull-right p-price" >
               <b-button size="sm" @click="submitNumberIncrease(p)">
                 <i class="fa fa-plus"></i>
               </b-button>
-              <b-button size="sm">
+              <b-button size="sm" @click="submitNumberDiscrease(p)" :disabled="disableButtonRemove === true">
                 <i class="fa fa-minus"></i>
               </b-button>
             </div>
@@ -46,6 +48,7 @@ export default {
     return {
       productList : [],
       selected: undefined,
+      disableButtonRemove: false,
     };
   },
   watch:{
@@ -81,11 +84,32 @@ export default {
       this.$emit("selectedItem", $item);
     },
     submitNumberIncrease(product){
-      for(let index=0; index < this.productList.length; index++){
-        if(this.productList[index].id === product.id){
-
+      for(let index=0; index < this.products.length; index++) {
+        if (this.products[index]["id"] === product["id"]) {
+          let itemTemp = JSON.parse(JSON.stringify(this.products[index]));
+          itemTemp["qty"] = Number(product["qty"])+1;
+          this.$set(this.products, index, itemTemp);
+          product = itemTemp;
         }
       }
+    },
+    submitNumberDiscrease(product){
+      for(let index=0; index < this.products.length; index++) {
+        if (this.products[index]["id"] === product["id"]) {
+          let itemTemp = JSON.parse(JSON.stringify(this.products[index]));
+          if(product["qty"] > 1){
+            itemTemp["qty"] = Number(product["qty"])-1;
+            this.$set(this.products, index, itemTemp);
+            product = itemTemp;
+          }
+          else {
+            this.disableButtonRemove = true;
+          }
+        }
+      }
+    },
+    closeDropdown($event){
+      this.selected = undefined;
     },
   },
   mounted() {
@@ -111,6 +135,7 @@ export default {
       border-bottom: solid 1px #ccc;
       cursor: pointer;
       position: relative;
+      overflow: hidden;
     }
     .p-item:hover{
         background-color: #ccc;

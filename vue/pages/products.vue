@@ -72,33 +72,33 @@
           <b-form enctype="multipart/form-data" v-if="productView !== null && productView !== undefined">
             <div class="product-data data">
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-enname'" class="label-input">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
-                <b-col sm="8">
-                  <b-form-input :id="'input-enname'" type="text" v-model="productView.en_name" class="input-content" disabled></b-form-input>
+                <b-col sm="4"><label :for="'input-enname'" class="label-input label-margin-top">ឈ្មោះទំនិញជាអង់គ្លេស</label></b-col>
+                <b-col sm="4">
+                  <b-form-input :id="'input-enname'" type="text" v-model="productView.en_name" class="input-content input-no-background" disabled></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-khname'" class="label-input">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
-                <b-col sm="8">
-                  <b-form-input :id="'input-khname'" type="text" v-model="productView.kh_name" class="input-content" disabled></b-form-input>
+                <b-col sm="4"><label :for="'input-khname'" class="label-input label-margin-top">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
+                <b-col sm="4">
+                  <b-form-input :id="'input-khname'" type="text" v-model="productView.kh_name" class="input-content input-no-background" disabled></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
-                <b-col sm="8">
-                  <b-form-input :id="'input-category'" class="form-control input-content" v-model="productView.category" disabled></b-form-input>
+                <b-col sm="4"><label :for="'input-category'" class="label-input label-margin-top">ប្រភេទទំនិញ</label></b-col>
+                <b-col sm="4">
+                  <b-form-input :id="'input-category'" class="input-content input-no-background" v-model="productView.category" disabled></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
-                <b-col sm="8">
-                  <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="productView.sale_price" disabled></b-form-input>
+                <b-col sm="4"><label :for="'input-sale_price'" class="label-input label-margin-top">តម្លៃលក់</label></b-col>
+                <b-col sm="4">
+                  <b-form-input :id="'input-sale_price'" type="number" class="input-content input-no-background" v-model="productView.sale_price" disabled></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
-                <b-col sm="8">
-                  <b-form-textarea :id="'input-description'" class="input-content" v-model="productView.description" disabled></b-form-textarea>
+                <b-col sm="4"><label :for="'input-description'" class="label-input label-margin-top">ការពិពណ៌នា</label></b-col>
+                <b-col sm="4">
+                  <b-form-textarea :id="'input-description'" class="input-content input-no-background" v-model="productView.description" disabled></b-form-textarea>
                 </b-col>
               </b-row>
             </div>
@@ -181,12 +181,11 @@
             }
             newItem['id'] = productItem["id"];
             newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-            // newItem['category'] = productItem["categories"]["name"];
             newItem['brand'] = brands.join(", ");
             newItem['loyalty'] = "N/A";
             newItem['image'] = productItem["image"];
             newItem['brands'] = productItem["brands"];
-            newItem['categories'] = productItem["categories"];
+            newItem['category_id'] = productItem["category_id"];
             newItem['description'] = productItem["description"];
             newItem['sale_price'] = productItem["sale_price"];
             newItem['code'] = productItem["code"];
@@ -211,7 +210,7 @@
         this.productItemSelected.id = item["id"];
         this.productItemSelected.en_name = item["en_name"];
         this.productItemSelected.kh_name = item["kh_name"];
-        this.productItemSelected.category = item["categories"]["id"];
+        this.productItemSelected.category_id = item["category_id"];
         this.productItemSelected.image = item["image"];
         let brandList = [];
         if(item["brands"] && item["brands"].length > 0){
@@ -273,12 +272,11 @@
               }
               newItem['id'] = productItem["id"];
               newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-              // newItem['category'] = productItem["categories"]["name"];
               newItem['brand'] = brands.join(", ");
               newItem['loyalty'] = "N/A";
               newItem['image'] = productItem["image"];
               newItem['brands'] = productItem["brands"];
-              newItem['categories'] = productItem["categories"];
+              newItem['category_id'] = productItem["category_id"];
               newItem['description'] = productItem["description"];
               newItem['sale_price'] = productItem["sale_price"];
               newItem['code'] = productItem["code"];
@@ -317,11 +315,11 @@
     float: left;
   }
   .data{
-    width: 76%;
+    width: 70%;
     margin: 5px;
   }
   .image{
-    width: 22%;
+    width: 28%;
   }
   .pro-item {
     width:100%;

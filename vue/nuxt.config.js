@@ -54,7 +54,7 @@ export default {
   ],
 
   axios: {
-    baseURL: 'obscure-garden-41392.herokuapp.com/',
+    baseURL: 'http://localhost:8000/',
     headers: {
       common: {
         'Access-Control-Allow-Origin': '*',
@@ -67,7 +67,7 @@ export default {
   },
  //https://radiant-tor-18088.herokuapp.com/
   proxy: {
-    '/api/': { target: 'https://radiant-tor-18088.herokuapp.com/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
+    '/api/': { target: 'http://localhost:8000/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
   },
   router: {
     middleware: ['local-auth', 'check-auth']
