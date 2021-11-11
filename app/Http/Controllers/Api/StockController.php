@@ -22,7 +22,7 @@ class StockController extends Controller
     public function index()
     {
         $stocks = Stock::with('product')
-                ->with('warehouse')->paginate(8);
+                ->with('warehouse')->get();
 
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();

@@ -24,7 +24,7 @@ class OrdersController extends Controller
     public function index()
     {
         $orders = Order::with('orderdetails')
-                  ->orderBy('id', 'desc')->paginate(8);
+                  ->orderBy('id', 'desc')->get();
 
        return response()->json($orders);
     }

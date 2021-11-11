@@ -16,7 +16,7 @@ class MembersController extends Controller
     public function index()
     {
         $members = Member::with('customers')
-        ->orderBy('id', 'desc')->paginate(8);
+        ->orderBy('id', 'desc')->get();
         return response()->json($members);
     }
 

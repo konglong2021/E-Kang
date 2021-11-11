@@ -23,13 +23,13 @@ class ProductsController extends Controller
         if (empty($request->all())) {
             $products = Product::with('brands')
             ->with('categories')
-            ->orderBy('id', 'desc')->paginate(15);
+            ->orderBy('id', 'desc')->get();
         }else {
           $query = $request->input('search');
           $products= Product::where('en_name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
                         ->orwhere('code','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(8);
+                        ->orderBy('id','desc')->get();
         }
 
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);

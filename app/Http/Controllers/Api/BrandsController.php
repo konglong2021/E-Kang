@@ -21,21 +21,23 @@ class BrandsController extends Controller
         if (empty($request->all())) {
             $brands = Brand::withCount('categories')
                     ->withCount('products')
-                    ->orderBy('id', 'desc')->paginate(10);
+                    ->orderBy('id', 'desc')->get();
         }else {
           $query = $request->input('search');
           $brands= Brand::where('name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(15);
+                        ->orderBy('id','desc')->get();
+                        // paginate(8)->appends(request()->query());;
         }
 
         
 
-        // return response()->json([
-        // 'brands' =>   $brands,
-        // ]);
-
-        return BrandResource::collection($brands)->response();
+        return response()->json([
+        'brands' =>   $brands,
+        ]);
+        // return new BrandResource($brands->paginate(request('per_page')));
+        // return BrandResource::collection($brands->paginate(8));
+    //    return new BrandResource($brands);
     }
 
     /**
