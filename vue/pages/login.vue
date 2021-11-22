@@ -7,24 +7,17 @@
                   <center><h2>Login</h2></center>
               </div>
         <b-form @submit.prevent="onSubmit">
-          <b-form-group
-            id="input-group-1"
-            label="Username:"
-            label-for="input-1"
-          >
+          <b-form-group id="input-group-1">
             <b-form-input
               id="input-1"
               v-model="form.email"
               placeholder="Username"
               required
+              focus
             ></b-form-input>
           </b-form-group>
 
-          <b-form-group
-            id="input-group-2"
-            label="Password:"
-            label-for="input-2"
-          >
+          <b-form-group id="input-group-2">
             <b-form-input
               id="input-2"
               v-model="form.password"
@@ -33,13 +26,8 @@
               required
             ></b-form-input>
           </b-form-group>
-
-
-
           <b-button type="submit" class="col-sm-12" variant="success"> Login </b-button>
-
         </b-form>
-
           </div>
       </b-row>
     </b-container>
@@ -60,12 +48,16 @@ export default {
   methods: {
     async onSubmit(event) {
       let response = await this.$axios.post('/api/login', this.form);
-      let token = response.data.Token;
-      let user = response.data.user;
-      await this.$store.commit('auth/setToken', token);
-      await this.$store.commit('auth/updateUser', user);
-      console.log("Login " + this.$store.getters['auth/token']);
-      await this.$router.push('/');
+      if(response && response.hasOwnProperty("data")){
+        let token = response.data.Token;
+        let user = response.data.user;
+        await this.$store.commit('auth/setToken', token);
+        await this.$store.commit('auth/updateUser', user);
+        await this.$router.push('/');
+      }
+      else {
+        await this.$router.push('/login');
+      }
     }
   },
   mounted(){

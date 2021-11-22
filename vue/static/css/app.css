@@ -169,3 +169,9 @@ body {
 .label-margin-top{
   margin-top: 7px;
 }
+
+.input-scanning:focus{
+  outline: none;
+  box-shadow: none;
+  border: none;
+}

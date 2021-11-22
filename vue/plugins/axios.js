@@ -1,4 +1,4 @@
-export default ({ $axios, store  }) => {
+export default ({ $axios, store , redirect }) => {
 
   $axios.setBaseURL('http://localhost:8000');
   $axios.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,6 +20,10 @@ export default ({ $axios, store  }) => {
       if(response.data && response.data.message === 'Unauthenticated.'){
         store.$cookies.set('token', null);
       }
+    }
+    if(response && response.status === 422){
+      store.$cookies.set('token', null);
+       store.$router.push("/login").catch(() => {});
     }
     return Promise.reject(error);
   });

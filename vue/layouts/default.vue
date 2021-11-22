@@ -1,6 +1,6 @@
 <template>
-<div>
-  <LeftNav/>
-  <Nuxt />
-</div>
+  <div>
+    <LeftNav/>
+    <Nuxt />
+  </div>
 </template>

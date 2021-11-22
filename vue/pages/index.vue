@@ -1,6 +1,6 @@
 <template>
-  <div class="main-screen">
-      <div>
+  <div class="main-screen" >
+    <div>
         <b-button variant="info"><i class="fa fa-backward"></i></b-button>
         <div class="main-menu">
           <b-container class="col-6 mx-auto menu-wrapper">
@@ -41,7 +41,7 @@
             </b-row>
           </b-container>
         </div>
-      </div>
+    </div>
   </div>
 </template>
 
@@ -50,6 +50,10 @@ export default {
   middleware: "local-auth",
   layout: "main",
   mounted() {
+    this.$nextTick(() => {
+      this.$nuxt.$loading.start();
+      setTimeout(() => this.$nuxt.$loading.finish(), 500)
+    });
   }
 };
 </script>
@@ -63,8 +67,7 @@ export default {
     min-height: 150px;
     margin:10px 2px;
   }
-    .main-menu .btn i {
+  .main-menu .btn i {
       margin-top: 5px;
     }
-
 </style>

@@ -26,7 +26,6 @@ export default {
   },
   methods: {
     selectProduct($data){
-      //this.productItem = JSON.parse(JSON.stringify($data));
       if($data){
         if(!$data.hasOwnProperty("qty")){
           if(this.productSelectList.length === 0){
@@ -86,8 +85,13 @@ export default {
 
   mounted() {
     let self = this;
+
+    self.$nextTick(() => {
+      self.$nuxt.$loading.start();
+      setTimeout(() => self.$nuxt.$loading.finish(), 1000)
+    });
+
     window.addEventListener('keyup', function(ev) {
-      console.log(ev);
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){
           if(self.productSelectList[i]["id"] === self.calculateItem["id"]){

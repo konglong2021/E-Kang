@@ -113,7 +113,10 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   },
-  server: {
-    host: 'pos.local',
-  },
+  loading: '~/components/loading.vue',
+  loadingIndicator: {
+    name: 'circle',
+    color: '#3B8070',
+    background: 'white'
+  }
 }

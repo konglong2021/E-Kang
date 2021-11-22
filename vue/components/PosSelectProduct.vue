@@ -16,7 +16,7 @@
               <b-button size="sm" @click="submitNumberIncrease(p)">
                 <i class="fa fa-plus"></i>
               </b-button>
-              <b-button size="sm" @click="submitNumberDiscrease(p)" :disabled="disableButtonRemove === true">
+              <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true">
                 <i class="fa fa-minus"></i>
               </b-button>
             </div>
@@ -93,7 +93,8 @@ export default {
         }
       }
     },
-    submitNumberDiscrease(product){
+    submitNumberDisCrease(product){
+      let foundProductItemIndex = null;
       for(let index=0; index < this.products.length; index++) {
         if (this.products[index]["id"] === product["id"]) {
           let itemTemp = JSON.parse(JSON.stringify(this.products[index]));
@@ -101,6 +102,9 @@ export default {
             itemTemp["qty"] = Number(product["qty"])-1;
             this.$set(this.products, index, itemTemp);
             product = itemTemp;
+          }
+          else if(product["qty"] === 1){
+            this.products.splice(index, 1);
           }
           else {
             this.disableButtonRemove = true;

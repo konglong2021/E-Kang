@@ -23,14 +23,25 @@
         </div>
       </div>
       <div class="product-list-body">
-        <div  v-for="p in products" :key="p.id" class="pro-item" >
-          <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
-            <div class="pro-price">{{p.price}} {{p.currency}}</div>
-          </div>
-          <div class="pro-name">{{p.name}}</div>
-          <div class="clearboth"></div>
+        <div style="margin: 5px 0;">
+          <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
-        <div class="clearboth"></div>
+        <div v-if="products && products.length > 0">
+          <div  v-for="p in products" :key="p.id" class="pro-item" >
+            <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
+              <div class="pro-price">{{p.price}} {{p.currency}}</div>
+            </div>
+            <div class="pro-name">
+              <div>{{p.name}}</div>
+              <div>{{p.code}}</div>
+            </div>
+            <div class="clearboth"></div>
+          </div>
+          <div class="clearboth"></div>
+          <div class="content-pagination margin-top-25">
+            <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
+          </div>
+        </div>
       </div>
     </div>
 </template>
@@ -38,56 +49,47 @@
 export default {
   data() {
     return {
-      categories : [
-          {
-              id : 1,
-              name : 'Phone'
-          },
-          {
-              id: 2,
-              name : 'Computer'
-          },
-          {
-              id: 3,
-              name : 'Printer'
-          }
-      ],
+      categories : [],
       products : [],
       searchInput: null,
+      perPage: 8,
+      currentPage: 1,
+      totalRows: 0,
+      scanningInput: null,
     };
-  },
-  watch:{
   },
   methods: {
     async getListProduct(){
       let vm = this;
       await vm.$axios.get('/api/stock').then(function (response) {
         if(response && response.hasOwnProperty("data")){
-          let dataResponse = response.data.data;
-          if(dataResponse){
+          let dataResponse = response.data;
+          if(dataResponse && dataResponse.length > 0){
+            vm.totalRows = response.data.length;
             for(let i=0; i < dataResponse.length; i++){
               let productList = dataResponse[i].product;
               if(productList && productList.length > 0){
                 for(let index=0; index < productList.length; index++){
-                  let productItem =  { id: '', name: null, price : 0, currency:'USD', img :''};
+                  let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
                   productItem.id = productList[index].id;
                   productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
                   productItem.price = productList[index].sale_price;
                   productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
+                  productItem.code = productList[index].code;
                   vm.products.push(productItem);
                 }
               }
               else if(productList && productList.hasOwnProperty("id")){
-                let productItem =  { id: '', name: null, price : 0, currency:'USD', img :''};
+                let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
                 productItem.id = productList.id;
                 productItem.name = productList.en_name + " (" + productList.kh_name + ")";
                 productItem.price = productList.sale_price;
                 productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
+                productItem.code = productList.code;
                 vm.products.push(productItem);
               }
             }
           }
-          console.log(vm.products);
         }
       }).catch(function (error) {
         console.log(error);
@@ -114,9 +116,9 @@ export default {
       if(response){
         if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
           let items = [];
-          this.responseProductList = response.data.data;
-          for(let index=0; index < response.data.data.length; index++){
-            let productItem = response.data.data[index];
+          this.responseProductList = response.data;
+          for(let index=0; index < response.data.length; index++){
+            let productItem = response.data[index];
             let newItem = {};
             let brands = [];
             if(productItem["brands"] && productItem["brands"].length > 0){
@@ -151,6 +153,34 @@ export default {
         this.getListProduct();
       }
     },
+    async searchAndSelectedProduct(scanningInput){
+      const response = await this.$axios.post('/api/product/search', {search : scanningInput});
+      if(response && response.hasOwnProperty("data") && response.data.length > 0){
+          for(let j=0; j < response.data.length; j++){
+            let productItem = response.data[j];
+            let newItem = {};
+            let brands = [];
+            if(productItem["brands"] && productItem["brands"].length > 0){
+              for(let i =0; i < productItem["brands"].length; i++){
+                brands.push(productItem["brands"][i]["name"]);
+              }
+            }
+            newItem['id'] = productItem["id"];
+            newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
+            newItem['brand'] = brands.join(", ");
+            newItem['loyalty'] = "N/A";
+            newItem['image'] = productItem["image"];
+            newItem['brands'] = productItem["brands"];
+            newItem['categories'] = productItem["categories"];
+            newItem['description'] = productItem["description"];
+            newItem['sale_price'] = productItem["sale_price"];
+            newItem['code'] = productItem["code"];
+            newItem["en_name"] = productItem["en_name"];
+            newItem["kh_name"] = productItem["kh_name"];
+            this.$emit('selectProduct', newItem);
+          }
+      }
+    },
   },
   mounted() {
     this.getListProduct();
@@ -182,13 +212,12 @@ export default {
       padding: 5px;
       border-radius: 10px;
       margin: 2px;
-      min-width: 150px;
+      min-width: 160px;
       cursor: pointer;
   }
   .pro-img {
       background-repeat: no-repeat;
       padding: 50px;
-
   }
   .pro-price{
       color :#fff;
@@ -197,5 +226,10 @@ export default {
       position: absolute;
       margin-top: -53px;
       margin-left: -10px;
+  }
+  .pro-name{
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: 600;
   }
 </style>
