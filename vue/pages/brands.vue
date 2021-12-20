@@ -137,17 +137,12 @@
       },
       async getBrands(){
         this.isLoading = true;
-        const response = await this.$axios.get('/api/brand' + "?page=" + this.currentPage);
-        if(response.data.hasOwnProperty('meta')){
-          this.perPage = response.data.meta["per_page"];
-          this.currentPage = response.data.meta['current_page'];
-          this.totalRows = response.data.meta['total'];
-        }
-        if(response.data.hasOwnProperty("data")){
+        const response = await this.$axios.get('/api/brand');
+        if(response.data.hasOwnProperty("brands")){
           this.isLoading = false;
           let items = [];
-          for(let index=0; index < response.data.data.length; index++){
-            let brandItem = response.data.data[index];
+          for(let index=0; index < response.data.brands.length; index++){
+            let brandItem = response.data.brands[index];
             let categories = [];
             let item = {};
             if(brandItem["categories"] && brandItem["categories"].length > 0){
@@ -162,7 +157,6 @@
             items.push(item);
           }
           this.items = this.cloneObject(items);
-          console.log(this.items);
         }
       },
       onReset(){},

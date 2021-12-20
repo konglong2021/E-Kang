@@ -25,14 +25,18 @@
       </ul>
     </div>
     <div class="content-logout">
-      <ul class="ul-style">
-        <li class="li-style">
-          <a>Logout</a>
-        </li>
-      </ul>
+      <b-button class="button-no-background">Logout</b-button>
+<!--      <ul class="ul-style">-->
+<!--        <li class="li-style">-->
+<!--          <a>Logout</a>-->
+<!--        </li>-->
+<!--      </ul>-->
     </div>
   </b-navbar>
 </template>
+<script>
+
+</script>
 <style >
   .inventory-bar{
     background-color:#232d3b;

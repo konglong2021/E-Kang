@@ -263,3 +263,11 @@ body {
   padding: 0 15px;
   height: 50px;
 }
+.button-no-background{
+  background: none;
+  border: none;
+}
+.button-no-background:focus{
+  background: none;
+  border: none;
+}

@@ -126,14 +126,9 @@
       },
       async getAllSupplier(){
         let vm = this;
-        await this.$axios.get('/api/supplier' + "?page=" + this.currentPage)
+        await this.$axios.get('/api/supplier')
           .then(function (response) {
             vm.isLoading = false;
-            if(response.data.hasOwnProperty('meta')){
-              vm.perPage = response.data.meta["per_page"];
-              vm.currentPage = response.data.meta['current_page'];
-              vm.totalRows = response.data.meta['total'];
-            }
             if(response && response.hasOwnProperty("data")){
               if(response.data.data){
                 vm.items = vm.cloneObject(response.data.data);

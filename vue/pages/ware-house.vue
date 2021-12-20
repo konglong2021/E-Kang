@@ -24,7 +24,7 @@
                     <div class="btn-wrapper">
                       <b-button href="#"  title="Add new WareHouse" size="sm" variant="primary"
                                 @click="showModal()">
-                        New Loyalty
+                        New WareHouse
                         <i class="fa fa-plus" aria-hidden="true"></i>
                       </b-button>
                     </div>
@@ -117,11 +117,6 @@
         let vm = this;
         await this.$axios.get('/api/warehouse').then(function (response) {
           vm.loadingFields = false;
-          if(response.data.hasOwnProperty('meta')){
-            vm.perPage = response.data.meta["per_page"];
-            vm.currentPage = response.data.meta['current_page'];
-            vm.totalRows = response.data.meta['total'];
-          }
           if(response && response.data.hasOwnProperty("data")){
             if(response.data.data){
               vm.items = vm.cloneObject(response.data.data);
@@ -137,7 +132,26 @@
       },
 
       onResetWareHouse(){},
-      onSubmitWareHouse(){},
+
+      async onSubmitWareHouse(){
+        let vm = this;
+        if(!vm.warehouse.hasOwnProperty("id")){
+          await vm.$axios.post('/api/warehouse/', vm.warehouse).then(function (response) {
+            vm.loadingFields = false;
+            if(response && response.data.hasOwnProperty("warehouse")){
+              if(response.data.warehouse){
+                vm.items.push(response.data.warehouse);
+              }
+            }
+          }).catch(function (error) {
+            console.log(error);
+            vm.$toast.error("Getting data error").goAway(3000);
+          });
+        }
+        else {
+          
+        }
+      },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
       }
