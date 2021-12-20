@@ -141,19 +141,21 @@
         let vm = this;
         vm.isLoading = true;
         vm.$toast.info("Submit data is starting").goAway(1500);
-        this.$axios.post('/api/supplier', this.supplier)
-          .then(function (response) {
-            vm.isLoading = false;
-            vm.$toast.success("Submit data is successful").goAway(2000);
-            if(response.data.supplier){
-              let data = response.data.supplier;
-              vm.items.push(data);
-            }
-            vm.hideModal();
-          }).catch(function (error) {
-          vm.$toast.error("getting data error ").goAway(2500);
-          console.log(error);
-        });
+       if(!vm.supplier.hasOwnProperty("id")){
+         this.$axios.post('/api/supplier', vm.supplier)
+           .then(function (response) {
+             vm.isLoading = false;
+             vm.$toast.success("Submit data is successful").goAway(2000);
+             if(response.data.supplier){
+               let data = response.data.supplier;
+               vm.items.push(data);
+             }
+             vm.hideModal();
+           }).catch(function (error) {
+           vm.$toast.error("getting data error ").goAway(2500);
+           console.log(error);
+         });
+       }
       },
       onResetSupplier(){
         this.supplier = {};

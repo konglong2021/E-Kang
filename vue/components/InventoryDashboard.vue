@@ -475,7 +475,7 @@
         await this.$axios.get('/api/product').then(function (response) {
           vm.loadingFields.productListLoading = false;
           if(response && response.hasOwnProperty("data")){
-            let dataResponse = response.data.data;
+            let dataResponse = response.data;
             if(dataResponse){
               for(let index=0; index < dataResponse.length; index++){
                 let productItem =  { text: '', value: null};
@@ -605,7 +605,7 @@
         this.isShowStockTable = false;
         if(this.stock && this.stock.length > 0){
           for (let index=0; index < this.stock.length ; index++){
-            
+
           }
         }
       },
