@@ -342,9 +342,9 @@
         vm.loadingFields.stockLoading = true;
         vm.$axios.get('/api/stock')
           .then(function (response) {
-            if(response.data.data){
+            if(response.data){
               vm.loadingFields.stockLoading = false;
-              let dataStock = response.data.data;
+              let dataStock = response.data;
               if(dataStock && dataStock.length > 0){
                 for (let i=0; i < dataStock.length; i++){
                   vm.stock = {};
@@ -519,8 +519,8 @@
           .then(function (response) {
             vm.loadingFields.supplierListLoading = false;
             if(response && response.hasOwnProperty("data")){
-              if(response.data.data){
-                let data = response.data.data;
+              if(response.data){
+                let data = response.data;
                 for(let index=0; index < data.length; index++){
                   let supplierItem =  { text: '', value: null};
                   supplierItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
@@ -603,6 +603,11 @@
       showPurchaseModal(){
         this.isShowFormAddProductInPurchase = true;
         this.isShowStockTable = false;
+        if(this.stock && this.stock.length > 0){
+          for (let index=0; index < this.stock.length ; index++){
+            
+          }
+        }
       },
       discardPurchase(){
         this.isShowFormAddProductInPurchase = false;
@@ -712,6 +717,24 @@
 
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
+      },
+
+      generateBatch(){
+        return this.getFullDateAndTime();
+      },
+
+      getFullDateAndTime(){
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth()+1; //January is 0!
+        let day = (dd<10) ? '0'+dd : dd;
+        let month = (mm<10) ? '0'+mm : mm;
+        let yyyy = today.getFullYear();
+        let hours = today.getHours();
+        let minutes = today.getMinutes();
+        let time = today.getTime();
+
+        return (yyyy + mm + dd + hours + minutes + time);
       }
     },
     mounted() {
@@ -720,6 +743,7 @@
       this.getAllWarehouse();
       this.getAllSupplier();
       this.showStockTable();
+      this.generateBatch();
     }
   }
 </script>

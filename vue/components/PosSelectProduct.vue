@@ -25,18 +25,73 @@
         </div>
         <div class="content-calculator">
           <div class="content-btn pull-right">
-            <b-button size="lg">
-              <i class="fa fa-money"> </i>
+            <b-button size="lg"
+                      v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
+                      @click="openSubmitPaymentModal()"
+            >
+              <i class="fa fa-money margin-span-btn"></i>
               Payment
             </b-button>
           </div>
           <div class="total-wrapper pull-right">
-            <div class="total">Sub Total : {{calculate("USD")}} USD </div>
-            <div class="total">Sub Total : {{calculate("Riel")}} Riel </div>
+            <div class="total">Sub Total : {{calculate("USD", products)}} USD </div>
+            <div class="total">Sub Total : {{calculate("Riel", products)}} Riel </div>
             <div class="tax"> Taxes: 100</div>
           </div>
-
         </div>
+      <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg"
+               @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
+               @ok="onSubmitPayment" ok-title="រក្សាទុក" title="ការលក់">
+        <b-form enctype="multipart/form-data">
+          <div class="full-content margin-bottom-20">
+            <div class="container-row-form width-45-percentage float-left">
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-name'" class="label-input no-margin-bottom">ឈ្មោះអតិថិជន</label>
+                </div>
+                <div class="form-column-input">
+                  <b-form-select  class="form-control input-content" v-model="order.customer" :options="customers"></b-form-select>
+                </div>
+              </div>
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-name'" class="label-input no-margin-bottom">ឈ្មោះឃ្លាំង</label>
+                </div>
+                <div class="form-column-input">
+                  <b-form-select  class="form-control input-content" v-model="order.warehouse" :options="warehouses"></b-form-select>
+                </div>
+              </div>
+            </div>
+            <div class="container-row-form width-45-percentage float-right">
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-name'" class="label-input no-margin-bottom">ពន្ធ</label>
+                </div>
+                <div class="form-column-input">
+                  <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
+                </div>
+              </div>
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-name'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
+                </div>
+                <div class="form-column-input">
+                  <b-form-input type="number" class="input-content" v-model="order.discount"></b-form-input>
+                </div>
+              </div>
+            </div>
+          </div>
+          <b-table table-class="table-payment"
+            :items="items"
+            :fields="fields"
+            :per-page="0"
+            :current-page="currentPage"
+            stacked="md"
+            show-empty
+            small
+          ></b-table>
+        </b-form>
+      </b-modal>
     </div>
 </template>
 <script>
@@ -49,10 +104,23 @@ export default {
       productList : [],
       selected: undefined,
       disableButtonRemove: false,
+      perPage: 8,
+      currentPage: 1,
+      items: null,
+      fields: [
+        { key: 'name', label: 'ឈ្មោះទំនិញ', thClass: "header-th"},
+        { key: 'qty', label: 'ចំនួន'},
+        { key: 'price', label: 'តម្លៃឯកតា' },
+        { key: 'total', label: 'តម្លៃសរុប' },
+      ],
+      totalRows: 0,
+      customers : [{text : "ជ្រើសរើសឈ្មោះ អតិថិជន", value : null}],
+      warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
+      vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
+      order: { customer : null, warehouse : null, vat: 0.1, discount : 0,},
     };
   },
-  watch:{
-  },
+  watch:{},
   methods: {
     async onInitData(){
       try {
@@ -70,9 +138,9 @@ export default {
       event.preventDefault();
       alert(JSON.stringify(this.form));
     },
-    calculate($currency){
+    calculate($currency, $products){
       let total = [];
-      Object.entries(this.products).forEach(([key, val]) => {
+      Object.entries($products).forEach(([key, val]) => {
         if(val.currency === $currency){
           total.push(val.price * val.qty);
         }
@@ -115,9 +183,94 @@ export default {
     closeDropdown($event){
       this.selected = undefined;
     },
+    openSubmitPaymentModal(){
+      this.$refs['payment-form-modal'].show();
+      if(this.products && this.products.length > 0){
+        for(let index =0; index < this.products.length; index++){
+          let productItem = this.products[index];
+          productItem["total"] = productItem["qty"] * productItem["price"];
+          this.products[index] = productItem;
+        }
+        this.items = this.cloneObject(this.products);
+      }
+    },
+    async getCustomerList(){
+      let vm = this;
+      await vm.$axios.get('/api/customer').then(function (response) {
+          if(response.hasOwnProperty("data")){
+            for(let index=0; index < response.data.length; index++){
+              vm.customers.push({text : response.data[index]["name"], value : response.data[index]["id"]});
+            }
+          }
+        })
+        .catch(function (error) {
+          vm.$toast.error("getting data error ").goAway(2000);
+          console.log(error);
+        });
+    },
+    async getWareHouseList(){
+      let vm = this;
+      await vm.$axios.get('/api/warehouse').then(function (response) {
+        if(response.data.hasOwnProperty("data")){
+          for(let index=0; index < response.data.data.length; index++){
+            vm.warehouses.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+          }
+        }
+      })
+        .catch(function (error) {
+          vm.$toast.error("getting data error ").goAway(2000);
+          console.log(error);
+        });
+    },
+    async onSubmitPayment(){
+      let vm = this;
+      let dataSubmit = {};
+      dataSubmit.warehouse_id = vm.order.warehouse;
+      dataSubmit.customer_id = vm.order.customer;
+      dataSubmit.vat = vm.order.vat;
+      dataSubmit.discount = vm.order.discount;
+      dataSubmit.items = [];
+
+      if(vm.items && vm.items.length > 0){
+        for (let index=0; index < vm.items; index++){
+          let item = {};
+          item.product_id = vm.items[index].id;
+          item.sellprice = vm.items[index].price;
+          item.quantity = vm.items[index].qty;
+          dataSubmit.items.push(item);
+        }
+      }
+      let subTotal = vm.calculate("USD", vm.items);
+      dataSubmit.subTotal = subTotal;
+
+      let discount = subTotal * (this.order.discount / 100);
+      let priceAfterDiscount = subTotal - discount;
+      let totalVat = priceAfterDiscount * this.order.vat;
+      let grandTotal = priceAfterDiscount + totalVat;
+      dataSubmit.grandTotal = grandTotal;
+
+      console.log(dataSubmit);
+     /* vm.$toast.info("Data starting submit").goAway(1500);
+      await this.$axios.post('/api/order', dataSubmit).then(function (response) {
+        if(response.data.hasOwnProperty("data")){
+        }
+      })
+        .catch(function (error) {
+          vm.$toast.error("getting data error ").goAway(2000);
+          console.log(error);
+        });*/
+    },
+    onResetPayment(){
+
+    },
+    cloneObject(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    },
   },
   mounted() {
     this.onInitData();
+    this.getCustomerList();
+    this.getWareHouseList();
   },
 }
 </script>
@@ -165,11 +318,11 @@ export default {
       -ms-user-select: none !important;
       -moz-user-select: none !important;
     }
+    .content-calculator{
+      display: inline-block;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
 
-  .content-calculator{
-    display: inline-block;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-  }
 </style>

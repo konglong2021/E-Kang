@@ -23,7 +23,8 @@ export default ({ $axios, store , redirect }) => {
     }
     if(response && response.status === 422){
       store.$cookies.set('token', null);
-       store.$router.push("/login").catch(() => {});
+      return redirect('/login');
+       //store.$router.push("/login");
     }
     return Promise.reject(error);
   });

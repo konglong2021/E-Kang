@@ -40,6 +40,18 @@ body {
   width: 60%;
 }
 
+.width-50-percentage{
+  width: 50%;
+}
+
+.width-45-percentage{
+  width: 45%;
+}
+
+.width-35-percentage{
+  width: 35%;
+}
+
 .margin-top-25{
   margin-top: 25px;
 }
@@ -174,4 +186,80 @@ body {
   outline: none;
   box-shadow: none;
   border: none;
+}
+
+.font-size-28 {
+  font-size: 28px !important;
+}
+
+.color-white {
+  color: white;
+}
+
+.justify-content-center{
+  justify-content: center;
+}
+
+#modal-submit-payment .table-payment th {
+  border-top: none ;
+}
+
+#modal-submit-payment .table-payment td {
+  border-top: none ;
+}
+
+.input-content {
+  /*padding: 4px;*/
+  height: auto;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.no-margin-bottom {
+  margin-bottom: 0;
+}
+
+.form-row-content-detail{
+  display:inline-block;
+  /*width: 100%;*/
+  overflow: hidden;
+}
+.form-column-label{
+  display: inline-block;
+  width: 135px;
+  overflow: hidden;
+}
+
+.form-column-input {
+  display: inline-block;
+  overflow: hidden;
+  width: 190px;
+}
+
+.display-none{
+  display: none;
+}
+
+.container-row-form{
+  display: inline-block;
+  overflow: hidden;
+}
+
+.content-logout{
+  display: inline-block;
+  float: right;
+}
+
+.content-logout .ul-style{
+  list-style: none;
+  color: #ffffff;
+  margin: 0;
+}
+
+.content-logout .ul-style .li-style{
+  display: inline-block;
+  line-height: 45px;
+  cursor: pointer;
+  padding: 0 15px;
+  height: 50px;
 }

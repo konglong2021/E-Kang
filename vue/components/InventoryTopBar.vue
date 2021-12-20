@@ -46,6 +46,13 @@
         </li>
       </ul>
     </div>
+    <div class="content-logout">
+      <ul class="ul-style">
+        <li class="li-style">
+          <a>Logout</a>
+        </li>
+      </ul>
+    </div>
   </b-navbar>
 </template>
 

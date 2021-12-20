@@ -26,8 +26,6 @@
           <div class="content-detail">
             <strong><span class="title">{{ (product.kh_name) }}</span></strong>
             <span class="font-khmer-os">({{ (product.en_name) }})</span>
-<!--            <div>Price: <span >$&nbsp;5.10</span></div>-->
-<!--            <div>On hand: <span>-1.00</span> <span>Units</span></div>-->
           </div>
         </div>
       </div>

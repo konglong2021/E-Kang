@@ -23,17 +23,17 @@
         </div>
       </div>
       <div class="product-list-body">
-        <div style="margin: 5px 0;">
+        <div class="scanning-input">
           <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
         <div v-if="products && products.length > 0">
           <div  v-for="p in products" :key="p.id" class="pro-item" >
             <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
-              <div class="pro-price">{{p.price}} {{p.currency}}</div>
+              <div class="pro-price">{{ p.price }} {{ p.currency }}</div>
             </div>
             <div class="pro-name">
-              <div>{{p.name}}</div>
-              <div>{{p.code}}</div>
+              <div>{{ p.name }}</div>
+              <div>{{ p.code }}</div>
             </div>
             <div class="clearboth"></div>
           </div>
@@ -154,31 +154,20 @@ export default {
       }
     },
     async searchAndSelectedProduct(scanningInput){
-      const response = await this.$axios.post('/api/product/search', {search : scanningInput});
-      if(response && response.hasOwnProperty("data") && response.data.length > 0){
-          for(let j=0; j < response.data.length; j++){
-            let productItem = response.data[j];
-            let newItem = {};
-            let brands = [];
-            if(productItem["brands"] && productItem["brands"].length > 0){
-              for(let i =0; i < productItem["brands"].length; i++){
-                brands.push(productItem["brands"][i]["name"]);
-              }
-            }
-            newItem['id'] = productItem["id"];
-            newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-            newItem['brand'] = brands.join(", ");
-            newItem['loyalty'] = "N/A";
-            newItem['image'] = productItem["image"];
-            newItem['brands'] = productItem["brands"];
-            newItem['categories'] = productItem["categories"];
-            newItem['description'] = productItem["description"];
-            newItem['sale_price'] = productItem["sale_price"];
-            newItem['code'] = productItem["code"];
-            newItem["en_name"] = productItem["en_name"];
-            newItem["kh_name"] = productItem["kh_name"];
-            this.$emit('selectProduct', newItem);
+      if(scanningInput !== "" && scanningInput !== null){
+        let foundItem = false;
+        for (let index=0; index < this.products.length; index++){
+          let productItem = this.products[index];
+          if(productItem["code"] === scanningInput || productItem["name"] === scanningInput){
+            foundItem = true;
+            this.$emit('selectProduct', productItem);
+            break;
           }
+        }
+
+        if(!foundItem){
+          alert("មិនមាន ទំនិញប្រភេទនេះទេ !!!");
+        }
       }
     },
   },
@@ -217,7 +206,7 @@ export default {
   }
   .pro-img {
       background-repeat: no-repeat;
-      padding: 50px;
+      padding: 55px;
   }
   .pro-price{
       color :#fff;
@@ -231,5 +220,8 @@ export default {
     font-size: 14px;
     margin-top: 5px;
     font-weight: 600;
+  }
+  .scanning-input{
+    margin: 5px 0;
   }
 </style>

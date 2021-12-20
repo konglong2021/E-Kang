@@ -16,12 +16,21 @@
         </li>
         <li class="menu-text-item">
           <a href="/roles">
-            <span> <i class="fa fa-cogs" aria-hidden="true"></i> 
-  Roles</span>
+            <span> <i class="fa fa-cogs" aria-hidden="true"></i> Roles</span>
           </a>
         </li>
-
-    
+        <li class="menu-text-item">
+          <a href="/members">
+            <span> <i class="fa fa-user" aria-hidden="true"></i> Members</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="content-logout">
+      <ul class="ul-style">
+        <li class="li-style">
+          <a>Logout</a>
+        </li>
       </ul>
     </div>
   </b-navbar>
@@ -85,7 +94,7 @@
     }
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
-        
+
   }
   .font-size-23{
     font-size: 23px;

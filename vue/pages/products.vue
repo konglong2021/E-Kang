@@ -38,6 +38,7 @@
           <div v-if="!isLoading">
             <div v-if="items">
               <b-table
+                id="tableau"
                 :items="items"
                 :fields="fields"
                 :per-page="0"
@@ -46,12 +47,25 @@
                 show-empty
                 small
               >
+                <template #cell(code)="row">
+                  <div id="barcodecontainer">
+                    <div id="inputdata" >
+                      <input v-model="row.item.code" /><br>
+                      <barcode v-bind:value="row.item.code">
+                        Show this if the rendering fails.
+                      </barcode>
+                    </div>
+                  </div>
+                </template>
                 <template #cell(actions)="row">
-                  <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                  <b-button size="sm" variant="primary" title="View Inventory History Detail" @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                     <i class="fa fa-eye"></i>
                   </b-button>
                   <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProduct(row.item, row.index, $event.target)">
                     <i class="fa fa-edit"></i>
+                  </b-button>
+                  <b-button size="sm" title="Print barcode" variant="primary" @click="barcodePrint(row.item, row.index, $event.target)">
+                    <i class="fa fa-print"></i>
                   </b-button>
                 </template>
                 <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
@@ -128,7 +142,11 @@
         items: null,
         fields: [
           { key: 'name', label: 'Name' },
-          { key: 'code', label: 'BarCode'},
+          { key: 'code', label: 'BarCode',
+            tdAttr: (_, __, { name, code }) => ({
+              id: `${code}`
+            }), tdClass: 'td-code'
+          },
           { key: 'category', label: 'Category' },
           { key: 'brand', label: 'Brand' },
           { key: 'loyalty', label: 'Loyalty' },
@@ -160,18 +178,13 @@
     methods:{
       async  getListProducts(){
         this.isLoading = true;
-        const response = await this.$axios.get('/api/product'+ "?page=" + this.currentPage);
-        if(response.hasOwnProperty('data')){
-          this.perPage = response.data["per_page"];
-          this.currentPage = response.data['current_page'];
-          this.totalRows = response.data['total'];
-        }
-        if(response.data.hasOwnProperty("data")) {
+        const response = await this.$axios.get('/api/product');
+        if(response.hasOwnProperty("data")) {
           this.isLoading = false;
           let items = [];
-          this.responseProductList = response.data.data;
-          for(let index=0; index < response.data.data.length; index++){
-            let productItem = response.data.data[index];
+          this.responseProductList = response.data;
+          for(let index=0; index < response.data.length; index++){
+            let productItem = response.data[index];
             let newItem = {};
             let brands = [];
             if(productItem["brands"] && productItem["brands"].length > 0){
@@ -258,11 +271,11 @@
             this.currentPage = response.data['current_page'];
             this.totalRows = response.data['total'];
           }
-          if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
+          if(response.data && response.data.hasOwnProperty("data") && response.data.length > 0){
             let items = [];
-            this.responseProductList = response.data.data;
-            for(let index=0; index < response.data.data.length; index++){
-              let productItem = response.data.data[index];
+            this.responseProductList = response.data;
+            for(let index=0; index < response.data.length; index++){
+              let productItem = response.data[index];
               let newItem = {};
               let brands = [];
               if(productItem["brands"] && productItem["brands"].length > 0){
@@ -296,6 +309,12 @@
           this.searchInput = '';
           this.getListProducts();
         }
+      },
+      barcodePrint(item,index, target){
+        console.log(item.code);
+        //this.$htmlToPaper('bar-code-' + item.id);
+        this.$htmlToPaper(item.code);
+        //window.print();
       },
     },
     mounted() {
@@ -333,5 +352,11 @@
     -webkit-flex-shrink: 0;
     height: 100%;
   }
+  #tableau .td-code {
+    width: 20vw;
+  }
 
+  #tableau div #barcodecontainer {
+    width: 100%;
+  }
 </style>

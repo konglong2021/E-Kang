@@ -21,7 +21,14 @@
           </a>
         </li>
 
-    
+
+      </ul>
+    </div>
+    <div class="content-logout">
+      <ul class="ul-style">
+        <li class="li-style">
+          <a>Logout</a>
+        </li>
       </ul>
     </div>
   </b-navbar>
@@ -85,7 +92,7 @@
     }
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
-        
+
   }
   .font-size-23{
     font-size: 23px;

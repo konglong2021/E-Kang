@@ -5,7 +5,7 @@
         <div class="control-panel">
           <div class="panel-top">
             <div class="content-panel-left">
-              <h3 class="head-title">Users Overview</h3>
+              <h3 class="head-title">Members Overview</h3>
             </div>
             <div class="content-panel-right">
               <b-container class="col-6 mx-auto menu-wrapper">
@@ -98,14 +98,12 @@
           }
         ],
          fields: [
-             { key: 'username', label: 'Username' },
-          { key: 'name', label: 'Name' },
+           { key: 'username', label: 'Username' },
+           { key: 'name', label: 'Name' },
            {key:'state',label:'Status'} ,
-          {key:'last_login',label:'Last Login'},
-
-
-          {key:'roles',label:'Roles'},
-          { key: 'actions', label: 'Actions' },
+           {key:'last_login',label:'Last Login'},
+           {key:'roles',label:'Roles'},
+           { key: 'actions', label: 'Actions' },
         ],
         category:{}, //new item for category
     }

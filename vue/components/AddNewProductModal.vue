@@ -107,7 +107,7 @@
         deep: true,
         handler: function(selectedProduct){
           this.product = selectedProduct;
-          console.log(selectedProduct["category_id"]);
+          console.log(selectedProduct["brand"]);
           this.product['category'] = this.filterCategoriesData(selectedProduct["category_id"]);
           console.log(this.product);
         }
@@ -149,9 +149,9 @@
         let vm = this;
         await vm.$axios.get('/api/brand')
           .then(function (response) {
-            if(response.data.data){
-              for(let index=0; index < response.data.data.length; index++){
-                vm.brands.push({name : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+            if(response.data.brands){
+              for(let index=0; index < response.data.brands.length; index++){
+                vm.brands.push({name : response.data.brands[index]["name"], value : response.data.brands[index]["id"]});
               }
             }
         })

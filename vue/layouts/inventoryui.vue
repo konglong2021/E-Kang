@@ -49,6 +49,9 @@
     background-color: #fff;
     border: 1px solid #fff;
     line-height: 1.7;
+    padding-left: 10px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
   }
   .input-search-box{
     border: none;

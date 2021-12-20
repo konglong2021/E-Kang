@@ -30,6 +30,9 @@ export default {
     '~/plugins/axios',
     '~/plugins/vue-input-mask',
     '~/plugins/number-only',
+    "~/plugins/vee-validate.js",
+    "~/plugins/vue-html-to-paper.js",
+    "~/plugins/vue-barcode.js",
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -112,6 +115,7 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    transpile: ["vee-validate/dist/rules"],
   },
   loading: '~/components/loading.vue',
   loadingIndicator: {

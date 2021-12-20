@@ -6,35 +6,47 @@
               <div class="mx-auto">
                   <center><h2>Login</h2></center>
               </div>
-        <b-form @submit.prevent="onSubmit">
-          <b-form-group id="input-group-1">
-            <b-form-input
-              id="input-1"
-              v-model="form.email"
-              placeholder="Username"
-              required
-              focus
-            ></b-form-input>
-          </b-form-group>
+            <ValidationObserver v-slot="{ invalid }">
+              <b-form @submit.prevent="onSubmit">
+                <b-form-group id="input-group-1">
+                  <b-form-input
+                    id="input-1" v-model="form.email"
+                    placeholder="Username" required focus
+                  ></b-form-input>
 
-          <b-form-group id="input-group-2">
-            <b-form-input
-              id="input-2"
-              v-model="form.password"
-              placeholder="Enter passwrod"
-              type="password"
-              required
-            ></b-form-input>
-          </b-form-group>
-          <b-button type="submit" class="col-sm-12" variant="success"> Login </b-button>
-        </b-form>
+                </b-form-group>
+
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="checkPassword"
+                  rules="required">
+                  <b-form-group id="input-group-2">
+                    <b-form-input
+                      id="input-2" v-model="form.password"
+                      placeholder="Enter passwrod" type="password" required
+                      :error-messages="errors"
+                    ></b-form-input>
+                    <span class="input-invalid-message" style="color: red;">
+                        {{ errors[0] }}
+                      </span>
+                  </b-form-group>
+                </ValidationProvider>
+
+                <b-button type="submit" class="col-sm-12" variant="success"> Login </b-button>
+              </b-form>
+            </ValidationObserver>
           </div>
       </b-row>
     </b-container>
   </div>
 </template>
 <script>
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 export default {
+    components: {
+      ValidationObserver: ValidationObserver,
+      ValidationProvider: ValidationProvider
+    },
   layout: "main",
   data() {
     return {
@@ -42,7 +54,9 @@ export default {
         email: "",
         password: "",
       },
-      show: true
+      show: true,
+      isExist: false,
+      loginUser : {},
     };
   },
   methods: {
@@ -56,12 +70,32 @@ export default {
         await this.$router.push('/');
       }
       else {
-        await this.$router.push('/login');
+        this.form.email = null;
+        this.form.password = null;
+        this.form.isFieldError = true;
       }
-    }
+    },
+
   },
   mounted(){
     //this.form.email.focus();
+  },
+  checkPassword() {
+    const that = this;
+    clearTimeout(this.timeout);
+    this.timeout = setTimeout(function() {
+      that.$axios
+        .post("/user", { password: that.form.password })
+        .then(response => {
+          that.isExist = response.data.isExist;
+          if (that.isExist) {
+          } else {
+            error[0] ="text";
+
+            // do something if username not exist
+          }
+        });
+    }, 1400);
   }
 };
 </script>
