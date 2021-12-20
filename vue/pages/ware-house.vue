@@ -136,7 +136,9 @@
       async onSubmitWareHouse(){
         let vm = this;
         if(!vm.warehouse.hasOwnProperty("id")){
+          vm.$toast.info("Data starting submit").goAway(1500);
           await vm.$axios.post('/api/warehouse/', vm.warehouse).then(function (response) {
+            vm.$toast.error("Getting data error").goAway(2000);
             vm.loadingFields = false;
             if(response && response.data.hasOwnProperty("warehouse")){
               if(response.data.warehouse){
@@ -149,7 +151,7 @@
           });
         }
         else {
-          
+
         }
       },
       cloneObject(obj) {

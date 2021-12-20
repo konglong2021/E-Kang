@@ -130,9 +130,7 @@
           .then(function (response) {
             vm.isLoading = false;
             if(response && response.hasOwnProperty("data")){
-              if(response.data.data){
-                vm.items = vm.cloneObject(response.data.data);
-              }
+              vm.items = vm.cloneObject(response.data);
             }
           }).catch(function (error) {
             console.log(error);
