@@ -57,21 +57,23 @@ class StockController extends Controller
                 {
 
                     $stock = Stock::where('product_id',$item['product_id'])
-                    ->where('warehouse_id',$item['warehouse_id'])
+                    ->where('warehouse_id',$item['warehouse_id'])                 //find item and warehouse from main
                     ->first();
 
-                    $stockin = Stock::where('product_id',$item['product_id'])
+                    $stockin = Stock::where('product_id',$item['product_id'])   //find item and warehouse to transfer
                     ->where('warehouse_id',$request['to_warehouse'])
                     ->first();
 
 
-                    if ($stock !== null) {
+                    if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total = $stock->total - $item['quantity'];
-                        if($stock->total<0){
+                        if($stock->total<0){                                        //check amount items from warehouse to transfter
                             return response()->json("Insufficient Please Check again", 403);
                         }else{
                         $stock->update();
                         }
+
+                        
                         if($stockin !== null){
                             $stockin->total = $stockin->total + $item['quantity'];
                             $stockin->update();

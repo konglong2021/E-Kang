@@ -64,7 +64,7 @@ class OrdersController extends Controller
         $orders->user_id = auth()->user()->id;
         $orders->subtotal = $request->subtotal;
         $orders->vat = $request->vat;
-        $orders->discount = $request->discount;
+        $orders->discount = $request->discount;   //fetch from member value
         $orders->grandtotal = $request->grandtotal;
         $orders->save();
 
@@ -85,13 +85,13 @@ class OrdersController extends Controller
            ] );
 
             $stock = Stock::where('product_id',$item['product_id'])
-            ->where('warehouse_id',$request->warehouse_id)
+            ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
             ->first();
             
             
 
             if ($stock !== null) {
-                $stock->total = $stock->total + $item['quantity'];
+                $stock->total = $stock->total - $item['quantity'];
                 $stock->update();
             } else {
                 // $stock = Stock::create([

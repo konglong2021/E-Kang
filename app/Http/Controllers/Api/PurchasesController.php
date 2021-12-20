@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PurchasesResource;
-
+use Carbon\Carbon;
 class PurchasesController extends Controller
 {
     /**
@@ -29,6 +29,16 @@ class PurchasesController extends Controller
         return PurchasesResource::collection($purchase)->response();
 //       return response()->json($purchase);
     }
+
+    public function today()
+    {
+        $purchase = Purchase::with('purchasedetails')
+                    ->whereDate('created_at',Carbon::today())
+                  ->orderBy('id', 'desc')->get();
+
+        return PurchasesResource::collection($purchase)->response();
+    }
+
 
     /**
      * Show the form for creating a new resource.
