@@ -19,7 +19,7 @@ class BrandsController extends Controller
     public function index(Request $request)
     {
         if (empty($request->all())) {
-            $brands = Brand::withCount('categories')
+            $brands = Brand::with('categories')
                     ->withCount('products')
                     ->orderBy('id', 'desc')->get();
         }else {
