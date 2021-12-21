@@ -103,7 +103,8 @@ class CategoriesController extends Controller
             return response()->json([
 
             "message" => "Successfully Updated",
-            "category" =>  $category
+            "category" =>  $category,
+            "brands" => $brands
         ]);
     }
 

@@ -55,6 +55,31 @@ class OrdersController extends Controller
             ],
         ]);
 
+
+// Exaple of transaction
+
+        // / MyController.php
+        // public function store(Request $request) {
+        //     return DB::transaction(function() use ($request) {
+        //         $user = User::create([
+        //             'username' => $request->post('username')
+        //         ]);
+        
+        //         // Add some sort of "log" record for the sake of transaction:
+        //         $log = Log::create([
+        //             'message' => 'User Foobar created'
+        //         ]);
+        
+        //         // Lets add some custom validation that will prohibit the transaction:
+        //         if($user->id > 1) {
+        //             throw AnyException('Please rollback this transaction');
+        //         }
+        
+        //         return response()->json(['message' => 'User saved!']);
+        //     });
+        // };
+
+
         // try{
 
         DB::transaction(function () use ($request){
@@ -92,7 +117,15 @@ class OrdersController extends Controller
 
             if ($stock !== null) {
                 $stock->total = $stock->total - $item['quantity'];
-                $stock->update();
+
+                if($stock->total > 0){
+                    $stock->update();
+                }else{
+                   
+                    DB::rollBack();
+                    return response()->json("Insufficient Please Check again");
+                }
+                
             } else {
                 // $stock = Stock::create([
                 // 'product_id' => $item['product_id'],
