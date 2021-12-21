@@ -80,23 +80,21 @@ export default {
   target: 'server',
 
   i18n: {
-    locales: ['en', 'fr', 'es'],
-    defaultLocale: 'en',
-    vueI18n: {
-      fallbackLocale: 'en',
-      messages: {
-        en: {
-          welcome: 'Welcome'
-        },
-        fr: {
-          welcome: 'Bienvenue'
-        },
-        es: {
-          welcome: 'Bienvenido'
-        }
+    locales: [
+      {
+        code: 'en',
+        file: 'en-US.js'
+      },
+      {
+        code: 'kh',
+        file: 'kh-KH.js'
       }
-    }
+    ],
+    lazy: true,
+    langDir: 'lang/',
+    defaultLocale: 'en'
   },
+
   toast: {
     position: 'top-center',
     register: [ // Register custom toasts

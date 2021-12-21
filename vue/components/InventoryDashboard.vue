@@ -289,7 +289,7 @@
           subtotal: 0,
           grandtotal: 0,
           qty: 0,
-          batch: null
+          batch: this.generateBatch(),
         },
         products: [],
         productList: [],
@@ -325,6 +325,7 @@
         removeProductSelect: {},
         isDisabledImportPrice : false,
         isUpdateProductAdd: false,
+        purchases: [],
       };
     },
     watch:{
@@ -545,8 +546,12 @@
       showModal(){
         this.newProductModal.showModal = true;
       },
+
       showSupplierModal(){
         this.$refs['supplier-form-modal'].show();
+      },
+      hideSupplierModal(){
+        this.$refs['supplier-form-modal'].hide();
       },
       onResetSupplier(){},
       onSubmitSupplier(){
@@ -565,7 +570,7 @@
               supplierItem.value = data["id"];
               vm.suppliers.push(supplierItem);
             }
-            vm.hideModal();
+            vm.hideSupplierModal();
           })
           .catch(function (error) {
             vm.$toast.error("getting data error ").goAway(2500);
@@ -575,6 +580,9 @@
       showWareHouseModal(){
         this.$refs['warehouse-form-modal'].show();
       },
+      hideModalWareHouse(){
+        this.$refs['warehouse-form-modal'].hide();
+      },
       onResetWareHouse(){},
       async onSubmitWareHouse(){
         let vm = this;
@@ -582,7 +590,7 @@
         vm.loadingFields.warehouseListLoading = true;
         vm.$toast.info("Data starting submit").goAway(1500);
 
-        await this.$axios.post('/api/warehouse', this.warehouse)
+        await this.$axios.post('/api/warehouse', vm.warehouse)
           .then(function (response) {
             if(response.data.warehouse){
               vm.loadingFields.warehouseListLoading = false;
@@ -592,7 +600,7 @@
               warehouseItem.text = data["name"] + "(" + data["address"] + ")";
               warehouseItem.value = data["id"];
               vm.warehouses.push(warehouseItem);
-              this.hideModal();
+              vm.hideModalWareHouse();
             }
           })
           .catch(function (error) {
@@ -641,20 +649,20 @@
         dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(this.purchase.vat)));
         let vm = this;
         vm.loadingFields.stockLoading = true;
+
         vm.$toast.info("Data starting submit").goAway(1500);
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
-            if(response){
+            if(response.hasOwnProperty("data")){
               vm.isShowFormAddProductInPurchase = false;
               vm.isShowStockTable = true;
               vm.loadingFields.stockLoading = false;
+              vm.purchase = {};
               vm.$toast.success("Submit data successfully").goAway(2000);
               if(response.data.message){
-                vm.loadingFields.stockLoading = true;
                 vm.$axios.get('/api/stock')
                 .then(function (response) {
                     if(response.data.data){
-                      vm.loadingFields.stockLoading = false;
                       let dataStock = response.data.data;
                       if(dataStock && dataStock.length > 0){
                         for (let i=0; i < dataStock.length; i++){
@@ -689,11 +697,11 @@
         await this.$axios.get('/api/purchase')
           .then(function (response) {
             if(response.data.data){
-              let responsePurchases = response.data.data;
-              if(responsePurchases && responsePurchases.length > 0){
-                for (let index=0; index < responsePurchases.length; index++){
-                }
-              }
+              vm.purchases = vm.cloneObject(response.data.data);
+              vm.purchases.sort(function(a, b) {
+                return a.batch.localeCompare(b.batch);
+              });
+              console.log(vm.purchases);
             }
           })
           .catch(function (error) {
@@ -735,15 +743,24 @@
         let time = today.getTime();
 
         return (yyyy + mm + dd + hours + minutes + time);
-      }
+      },
+      getFullDate(){
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth()+1; //January is 0!
+        let day = (dd<10) ? '0'+dd : dd;
+        let month = (mm<10) ? '0'+mm : mm;
+        let yyyy = today.getFullYear();
+
+        return (yyyy + mm + dd);
+      },
     },
     mounted() {
-      this.getDataPurchase();
-      this.getProductList();
-      this.getAllWarehouse();
-      this.getAllSupplier();
+      // this.getDataPurchase();
+      // this.getProductList();
+      // this.getAllWarehouse();
+      // this.getAllSupplier();
       this.showStockTable();
-      this.generateBatch();
     }
   }
 </script>

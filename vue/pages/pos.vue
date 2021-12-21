@@ -86,11 +86,10 @@ export default {
   mounted() {
     let self = this;
 
-    self.$nextTick(() => {
-      self.$nuxt.$loading.start();
-      setTimeout(() => self.$nuxt.$loading.finish(), 1000)
-    });
-
+    // self.$nextTick(() => {
+    //   self.$nuxt.$loading.start();
+    //   setTimeout(() => self.$nuxt.$loading.finish(), 700)
+    // });
     window.addEventListener('keyup', function(ev) {
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){

@@ -49,11 +49,16 @@
 export default {
   middleware: "local-auth",
   layout: "main",
+  data(){
+    return {
+      loadingFields: {UserLoading: false, InventoryLoading: false, ReportLoading: false, SaleLoading: false},
+    }
+  },
   mounted() {
-    this.$nextTick(() => {
-      this.$nuxt.$loading.start();
-      setTimeout(() => this.$nuxt.$loading.finish(), 500)
-    });
+    // this.$nextTick(() => {
+    //   this.$nuxt.$loading.start();
+    //   setTimeout(() => this.$nuxt.$loading.finish(), 500)
+    // });
   }
 };
 </script>

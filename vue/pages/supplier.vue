@@ -79,7 +79,7 @@
               <b-row class="my-1">
                 <b-col sm="4"><label :for="'input-phone'" class="label-input">Phone number</label></b-col>
                 <b-col sm="8">
-                  <b-form-input :id="'input-phone'" class="input-content" v-model="supplier.phone" v-numericOnly></b-form-input>
+                  <b-form-input :id="'input-phone'" class="input-content" v-model="supplier.phone"></b-form-input>
                 </b-col>
               </b-row>
             </div>
@@ -124,6 +124,9 @@
       showModal(){
         this.$refs['supplier-form-modal'].show();
       },
+      hideModalSupplier(){
+        this.$refs['supplier-form-modal'].hide();
+      },
       async getAllSupplier(){
         let vm = this;
         await this.$axios.get('/api/supplier')
@@ -142,15 +145,35 @@
         vm.isLoading = true;
         vm.$toast.info("Submit data is starting").goAway(1500);
        if(!vm.supplier.hasOwnProperty("id")){
-         this.$axios.post('/api/supplier', vm.supplier)
+         this.$axios.post('/api/supplier/', vm.supplier)
            .then(function (response) {
              vm.isLoading = false;
              vm.$toast.success("Submit data is successful").goAway(2000);
-             if(response.data.supplier){
+             if(response.data.hasOwnProperty("supplier")){
                let data = response.data.supplier;
                vm.items.push(data);
+               vm.supplier = {};
              }
-             vm.hideModal();
+           }).catch(function (error) {
+           vm.$toast.error("getting data error ").goAway(2500);
+           console.log(error);
+         });
+       }
+       else {
+         this.$axios.put('/api/supplier/' + vm.supplier.id, vm.supplier)
+           .then(function (response) {
+             vm.isLoading = false;
+             vm.$toast.success("Submit data is successful").goAway(2000);
+             if(
+               response.data.hasOwnProperty("supplier")
+               && response.data.hasOwnProperty("success")
+               && response.data.success === true
+             ){
+               let data = response.data.supplier;
+               vm.items.push(data);
+               vm.hideModalSupplier();
+               vm.supplier = {};
+             }
            }).catch(function (error) {
            vm.$toast.error("getting data error ").goAway(2500);
            console.log(error);

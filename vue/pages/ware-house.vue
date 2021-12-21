@@ -46,7 +46,7 @@
                 <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                   <i class="fa fa-eye"></i>
                 </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="editWareHouse(row.item, row.index, $event.target)">
                   <i class="fa fa-edit"></i>
                 </b-button>
               </template>
@@ -130,9 +130,9 @@
       showModal(){
         this.$refs['warehouse-form-modal'].show();
       },
+      onResetWareHouse(){
 
-      onResetWareHouse(){},
-
+      },
       async onSubmitWareHouse(){
         let vm = this;
         if(!vm.warehouse.hasOwnProperty("id")){
@@ -151,12 +151,37 @@
           });
         }
         else {
-
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.put('/api/warehouse/' + vm.warehouse.id, vm.warehouse).then(function (response) {
+            vm.$toast.success("Submit data successfully").goAway(2000);
+            vm.loadingFields = false;
+            if(response && response.data.hasOwnProperty("warehouse")){
+              if(response.data.warehouse){
+                for(let i=0; i < vm.items.length; i++){
+                  if(vm.items[i]["id"] === response.data.warehouse.id){
+                    vm.items[i] = response.data.warehouse;
+                  }
+                }
+              }
+            }
+          }).catch(function (error) {
+            console.log(error);
+            vm.$toast.error("Getting data error").goAway(3000);
+          });
         }
       },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
-      }
+      },
+      viewDetail(item, index, target){
+        this.categoryView = item;
+        this.$refs['brand-form-modal'].show();
+      },
+      editWareHouse(item, index, target){
+        this.warehouse = item;
+        console.log(this.warehouse);
+        this.showModal();
+      },
     },
     mounted() {
       this.loadingFields = true;

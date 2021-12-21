@@ -2,7 +2,9 @@
     <div>
       <b-modal id="modal-create-product" ref="product-form-modal" size="lg"
                @hidden="onReset" cancel-title="បោះបង់"
-               @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី">
+               @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី"
+               :ok-disabled="!product.brand || !product.category || !product.sale_price"
+      >
         <b-form enctype="multipart/form-data">
           <div class="full-content">
             <div class="content-file-upload">
@@ -99,6 +101,8 @@
          handler(value){
            if(value==true){
               this.$refs['product-form-modal'].show();
+             this.getBrands();
+             this.getCategories();
            }
          },
          deep:true
@@ -107,15 +111,13 @@
         deep: true,
         handler: function(selectedProduct){
           this.product = selectedProduct;
-          console.log(selectedProduct["brand"]);
           this.product['category'] = this.filterCategoriesData(selectedProduct["category_id"]);
-          console.log(this.product);
         }
       }
     },
     mounted(){
-      this.getBrands();
-      this.getCategories();
+      //this.getBrands();
+      //this.getCategories();
     },
     methods: {
       checkForm: function (e) {
@@ -154,8 +156,7 @@
                 vm.brands.push({name : response.data.brands[index]["name"], value : response.data.brands[index]["id"]});
               }
             }
-        })
-          .catch(function (error) {
+          }).catch(function (error) {
             vm.$toast.error("getting data error ").goAway(2000);
             console.log(error);
           });

@@ -47,16 +47,6 @@
                 show-empty
                 small
               >
-                <template #cell(code)="row">
-                  <div id="barcodecontainer">
-                    <div id="inputdata" >
-                      <input v-model="row.item.code" /><br>
-                      <barcode v-bind:value="row.item.code">
-                        Show this if the rendering fails.
-                      </barcode>
-                    </div>
-                  </div>
-                </template>
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View Inventory History Detail" @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                     <i class="fa fa-eye"></i>
@@ -198,7 +188,10 @@
             newItem['loyalty'] = "N/A";
             newItem['image'] = productItem["image"];
             newItem['brands'] = productItem["brands"];
-            newItem['category_id'] = productItem["category_id"];
+
+            if(productItem.hasOwnProperty("categories")){
+              newItem['category'] = productItem["categories"]["name"];
+            }
             newItem['description'] = productItem["description"];
             newItem['sale_price'] = productItem["sale_price"];
             newItem['code'] = productItem["code"];
