@@ -118,7 +118,8 @@ class BrandsController extends Controller
             return response()->json([
 
             "message" => "Successfully Updated",
-            "brand" =>  $brand
+            "brand" =>  $brand,
+            "categories" => $categories
         ]);
     }
 
