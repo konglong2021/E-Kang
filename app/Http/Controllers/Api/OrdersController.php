@@ -56,7 +56,21 @@ class OrdersController extends Controller
         ]);
 
 
-// Exaple of transaction
+        // Exaple of transaction
+
+        // DB::beginTransaction();
+
+       
+        //     DB::insert(...);
+        //     DB::insert(...);
+        //     DB::insert(...);
+
+        //     DB::commit();
+        //     // all good
+        // } catch (\Exception $e) {
+        //     DB::rollback();
+        //     // something went wrong
+        // }
 
         // / MyController.php
         // public function store(Request $request) {
@@ -81,8 +95,11 @@ class OrdersController extends Controller
 
 
         // try{
+        try {
+                //code...
+            
 
-        DB::transaction(function () use ($request){
+        return DB::transaction(function () use ($request){
         $orders = new Order();
         $orders->warehouse_id = $request->warehouse_id;
         $orders->customer_id = $request->customer_id;
@@ -121,9 +138,9 @@ class OrdersController extends Controller
                 if($stock->total > 0){
                     $stock->update();
                 }else{
-                   
-                    DB::rollBack();
-                    return response()->json("Insufficient Please Check again");
+                    throw new \Exception('Insufficient Please Check again');
+                    // DB::rollBack();
+                    // return response()->json("Insufficient Please Check again");
                 }
                 
             } else {
@@ -134,20 +151,29 @@ class OrdersController extends Controller
                 // 'alert' => 0,
                 // 'total' => $item['quantity'],
                 // ]);
-                DB::rollBack();
-                return response()->json("No item in Stock");
+
+                // DB::rollBack();
+                // return response()->json("No item in Stock");
+                throw new \Exception('No item in Stock');
             }
         }
-        
-
-         }); 
-//End of transaction
-
         return response()->json([
 
-            "message" => "Successfully Created",
+            "message" => "Successfully Added",
 
         ]);
+        });
+    } catch (\Exception $th) {
+        DB::rollback();
+        // return response()->json($th);
+        // throw $th;
+        return response()->json("Insufficient Please Check again");
+    }
+
+          
+
+
+        
     }
 
     /**
