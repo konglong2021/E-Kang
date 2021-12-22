@@ -49,8 +49,12 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
     Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
     Route::post('/brand/search',[App\Http\Controllers\Api\BrandsController::class,'index'])->name('brand.search');
-    Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']);
-    Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']);
+
+    //Check Stock
+    Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
+    Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day 
+    Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
+
 });
 
 

@@ -22,12 +22,22 @@ class StockController extends Controller
     public function index()
     {
         $stocks = Stock::with('product')
-                ->with('warehouse')->get();
+                ->with('warehouse')
+                ->get();
 
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();
     }
 
+    public function stocksell()
+    {
+        $stocks = Stock::with('product')
+                ->with('warehouse')
+                ->where('total','>','0')
+                ->get();
+
+        return response()->json($stocks);
+    }
     /**
      * Store a newly created resource in storage.
      *
