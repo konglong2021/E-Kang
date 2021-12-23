@@ -163,7 +163,8 @@ class PurchasesController extends Controller
      */
     public function show($id)
     {
-        //
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
+        return response()->json($pdetail);
     }
 
     /**
@@ -186,7 +187,116 @@ class PurchasesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'subtotal'     => [
+                'required',
+            ],
+            'grandtotal'    => [
+                'required',
+            ],
+            'supplier_id'    => [
+                'required',
+            ],
+            'warehouse_id'    => [
+                'required',
+            ],
+            'purchases'    => [
+                'required',
+            ],
+        ]);
+
+        // try{
+            try {
+                //code...
+           
+        DB::transaction(function () use ($request,$id ){
+        $purchase = Purchase::find($id);
+        $purchase->warehouse_id = $request->warehouse_id;
+        $purchase->supplier_id = $request->supplier_id;
+        $purchase->user_id = auth()->user()->id;
+        $purchase->batch = $request->batch;
+        $purchase->subtotal = $request->subtotal;
+        $purchase->vat = $request->vat;
+        $purchase->grandtotal = $request->grandtotal;
+        $purchase->update();
+
+        //stock roll back
+        $pdetail = PurchaseDetail::where('purchase_id',$purchase->id)->get();
+
+        foreach($pdetail as $detail)
+        {
+            $stock = Stock::where('product_id',$detail->product_id)
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+            $stock->total = $stock->total - $detail->quantity;
+            if($stock->total >= 0){
+                // throw new \Exception($stock);
+                $stock->update();
+            }else{
+                throw new \Exception($stock);
+            }
+        }
+        //end of stock roll back
+
+        // $user->roles()->sync($request->input('roles', []));
+
+        $purchase_details= $request->purchases; // purchase is the array of purchase details
+        
+        
+
+        foreach($purchase_details as $item)
+        {
+
+            $pdetail = PurchaseDetail::updateOrCreate([
+
+                'purchase_id' => $purchase->id,
+                'product_id' => $item['product_id'],
+                'unitprice' => $item['unitprice'],
+                'quantity' => $item['quantity'],
+    
+    
+               ] );
+            
+
+
+           
+
+            $stock = Stock::where('product_id',$item['product_id'])
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+
+
+
+            if ($stock !== null) {
+                $stock->total = $stock->total + $item['quantity'];
+                $stock->update();
+            } else {
+                $stock = Stock::create([
+                'product_id' => $item['product_id'],
+                'warehouse_id' => $request['warehouse_id'],
+
+                'alert' => 0,
+                'total' => $item['quantity'],
+                ]);
+            }
+        }
+
+
+            });
+            return response()->json([
+
+                "message" => "Successfully Created",
+    
+            ]);
+         } catch (\Exception $th) {
+            DB::rollback();
+            // return response()->json($th);
+            throw $th;
+            // return response()->json("Insufficient Please Check again");
+         }
+//End of transaction
+
+        
     }
 
     /**
