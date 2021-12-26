@@ -163,7 +163,7 @@ class PurchasesController extends Controller
      */
     public function show($id)
     {
-        $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
+        $pdetail=Purchase::with('purchasedetails')->find($id);
         return response()->json($pdetail);
     }
 
@@ -305,8 +305,41 @@ class PurchasesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function delete(Request $request ,$id)
+    {
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
+
+        foreach($pdetail as $detail)
+        {
+            $stock = Stock::where('product_id',$detail->product_id)
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+            $stock->total = $stock->total - $detail->quantity;
+            if($stock->total >= 0){
+                // throw new \Exception($stock);
+                $stock->update();
+            }else{
+                throw new \Exception($stock);
+            }
+        }
+       
+
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
+        $Purchase = Purchase::find($id);
+
+        $Purchase->destroy($id);
+        return response()->json([
+            
+            "message" => "Successfully Deleted",
+            "Purchase" =>  $Purchase
+        ]);
+      
+    }
+
+
     public function destroy($id)
     {
-        //
+        
     }
 }

@@ -50,6 +50,9 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
     Route::post('/brand/search',[App\Http\Controllers\Api\BrandsController::class,'index'])->name('brand.search');
 
+    //Delete Purchase Items
+    Route::post('/purchase/delete/{warehouse_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
+
     //Check Stock
     Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
     Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day 
