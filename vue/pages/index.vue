@@ -1,6 +1,6 @@
 <template>
   <div class="main-screen" >
-    <div>
+    <div v-if="!isLoading">
         <b-button variant="info"><i class="fa fa-backward"></i></b-button>
         <div class="main-menu">
           <b-container class="col-6 mx-auto menu-wrapper">
@@ -42,6 +42,7 @@
           </b-container>
         </div>
     </div>
+   <loading v-if="isLoading"></loading>
   </div>
 </template>
 
@@ -51,14 +52,14 @@ export default {
   layout: "main",
   data(){
     return {
-      loadingFields: {UserLoading: false, InventoryLoading: false, ReportLoading: false, SaleLoading: false},
+      isLoading: true,
     }
   },
   mounted() {
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 500)
-    // });
+    let self = this;
+    setTimeout(function(){
+      self.isLoading = false;
+    }, 300);
   }
 };
 </script>

@@ -1,15 +1,17 @@
 <template>
-<b-container fluid class="bv-example-row">
-  <b-row>
-    <b-col cols="5" class="content-product-select">
-      <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" />
-<!--      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>-->
-    </b-col>
-    <b-col cols="7" class="product-list">
-        <PosProductList @selectProduct="selectProduct($event)" />
-    </b-col>
-  </b-row>
-</b-container>
+  <div>
+    <b-container fluid class="bv-example-row">
+      <b-row>
+        <b-col cols="5" class="content-product-select">
+          <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" />
+          <!--      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>-->
+        </b-col>
+        <b-col cols="7" class="product-list">
+          <PosProductList @selectProduct="selectProduct($event)" />
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 <script>
 
@@ -86,10 +88,6 @@ export default {
   mounted() {
     let self = this;
 
-    // self.$nextTick(() => {
-    //   self.$nuxt.$loading.start();
-    //   setTimeout(() => self.$nuxt.$loading.finish(), 700)
-    // });
     window.addEventListener('keyup', function(ev) {
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){

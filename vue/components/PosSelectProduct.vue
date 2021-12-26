@@ -47,25 +47,25 @@
             <div class="container-row-form width-45-percentage float-left">
               <div class="form-row-content-detail">
                 <div class="form-column-label">
-                  <label :for="'input-name'" class="label-input no-margin-bottom">ឈ្មោះអតិថិជន</label>
+                  <label :for="'input-customer'" class="label-input no-margin-bottom">ឈ្មោះអតិថិជន</label>
                 </div>
                 <div class="form-column-input">
                   <b-form-select  class="form-control input-content" v-model="order.customer" :options="customers"></b-form-select>
                 </div>
               </div>
-              <div class="form-row-content-detail">
-                <div class="form-column-label">
-                  <label :for="'input-name'" class="label-input no-margin-bottom">ឈ្មោះឃ្លាំង</label>
-                </div>
-                <div class="form-column-input">
-                  <b-form-select  class="form-control input-content" v-model="order.warehouse" :options="warehouses"></b-form-select>
-                </div>
-              </div>
+<!--              <div class="form-row-content-detail">-->
+<!--                <div class="form-column-label">-->
+<!--                  <label :for="'input-warehouse'" class="label-input no-margin-bottom">ឈ្មោះឃ្លាំង</label>-->
+<!--                </div>-->
+<!--                <div class="form-column-input">-->
+<!--                  <b-form-select  class="form-control input-content" v-model="order.warehouse" :options="warehouses"></b-form-select>-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
             <div class="container-row-form width-45-percentage float-right">
               <div class="form-row-content-detail">
                 <div class="form-column-label">
-                  <label :for="'input-name'" class="label-input no-margin-bottom">ពន្ធ</label>
+                  <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
                 </div>
                 <div class="form-column-input">
                   <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
@@ -73,7 +73,7 @@
               </div>
               <div class="form-row-content-detail">
                 <div class="form-column-label">
-                  <label :for="'input-name'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
+                  <label :for="'input-discount'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
                 </div>
                 <div class="form-column-input">
                   <b-form-input type="number" class="input-content" v-model="order.discount"></b-form-input>
@@ -106,7 +106,7 @@ export default {
       disableButtonRemove: false,
       perPage: 8,
       currentPage: 1,
-      items: null,
+      items: [],
       fields: [
         { key: 'name', label: 'ឈ្មោះទំនិញ', thClass: "header-th"},
         { key: 'qty', label: 'ចំនួន'},
@@ -195,70 +195,66 @@ export default {
       }
     },
     async getCustomerList(){
-      let vm = this;
-      await vm.$axios.get('/api/customer').then(function (response) {
+      let self = this;
+      await self.$axios.get('/api/customer').then(function (response) {
           if(response.hasOwnProperty("data")){
             for(let index=0; index < response.data.length; index++){
-              vm.customers.push({text : response.data[index]["name"], value : response.data[index]["id"]});
+              self.customers.push({text : response.data[index]["name"], value : response.data[index]["id"]});
             }
           }
         })
         .catch(function (error) {
-          vm.$toast.error("getting data error ").goAway(2000);
+          self.$toast.error("getting data error ").goAway(2000);
           console.log(error);
         });
     },
     async getWareHouseList(){
-      let vm = this;
-      await vm.$axios.get('/api/warehouse').then(function (response) {
+      let self = this;
+      await self.$axios.get('/api/warehouse').then(function (response) {
         if(response.data.hasOwnProperty("data")){
           for(let index=0; index < response.data.data.length; index++){
-            vm.warehouses.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+            self.warehouses.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
           }
         }
       })
         .catch(function (error) {
-          vm.$toast.error("getting data error ").goAway(2000);
+          self.$toast.error("getting data error ").goAway(2000);
           console.log(error);
         });
     },
     async onSubmitPayment(){
-      let vm = this;
+      let self = this;
       let dataSubmit = {};
-      dataSubmit.warehouse_id = vm.order.warehouse;
-      dataSubmit.customer_id = vm.order.customer;
-      dataSubmit.vat = vm.order.vat;
-      dataSubmit.discount = vm.order.discount;
+      dataSubmit.warehouse_id = self.order.warehouse;
+      dataSubmit.customer_id = self.order.customer;
+      dataSubmit.vat = self.order.vat;
+      dataSubmit.discount = self.order.discount;
       dataSubmit.items = [];
 
-      if(vm.items && vm.items.length > 0){
-        for (let index=0; index < vm.items; index++){
-          let item = {};
-          item.product_id = vm.items[index].id;
-          item.sellprice = vm.items[index].price;
-          item.quantity = vm.items[index].qty;
-          dataSubmit.items.push(item);
-        }
+      for (let index=0; index < self.items.length ; index++){
+        let item = self.items[index];
+        dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
       }
-      let subTotal = vm.calculate("USD", vm.items);
-      dataSubmit.subTotal = subTotal;
+      let subTotal = self.calculate("USD", dataSubmit.items);
+      dataSubmit.subtotal = subTotal;
 
       let discount = subTotal * (this.order.discount / 100);
       let priceAfterDiscount = subTotal - discount;
       let totalVat = priceAfterDiscount * this.order.vat;
       let grandTotal = priceAfterDiscount + totalVat;
-      dataSubmit.grandTotal = grandTotal;
+      dataSubmit.grandtotal = grandTotal;
 
-      console.log(dataSubmit);
-     /* vm.$toast.info("Data starting submit").goAway(1500);
-      await this.$axios.post('/api/order', dataSubmit).then(function (response) {
+      self.$toast.info("Data starting submit").goAway(1500);
+      await this.$axios.post('/api/sale', dataSubmit).then(function (response) {
+        console.log(response.data);
         if(response.data.hasOwnProperty("data")){
+
         }
       })
-        .catch(function (error) {
-          vm.$toast.error("getting data error ").goAway(2000);
+      .catch(function (error) {
+          self.$toast.error("getting data error ").goAway(2000);
           console.log(error);
-        });*/
+      });
     },
     onResetPayment(){
 

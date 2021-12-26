@@ -23,24 +23,26 @@
         </div>
       </div>
       <div class="product-list-body">
-        <div class="scanning-input">
+        <div class="scanning-input" style="display:none;">
           <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
-        <div v-if="products && products.length > 0">
-          <div  v-for="p in products" :key="p.id" class="pro-item" >
-            <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
-              <div class="pro-price">{{ p.price }} {{ p.currency }}</div>
-            </div>
-            <div class="pro-name">
-              <div>{{ p.name }}</div>
-              <div>{{ p.code }}</div>
+        <div v-if="!productLoading">
+          <div class="content-product" v-if="products && products.length > 0">
+            <div  v-for="p in products" class="pro-item" >
+              <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
+                <div class="pro-price">{{ p.price }} {{ p.currency }}</div>
+              </div>
+              <div class="pro-name">
+                <div>{{ p.name }}</div>
+                <div>{{ p.code }}</div>
+              </div>
+              <div class="clearboth"></div>
             </div>
             <div class="clearboth"></div>
           </div>
-          <div class="clearboth"></div>
-          <div class="content-pagination margin-top-25">
-            <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
-          </div>
+        </div>
+        <div class="content-loading" v-if="productLoading">
+          <div class="spinner-grow text-muted"></div>
         </div>
       </div>
     </div>
@@ -52,17 +54,18 @@ export default {
       categories : [],
       products : [],
       searchInput: null,
-      perPage: 8,
-      currentPage: 1,
-      totalRows: 0,
       scanningInput: null,
+      productLoading: false,
     };
   },
   methods: {
     async getListProduct(){
       let vm = this;
-      await vm.$axios.get('/api/stock').then(function (response) {
+
+      vm.productLoading = true;
+      await vm.$axios.get('/api/stocksell').then(function (response) {
         if(response && response.hasOwnProperty("data")){
+          vm.productLoading = false;
           let dataResponse = response.data;
           if(dataResponse && dataResponse.length > 0){
             vm.totalRows = response.data.length;
@@ -223,5 +226,16 @@ export default {
   }
   .scanning-input{
     margin: 5px 0;
+  }
+
+  .product-list-body{
+    margin-top: 10px;
+  }
+
+  .content-product{
+    display: inline-block;
+    overflow-y: scroll;
+    max-height: 480px;
+    position: relative;
   }
 </style>

@@ -115,10 +115,4 @@ export default {
   build: {
     transpile: ["vee-validate/dist/rules"],
   },
-  loading: '~/components/loading.vue',
-  loadingIndicator: {
-    name: 'circle',
-    color: '#3B8070',
-    background: 'white'
-  }
 }

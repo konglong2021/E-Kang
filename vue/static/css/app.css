@@ -267,7 +267,13 @@ body {
   background: none;
   border: none;
 }
-.button-no-background:focus{
+
+.button-no-background:hover,
+.button-no-background:focus,
+.button-no-background:active,
+.button-no-background:focus-visible{
   background: none;
   border: none;
+  outline: none ;
+  box-shadow: none;
 }

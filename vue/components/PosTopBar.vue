@@ -1,28 +1,60 @@
 <template>
     <div class="pos-bar">
-      <div class="content-menu-icon">
-        <ul class="list-menu">
-          <li class="list-menu-item line-height">
-            <a href="/"><span><i class="fa fa-th font-size-28"></i></span></a>
-          </li>
-        </ul>
-      </div>
-      <div class="content-logout">
-        <ul class="ul-style">
-          <li class="li-style">
-            <a>Logout</a>
-          </li>
-        </ul>
-      </div>
-      <div class="shopping-cart">
-        <ul>
-          <li>
-            <a href="/"><span><i class="fa fa-shopping-cart font-size-28 color-white"></i></span></a>
-          </li>
-        </ul>
-      </div>
+        <div class="content-menu-icon">
+          <ul class="list-menu">
+            <li class="list-menu-item line-height">
+              <a href="/"><span><i class="fa fa-th font-size-28"></i></span></a>
+            </li>
+          </ul>
+        </div>
+        <div class="content-logout">
+          <ul class="ul-style">
+            <li class="li-style">
+              <b-button class="button-no-background" @click="logOut()">
+                <span>Logout</span>
+              </b-button>
+            </li>
+          </ul>
+        </div>
+        <div class="shopping-cart">
+          <ul>
+            <li>
+              <b-button class="button-no-background btn-card">
+              <span>
+                <i class="fa fa-shopping-cart font-size-28 color-white"></i>
+              </span>
+              </b-button>
+            </li>
+          </ul>
+        </div>
     </div>
 </template>
+
+<script>
+  export default {
+    data(){
+      return {
+        isLoading: false
+      }
+    },
+    methods: {
+      async logOut(){
+        let response = await this.$axios.post('/api/logout');
+        if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
+          await this.$router.push('/login');
+        }
+      },
+    },
+    mounted() {
+      let self = this;
+      self.$nextTick(() => {
+          self.$nuxt.$loading.start();
+          setTimeout(() => self.$nuxt.$loading.finish(), 700)
+        });
+    },
+  }
+</script>
+
 <style  scoped>
   .pos-bar{
      background-color:#232d3b;
@@ -48,5 +80,12 @@
     cursor: pointer;
     padding: 0 10px;
     height: 50px;
+  }
+
+  .btn-card{
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 17px;
   }
 </style>

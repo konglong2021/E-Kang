@@ -49,8 +49,8 @@
         </div>
         <div></div>
       </div>
-      <b-modal id="modal-create-category" ref="brand-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cacnel"
+      <b-modal id="modal-create-category" ref="member-form-modal" size="lg"
+               @hidden="onReset" cancel-title="Cancel"
                @ok="onSubmit" ok-title="Save" title="New User">
         <b-form enctype="multipart/form-data">
           <div class="full-content">
@@ -87,22 +87,9 @@
       return {
         categories:[],
        items:[
-          {
-            username:'test',
-            name:'Mr. Test ',
-            state:1,
-            last_login:'2021-01-01',
-            roles:'Admin, Demo, Normal'
-
-
-          }
         ],
          fields: [
-           { key: 'username', label: 'Username' },
-           { key: 'name', label: 'Name' },
-           {key:'state',label:'Status'} ,
-           {key:'last_login',label:'Last Login'},
-           {key:'roles',label:'Roles'},
+           { key: 'title', label: 'Title' },
            { key: 'actions', label: 'Actions' },
         ],
         category:{}, //new item for category
@@ -113,7 +100,7 @@
       onReset(){},
       onSubmit(){},
       showModal(){
-        this.$refs['brand-form-modal'].show();
+        this.$refs['member-form-modal'].show();
       }
     }
   }
