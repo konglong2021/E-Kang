@@ -38,6 +38,18 @@ class StockController extends Controller
 
         return response()->json($stocks);
     }
+
+    public function stockbywarehouse($warehouse)
+    {
+        $stocks = Stock::with('product')
+                ->with('warehouse')
+                ->where('total','>','0')
+                ->where('warehouse_id',$warehouse)
+                ->get();
+
+        return response()->json($stocks);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
