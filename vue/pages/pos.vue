@@ -3,11 +3,11 @@
     <b-container fluid class="bv-example-row">
       <b-row>
         <b-col cols="5" class="content-product-select">
-          <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" />
+          <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
           <!--      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>-->
         </b-col>
         <b-col cols="7" class="product-list">
-          <PosProductList @selectProduct="selectProduct($event)" />
+          <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
         </b-col>
       </b-row>
     </b-container>
@@ -24,6 +24,7 @@ export default {
       productItem: {},
       calculateItem: {},
       productSelectItem: {},
+      warehouseSelectedId: null,
     }
   },
   methods: {
@@ -82,6 +83,9 @@ export default {
           this.calculateItem = itemTemp;
         }
       }
+    },
+    selectWarehouse($event){
+      this.warehouseSelectedId = $event;
     },
   },
 

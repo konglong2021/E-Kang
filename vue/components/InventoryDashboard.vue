@@ -293,8 +293,8 @@
         },
         products: [],
         productList: [],
-        suppliers: [],
-        warehouses: [],
+        suppliers: [{text : "ជ្រើសរើស អ្នកផ្គត់ផ្គង់", value : null}],
+        warehouses: [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
         isAddMoreProduct : false,
         isShowFormPurchase: false,
         isAddExistingProduct: false,
@@ -733,16 +733,13 @@
 
       getFullDateAndTime(){
         let today = new Date();
-        let dd = today.getDate();
-        let mm = today.getMonth()+1; //January is 0!
-        let day = (dd<10) ? '0'+dd : dd;
-        let month = (mm<10) ? '0'+mm : mm;
+        let day = (dd < 10) ? ('0' + dd) : dd;
+        let month = (mm < 10) ? ('0' + mm) : mm;
         let yyyy = today.getFullYear();
         let hours = today.getHours();
         let minutes = today.getMinutes();
         let time = today.getTime();
-
-        return (yyyy + mm + dd + hours + minutes + time);
+        return (yyyy + "" + month + "" + day + "" + "" + hours + "" + "" + minutes + "" + time);
       },
       getFullDate(){
         let today = new Date();
@@ -757,9 +754,9 @@
     },
     mounted() {
       // this.getDataPurchase();
-      // this.getProductList();
-      // this.getAllWarehouse();
-      // this.getAllSupplier();
+      this.getProductList();
+      this.getAllWarehouse();
+      this.getAllSupplier();
       this.showStockTable();
     }
   }

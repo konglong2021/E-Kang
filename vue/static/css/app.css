@@ -2,13 +2,13 @@
     background: url(/images/home-menu-bg-overlay.svg), linear-gradient(to right bottom, #77717e, #c9a8a9);
     background-size: cover;
     height: 100vh;
-    font-family: "Khmer OS"
+  font-family: Arial, "Khmer OS Bokor", sans-serif;
 }
 .clearboth{
     clear: both;
 }
 .main-page-content{
-  font-family: "Khmer OS Bokor";
+  font-family: Arial, "Khmer OS Bokor", sans-serif;
   min-height: calc(100vh - 130px);
   background-color: #f8f9fa;
 }
@@ -18,7 +18,8 @@
 }
 
 body {
-  font-family: "Khmer OS Bokor";
+  /*font-family: "Khmer OS Bokor", sans-serif;*/
+  font-family: Arial, "Khmer OS Bokor", sans-serif;
 }
 .head-title {
   font-weight: bold;
@@ -276,4 +277,12 @@ body {
   border: none;
   outline: none ;
   box-shadow: none;
+}
+
+.no-padding-right{
+  padding-right: 0 !important;
+}
+
+.text-bold{
+  font-weight: 900;
 }

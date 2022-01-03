@@ -1,20 +1,18 @@
 <template>
     <div id="pos-product-list">
-      <div class="product-list-header" style="display: none;">
-        <div class="pull-left"><i class="fa fa-home fa-3x"></i></div>
-        <div v-for="c in categories" :key="c.id" class="pull-left category-item">{{c.name}}</div>
-        <div class="clearboth"></div>
-      </div>
       <div class="control-panel">
         <div class="panel-top">
-          <div class="content-panel-right">
+          <div class="content-panel-right content-panel-right-full-width">
             <b-container class="col-12 mx-auto menu-wrapper">
               <b-row>
-                <b-col>
+                <b-col sm="6">
                   <div class="input-group input-group-sm search-content">
                     <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
                     <input class="form-control input-search-box" type="search" placeholder="Search..."  v-model="searchInput" @keyup.enter="searchProduct()" />
                   </div>
+                </b-col>
+                <b-col sm="6">
+                  <b-form-select  class="form-control input-content input-select-warehouse" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
                 </b-col>
               </b-row>
             </b-container>
@@ -26,7 +24,7 @@
         <div class="scanning-input" style="display:none;">
           <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
-        <div v-if="!productLoading">
+        <div v-if="!productLoading && warehouse" >
           <div class="content-product" v-if="products && products.length > 0">
             <div  v-for="p in products" class="pro-item" >
               <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
@@ -41,145 +39,215 @@
             <div class="clearboth"></div>
           </div>
         </div>
-        <div class="content-loading" v-if="productLoading">
+        <div class="content-loading" v-if="productLoading && warehouse">
           <div class="spinner-grow text-muted"></div>
         </div>
+        <h5 class="text-center margin-top-25" v-if="!warehouse && products.length === 0">Please select warehouse for display all product</h5>
+        <h5 class="text-center margin-top-25" v-if="!productLoading && warehouse && products.length === 0">No product data</h5>
       </div>
     </div>
 </template>
 <script>
-export default {
-  data() {
-    return {
-      categories : [],
-      products : [],
-      searchInput: null,
-      scanningInput: null,
-      productLoading: false,
-    };
-  },
-  methods: {
-    async getListProduct(){
-      let vm = this;
-
-      vm.productLoading = true;
-      await vm.$axios.get('/api/stocksell').then(function (response) {
-        if(response && response.hasOwnProperty("data")){
-          vm.productLoading = false;
-          let dataResponse = response.data;
-          if(dataResponse && dataResponse.length > 0){
-            vm.totalRows = response.data.length;
-            for(let i=0; i < dataResponse.length; i++){
-              let productList = dataResponse[i].product;
-              if(productList && productList.length > 0){
-                for(let index=0; index < productList.length; index++){
-                  let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                  productItem.id = productList[index].id;
-                  productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
-                  productItem.price = productList[index].sale_price;
-                  productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
-                  productItem.code = productList[index].code;
-                  vm.products.push(productItem);
+  export default {
+    data() {
+      return {
+        categories : [],
+        products : [],
+        searchInput: null,
+        scanningInput: null,
+        productLoading: false,
+        warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
+        warehouse: null
+      };
+    },
+    methods: {
+      async getListProduct($warehouse){
+        let vm = this;
+        vm.products = [];
+        vm.productLoading = true;
+        if($warehouse){
+          await vm.$axios.get('/api/stockbywarehouse/' + $warehouse).then(function (response) {
+            if(response && response.hasOwnProperty("data")){
+              vm.productLoading = false;
+              let dataResponse = response.data;
+              if(dataResponse && dataResponse.length > 0){
+                vm.totalRows = response.data.length;
+                for(let i=0; i < dataResponse.length; i++){
+                  let productList = dataResponse[i].product;
+                  if(productList && productList.length > 0){
+                    for(let index=0; index < productList.length; index++){
+                      let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
+                      productItem.id = productList[index].id;
+                      productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
+                      productItem.price = productList[index].sale_price;
+                      productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
+                      productItem.code = productList[index].code;
+                      vm.products.push(productItem);
+                    }
+                  }
+                  else if(productList && productList.hasOwnProperty("id")){
+                    let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
+                    productItem.id = productList.id;
+                    productItem.name = productList.en_name + " (" + productList.kh_name + ")";
+                    productItem.price = productList.sale_price;
+                    productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
+                    productItem.code = productList.code;
+                    vm.products.push(productItem);
+                  }
                 }
               }
-              else if(productList && productList.hasOwnProperty("id")){
-                let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                productItem.id = productList.id;
-                productItem.name = productList.en_name + " (" + productList.kh_name + ")";
-                productItem.price = productList.sale_price;
-                productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
-                productItem.code = productList.code;
-                vm.products.push(productItem);
+            }
+          }).catch(function (error) {
+            console.log(error);
+            vm.$toast.error("getting data error ").goAway(2000);
+          });
+        }
+        else {
+          await vm.$axios.get('/api/stocksell').then(function (response) {
+            if(response && response.hasOwnProperty("data")){
+              vm.productLoading = false;
+              let dataResponse = response.data;
+              if(dataResponse && dataResponse.length > 0){
+                vm.totalRows = response.data.length;
+                for(let i=0; i < dataResponse.length; i++){
+                  let productList = dataResponse[i].product;
+                  if(productList && productList.length > 0){
+                    for(let index=0; index < productList.length; index++){
+                      let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
+                      productItem.id = productList[index].id;
+                      productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
+                      productItem.price = productList[index].sale_price;
+                      productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
+                      productItem.code = productList[index].code;
+                      vm.products.push(productItem);
+                    }
+                  }
+                  else if(productList && productList.hasOwnProperty("id")){
+                    let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
+                    productItem.id = productList.id;
+                    productItem.name = productList.en_name + " (" + productList.kh_name + ")";
+                    productItem.price = productList.sale_price;
+                    productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
+                    productItem.code = productList.code;
+                    vm.products.push(productItem);
+                  }
+                }
               }
             }
-          }
+          }).catch(function (error) {
+            console.log(error);
+            vm.$toast.error("getting data error ").goAway(2000);
+          });
         }
-      }).catch(function (error) {
-        console.log(error);
-        vm.$toast.error("getting data error ").goAway(2000);
-      });
-    },
-    onSubmit(event) {
-      event.preventDefault();
-      alert(JSON.stringify(this.form));
-    },
-    selectProductItem(item){
-      this.$emit('selectProduct', item);
-    },
-    cloneObject(obj) {
-      return JSON.parse(JSON.stringify(obj));
-    },
-    generateImageUrlDisplay(img){
-      if (typeof window !== "undefined") {
-        return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
-      }
-    },
-    async searchProduct(){
-      const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
-      if(response){
-        if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
-          let items = [];
-          this.responseProductList = response.data;
-          for(let index=0; index < response.data.length; index++){
-            let productItem = response.data[index];
-            let newItem = {};
-            let brands = [];
-            if(productItem["brands"] && productItem["brands"].length > 0){
-              for(let i =0; i < productItem["brands"].length; i++){
-                brands.push(productItem["brands"][i]["name"]);
-              }
-            }
-            newItem['id'] = productItem["id"];
-            newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-            newItem['brand'] = brands.join(", ");
-            newItem['loyalty'] = "N/A";
-            newItem['image'] = productItem["image"];
-            newItem['brands'] = productItem["brands"];
-            newItem['categories'] = productItem["categories"];
-            newItem['description'] = productItem["description"];
-            newItem['sale_price'] = productItem["sale_price"];
-            newItem['code'] = productItem["code"];
-            newItem["en_name"] = productItem["en_name"];
-            newItem["kh_name"] = productItem["kh_name"];
-            items.push(newItem);
-          }
-          this.products = this.cloneObject(items);
-        }
-        else{
-          this.products = [];
-        }
-      }
-    },
-    handleClick(e) {
-      if(e.target.value === '' || e.target.value === null || e.target.value === undefined){
-        this.searchInput = '';
-        this.getListProduct();
-      }
-    },
-    async searchAndSelectedProduct(scanningInput){
-      if(scanningInput !== "" && scanningInput !== null){
-        let foundItem = false;
-        for (let index=0; index < this.products.length; index++){
-          let productItem = this.products[index];
-          if(productItem["code"] === scanningInput || productItem["name"] === scanningInput){
-            foundItem = true;
-            this.$emit('selectProduct', productItem);
-            break;
-          }
-        }
+      },
+      onSubmit(event) {
+        event.preventDefault();
+        alert(JSON.stringify(this.form));
+      },
+      selectProductItem(item){
+        this.$emit('selectProduct', item);
+      },
 
-        if(!foundItem){
-          alert("មិនមាន ទំនិញប្រភេទនេះទេ !!!");
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
+      generateImageUrlDisplay(img){
+        if (typeof window !== "undefined") {
+          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
         }
-      }
+      },
+      async searchProduct(){
+        const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
+        if(response){
+          if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
+            let items = [];
+            this.responseProductList = response.data;
+            for(let index=0; index < response.data.length; index++){
+              let productItem = response.data[index];
+              let newItem = {};
+              let brands = [];
+              if(productItem["brands"] && productItem["brands"].length > 0){
+                for(let i =0; i < productItem["brands"].length; i++){
+                  brands.push(productItem["brands"][i]["name"]);
+                }
+              }
+              newItem['id'] = productItem["id"];
+              newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
+              newItem['brand'] = brands.join(", ");
+              newItem['loyalty'] = "N/A";
+              newItem['image'] = productItem["image"];
+              newItem['brands'] = productItem["brands"];
+              newItem['categories'] = productItem["categories"];
+              newItem['description'] = productItem["description"];
+              newItem['sale_price'] = productItem["sale_price"];
+              newItem['code'] = productItem["code"];
+              newItem["en_name"] = productItem["en_name"];
+              newItem["kh_name"] = productItem["kh_name"];
+              items.push(newItem);
+            }
+            this.products = this.cloneObject(items);
+          }
+          else{
+            this.products = [];
+          }
+        }
+      },
+      handleClick(e) {
+        if(e.target.value === '' || e.target.value === null || e.target.value === undefined){
+          this.searchInput = '';
+          this.getListProduct();
+        }
+      },
+      async searchAndSelectedProduct(scanningInput){
+        if(scanningInput !== "" && scanningInput !== null){
+          let foundItem = false;
+          for (let index=0; index < this.products.length; index++){
+            let productItem = this.products[index];
+            if(productItem["code"] === scanningInput || productItem["name"] === scanningInput){
+              foundItem = true;
+              this.$emit('selectProduct', productItem);
+              break;
+            }
+          }
+
+          if(!foundItem){
+            alert("មិនមាន ទំនិញប្រភេទនេះទេ !!!");
+          }
+        }
+      },
+      async getWareHouseList(){
+        let self = this;
+        await self.$axios.get('/api/warehouse').then(function (response) {
+          if(response.data.hasOwnProperty("data")){
+            for(let index=0; index < response.data.data.length; index++){
+              self.warehouses.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+            }
+          }
+        })
+          .catch(function (error) {
+            self.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+          });
+      },
+      selectedWarehouse(warehouse){
+        this.$emit('selectWarehouse', warehouse);
+        if(warehouse){
+          this.getListProduct(warehouse);
+        }
+      },
     },
-  },
-  mounted() {
-    this.getListProduct();
+    mounted() {
+      this.getWareHouseList();
+    }
   }
-}
 </script>
 <style scoped>
+  .content-panel-right-full-width{
+    width: 100%;
+  }
+  .input-select-warehouse{
+    padding-top: 3px;
+  }
   .category-item {
       padding: 10px;
       text-align: left;
@@ -234,8 +302,9 @@ export default {
 
   .content-product{
     display: inline-block;
-    overflow-y: scroll;
-    max-height: 480px;
+    overflow-y: auto;
+    /*max-height: 480px;*/
     position: relative;
+    max-height: calc(100vh - 125px);
   }
 </style>

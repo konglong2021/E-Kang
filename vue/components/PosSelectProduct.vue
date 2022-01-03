@@ -53,14 +53,6 @@
                   <b-form-select  class="form-control input-content" v-model="order.customer" :options="customers"></b-form-select>
                 </div>
               </div>
-<!--              <div class="form-row-content-detail">-->
-<!--                <div class="form-column-label">-->
-<!--                  <label :for="'input-warehouse'" class="label-input no-margin-bottom">ឈ្មោះឃ្លាំង</label>-->
-<!--                </div>-->
-<!--                <div class="form-column-input">-->
-<!--                  <b-form-select  class="form-control input-content" v-model="order.warehouse" :options="warehouses"></b-form-select>-->
-<!--                </div>-->
-<!--              </div>-->
             </div>
             <div class="container-row-form width-45-percentage float-right">
               <div class="form-row-content-detail">
@@ -98,6 +90,7 @@
 export default {
   props: {
     products: [],
+    warehouseSelectedId: null,
   },
   data() {
     return {
@@ -155,7 +148,7 @@ export default {
       for(let index=0; index < this.products.length; index++) {
         if (this.products[index]["id"] === product["id"]) {
           let itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-          itemTemp["qty"] = Number(product["qty"])+1;
+          itemTemp["qty"] = Number(product["qty"]) + 1;
           this.$set(this.products, index, itemTemp);
           product = itemTemp;
         }
@@ -225,7 +218,7 @@ export default {
     async onSubmitPayment(){
       let self = this;
       let dataSubmit = {};
-      dataSubmit.warehouse_id = self.order.warehouse;
+      dataSubmit.warehouse_id = this.warehouseSelectedId;
       dataSubmit.customer_id = self.order.customer;
       dataSubmit.vat = self.order.vat;
       dataSubmit.discount = self.order.discount;
@@ -266,7 +259,7 @@ export default {
   mounted() {
     this.onInitData();
     this.getCustomerList();
-    this.getWareHouseList();
+    //this.getWareHouseList();
   },
 }
 </script>
