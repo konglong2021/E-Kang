@@ -49,12 +49,39 @@
     <div class="content-logout">
       <ul class="ul-style">
         <li class="li-style">
-          <a>Logout</a>
+          <b-button class="button-no-background" @click="logOut()">
+            <span>Logout</span>
+          </b-button>
         </li>
       </ul>
     </div>
   </b-navbar>
 </template>
+
+<script>
+  export default {
+    data(){
+      return {
+        isLoading: false
+      }
+    },
+    methods: {
+      async logOut(){
+        let response = await this.$axios.post('/api/logout');
+        if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
+          await this.$router.push('/login');
+        }
+      },
+    },
+    mounted() {
+      let self = this;
+      self.$nextTick(() => {
+        self.$nuxt.$loading.start();
+        setTimeout(() => self.$nuxt.$loading.finish(), 700)
+      });
+    },
+  }
+</script>
 
 <style >
   .inventory-bar{

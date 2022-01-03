@@ -35,11 +35,10 @@
             </div>
             <div v-if="items && items.length > 0 && !isLoading">
               <b-table class="content-table-body"
+                       sticky-header="true"
                        :items="items"
                        :fields="fields"
-                       stacked="md"
-                       show-empty
-                       small
+                       head-variant="light"
               >
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View data brand detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
@@ -50,9 +49,6 @@
                   </b-button>
                 </template>
               </b-table>
-              <div class="content-pagination">
-                <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
-              </div>
             </div>
           </div>
       </div>
@@ -244,3 +240,8 @@
 
   }
 </script>
+<style scoped>
+  .content-table-body{
+    max-height: calc(100vh - 165px);
+  }
+</style>

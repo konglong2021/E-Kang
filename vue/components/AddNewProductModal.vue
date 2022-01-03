@@ -202,24 +202,24 @@
           document.getElementById("output").setAttribute("style","background-image: url(" + e.target.result + ')');
         };
         reader.readAsDataURL($event.target.files[0]);
-        console.log(this.product.image);
       },
       async onSubmit(event) {
+        let vm = this;
         let brands= [];
         let formData = new FormData();
-        if(this.product.brand && this.product.brand.length > 0){
-          for(let index=0; index < this.product.brand.length; index++){
-            brands.push(this.product.brand[index]["value"]);
+
+        if(vm.product.brand && vm.product.brand.length > 0){
+          for(let index=0; index < vm.product.brand.length; index++){
+            brands.push(vm.product.brand[index]["value"]);
           }
         }
-        formData.append("en_name", this.product.en_name);
-        formData.append("kh_name", this.product.kh_name);
-        formData.append("category_id", this.product.category);
-        formData.append("description", this.product.description);
-        formData.append("image", this.uploadFile);
-        formData.append("sale_price", this.product.sale_price);
+        formData.append("en_name", vm.product.en_name);
+        formData.append("kh_name", vm.product.kh_name);
+        formData.append("category_id", vm.product.category);
+        formData.append("description", vm.product.description);
+        formData.append("image", vm.uploadFile);
+        formData.append("sale_price", vm.product.sale_price);
         formData.append("brands" , JSON.stringify(brands));
-        let vm = this;
 
         if(vm.product.hasOwnProperty("id") && vm.product.id){
           formData.append("_method", "PUT");
@@ -256,7 +256,7 @@
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
-
+                let brandList = response.data.hasOwnProperty("Brands") ? response.data.Brands : [];
                 let itemProduct = response.data.product;
                 let newDataBrand = [];
                 if(vm.brands.length > 0){

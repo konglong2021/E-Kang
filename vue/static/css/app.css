@@ -286,3 +286,8 @@ body {
 .text-bold{
   font-weight: 900;
 }
+
+.content-table-scroll {
+  max-height: calc(100vh - 206px);
+}
+

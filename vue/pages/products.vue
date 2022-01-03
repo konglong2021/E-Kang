@@ -37,15 +37,15 @@
           </div>
           <div v-if="!isLoading">
             <div v-if="items">
-              <b-table
-                id="tableau"
-                :items="items"
-                :fields="fields"
-                :per-page="0"
-                :current-page="currentPage"
-                stacked="md"
-                show-empty
-                small
+              <b-table class="content-table-scroll-product"
+                       id="tableau"
+                       sticky-header="true"
+                       :items="items"
+                       :fields="fields"
+                       :per-page="0"
+                       :current-page="currentPage"
+                       head-variant="light"
+
               >
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View Inventory History Detail" @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
@@ -60,9 +60,6 @@
                 </template>
                 <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
               </b-table>
-            </div>
-            <div class="content-pagination">
-              <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
             </div>
           </div>
         </div>
@@ -127,9 +124,9 @@
            showModal:false,
          },
         searchInput: null,
-        perPage: 8,
+        perPage: 3,
         currentPage: 1,
-        items: null,
+        items: [],
         fields: [
           { key: 'name', label: 'Name' },
           { key: 'code', label: 'BarCode',
@@ -351,5 +348,8 @@
 
   #tableau div #barcodecontainer {
     width: 100%;
+  }
+  .content-table-scroll-product{
+    max-height: calc(100vh - 165px);
   }
 </style>

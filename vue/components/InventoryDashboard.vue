@@ -3,7 +3,7 @@
     <div class="content-loading" v-if="loadingFields && (loadingFields.productListLoading || loadingFields.supplierListLoading || loadingFields.warehouseListLoading)">
       <div class="spinner-grow text-muted"></div>
     </div>
-    <div v-if="!loadingFields.productListLoading && !loadingFields.supplierListLoading && !loadingFields.warehouseListLoading">
+    <div style="display: inline-block; width: 100%;" v-if="!loadingFields.productListLoading && !loadingFields.supplierListLoading && !loadingFields.warehouseListLoading">
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-left">
@@ -122,12 +122,11 @@
             <div class="content-loading" v-if="loadingFields.stockLoading">
               <div class="spinner-grow text-muted"></div>
             </div>
-            <b-table v-if="!loadingFields.stockLoading && isShowStockTable"
+            <b-table class="content-table-scroll" v-if="!loadingFields.stockLoading && isShowStockTable"
+                     sticky-header="true"
                      :items="stockItems"
                      :fields="stockFields"
-                     stacked="md"
-                     show-empty
-                     small
+                     head-variant="light"
             >
               <template #cell(image)="row">
                 <div class="pro-img">
@@ -259,12 +258,12 @@
         ],
         stockItems:[],
         stockFields: [
-          { key: 'en_name', label: 'Name' },
-          { key: 'kh_name', label: 'Name(KH)' },
+          { key: 'en_name', label: 'Name'},
+          { key: 'kh_name', label: 'Name(KH)'},
           { key: 'image', label: 'Icon' },
-          { key: 'code', label: 'QR Code' },
-          { key: 'sale_price', label: 'Sell Price' },
-          { key: 'product_qty', label: 'Total in stock' },
+          { key: 'code', label: 'QR Code'},
+          { key: 'sale_price', label: 'Sell Price'},
+          { key: 'product_qty', label: 'Total in stock'},
           { key: 'store', label: 'Store' },
         ],
         product: {
@@ -473,7 +472,7 @@
       async getProductList(){
         let vm = this;
         vm.loadingFields.productListLoading = true;
-        await this.$axios.get('/api/product').then(function (response) {
+        await vm.$axios.get('/api/product').then(function (response) {
           vm.loadingFields.productListLoading = false;
           if(response && response.hasOwnProperty("data")){
             let dataResponse = response.data;
@@ -494,8 +493,8 @@
       },
       async getAllWarehouse(){
         let vm = this;
-        this.loadingFields.warehouseListLoading = true;
-        await this.$axios.get('/api/warehouse').then(function (response) {
+        vm.loadingFields.warehouseListLoading = true;
+        await vm.$axios.get('/api/warehouse').then(function (response) {
           vm.loadingFields.warehouseListLoading = false;
           if(response && response.hasOwnProperty("data")){
             if(response.data.data){
@@ -516,7 +515,7 @@
       async getAllSupplier(){
         let vm = this;
         vm.loadingFields.supplierListLoading = true;
-        await this.$axios.get('/api/supplier')
+        await vm.$axios.get('/api/supplier')
           .then(function (response) {
             vm.loadingFields.supplierListLoading = false;
             if(response && response.hasOwnProperty("data")){
@@ -611,11 +610,14 @@
       showPurchaseModal(){
         this.isShowFormAddProductInPurchase = true;
         this.isShowStockTable = false;
-        if(this.stock && this.stock.length > 0){
-          for (let index=0; index < this.stock.length ; index++){
+        this.items = [];
+        this.purchase.supplier = null;
+        this.purchase.warehouse = null;
+        this.purchase.vat = null;
 
-          }
-        }
+        this.getProductList();
+        this.getAllWarehouse();
+        this.getAllSupplier();
       },
       discardPurchase(){
         this.isShowFormAddProductInPurchase = false;
@@ -627,29 +629,30 @@
       },
       async submitPurchase(){
         let dataSubmit = {};
-        dataSubmit["warehouse_id"] = this.purchase.warehouse;
-        dataSubmit["supplier_id"] = this.purchase.supplier;
-        dataSubmit["batch"] = "V_" + this.purchase.batch;
+        let vm = this;
+        dataSubmit["warehouse_id"] = vm.purchase.warehouse;
+        dataSubmit["supplier_id"] = vm.purchase.supplier;
+        dataSubmit["batch"] = vm.purchase.batch;
+        dataSubmit["vat"] = vm.purchase.vat;
 
         let purchaseDetail = [];
         let subtotal = 0;
-        for(let index=0; index < this.items.length; index++){
+        for(let index=0; index < vm.items.length; index++){
           let purchaseDetailItem = {};
           let productTotalPrice = 0;
 
-          purchaseDetailItem['product_id']= this.items[index]['id'];
-          purchaseDetailItem['unitprice'] = this.items[index]['import_price'];
-          purchaseDetailItem['quantity'] = this.items[index]['qty'];
-          productTotalPrice = parseInt(this.items[index]['qty']) * parseFloat(this.items[index]['import_price']);
+          purchaseDetailItem['product_id']= vm.items[index]['id'];
+          purchaseDetailItem['unitprice'] = vm.items[index]['import_price'];
+          purchaseDetailItem['quantity'] = vm.items[index]['qty'];
+          productTotalPrice = parseInt(vm.items[index]['qty']) * parseFloat(this.items[index]['import_price']);
           subtotal += productTotalPrice;
           purchaseDetail.push(purchaseDetailItem);
         }
         dataSubmit["purchases"] = purchaseDetail;
         dataSubmit["subtotal"] = subtotal;
-        dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(this.purchase.vat)));
-        let vm = this;
-        vm.loadingFields.stockLoading = true;
+        dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(vm.purchase.vat)));
 
+        vm.loadingFields.stockLoading = true;
         vm.$toast.info("Data starting submit").goAway(1500);
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
@@ -709,7 +712,6 @@
             vm.$toast.success("Submit data getting error").goAway(3000);
           });
       },
-
       renderProductOptionData(product){
         let productItem =  { text: '', value: null};
         productItem.text = product["en_name"] + " (" + product["kh_name"] + ")";
@@ -728,11 +730,13 @@
       },
 
       generateBatch(){
-        return this.getFullDateAndTime();
+        return this.getFullDate() + "_v";
       },
 
       getFullDateAndTime(){
         let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth() + 1; //January is 0!
         let day = (dd < 10) ? ('0' + dd) : dd;
         let month = (mm < 10) ? ('0' + mm) : mm;
         let yyyy = today.getFullYear();
@@ -744,19 +748,19 @@
       getFullDate(){
         let today = new Date();
         let dd = today.getDate();
-        let mm = today.getMonth()+1; //January is 0!
-        let day = (dd<10) ? '0'+dd : dd;
-        let month = (mm<10) ? '0'+mm : mm;
+        let mm = (today.getMonth() + 1); //January is 0!
+        let day = (dd < 10) ? ("0" + dd) : dd;
+        let month = (mm < 10) ? ("0" + mm) : mm;
         let yyyy = today.getFullYear();
 
-        return (yyyy + mm + dd);
+        return (yyyy + "" + month + "" + day);
       },
     },
     mounted() {
       // this.getDataPurchase();
-      this.getProductList();
-      this.getAllWarehouse();
-      this.getAllSupplier();
+      //this.getProductList();
+      //this.getAllWarehouse();
+      //this.getAllSupplier();
       this.showStockTable();
     }
   }

@@ -32,14 +32,13 @@
               <div class="spinner-grow text-muted"></div>
             </div>
             <div v-if="items && items.length > 0 && !isLoading">
-              <b-table
-                  :items="items"
-                  :fields="fields"
-                  :per-page="0"
-                  :current-page="currentPage"
-                  stacked="md"
-                  show-empty
-                  small
+              <b-table class="content-table-scroll-category"
+                       sticky-header="true"
+                       :items="items"
+                       :fields="fields"
+                       :per-page="0"
+                       :current-page="currentPage"
+                       head-variant="light"
                 >
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
@@ -51,9 +50,6 @@
                 </template>
                   <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
               </b-table>
-              <div class="content-pagination">
-                <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
-              </div>
             </div>
           </div>
       </div>
@@ -281,4 +277,9 @@
     },
   }
 </script>
+<style scoped>
+  .content-table-scroll-category {
+    max-height: calc(100vh - 165px);
+  }
+</style>
 
