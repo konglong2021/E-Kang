@@ -241,13 +241,13 @@ class PurchasesController extends Controller
         // $user->roles()->sync($request->input('roles', []));
 
         $purchase_details= $request->purchases; // purchase is the array of purchase details
-        
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
         
 
         foreach($purchase_details as $item)
         {
 
-            $pdetail = PurchaseDetail::updateOrCreate([
+            $pdetail = PurchaseDetail::Create([
 
                 'purchase_id' => $purchase->id,
                 'product_id' => $item['product_id'],
@@ -255,7 +255,7 @@ class PurchasesController extends Controller
                 'quantity' => $item['quantity'],
     
     
-               ] );
+            ] );
             
 
 

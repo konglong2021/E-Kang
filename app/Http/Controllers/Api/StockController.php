@@ -39,6 +39,8 @@ class StockController extends Controller
         return response()->json($stocks);
     }
 
+
+    //check stock by warehouse
     public function stockbywarehouse($warehouse)
     {
         $stocks = Stock::with('product')
