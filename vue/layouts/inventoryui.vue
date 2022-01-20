@@ -26,18 +26,9 @@
 </script>
 
 <style>
-  .main-pos {
-    background-color: #dedede;
-    height: 100vh;
-  }
   .main-inventory{
     background-color: #eff3f6;
        height: 100vh;
-  }
-
-  .inventory-dashboard-content{
-    display: inline-block;
-    width: 100%;
   }
   .control-panel{
     border-bottom: 1px solid #cccccc;

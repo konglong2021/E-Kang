@@ -28,5 +28,6 @@
  .main-pos {
    background-color: #dedede;
    height: 100vh;
+   overflow: hidden;
  }
 </style>

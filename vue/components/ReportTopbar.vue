@@ -16,8 +16,7 @@
         </li>
         <li class="menu-text-item">
           <a href="/report-monthly">
-            <span> <i class="fa fa-calendar" aria-hidden="true"></i>
-  Sale Monthly</span>
+            <span> <i class="fa fa-calendar" aria-hidden="true"></i>Sale Monthly</span>
           </a>
         </li>
 

@@ -37,13 +37,20 @@
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
               <b-col sm="8">
-                <b-form-select :id="'input-category'" class="form-control input-content" v-model="product.category" :options="categories" required></b-form-select>
+                <b-form-select
+                  :id="'input-category'" class="form-control input-content"
+                  v-model="product.category" :options="categories" required></b-form-select>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-brand'" class="label-input">ប្រេនទំនិញ</label></b-col>
               <b-col sm="8">
-                <multiselect class="input-content" v-model="product.brand" :options="brands" track-by="name" label="name" :show-labels="false" :multiple="true" aria-placeholder="Select brands"></multiselect>
+                <multiselect class="input-content"
+                             v-model="product.brand" :options="brands"
+                             track-by="name" label="name" :show-labels="false"
+                             :multiple="true" aria-placeholder="Select brands"
+                             @select="selectionChange"
+                             @remove="removeElement"></multiselect>
               </b-col>
             </b-row>
             <b-row class="my-1">
@@ -111,7 +118,7 @@
         deep: true,
         handler: function(selectedProduct){
           this.product = selectedProduct;
-          this.product['category'] = this.filterCategoriesData(selectedProduct["category_id"]);
+          //this.product['category'] = this.filterCategoriesData(selectedProduct["category_id"]);
         }
       }
     },
@@ -229,8 +236,11 @@
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
+                let Brands = response.data.Brands;
                 let itemProduct = response.data.product;
-                vm.$emit("checkingProductAdd", itemProduct);
+                vm.$emit("checkingProductAdd", {itemProduct: itemProduct, brands: Brands});
+                vm.$emit("brands", itemProduct);
+
                 vm.hideModal();
                 vm.product =
                   {
@@ -307,6 +317,12 @@
             }
           }
         }
+      },
+      selectionChange($obj){
+        this.$forceUpdate();
+      },
+      removeElement($obj){
+        this.$forceUpdate();
       }
     },
   }

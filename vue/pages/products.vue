@@ -45,7 +45,6 @@
                        :per-page="0"
                        :current-page="currentPage"
                        head-variant="light"
-
               >
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View Inventory History Detail" @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
@@ -54,12 +53,17 @@
                   <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustProduct(row.item, row.index, $event.target)">
                     <i class="fa fa-edit"></i>
                   </b-button>
-                  <b-button size="sm" title="Print barcode" variant="primary" @click="barcodePrint(row.item, row.index, $event.target)">
+                  <b-button size="sm" title="Print barcode" variant="primary" @click="barcodeInputNumberPrint(row.item)">
                     <i class="fa fa-print"></i>
                   </b-button>
                 </template>
                 <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
               </b-table>
+            </div>
+          </div>
+          <div v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code" class="display-inline-block">
+            <div v-for="item in barcodeListToPrint" class="display-inline-block">
+              <barcode :value="item"></barcode>
             </div>
           </div>
         </div>
@@ -110,6 +114,20 @@
             </div>
           </b-form>
         </b-modal>
+        <b-modal
+          id="modal-input-number-barcode" ref="input-number-barcode-modal" size="lg"
+          title="Product View"  @ok="barcodePrint" ok-title="Save" title-class="text-center mx-auto">
+            <b-form>
+              <div class="product-data data">
+                <b-row class="my-1">
+                  <b-col sm="4"><label :for="'input-number-barcode'" class="label-input label-margin-top">ចំនួនព្រីនចេញ</label></b-col>
+                  <b-col sm="4">
+                    <b-form-input :id="'input-number-barcode'" type="text" v-model="numberPrint" @change="updateNumberBarcodePrint(numberPrint)" class="input-content input-no-background"></b-form-input>
+                  </b-col>
+                </b-row>
+              </div>
+            </b-form>
+        </b-modal>
       </div>
     </b-row>
   </b-container>
@@ -117,65 +135,69 @@
 <script>
   export default {
     middleware: "local-auth",
-    layout:'inventoryui',
-    data(){
+    layout: 'inventoryui',
+    data() {
       return {
-        newProductModal:{
-           showModal:false,
-         },
+        newProductModal: {
+          showModal: false,
+        },
         searchInput: null,
         perPage: 3,
         currentPage: 1,
         items: [],
         fields: [
-          { key: 'name', label: 'Name' },
-          { key: 'code', label: 'BarCode',
-            tdAttr: (_, __, { name, code }) => ({
+          {key: 'name', label: 'Name'},
+          {
+            key: 'code', label: 'BarCode',
+            tdAttr: (_, __, {name, code}) => ({
               id: `${code}`
             }), tdClass: 'td-code'
           },
-          { key: 'category', label: 'Category' },
-          { key: 'brand', label: 'Brand' },
-          { key: 'loyalty', label: 'Loyalty' },
-          { key: 'actions', label: 'Actions' }
+          {key: 'category_name', label: 'Category'},
+          {key: 'brand', label: 'Brand'},
+          {key: 'loyalty', label: 'Loyalty'},
+          {key: 'actions', label: 'Actions'}
         ],
         category: {}, //new item for category
         isLoading: false,
         productItemSelected: {},
-        responseProductList : [],
+        responseProductList: [],
         brandList: [],
         productView: {},
         totalRows: 0,
+        numberPrint: 0,
+        barcodeItem: null,
+        barcodeListToPrint: [],
       }
     },
-    watch:{
-      newProductModal:{
-        handler(val){
+    watch: {
+      newProductModal: {
+        handler(val) {
         },
-        deep:true
+        deep: true
       },
       currentPage: {
-        handler: function(value) {
+        handler: function (value) {
           this.getListProducts().catch(error => {
             console.error(error)
           });
         }
       }
     },
-    methods:{
-      async  getListProducts(){
+    methods: {
+      async getListProducts() {
         this.isLoading = true;
         const response = await this.$axios.get('/api/product');
-        if(response.hasOwnProperty("data")) {
+        if (response.hasOwnProperty("data")) {
           this.isLoading = false;
           let items = [];
           this.responseProductList = response.data;
-          for(let index=0; index < response.data.length; index++){
+          for (let index = 0; index < response.data.length; index++) {
             let productItem = response.data[index];
             let newItem = {};
             let brands = [];
-            if(productItem["brands"] && productItem["brands"].length > 0){
-              for(let i =0; i < productItem["brands"].length; i++){
+            if (productItem["brands"] && productItem["brands"].length > 0) {
+              for (let i = 0; i < productItem["brands"].length; i++) {
                 brands.push(productItem["brands"][i]["name"]);
               }
             }
@@ -186,8 +208,9 @@
             newItem['image'] = productItem["image"];
             newItem['brands'] = productItem["brands"];
 
-            if(productItem.hasOwnProperty("categories")){
-              newItem['category'] = productItem["categories"]["name"];
+            if (productItem.hasOwnProperty("categories")) {
+              newItem['category_name'] = productItem["categories"]["name"];
+              newItem["categories"] = this.cloneObject(productItem["categories"]);
             }
             newItem['description'] = productItem["description"];
             newItem['sale_price'] = productItem["sale_price"];
@@ -199,113 +222,133 @@
           this.items = this.cloneObject(items);
         }
       },
-      showModal(){
+      showModal() {
         //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
+        this.productItemSelected = {};
       },
-      viewDetail(item, index, target){
+      viewDetail(item, index, target) {
         this.productView = item;
         this.$refs['view-product-form-modal'].show();
       },
-      adjustProduct(item, index, target){
+      adjustProduct(item, index, target) {
         this.newProductModal.showModal = true;
         this.productItemSelected = {};
         this.productItemSelected.id = item["id"];
         this.productItemSelected.en_name = item["en_name"];
         this.productItemSelected.kh_name = item["kh_name"];
-        this.productItemSelected.category_id = item["category_id"];
         this.productItemSelected.image = item["image"];
         let brandList = [];
-        if(item["brands"] && item["brands"].length > 0){
-          for (let index=0; index < item["brands"].length; index++){
+        if (item["brands"] && item["brands"].length > 0) {
+          for (let index = 0; index < item["brands"].length; index++) {
             brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
           }
           this.productItemSelected.brand = brandList;
+        }
+        if (item.hasOwnProperty("categories") && item["categories"]["id"]) {
+          this.productItemSelected.category = item["categories"]["id"];
         }
         this.productItemSelected.description = item["description"];
         this.productItemSelected.sale_price = item["sale_price"];
         this.productItemSelected.code = item["code"];
       },
-      async checkingProductAdd($event){
+      async checkingProductAdd($event) {
         let foundItem = false, indexItem = null;
-        if($event){
-          if(this.items.length > 0){
-            for (let i=0; i < this.items.length; i++){
-              if($event.id === this.items[i].id){
+        if ($event) {
+          let brands = $event.brands;
+          let itemProduct = $event.itemProduct;
+          if (this.items.length > 0) {
+            for (let i = 0; i < this.items.length; i++) {
+              if (itemProduct.id === this.items[i].id) {
                 foundItem = true;
-                this.items[indexItem] = $event;
-                break;
-              }
-            }
-          }
-          if(!foundItem){
-            await this.items.push($event);
-          }
-        }
-      },
-      generateImageUrlDisplay(img){
-        if (typeof window !== "undefined") {
-          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
-        }
-      },
-      cloneObject(obj) {
-        return JSON.parse(JSON.stringify(obj));
-      },
-      async searchProduct(){
-        this.isLoading = true;
-        const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
-        if(response){
-          this.isLoading = false;
-          if(response.hasOwnProperty('data')){
-            this.perPage = response.data["per_page"];
-            this.currentPage = response.data['current_page'];
-            this.totalRows = response.data['total'];
-          }
-          if(response.data && response.data.hasOwnProperty("data") && response.data.length > 0){
-            let items = [];
-            this.responseProductList = response.data;
-            for(let index=0; index < response.data.length; index++){
-              let productItem = response.data[index];
-              let newItem = {};
-              let brands = [];
-              if(productItem["brands"] && productItem["brands"].length > 0){
-                for(let i =0; i < productItem["brands"].length; i++){
-                  brands.push(productItem["brands"][i]["name"]);
+                this.items[indexItem] = itemProduct;
+                let newBrands = [];
+
+                if (brands && brands.length > 0) {
+                  console.log(this.brand);
+                  // for(let i =0; i < productItem["brands"].length; i++){
+                  //   brands.push(productItem["brands"][i]["name"]);
+                  // }
                 }
               }
-              newItem['id'] = productItem["id"];
-              newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-              newItem['brand'] = brands.join(", ");
-              newItem['loyalty'] = "N/A";
-              newItem['image'] = productItem["image"];
-              newItem['brands'] = productItem["brands"];
-              newItem['category_id'] = productItem["category_id"];
-              newItem['description'] = productItem["description"];
-              newItem['sale_price'] = productItem["sale_price"];
-              newItem['code'] = productItem["code"];
-              newItem["en_name"] = productItem["en_name"];
-              newItem["kh_name"] = productItem["kh_name"];
-              items.push(newItem);
+              break;
             }
-            this.items = this.cloneObject(items);
-          }
-          else{
-            this.items = [];
           }
         }
-      },
-      handleClick(e) {
-        if(e.target.value === '' || e.target.value === null || e.target.value === undefined){
-          this.searchInput = '';
-          this.getListProducts();
+        if (!foundItem) {
+          await this.items.push(itemProduct);
         }
-      },
-      barcodePrint(item,index, target){
-        console.log(item.code);
-        //this.$htmlToPaper('bar-code-' + item.id);
-        this.$htmlToPaper(item.code);
-        //window.print();
-      },
+      }
+    },
+    generateImageUrlDisplay(img) {
+      if (typeof window !== "undefined") {
+        return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+      }
+    },
+    cloneObject(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    },
+    async searchProduct() {
+      this.isLoading = true;
+      const response = await this.$axios.post('/api/product/search', {search: this.searchInput});
+      if (response) {
+        this.isLoading = false;
+        if (response.hasOwnProperty('data')) {
+          this.perPage = response.data["per_page"];
+          this.currentPage = response.data['current_page'];
+          this.totalRows = response.data['total'];
+        }
+        if (response.data && response.data.hasOwnProperty("data") && response.data.length > 0) {
+          let items = [];
+          this.responseProductList = response.data;
+          for (let index = 0; index < response.data.length; index++) {
+            let productItem = response.data[index];
+            let newItem = {};
+            let brands = [];
+            if (productItem["brands"] && productItem["brands"].length > 0) {
+              for (let i = 0; i < productItem["brands"].length; i++) {
+                brands.push(productItem["brands"][i]["name"]);
+              }
+            }
+            newItem['id'] = productItem["id"];
+            newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
+            newItem['brand'] = brands.join(", ");
+            newItem['loyalty'] = "N/A";
+            newItem['image'] = productItem["image"];
+            newItem['brands'] = productItem["brands"];
+            newItem['category_id'] = productItem["category_id"];
+            newItem['description'] = productItem["description"];
+            newItem['sale_price'] = productItem["sale_price"];
+            newItem['code'] = productItem["code"];
+            newItem["en_name"] = productItem["en_name"];
+            newItem["kh_name"] = productItem["kh_name"];
+            items.push(newItem);
+          }
+          this.items = this.cloneObject(items);
+        } else {
+          this.items = [];
+        }
+      }
+    },
+    handleClick(e) {
+      if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+        this.searchInput = '';
+        this.getListProducts();
+      }
+    },
+    barcodePrint() {
+      this.$htmlToPaper(("barcode-" + this.barcodeItem.code));
+    },
+    barcodeInputNumberPrint(item) {
+      this.barcodeItem = item;
+      this.$refs['input-number-barcode-modal'].show();
+    },
+    updateNumberBarcodePrint(input) {
+      if (input > 0) {
+        for (let i = 1; i <= input; i++) {
+          this.barcodeListToPrint.push(this.barcodeItem.code);
+        }
+      }
     },
     mounted() {
       this.getListProducts();

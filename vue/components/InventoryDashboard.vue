@@ -577,6 +577,7 @@
           });
       },
       showWareHouseModal(){
+        this.warehouse = {};
         this.$refs['warehouse-form-modal'].show();
       },
       hideModalWareHouse(){

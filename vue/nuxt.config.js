@@ -27,12 +27,11 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/axios',
-    '~/plugins/axios',
     '~/plugins/vue-input-mask',
     '~/plugins/number-only',
-    "~/plugins/vee-validate.js",
-    "~/plugins/vue-html-to-paper.js",
-    "~/plugins/vue-barcode.js",
+    '~/plugins/vee-validate',
+    '~/plugins/vue-html-to-paper',
+    '~/plugins/vue-barcode',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -53,7 +52,6 @@ export default {
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
     'cookie-universal-nuxt',
-
   ],
 
   axios: {

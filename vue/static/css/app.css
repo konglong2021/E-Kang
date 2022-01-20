@@ -9,7 +9,7 @@
 }
 .main-page-content{
   font-family: Arial, "Khmer OS Bokor", sans-serif;
-  min-height: calc(100vh - 130px);
+  min-height: calc(100vh - 80px);
   background-color: #f8f9fa;
 }
 

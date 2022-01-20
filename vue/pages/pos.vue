@@ -4,7 +4,6 @@
       <b-row>
         <b-col cols="5" class="content-product-select">
           <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
-          <!--      <PosCalculator :productItem = "calculateItem" @listenAction="increaseQty($event)"/>-->
         </b-col>
         <b-col cols="7" class="product-list">
           <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
@@ -112,7 +111,7 @@ export default {
   .product-list{
       border-left: 2px solid #000;
       background: #eff3f6;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 70px);
   }
   .content-product-select .user-select-none{
     user-select: none !important;

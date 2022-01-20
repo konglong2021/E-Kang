@@ -3,12 +3,22 @@
         <div class="content-menu-icon">
           <ul class="list-menu">
             <li class="list-menu-item line-height">
-              <a href="/"><span><i class="fa fa-th font-size-28"></i></span></a>
+              <a class="content-link" href="/"><span><i class="fa fa-th font-size-28"></i></span></a>
             </li>
           </ul>
         </div>
         <div class="content-logout">
           <ul class="ul-style">
+            <li class="li-style" v-if="routePath !== '/pos'">
+              <a class="content-link" href="/pos">
+                <span>Point of Sale</span>
+              </a>
+            </li>
+            <li class="li-style">
+              <a class="content-link" href="/transection">
+                <span>Transection</span>
+              </a>
+            </li>
             <li class="li-style">
               <b-button class="button-no-background" @click="logOut()">
                 <span>Logout</span>
@@ -27,6 +37,11 @@
             </li>
           </ul>
         </div>
+      <div>
+        <ul>
+
+        </ul>
+      </div>
     </div>
 </template>
 
@@ -34,7 +49,8 @@
   export default {
     data(){
       return {
-        isLoading: false
+        isLoading: false,
+        routePath: null,
       }
     },
     methods: {
@@ -47,6 +63,7 @@
     },
     mounted() {
       let self = this;
+      self.routePath = self.$route.path;
       self.$nextTick(() => {
           self.$nuxt.$loading.start();
           setTimeout(() => self.$nuxt.$loading.finish(), 700)
@@ -88,4 +105,13 @@
     position: relative;
     padding-bottom: 17px;
   }
+  .content-link{
+    color:white;
+  }
+
+  .content-link:hover{
+    outline: none;
+    text-decoration: none;
+  }
+
 </style>
