@@ -39,22 +39,35 @@ class ProductsController extends Controller
        return response()->json($products);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+
+
+    function generateBarcodeNumber() {
+        $number = mt_rand(100000000000, 999999999999); // better than rand()
+     
+        // call the same function if the barcode exists already
+        if ($this->barcodeNumberExists($number)) {
+           return generateBarcodeNumber();
+        }
+     
+        // otherwise, it's valid and can be used
+        return $number;
+     }
+     
+     function barcodeNumberExists($number) {
+         //$product = Product::where('code',$number)->first();
+
+        // query the database and return a boolean
+        return Product::where('code',$number)->exists();
+     }
+
+
+     public function show($id)
     {
-        //
+        $barcode = $this->generateBarcodeNumber();
+        return response()->json($barcode);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
 
@@ -75,8 +88,8 @@ class ProductsController extends Controller
         //  dd($request);
 
 
-         $prefix = date("ymd");
-         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        //  $prefix = date("ymd");
+        //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
 
         if ($image = $request->file('image')) {
@@ -90,11 +103,22 @@ class ProductsController extends Controller
             $image_name ="no image created";
         }
 
-        $product = Product::create([
 
+
+
+        //Barcode check if not submit barcode will auto generate
+        if(!$request['code']){
+            $code=$this->generateBarcodeNumber();
+        }else{
+            $code =$request['code'];
+        }
+
+         
+        $product = Product::create([
+            
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
-            'code' => $code,
+            'code' =>$code,
             'description' => $request['description'],
             'category_id' => $request['category_id'],
             'sale_price' => $request['sale_price'],
