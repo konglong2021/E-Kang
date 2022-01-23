@@ -2,10 +2,10 @@
   <div>
     <b-container fluid class="bv-example-row">
       <b-row>
-        <b-col cols="5" class="content-product-select">
+        <b-col cols="6" class="content-product-select">
           <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
         </b-col>
-        <b-col cols="7" class="product-list">
+        <b-col cols="6" class="product-list">
           <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
         </b-col>
       </b-row>

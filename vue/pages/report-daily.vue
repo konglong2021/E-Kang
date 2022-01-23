@@ -35,46 +35,52 @@
           </div>
         </div>
         <div class="content-product">
-          <b-table
-            :items="items"
-            :fields="fields"
-            stacked="md"
-            show-empty
-            small
-          >
-            <template #cell(actions)="row">
-              <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                <i class="fa fa-eye"></i>
-              </b-button>
-              <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-                <i class="fa fa-edit"></i>
-              </b-button>
-            </template>
-            <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-          </b-table>
-        </div>
-        <div>
+          <div class="content-report-input-filter">
+            <div class="display-inline-block width-50-percentage float-left">
+              <label class="width-20-percentage"> Input date filter</label>
+              <b-form-input type="date" class="form-control select-content-inline display-inline-block" v-model="dateFilter" @keyup.enter="filterReport()"></b-form-input>
+            </div>
+          </div>
+          <div class="content-table">
+            <div class="content-loading" v-if="isLoading">
+              <div class="spinner-grow text-muted"></div>
+            </div>
+            <div v-if="!isLoading">
+              <div v-if="items && dateFilter">
+                <b-table
+                  :items="items"
+                  :fields="fields"
+                  stacked="md"
+                  show-empty
+                  small
+                >
+                  <template #cell(actions)="row">
+                    <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                      <i class="fa fa-eye"></i>
+                    </b-button>
+                    <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
+                      <i class="fa fa-edit"></i>
+                    </b-button>
+                  </template>
+                  <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+                </b-table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </b-row>
   </b-container>
 </template>
 <script>
+  import {empty} from "../.nuxt/utils";
   export default {
     middleware: "local-auth",
     layout:'report',
     data(){
       return {
-       items:[
-          /*{
-            name:'iPhone',
-            date:'2021-01-01',
-            qty:10,
-            sale_by:'Mr.Test'
-
-          }*/
-        ],
-         fields: [
+       items:[],
+        fields: [
           { key: 'name', label: 'Name' },
           { key: 'date', label: 'Sall Date' },
 
@@ -85,33 +91,21 @@
         ],
         category:{}, //new item for category
         products : [],
+        isLoading: false,
+        dateFilter: null,
     }
     },
     methods:{
       showModal(){
         this.$refs['brand-form-modal'].show();
       },
-      async getAllOrderData(){
+      async getProductList(){
         let self = this;
-        await self.$axios.get('/api/sale').then(function (response) {
+        self.products = [];
+        await self.$axios.get('/api/product').then(function (response) {
           if(response && response.hasOwnProperty("data")){
-            self.orders = response.data;
-            let itemOrder = {};
-            for(let index =0; index < self.orders.length; index++){
-              if(self.orders[index].hasOwnProperty("orderdetails")){
-                let orderdetails = self.orders[index].orderdetails;
-
-                if(orderdetails.length > 0){
-                  for (let i=0; i < orderdetails.length; i++){
-                    let productData = self.filterProduct(orderdetails[i]);
-                    if(productData){
-                      itemOrder["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
-                      itemOrder["qty"] = parseInt(orderdetails[i].quantity);
-                      self.items.push(itemOrder);
-                    }
-                  }
-                }
-              }
+            for(let i=0; i < response.data.length; i++){
+              self.products.push(response.data[i]);
             }
           }
         }).catch(function (error) {
@@ -119,35 +113,117 @@
           self.$toast.error("getting data error ").goAway(2000);
         });
       },
-      async getProductList(){
-        let self = this;
-        await self.$axios.get('/api/product').then(function (response) {
-          if(response && response.hasOwnProperty("data")){
-            self.products = self.cloneObject(response.data);
-            console.log(self.products);
-          }
-        }).catch(function (error) {
-          console.log(error);
-          self.$toast.error("getting data error ").goAway(2000);
-        });
+      async getAllOrderData($dateFilter){
+       if($dateFilter){
+         let self = this;
+         self.items = [];
+         self.isLoading = true;
+         await self.$axios.post('/api/sale/search', {dateFilter: $dateFilter}).then(function (response) {
+           self.isLoading = false;
+           if(response && response.hasOwnProperty("data")){
+             self.orders = response.data;
+
+             for(let index =0; index < self.orders.length; index++){
+               let itemOrder = [];
+               if(self.orders[index].hasOwnProperty("orderdetails")){
+                 let orderdetails = self.orders[index].orderdetails;
+
+                 if(orderdetails.length > 0){
+                   for (let i=0; i < orderdetails.length; i++){
+                     let productData = self.cloneObject(self.filterProduct(orderdetails[i]));
+                     if(productData !== null && productData !== undefined){
+
+                       let createdDate = new Date(orderdetails[i].created_at);
+                       let dd = createdDate.getDate();
+                       let mm = createdDate.getMonth() + 1; //January is 0!
+                       let day = (dd < 10) ? ('0' + dd) : dd;
+                       let month = (mm < 10) ? ('0' + mm) : mm;
+                       let yyyy = createdDate.getFullYear();
+
+                       itemOrder["date"] = (day + "/" + month + "/" + yyyy);
+
+                       let user = self.cloneObject(self.$store.$cookies.get('user'));
+                       itemOrder["sale_by"] = user["name"];
+
+                       itemOrder["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
+                       itemOrder["qty"] = parseInt(orderdetails[i].quantity);
+
+                       self.items.push(itemOrder);
+                     }
+                   }
+                 }
+               }
+             }
+           }
+         }).catch(function (error) {
+           console.log(error);
+           self.$toast.error("getting data error ").goAway(2000);
+         });
+       }
+       /*else {
+         await self.$axios.get('/api/sale').then(function (response) {
+           self.isLoading = false;
+           if(response && response.hasOwnProperty("data")){
+             self.orders = response.data;
+
+             for(let index =0; index < self.orders.length; index++){
+               let itemOrder = [];
+               if(self.orders[index].hasOwnProperty("orderdetails")){
+                 let orderdetails = self.orders[index].orderdetails;
+
+                 if(orderdetails.length > 0){
+                   for (let i=0; i < orderdetails.length; i++){
+                     let productData = self.cloneObject(self.filterProduct(orderdetails[i]));
+                     if(productData !== null && productData !== undefined){
+
+                       let createdDate = new Date(orderdetails[i].created_at);
+                       let dd = createdDate.getDate();
+                       let mm = createdDate.getMonth() + 1; //January is 0!
+                       let day = (dd < 10) ? ('0' + dd) : dd;
+                       let month = (mm < 10) ? ('0' + mm) : mm;
+                       let yyyy = createdDate.getFullYear();
+
+                       itemOrder["date"] = (day + "/" + month + "/" + yyyy);
+
+                       let user = self.cloneObject(self.$store.$cookies.get('user'));
+                       itemOrder["sale_by"] = user["name"];
+
+                       itemOrder["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
+                       itemOrder["qty"] = parseInt(orderdetails[i].quantity);
+
+                       self.items.push(itemOrder);
+                     }
+                   }
+                 }
+               }
+             }
+           }
+         }).catch(function (error) {
+           console.log(error);
+           self.$toast.error("getting data error ").goAway(2000);
+         });
+       }*/
       },
-      filterProduct(orderDetailItem){
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
+
+      filterProduct(orderdetails){
         if(this.products && this.products.length > 0){
-          console.log(this.products);
           for(let index=0; index < this.products.length; index++){
-            if(orderDetailItem.product_id === this.products[index].id){
+            if(orderdetails.product_id === this.products[index].id){
               return this.products[index];
             }
           }
         }
       },
-      cloneObject(obj) {
-        return JSON.parse(JSON.stringify(obj));
+      filterReport(){
+        this.getAllOrderData(this.dateFilter);
       },
     },
     mounted() {
-      this.getAllOrderData();
       this.getProductList();
+      this.getAllOrderData();
     }
   }
 </script>

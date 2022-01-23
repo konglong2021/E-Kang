@@ -29,7 +29,7 @@
             <span><i class="fa fa-gift" aria-hidden="true"></i> Products</span>
           </a>
         </li>
-        <li class="menu-text-item">
+        <li class="menu-text-item" style="display:none;">
           <a href="/loyalty">
             <span><i class="fa fa-trophy" aria-hidden="true"></i> Loyalty</span>
           </a>
@@ -137,9 +137,7 @@
   .content-menu-text .list-menu-text .menu-text-item a {
     color: #FFFFFF !important;
   }
-    .content-menu-text .list-menu-text .menu-text-item:hover{
- background-color: #000;
-    }
+
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
 

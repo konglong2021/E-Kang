@@ -1,9 +1,6 @@
 <template>
   <div class="inventory-dashboard-content main-page-content">
-    <div class="content-loading" v-if="loadingFields && (loadingFields.productListLoading || loadingFields.supplierListLoading || loadingFields.warehouseListLoading)">
-      <div class="spinner-grow text-muted"></div>
-    </div>
-    <div style="display: inline-block; width: 100%;" v-if="!loadingFields.productListLoading && !loadingFields.supplierListLoading && !loadingFields.warehouseListLoading">
+    <div class="full-content">
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-left">
@@ -60,7 +57,7 @@
               <span class="margin-span-btn">Check Stock</span>
             </b-button>
           </div>
-          <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase">
+          <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
               <div>
                 <label class="label-with">Supplier</label>
@@ -75,16 +72,20 @@
                   href="#" size="sm" variant="primary"
                   title="Add product to stock"
                   :disabled="warehouses.length === 0 && suppliers.length === 0"
-                  @click="showExistingProductModal()">Add product to stock</b-button>
+                  @click="showExistingProductModal()">
+                  Add product to stock
+                </b-button>
                 <b-button
                   v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
                   href="#" size="sm" variant="primary"
-                  title="Save stock" @click="submitPurchase()"
-                >Save purchase</b-button>
+                  title="Save stock" @click="submitPurchase()">
+                  Save purchase
+                </b-button>
                 <b-button
                   href="#" size="sm" variant="primary"
-                  title="Discard stock" @click="discardPurchase()"
-                >Discard add stock</b-button>
+                  title="Discard stock" @click="discardPurchase()">
+                  Discard add stock
+                </b-button>
               </div>
             </div>
             <div class="display-inline-block content-field-purchase float-right">
@@ -98,14 +99,11 @@
               </div>
             </div>
           </div>
-          <div class="margin-5" v-if="isShowFormAddProductInPurchase">
+          <div class="margin-5" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <h4 class="font-700">Product list</h4>
-            <b-table
-              :items="items"
-              :fields="fields"
-              stacked="md"
-              show-empty
-              small
+            <b-table :items="items"
+              :fields="fields" stacked="md"
+              show-empty small
             >
               <template #cell(actions)="row">
                 <b-button size="sm" title="Adjust product select" variant="success" @click="adjustProductAdd(row.item, row.index, $event.target)">
@@ -118,15 +116,17 @@
               <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
             </b-table>
           </div>
-          <div>
-            <div class="content-loading" v-if="loadingFields.stockLoading">
+          <div class="full-content">
+            <div class="content-loading" v-if="loadingFields.stockLoading || loadingFields.productListLoading">
               <div class="spinner-grow text-muted"></div>
             </div>
-            <b-table class="content-table-scroll" v-if="!loadingFields.stockLoading && isShowStockTable"
-                     sticky-header="true"
-                     :items="stockItems"
-                     :fields="stockFields"
-                     head-variant="light"
+            <b-table
+              class="content-table-scroll"
+              v-if="!loadingFields.stockLoading && isShowStockTable"
+              sticky-header="true"
+              :items="stockItems"
+              :fields="stockFields"
+              head-variant="light"
             >
               <template #cell(image)="row">
                 <div class="pro-img">
@@ -137,6 +137,7 @@
         </div>
       </div>
     </div>
+
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
              @hidden="onResetSupplier" cancel-title="Cancel"
@@ -173,8 +174,8 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
-             @hidden="onResetWareHouse" cancel-title="Cancel"
-             @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
+      @hidden="onResetWareHouse" cancel-title="Cancel"
+      @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
       <b-form enctype="multipart/form-data">
         <div class="full-content">
         </div>
@@ -195,8 +196,8 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
-             @hidden="onResetExistingProduct" cancel-title="Cancel"
-             @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product">
+      @hidden="onResetExistingProduct" cancel-title="Cancel"
+      @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product">
       <b-form enctype="multipart/form-data">
         <div class="full-content" v-if="products && products.length > 0">
           <div class="display-inline-block full-with">
@@ -218,9 +219,9 @@
         </div>
       </b-form>
     </b-modal>
-    <b-modal id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
-             cancel-title="No"
-             @ok="removeProductAdd(product_select)" ok-title="Yes">
+    <b-modal
+      id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
+      cancel-title="No" @ok="removeProductAdd(product_select)" ok-title="Yes">
       <h3 class="center">Are you sure want to remove product select from list?</h3>
     </b-modal>
   </div>
@@ -230,11 +231,9 @@
   export default {
     data() {
       return {
-        newProductModal:{
-          showModal:false
-        },
+        newProductModal: {showModal:false},
         loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: true},
-        items:[],
+        items: [],
         fields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
@@ -244,7 +243,7 @@
           { key: 'qty', label: 'Qty' },
           { key: 'actions', label: 'Actions' }
         ],
-        purchaseItems:[],
+        purchaseItems: [],
         purchaseFields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
@@ -256,7 +255,7 @@
           { key : 'supplier', label: "Supplier"},
           { key: 'actions', label: 'Actions' }
         ],
-        stockItems:[],
+        stockItems: [],
         stockFields: [
           { key: 'en_name', label: 'Name'},
           { key: 'kh_name', label: 'Name(KH)'},
@@ -548,6 +547,7 @@
 
       showSupplierModal(){
         this.$refs['supplier-form-modal'].show();
+        this.supplier ={};
       },
       hideSupplierModal(){
         this.$refs['supplier-form-modal'].hide();
@@ -654,11 +654,12 @@
         dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(vm.purchase.vat)));
 
         vm.loadingFields.stockLoading = true;
+        vm.isShowFormAddProductInPurchase = false;
+
         vm.$toast.info("Data starting submit").goAway(1500);
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
             if(response.hasOwnProperty("data")){
-              vm.isShowFormAddProductInPurchase = false;
               vm.isShowStockTable = true;
               vm.loadingFields.stockLoading = false;
               vm.purchase = {};

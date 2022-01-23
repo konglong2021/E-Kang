@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 
 class OrdersController extends Controller
@@ -21,11 +22,30 @@ class OrdersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if (empty($request->all())) {
         $orders = Order::with('orderdetails')
                   ->orderBy('id', 'desc')->get();
+        }
+        else {
+            if( $request->input('month')){
+                $orderQuery = Order::query();
+                $orderQuery->whereMonth('created_at', $request->input('month'));
+                $orderQuery->with('orderdetails');
+                $orderQuery->orderBy('id', 'desc');
+                $orders = $orderQuery->get();
 
+            }
+            else if($request->input('dateFilter')){
+                $orderQuery = Order::query();
+                $orderQuery->whereDate('created_at',$request->input('dateFilter'));
+                $orderQuery->with('orderdetails');
+                $orderQuery->orderBy('id', 'desc');
+                $orders = $orderQuery->get();
+            }
+
+        }
        return response()->json($orders);
     }
 
@@ -60,7 +80,7 @@ class OrdersController extends Controller
 
         // DB::beginTransaction();
 
-       
+
         //     DB::insert(...);
         //     DB::insert(...);
         //     DB::insert(...);
@@ -78,17 +98,17 @@ class OrdersController extends Controller
         //         $user = User::create([
         //             'username' => $request->post('username')
         //         ]);
-        
+
         //         // Add some sort of "log" record for the sake of transaction:
         //         $log = Log::create([
         //             'message' => 'User Foobar created'
         //         ]);
-        
+
         //         // Lets add some custom validation that will prohibit the transaction:
         //         if($user->id > 1) {
         //             throw AnyException('Please rollback this transaction');
         //         }
-        
+
         //         return response()->json(['message' => 'User saved!']);
         //     });
         // };
@@ -97,7 +117,7 @@ class OrdersController extends Controller
         // try{
         try {
                 //code...
-            
+
 
         return DB::transaction(function () use ($request){
         $orders = new Order();
@@ -110,27 +130,27 @@ class OrdersController extends Controller
         $orders->grandtotal = $request->grandtotal;
         $orders->save();
 
-        
+
         $orders_items= $request->items; // purchase is the array of purchase details
-       
+
         foreach($orders_items as $item)
         {
-            
+
             $pdetail = OrderDetail::create([
 
             'order_id' => $orders->id,
             'product_id' => $item['product_id'],
             'sellprice' => $item['sellprice'],
             'quantity' => $item['quantity'],
-        
-            
+
+
            ] );
 
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
             ->first();
-            
-            
+
+
 
             if ($stock !== null) {
                 $stock->total = $stock->total - $item['quantity'];
@@ -142,12 +162,12 @@ class OrdersController extends Controller
                     // DB::rollBack();
                     // return response()->json("Insufficient Please Check again");
                 }
-                
+
             } else {
                 // $stock = Stock::create([
                 // 'product_id' => $item['product_id'],
                 // 'warehouse_id' => $request['warehouse_id'],
-                
+
                 // 'alert' => 0,
                 // 'total' => $item['quantity'],
                 // ]);
@@ -170,10 +190,10 @@ class OrdersController extends Controller
         return response()->json("Insufficient Please Check again");
     }
 
-          
 
 
-        
+
+
     }
 
     /**

@@ -34,6 +34,7 @@
     "vue-numeric-keyboard": "^0.0.11"
   },
   "devDependencies": {
-    "@nuxtjs/fontawesome": "^1.1.2"
+    "@nuxtjs/fontawesome": "^1.1.2",
+    "@nuxtjs/moment": "^1.6.1"
   }
 }

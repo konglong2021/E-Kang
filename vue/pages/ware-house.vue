@@ -1,10 +1,7 @@
 <template>
   <b-container fluid class="bv-example-row main-page-content">
     <b-row>
-      <div class="content-loading" v-if="loadingFields">
-        <div class="spinner-grow text-muted"></div>
-      </div>
-      <div class="display-inline-block full-with" v-if="!loadingFields">
+      <div class="display-inline-block full-with">
         <div class="inventory-dashboard-content main-page-content">
           <div class="control-panel">
             <div class="panel-top">
@@ -36,22 +33,29 @@
             </div>
           </div>
           <div class="content-product">
-            <b-table
-              :items="items"
-              :fields="fields"
-              stacked="md"
-              show-empty
-              small>
-              <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="editWareHouse(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
-              </template>
-              <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-            </b-table>
+            <div class="content-loading" v-if="loadingFields">
+              <div class="spinner-grow text-muted"></div>
+            </div>
+            <div v-if="!loadingFields">
+              <div v-if="items">
+                <b-table
+                  class="content-table-scroll-ware-house"
+                  sticky-header="true"
+                  :items="items"
+                  :fields="fields"
+                  head-variant="light">
+                  <template #cell(actions)="row">
+                    <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                      <i class="fa fa-eye"></i>
+                    </b-button>
+                    <b-button size="sm" title="Adjust invetory stock" variant="success" @click="editWareHouse(row.item, row.index, $event.target)">
+                      <i class="fa fa-edit"></i>
+                    </b-button>
+                  </template>
+                  <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+                </b-table>
+              </div>
+            </div>
           </div>
           <div>
           </div>
@@ -189,3 +193,8 @@
     }
   }
 </script>
+<style scoped>
+  .content-table-scroll-ware-house{
+    max-height: calc(100vh - 165px);
+  }
+</style>

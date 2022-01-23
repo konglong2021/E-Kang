@@ -235,12 +235,13 @@
           await vm.$axios.post('/api/product/' + vm.product.id, formData)
             .then(function (response) {
               if(response){
+                console.log(response.data);
                 vm.$toast.success("Submit data successfully").goAway(2000);
-                let Brands = response.data.Brands;
-                let itemProduct = response.data.product;
-                vm.$emit("checkingProductAdd", {itemProduct: itemProduct, brands: Brands});
-                vm.$emit("brands", itemProduct);
-
+               if(response.hasOwnProperty("data") && response.data){
+                 let Brands = response.data.Brands;
+                 let itemProduct = vm.cloneObject(response.data.product);
+                 vm.$emit("checkingProductAdd", {itemProduct: vm.cloneObject(itemProduct), brands: Brands});
+               }
                 vm.hideModal();
                 vm.product =
                   {
@@ -323,7 +324,10 @@
       },
       removeElement($obj){
         this.$forceUpdate();
-      }
+      },
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
     },
   }
 </script>

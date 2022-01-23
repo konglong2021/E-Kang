@@ -254,7 +254,7 @@
       },
       async checkingProductAdd($event) {
         let foundItem = false, indexItem = null;
-        if ($event) {
+        if ($event && $event.hasOwnProperty("brands") && $event.hasOwnProperty("itemProduct")) {
           let brands = $event.brands;
           let itemProduct = $event.itemProduct;
           if (this.items.length > 0) {
@@ -262,93 +262,90 @@
               if (itemProduct.id === this.items[i].id) {
                 foundItem = true;
                 this.items[indexItem] = itemProduct;
-                let newBrands = [];
-
                 if (brands && brands.length > 0) {
-                  console.log(this.brand);
-                  // for(let i =0; i < productItem["brands"].length; i++){
-                  //   brands.push(productItem["brands"][i]["name"]);
-                  // }
+                  this.items[indexItem]["brands"] = brands;
                 }
               }
               break;
             }
           }
-        }
-        if (!foundItem) {
-          await this.items.push(itemProduct);
-        }
-      }
-    },
-    generateImageUrlDisplay(img) {
-      if (typeof window !== "undefined") {
-        return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
-      }
-    },
-    cloneObject(obj) {
-      return JSON.parse(JSON.stringify(obj));
-    },
-    async searchProduct() {
-      this.isLoading = true;
-      const response = await this.$axios.post('/api/product/search', {search: this.searchInput});
-      if (response) {
-        this.isLoading = false;
-        if (response.hasOwnProperty('data')) {
-          this.perPage = response.data["per_page"];
-          this.currentPage = response.data['current_page'];
-          this.totalRows = response.data['total'];
-        }
-        if (response.data && response.data.hasOwnProperty("data") && response.data.length > 0) {
-          let items = [];
-          this.responseProductList = response.data;
-          for (let index = 0; index < response.data.length; index++) {
-            let productItem = response.data[index];
-            let newItem = {};
-            let brands = [];
-            if (productItem["brands"] && productItem["brands"].length > 0) {
-              for (let i = 0; i < productItem["brands"].length; i++) {
-                brands.push(productItem["brands"][i]["name"]);
-              }
-            }
-            newItem['id'] = productItem["id"];
-            newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-            newItem['brand'] = brands.join(", ");
-            newItem['loyalty'] = "N/A";
-            newItem['image'] = productItem["image"];
-            newItem['brands'] = productItem["brands"];
-            newItem['category_id'] = productItem["category_id"];
-            newItem['description'] = productItem["description"];
-            newItem['sale_price'] = productItem["sale_price"];
-            newItem['code'] = productItem["code"];
-            newItem["en_name"] = productItem["en_name"];
-            newItem["kh_name"] = productItem["kh_name"];
-            items.push(newItem);
+          if (!foundItem) {
+            await this.items.push(itemProduct);
           }
-          this.items = this.cloneObject(items);
-        } else {
-          this.items = [];
         }
-      }
-    },
-    handleClick(e) {
-      if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
-        this.searchInput = '';
-        this.getListProducts();
-      }
-    },
-    barcodePrint() {
-      this.$htmlToPaper(("barcode-" + this.barcodeItem.code));
-    },
-    barcodeInputNumberPrint(item) {
-      this.barcodeItem = item;
-      this.$refs['input-number-barcode-modal'].show();
-    },
-    updateNumberBarcodePrint(input) {
-      if (input > 0) {
-        for (let i = 1; i <= input; i++) {
-          this.barcodeListToPrint.push(this.barcodeItem.code);
+      },
+      generateImageUrlDisplay(img) {
+        if (typeof window !== "undefined") {
+          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
         }
-      }
+      },
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
+      async searchProduct() {
+        this.isLoading = true;
+        this.items = [];
+        const response = await this.$axios.post('/api/product/search', {search: this.searchInput});
+        if (response) {
+          this.isLoading = false;
+          if (response.data && response.hasOwnProperty("data") && response.data.length > 0) {
+            let items = [];
+            this.responseProductList = response.data;
+            for (let index = 0; index < response.data.length; index++) {
+              let productItem = response.data[index];
+              let newItem = {};
+              let brands = [];
+              if (productItem["brands"] && productItem["brands"].length > 0) {
+                for (let i = 0; i < productItem["brands"].length; i++) {
+                  brands.push(productItem["brands"][i]["name"]);
+                }
+              }
+              newItem['id'] = productItem["id"];
+              newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
+              newItem['brand'] = brands.join(", ");
+              newItem['loyalty'] = "N/A";
+              newItem['image'] = productItem["image"];
+              newItem['brands'] = productItem["brands"];
+
+              if (productItem.hasOwnProperty("categories")) {
+                newItem['category_name'] = productItem["categories"]["name"];
+                newItem["categories"] = this.cloneObject(productItem["categories"]);
+              }
+
+              newItem['description'] = productItem["description"];
+              newItem['sale_price'] = productItem["sale_price"];
+              newItem['code'] = productItem["code"];
+              newItem["en_name"] = productItem["en_name"];
+              newItem["kh_name"] = productItem["kh_name"];
+              items.push(newItem);
+            }
+            this.items = this.cloneObject(items);
+          }
+          else {
+            this.items = [];
+          }
+        }
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = '';
+          this.getListProducts();
+        }
+      },
+      barcodePrint() {
+        this.$htmlToPaper(("barcode-" + this.barcodeItem.code));
+      },
+      barcodeInputNumberPrint(item) {
+        this.barcodeItem = item;
+        this.$refs['input-number-barcode-modal'].show();
+      },
+      updateNumberBarcodePrint(input) {
+        if (input > 0) {
+          for (let i = 1; i <= input; i++) {
+            this.barcodeListToPrint.push(this.barcodeItem.code);
+          }
+        }
+      },
     },
     mounted() {
       this.getListProducts();

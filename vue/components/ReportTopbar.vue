@@ -19,22 +19,42 @@
             <span> <i class="fa fa-calendar" aria-hidden="true"></i>Sale Monthly</span>
           </a>
         </li>
-
-
       </ul>
     </div>
     <div class="content-logout">
-      <b-button class="button-no-background">Logout</b-button>
-<!--      <ul class="ul-style">-->
-<!--        <li class="li-style">-->
-<!--          <a>Logout</a>-->
-<!--        </li>-->
-<!--      </ul>-->
+      <ul class="ul-style">
+        <li class="li-style">
+          <b-button class="button-no-background" @click="logOut()">
+            <span>Logout</span>
+          </b-button>
+        </li>
+      </ul>
     </div>
   </b-navbar>
 </template>
 <script>
-
+  export default {
+    data(){
+      return {
+        isLoading: false
+      }
+    },
+    methods: {
+      async logOut(){
+        let response = await this.$axios.post('/api/logout');
+        if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
+          await this.$router.push('/login');
+        }
+      },
+    },
+    mounted() {
+      let self = this;
+      self.$nextTick(() => {
+        self.$nuxt.$loading.start();
+        setTimeout(() => self.$nuxt.$loading.finish(), 700)
+      });
+    },
+  }
 </script>
 <style >
   .inventory-bar{
@@ -90,9 +110,6 @@
   .content-menu-text .list-menu-text .menu-text-item a {
     color: #FFFFFF !important;
   }
-    .content-menu-text .list-menu-text .menu-text-item:hover{
- background-color: #000;
-    }
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
 

@@ -61,10 +61,11 @@ export default {
   },
   methods: {
     async onSubmit(event) {
-      let response = await this.$axios.post('/api/login', this.form);
+      /*let response = await this.$axios.post('/api/login', this.form);
       if(response && response.hasOwnProperty("data")){
-        let token = response.data.Token;
-        let user = response.data.user;
+        let token = this.cloneObject(response.data.Token);
+        let user = this.cloneObject(response.data.user);
+        console.log(user);
         await this.$store.commit('auth/setToken', token);
         await this.$store.commit('auth/updateUser', user);
         await this.$router.push('/');
@@ -73,9 +74,29 @@ export default {
         this.form.email = null;
         this.form.password = null;
         this.form.isFieldError = true;
-      }
+      }*/
+      let self = this;
+      //console.log(self.$store.getters['auth/gettingUser']);
+      await self.$axios.post('/api/login', self.form).then(function (response) {
+        if(response && response.hasOwnProperty("data")){
+          let token = self.cloneObject(response.data.Token);
+          let user = self.cloneObject(response.data.user);
+          console.log(user);
+          self.$store.commit('auth/setToken', token);
+          self.$store.commit('auth/setUser', user);
+          self.$router.push('/');
+        }
+      }).catch(function (error) {
+        console.log(error);
+        self.form.email = null;
+        self.form.password = null;
+        self.form.isFieldError = true;
+        self.$toast.error("getting data error ").goAway(2000);
+      });
     },
-
+    cloneObject(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    },
   },
   mounted(){
     //this.form.email.focus();

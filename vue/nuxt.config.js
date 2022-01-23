@@ -32,6 +32,7 @@ export default {
     '~/plugins/vee-validate',
     '~/plugins/vue-html-to-paper',
     '~/plugins/vue-barcode',
+    '~/plugins/moment',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -52,6 +53,7 @@ export default {
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
     'cookie-universal-nuxt',
+    '@nuxtjs/moment',
   ],
 
   axios: {

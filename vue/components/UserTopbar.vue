@@ -89,9 +89,7 @@
   .content-menu-text .list-menu-text .menu-text-item a {
     color: #FFFFFF !important;
   }
-    .content-menu-text .list-menu-text .menu-text-item:hover{
- background-color: #000;
-    }
+
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
 

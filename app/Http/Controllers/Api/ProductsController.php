@@ -24,12 +24,21 @@ class ProductsController extends Controller
             $products = Product::with('brands')
             ->with('categories')
             ->orderBy('id', 'desc')->get();
-        }else {
+        }
+        else {
           $query = $request->input('search');
-          $products= Product::where('en_name','like','%'.$query.'%')
+          /*$products= Product::where('en_name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
                         ->orwhere('code','like','%'.$query.'%')
-                        ->orderBy('id','desc')->get();
+                        ->orderBy('id','desc')->get();*/
+            $productQuery = Product::query();
+            $productQuery->where('en_name','like','%'.$query.'%');
+            $productQuery->orWhere('kh_name','like','%'.$query.'%');
+            $productQuery->orWhere('code','like','%'.$query.'%');
+            $productQuery->with('brands');
+            $productQuery->with('categories');
+            $productQuery->orderBy('id', 'desc');
+            $products = $productQuery->get();
         }
 
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
@@ -43,16 +52,16 @@ class ProductsController extends Controller
 
     function generateBarcodeNumber() {
         $number = mt_rand(100000000000, 999999999999); // better than rand()
-     
+
         // call the same function if the barcode exists already
         if ($this->barcodeNumberExists($number)) {
            return generateBarcodeNumber();
         }
-     
+
         // otherwise, it's valid and can be used
         return $number;
      }
-     
+
      function barcodeNumberExists($number) {
          //$product = Product::where('code',$number)->first();
 
@@ -113,9 +122,9 @@ class ProductsController extends Controller
             $code =$request['code'];
         }
 
-         
+
         $product = Product::create([
-            
+
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
             'code' =>$code,
@@ -152,16 +161,15 @@ class ProductsController extends Controller
             $image_name = time().'.'.$request->image->extension();
             $path = $request->file('image')->storeAs($destination_path,$image_name);
             $input['image'] = $image_name;
-        }else{
+        }
+        else{
             unset($input['image']);
         }
 
         $product->update($input);
-
         $brands =($request->brands) ;
         $product->brands()->sync(json_decode($brands));
         $brandsStr = implode(",", json_decode($brands));
-
             return response()->json([
 
             "message" => "Successfully Updated",

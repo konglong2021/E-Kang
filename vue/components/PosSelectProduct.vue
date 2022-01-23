@@ -24,19 +24,28 @@
           </div>
         </div>
         <div class="content-calculator">
-          <div class="content-btn pull-right">
+<!--          <div class="content-btn-card">-->
+<!--            <b-button-->
+<!--              v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"-->
+<!--              size="lg"-->
+<!--              @click="addToCard(products)" title="Add to card"-->
+<!--            >-->
+<!--              <i class="fa fa-cart-arrow-down font-size-28"></i>-->
+<!--            </b-button>-->
+<!--          </div>-->
+          <div class="content-btn pull-right" style="right: 55%;">
             <b-button size="lg"
                       v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
                       @click="openSubmitPaymentModal()"
             >
-              <i class="fa fa-money margin-span-btn"></i>
+              <i class="fa fa-money margin-span-btn font-size-28"></i>
               Payment
             </b-button>
           </div>
           <div class="total-wrapper pull-right">
-            <div class="total">Sub Total : {{calculate("USD", products)}} USD </div>
-            <div class="total">Sub Total : {{calculate("Riel", products)}} Riel </div>
-            <div class="tax"> Taxes: 100</div>
+            <div class="total">Total (All Tax not included) (USD) : {{calculate("USD", products)}} USD </div>
+            <div class="total">Total (All Tax not included) (Riel): {{calculate("Riel", products)}} Riel </div>
+            <div class="tax"> Taxes:  10% </div>
           </div>
         </div>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg"
@@ -255,6 +264,28 @@ export default {
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
     },
+    addToCard($data){
+      let self = this;
+      let dataSubmit = {};
+      dataSubmit.warehouse_id = this.warehouseSelectedId;
+      dataSubmit.customer_id = self.order.customer;
+      dataSubmit.vat = self.order.vat;
+      dataSubmit.discount = self.order.discount;
+      dataSubmit.items = [];
+
+      for (let index=0; index < self.items.length ; index++){
+        let item = self.items[index];
+        dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
+      }
+      let subTotal = self.calculate("USD", dataSubmit.items);
+      dataSubmit.subtotal = subTotal;
+
+      let discount = subTotal * (this.order.discount / 100);
+      let priceAfterDiscount = subTotal - discount;
+      let totalVat = priceAfterDiscount * this.order.vat;
+      let grandTotal = priceAfterDiscount + totalVat;
+      dataSubmit.grandtotal = grandTotal;
+    },
   },
   mounted() {
     this.onInitData();
@@ -297,6 +328,12 @@ export default {
       position: absolute;
       bottom: 5px;
       right: 50%;
+    }
+    .content-btn-card{
+      margin-top: 10px;
+      padding: 10px;
+      position: absolute;
+      bottom: 5px;
     }
     .total {
         font-weight: bold;

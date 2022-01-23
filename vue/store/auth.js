@@ -8,7 +8,7 @@ export const state = () => ({
 export const getters = {
   user: state => state.user,
   token: state => state.token,
-  check: state => state.user !== null
+  check: state => state.user !== null,
 };
 
 export const mutations = {
@@ -18,7 +18,6 @@ export const mutations = {
   },
   fetchUserSuccess(state, user){
     state.user = user;
-
   },
   fetchUserFailure(state){
     state.user = null;
@@ -30,7 +29,11 @@ export const mutations = {
   },
   updateUser(state, { user }){
     state.user = user;
-  }
+  },
+  setUser(state, user){
+    state.user = user;
+    Cookie.set('user', user);
+  },
 };
 
 export const actions = {

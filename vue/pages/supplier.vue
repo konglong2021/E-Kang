@@ -1,10 +1,7 @@
 <template>
   <b-container fluid class="bv-example-row main-page-content">
     <b-row>
-      <div class="content-loading" v-if="isLoading">
-        <div class="spinner-grow text-muted"></div>
-      </div>
-      <div class="display-inline-block full-with" v-if="!isLoading" style="overflow: hidden;">
+      <div class="display-inline-block full-with">
         <div class="inventory-dashboard-content main-page-content">
           <div class="control-panel">
             <div class="panel-top">
@@ -34,21 +31,28 @@
             </div>
           </div>
           <div class="content-product">
-            <b-table
-              :items="items"
-              :fields="fields"
-              stacked="md"
-              show-empty
-              small>
-              <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Supplier data Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust Supplier data" variant="success" @click="editData(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
-              </template>
-            </b-table>
+            <div class="content-loading" v-if="isLoading">
+              <div class="spinner-grow text-muted"></div>
+            </div>
+            <div v-if="!isLoading">
+              <div v-if="items">
+                <b-table
+                  class="content-table-scroll-supplier"
+                  sticky-header="true"
+                  :items="items" :fields="fields"
+                  head-variant="light"
+                >
+                    <template #cell(actions)="row">
+                      <b-button size="sm" variant="primary" title="View Supplier data Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                        <i class="fa fa-eye"></i>
+                      </b-button>
+                      <b-button size="sm" title="Adjust Supplier data" variant="success" @click="editData(row.item, row.index, $event.target)">
+                        <i class="fa fa-edit"></i>
+                      </b-button>
+                    </template>
+                </b-table>
+              </div>
+            </div>
           </div>
         </div>
         <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
@@ -199,3 +203,9 @@
     }
   }
 </script>
+
+<style scoped>
+  .content-table-scroll-supplier{
+    max-height: calc(100vh - 165px);
+  }
+</style>

@@ -70,14 +70,14 @@
   .input-search-box:focus, .input-search-box:active{
     box-shadow: none;
   }
-
   .content-product{
-    display: inline-block;
-    padding-left: 16px;
     width: 100%;
-    background-color: #fff;
-    border-radius: 5px;
     padding-top: 10px;
+    padding-left: 16px;
+    border-radius: 5px;
+    display: inline-block;
+    background-color: #fff;
+    min-height: calc(100vh - 132px);
   }
   .content-product .content-product-input{
     max-width: 20%;
