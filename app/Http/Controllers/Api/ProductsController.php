@@ -171,10 +171,10 @@ class ProductsController extends Controller
         $product->brands()->sync(json_decode($brands));
         $brandsStr = implode(",", json_decode($brands));
             return response()->json([
-
+            "success" => true,
             "message" => "Successfully Updated",
             "product" =>  $product,
-                "Brands" => $brandsStr
+            "Brands" => $brandsStr
         ]);
     }
 

@@ -330,7 +330,7 @@ class PurchasesController extends Controller
 
         $Purchase->destroy($id);
         return response()->json([
-            
+            "success" => true,
             "message" => "Successfully Deleted",
             "Purchase" =>  $Purchase
         ]);

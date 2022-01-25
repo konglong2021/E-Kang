@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Stock;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Settings;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,41 +79,7 @@ class OrdersController extends Controller
 
         // Exaple of transaction
 
-        // DB::beginTransaction();
-
-
-        //     DB::insert(...);
-        //     DB::insert(...);
-        //     DB::insert(...);
-
-        //     DB::commit();
-        //     // all good
-        // } catch (\Exception $e) {
-        //     DB::rollback();
-        //     // something went wrong
-        // }
-
-        // / MyController.php
-        // public function store(Request $request) {
-        //     return DB::transaction(function() use ($request) {
-        //         $user = User::create([
-        //             'username' => $request->post('username')
-        //         ]);
-
-        //         // Add some sort of "log" record for the sake of transaction:
-        //         $log = Log::create([
-        //             'message' => 'User Foobar created'
-        //         ]);
-
-        //         // Lets add some custom validation that will prohibit the transaction:
-        //         if($user->id > 1) {
-        //             throw AnyException('Please rollback this transaction');
-        //         }
-
-        //         return response()->json(['message' => 'User saved!']);
-        //     });
-        // };
-
+        $setting = Settings::find(1);
 
         // try{
         try {
@@ -124,7 +91,7 @@ class OrdersController extends Controller
         $orders->warehouse_id = $request->warehouse_id;
         $orders->customer_id = $request->customer_id;
         $orders->user_id = auth()->user()->id;
-        $orders->subtotal = $request->subtotal;
+        $orders->subtotal = round($request->subtotal,$setting->digit);
         $orders->vat = $request->vat;
         $orders->discount = $request->discount;   //fetch from member value
         $orders->grandtotal = $request->grandtotal;
@@ -178,7 +145,7 @@ class OrdersController extends Controller
             }
         }
         return response()->json([
-
+            "success" => true,
             "message" => "Successfully Added",
 
         ]);
@@ -187,7 +154,10 @@ class OrdersController extends Controller
         DB::rollback();
         // return response()->json($th);
         // throw $th;
-        return response()->json("Insufficient Please Check again");
+        return response()->json([
+            "success" => false,
+            "message" => "Insufficient Please Check again"
+        ]);
     }
 
 

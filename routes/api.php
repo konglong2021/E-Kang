@@ -44,6 +44,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/role','App\Http\Controllers\Api\RolesController');
     Route::ApiResource('/stock','App\Http\Controllers\Api\StockController');
     Route::ApiResource('/sale','App\Http\Controllers\Api\OrdersController');
+    Route::ApiResource('/setting','App\Http\Controllers\Api\SettingsController');
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
@@ -60,6 +61,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
     Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
+    Route::get('/stockbyproduct/{product_id}',[App\Http\Controllers\Api\StockController::class,'stockbyproduct']);
 
 });
 

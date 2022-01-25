@@ -52,6 +52,18 @@ class StockController extends Controller
         return response()->json($stocks);
     }
 
+
+    public function stockbyproduct($product)
+    {
+        $stocks = Stock::with('product')
+                ->with('warehouse')
+                ->where('total','>','0')
+                ->where('product_id',$product)
+                ->get();
+
+        return response()->json($stocks);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -92,7 +104,10 @@ class StockController extends Controller
                     if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total = $stock->total - $item['quantity'];
                         if($stock->total<0){                                        //check amount items from warehouse to transfter
-                            return response()->json("Insufficient Please Check again", 403);
+                            return response()->json([
+                                "success" => false,
+                                "message" => "Insufficient Please Check again"
+                            ], 403);
                         }else{
                         $stock->update();
                         }
@@ -113,7 +128,10 @@ class StockController extends Controller
 
 
                     } else {
-                        return response()->json("Please Check Input Stock",403);
+                        return response()->json([
+                            "success" => false,
+                            "message" => "Please Check Input Stock",
+                        ],403);
 
                     }
 
@@ -127,11 +145,17 @@ class StockController extends Controller
 
                        ] );
                 }
-                return response()->json("Successfully Stock Transfer");
+                return response()->json([
+                     "success" => true,
+                     "message" => "Successfully Stock Transfer"
+                ]);
 
             //  });
         } else{
-            return response()->json("Warehouse Id Is not valid", 403);
+            return response()->json([
+                "success" => false,
+                "message" => "Warehouse Id Is not valid"
+           ], 403);
         }
 
     }
@@ -159,8 +183,9 @@ class StockController extends Controller
         $input = $request->alert;
         $stock->update($input);
             return response()->json([
-            "message" => "Successfully Updated",
-            "stock" =>  $stock
+                "success" => true,
+                "message" => "Successfully Updated",
+                "stock" =>  $stock
         ]);
     }
 
