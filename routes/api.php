@@ -45,12 +45,14 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/stock','App\Http\Controllers\Api\StockController');
     Route::ApiResource('/sale','App\Http\Controllers\Api\OrdersController');
     Route::ApiResource('/setting','App\Http\Controllers\Api\SettingsController');
+    Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
     Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
     Route::post('/brand/search',[App\Http\Controllers\Api\BrandsController::class,'index'])->name('brand.search');
     Route::post('/sale/search',[App\Http\Controllers\Api\OrdersController::class,'index'])->name('sale.search');
+    
 
     //Delete Purchase Items
     Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
@@ -62,6 +64,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
     Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
     Route::get('/stockbyproduct/{product_id}',[App\Http\Controllers\Api\StockController::class,'stockbyproduct']);
+    Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
 
 });
 

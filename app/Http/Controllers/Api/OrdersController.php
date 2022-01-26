@@ -94,7 +94,7 @@ class OrdersController extends Controller
         $orders->subtotal = round($request->subtotal,$setting->digit);
         $orders->vat = $request->vat;
         $orders->discount = $request->discount;   //fetch from member value
-        $orders->grandtotal = $request->grandtotal;
+        $orders->grandtotal = round($request->grandtotal,$setting->digit);
         $orders->save();
 
 
@@ -122,7 +122,7 @@ class OrdersController extends Controller
             if ($stock !== null) {
                 $stock->total = $stock->total - $item['quantity'];
 
-                if($stock->total > 0){
+                if($stock->total > 0 || $setting->digit > 0 ){
                     $stock->update();
                 }else{
                     throw new \Exception('Insufficient Please Check again');
