@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
 
     use softDeletes;
 
@@ -21,6 +22,17 @@ class Product extends Model
         'image',
         'sale_price',
     ];
+    protected static $logAttributes = [
+        'category_id',
+        'code',
+        'en_name',
+        'kh_name',
+        'description',
+        'image',
+        'sale_price',
+    ];
+
+
 
     public function categories()
     {

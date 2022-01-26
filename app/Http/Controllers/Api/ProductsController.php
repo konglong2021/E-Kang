@@ -119,7 +119,12 @@ class ProductsController extends Controller
         if(!$request['code']){
             $code=$this->generateBarcodeNumber();
         }else{
-            $code =$request['code'];
+            if ($this->barcodeNumberExists( $request['code'])) {
+                $code = $this->generateBarcodeNumber();
+             }else{
+                $code =$request['code'];
+             }
+           
         }
 
 
