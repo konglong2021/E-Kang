@@ -116,7 +116,7 @@ class BrandsController extends Controller
         $categories = ($request->categories);
         $brand->categories()->sync(json_decode($categories));
             return response()->json([
-
+            "success" => true,
             "message" => "Successfully Updated",
             "brand" =>  $brand,
             "categories" => $categories

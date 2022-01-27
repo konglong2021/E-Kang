@@ -101,7 +101,7 @@ class CategoriesController extends Controller
         $brands = ($request->brands);
         $category->brands()->sync(json_decode($brands));
             return response()->json([
-
+            "success" => true,
             "message" => "Successfully Updated",
             "category" =>  $category,
             "brands" => $brands

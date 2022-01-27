@@ -15,12 +15,7 @@ class BanlancesController extends Controller
     public function index()
     {
         $balance = Balance::all()->last();
-        $balance_date = date('Y-m-d');
-        if($balance->balance_date < $balance_date)
-        {
-            return response()->json($balance->balance_date, 200); //create recode 
-        }
-        return response()->json($balance, 200); //update recode
+        return response()->json($balance, 200); 
     }
 
     /**
@@ -29,6 +24,8 @@ class BanlancesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+     //remain + income - withdraw = balance
     public function store(Request $request)
     {
         $balance = Balance::all()->last();
@@ -39,7 +36,7 @@ class BanlancesController extends Controller
                 'remain' => $request['remain'],
                 'income' => $request['income'],
                 'withdraw' => $request['withdraw'],
-                'balance' => $request['balance'],
+                'balance' => $request['remain'] + $request['income'] - $request['withdraw'],
                 'balance_date' => $request['balance_date'],
                 'user_id' => auth()->user()->id,
             ]);
@@ -51,21 +48,21 @@ class BanlancesController extends Controller
         }
         
         $input = $request->all();
-        $balance->update($input);
+        $ubalance = Balance::find($balance->id);
+        $ubalance->update($input);
         return response()->json([
             "success" => true,
             "message" =>  "update record",
-            "balance" => $balance
+            "balance" => $ubalance
         ], 200); //update recode
         
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function showbalance()
+    {
+        $balance = Balance::all()->last();
+        return response()->json($balance->balance, 200);
+    }
     public function show($id)
     {
         //
