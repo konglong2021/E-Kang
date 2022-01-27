@@ -46,6 +46,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/sale','App\Http\Controllers\Api\OrdersController');
     Route::ApiResource('/setting','App\Http\Controllers\Api\SettingsController');
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
+    Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
