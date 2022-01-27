@@ -20,6 +20,8 @@ class CreateBalancesTable extends Migration
             $table->decimal("withdraw");
             $table->decimal("balance");
             $table->date("balance_date");
+            $table->foreignId('warehouse_id')->constrained(); // default warehouse
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade'); 
             $table->timestamps();
         });
     }

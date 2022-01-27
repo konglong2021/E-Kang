@@ -41,6 +41,7 @@ class BanlancesController extends Controller
                 'withdraw' => $request['withdraw'],
                 'balance' => $request['balance'],
                 'balance_date' => $request['balance_date'],
+                'user_id' => auth()->user()->id,
             ]);
             return response()->json([
                 "success" => true,
