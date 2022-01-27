@@ -4,7 +4,7 @@
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-left">
-            <h3 class="head-title">Inventory Overview</h3>
+            <h3 class="head-title">{{ $t('title') }} Inventory Overview</h3>
           </div>
           <div class="content-panel-right">
             <b-container class="col-12 mx-auto menu-wrapper">
@@ -12,7 +12,7 @@
                 <b-col>
                   <div class="input-group input-group-sm search-content">
                     <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                    <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                    <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchStock()" @change="handleClick" />
                   </div>
                 </b-col>
 
@@ -324,6 +324,8 @@
         isDisabledImportPrice : false,
         isUpdateProductAdd: false,
         purchases: [],
+        searchInput: null,
+        excelImportFile: null,
       };
     },
     watch:{
@@ -725,6 +727,42 @@
           await this.products.push(this.renderProductOptionData($event));
           await this.productList.push($event);
         }
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = '';
+          this.showStockTable();
+        }
+      },
+
+      async searchStock() {
+        this.isLoading = true;
+        this.items = [];
+        let self = this;
+        await self.$axios.post('/api/stock/search', {search: self.searchInput}).then(function (response) {
+          if(response.data){
+            self.loadingFields.stockLoading = false;
+            let dataStock = response.data;
+            if(dataStock && dataStock.length > 0){
+              for (let i=0; i < dataStock.length; i++){
+                self.stock = {};
+                let product = dataStock[i]["product"];
+                self.stock.store = dataStock[i]["warehouse"]["name"] + " (" + dataStock[i]["warehouse"]["address"] + ")";
+                self.stock.product_qty = dataStock[i]["total"].toString();
+                self.stock.en_name = product["en_name"];
+                self.stock.kh_name = product["kh_name"];
+                self.stock.code = product["code"];
+                self.stock.image = product["image"];
+                self.stock.sale_price = product["sale_price"].toString();
+                self.stockItems.push(vm.stock);
+              }
+            }
+          }
+        })
+          .catch(function (error) {
+            self.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+          });
       },
 
       cloneObject(obj) {

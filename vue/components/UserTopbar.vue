@@ -27,6 +27,9 @@
       </ul>
     </div>
     <div class="content-logout">
+      <li class="li-style">
+        <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+      </li>
       <ul class="ul-style">
         <li class="li-style">
           <a>Logout</a>

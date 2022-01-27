@@ -10,12 +10,6 @@ const cookieFromRequest = (request, key) => {
   }
 };
 export const actions = {
-  /*nuxtServerInit({ commit, dispatch, route }, { req }){
-    const token = cookieFromRequest(req, 'token');
-    if (!!token) {
-      commit('auth/setToken', token);
-    }
-  }*/
   async nuxtServerInit ({ commit }, { store, route, req, res, app }) {
   if (route.query.token) {
     const token = `Bearer ${route.query.token}`;

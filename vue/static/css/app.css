@@ -90,6 +90,14 @@ body {
   height: calc(100vh - 150px)
 }
 
+.content-input-date{
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 0;
+  padding-bottom: 0;
+  height: auto !important;
+}
+
 .content-loading{
   margin: 0 auto;
   display: inline-block;
@@ -262,6 +270,45 @@ body {
   color: #ffffff;
   margin: 0;
 }
+.ul-no-style{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.content-li-menu-store{
+  display: inline-block;
+  overflow: hidden;
+  margin: 5px;
+}
+.content-button{
+  width: 137px;
+  height: 114px;
+}
+.content-menu{
+  display: inline-block;
+  font-weight: 400;
+  color: #212529;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  width: 150px;
+  height: 150px;
+}
+
+.a-content-menu{
+  display: inline-block;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
 
 .content-logout .ul-style .li-style{
   display: inline-block;
@@ -308,4 +355,14 @@ body {
   margin-bottom: 25px;
   margin-top: 15px;
   padding-left: 5px;
+}
+
+.cursor-default{
+  cursor: default;
+}
+
+.no-cursor, .no-cursor:focus, .no-cursor:hover{
+  color: white;
+  outline: none;
+  text-decoration: none;
 }

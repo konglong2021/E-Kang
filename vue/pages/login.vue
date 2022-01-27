@@ -94,6 +94,16 @@ export default {
         self.$toast.error("getting data error ").goAway(2000);
       });
     },
+    async getListStores(){
+      let self = this;
+      await self.$axios.get('/api/warehouse').then(function (response) {
+        if(response && response.hasOwnProperty("data")){
+         // self.$store.commit('auth/setToken', token);
+        }
+      }).catch(function (error) {
+        self.$toast.error("getting data error ").goAway(2000);
+      });
+    },
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
     },

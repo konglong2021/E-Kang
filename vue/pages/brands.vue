@@ -66,7 +66,12 @@
             <b-row class="my-1" >
               <b-col sm="4"><label :for="'input-category'" class="label-input">Category</label></b-col>
               <b-col sm="8">
-                <multiselect class="input-content" v-model="brand.category" :options="categories" track-by="name" label="name" :multiple="true" :show-labels="false" aria-placeholder="Select categories"></multiselect>
+                <multiselect class="input-content"
+                             v-model="brand.category"
+                             :options="categories" track-by="name" label="name"
+                             :multiple="true" :show-labels="false" aria-placeholder="Select categories"
+                             @select="selectionChange"
+                             @remove="removeElement"></multiselect>
               </b-col>
             </b-row>
 
@@ -134,6 +139,8 @@
             let brandItem = response.data.brands[index];
             let categories = [];
             let item = {};
+            item['categoryList'] = this.cloneObject(brandItem["categories"]);
+
             if(brandItem["categories"] && brandItem["categories"].length > 0){
               for(let i =0; i < brandItem["categories"].length; i++){
                 categories.push(brandItem["categories"][i]["name"]);
@@ -229,17 +236,29 @@
       },
       editBrand(item, index, target){
         this.brand = item;
+        if(item.hasOwnProperty("categoryList")){
+          let categoryList = [];
+          for (let index=0; index < item["categoryList"].length; index++){
+            categoryList.push({name: item["categoryList"][index]['name'], value: item["categoryList"][index]['id']});
+          }
+          this.brand["category"] = this.cloneObject(categoryList);
+        }
         this.showModal();
       },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
+      },
+      selectionChange($obj){
+        this.$forceUpdate();
+      },
+      removeElement($obj){
+        this.$forceUpdate();
       }
     },
-    computed:{
-    },
-
+    computed:{},
   }
 </script>
+
 <style scoped>
   .content-table-body{
     max-height: calc(100vh - 165px);

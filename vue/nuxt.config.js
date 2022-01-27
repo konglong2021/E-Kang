@@ -1,7 +1,7 @@
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'posui',
+    title: 'E-Kang Phone shop',
     htmlAttrs: {
       lang: 'en'
     },
@@ -33,6 +33,7 @@ export default {
     '~/plugins/vue-html-to-paper',
     '~/plugins/vue-barcode',
     '~/plugins/moment',
+    '~/plugins/i18n',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -79,21 +80,21 @@ export default {
   ssr: true,
   target: 'server',
 
-  i18n: {
-    locales: [
-      {
-        code: 'en',
-        file: 'en-US.js'
-      },
-      {
-        code: 'kh',
-        file: 'kh-KH.js'
-      }
-    ],
-    lazy: true,
-    langDir: 'lang/',
-    defaultLocale: 'en'
-  },
+  // i18n: {
+  //   locales: [
+  //     {
+  //       code: 'en',
+  //       file: 'en-US.js'
+  //     },
+  //     {
+  //       code: 'kh',
+  //       file: 'kh-KH.js'
+  //     }
+  //   ],
+  //   lazy: true,
+  //   langDir: 'locales/',
+  //   defaultLocale: 'kh'
+  // },
 
   toast: {
     position: 'top-center',

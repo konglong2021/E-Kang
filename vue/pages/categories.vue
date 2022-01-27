@@ -208,37 +208,38 @@
       },
       onReset(){},
       async onSubmit(){
+        let self = this;
         let dataSubmit = {};
         let brands = [];
-        if(this.category.brand && this.category.brand.length > 0){
-          for(let index=0; index < this.category.brand.length; index++){
-            brands.push(this.category.brand[index]["value"]);
+        let formData = new FormData();
+        if(self.category.brand && self.category.brand.length > 0){
+          for(let index=0; index < self.category.brand.length; index++){
+            brands.push(self.category.brand[index]["value"]);
           }
         }
 
-        dataSubmit["en_name"] = this.category.en_name;
-        dataSubmit["kh_name"] = this.category.kh_name;
+        dataSubmit["en_name"] = self.category.en_name;
+        dataSubmit["kh_name"] = self.category.kh_name;
         dataSubmit["brand"] = JSON.stringify(brands);
-        dataSubmit["description"] = this.category.description;
+        dataSubmit["description"] = self.category.description;
 
-        if(this.product.hasOwnProperty("id") && this.product.id){
+        if(self.category.hasOwnProperty("id") && self.category.id){
           formData.append("_method", "PUT");
-
-          this.$toast.info("Data starting submit").goAway(1500);
-          await this.$axios.post('/api/category' + this.category.id, dataSubmit)
+          self.$toast.info("Data starting submit").goAway(1500);
+          await self.$axios.put(('/api/category/' + self.category.id), dataSubmit)
             .then(function (response) {
               if(response){
-                this.$toast.success("Submit data successfully").goAway(2000);
+                self.$toast.success("Submit data successfully").goAway(2000);
               }
             })
             .catch(function (error) {
               console.log(error);
-              this.$toast.error("Submit data getting error").goAway(3000);
+              self.$toast.error("Submit data getting error").goAway(3000);
             });
         }
         else{
-          this.$toast.info("submit data in progress").goAway(1000);
-          await this.$axios.post('/api/category', dataSubmit)
+          self.$toast.info("submit data in progress").goAway(1000);
+          await self.$axios.post('/api/category', dataSubmit)
             .then(function (response) {
               if(response.data.hasOwnProperty("data")){
                 let categoryItem = response.data.data;
@@ -254,13 +255,13 @@
                 item['parent'] = "--ROOT--";
                 item['brand'] = brands.join(", ");
                 item['products_count'] = categoryItem["products_count"];
-                this.items.push(item);
-                this.$toast.success("submit data is successfully").goAway(1500);
-                this.hideModal();
+                self.items.push(item);
+                self.$toast.success("submit data is successfully").goAway(1500);
+                self.hideModal();
               }
             })
             .catch(function (error) {
-              this.$toast.success("submit data is getting error").goAway(2000);
+              self.$toast.success("submit data is getting error").goAway(2000);
               console.log(error);
             });
         }
@@ -275,7 +276,6 @@
       adjustCategory(item, index, target){
         this.$refs['category-form-modal'].show();
         this.category = {};
-        console.log(item);
         if(!empty(item)){
           this.category["id"] = item.hasOwnProperty("id") ? JSON.parse(item["id"]) : null;
           this.category["name"] = item.hasOwnProperty("name") ? JSON.parse(JSON.stringify(item["name"])) : null;
@@ -285,7 +285,6 @@
 
           let brandList = [];
           if(item.hasOwnProperty("brands")){
-            //let brandsArray = item["brand"].split(',');
             for (let index=0; index < item["brands"].length; index++){
               brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
             }

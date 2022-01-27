@@ -49,6 +49,9 @@
     <div class="content-logout">
       <ul class="ul-style">
         <li class="li-style">
+          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        </li>
+        <li class="li-style">
           <b-button class="button-no-background" @click="logOut()">
             <span>Logout</span>
           </b-button>

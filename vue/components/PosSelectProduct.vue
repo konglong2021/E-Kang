@@ -1,38 +1,41 @@
 <template>
     <div class="display-inline-block full-with">
-        <div  class="calculator-product-content">
-          <div
-            v-for="p in products" v-bind:key="p.id" class="p-item"
-            @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
-          >
-            <div style="width:70%;" class="pull-left">
-              <div class="p-name">{{ p.name }} </div>
-              <div class="p-qty"> {{ (p.qty) }}  / Unit</div>
-            </div>
-            <div style="width:15%; text-align:left" class="pull-left p-price" >
-              {{p.price}} {{p.currency}}
-            </div>
-            <div v-if="selected && selected === p.id" style="width:15%; text-align:right" class="pull-right p-price" >
-              <b-button size="sm" @click="submitNumberIncrease(p)">
-                <i class="fa fa-plus"></i>
-              </b-button>
-              <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true">
-                <i class="fa fa-minus"></i>
-              </b-button>
-            </div>
-            <div class="clearboth"></div>
-          </div>
+      <div  class="calculator-product-content">
+        <div class="p-item" v-if="products.length > 0">
+          <div style="width:69%;" class="display-inline-block"><span></span></div>
+          <div style="width:14%; text-align:left" class="display-inline-block p-price">Unit Price</div>
+          <div style="width:14%; text-align:left" class="display-inline-block p-price">Sub Total</div>
         </div>
-        <div class="content-calculator">
-<!--          <div class="content-btn-card">-->
-<!--            <b-button-->
-<!--              v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"-->
-<!--              size="lg"-->
-<!--              @click="addToCard(products)" title="Add to card"-->
-<!--            >-->
-<!--              <i class="fa fa-cart-arrow-down font-size-28"></i>-->
-<!--            </b-button>-->
-<!--          </div>-->
+        <div v-for="p in products" v-bind:key="p.id" class="p-item"
+             @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
+        >
+          <div style="width:70%;" class="pull-left">
+            <div class="p-name">{{ p.name }} </div>
+            <div class="p-qty"> {{ (p.qty) }}  / Unit</div>
+          </div>
+          <div style="width:15%; text-align:left" class="pull-left p-price" >
+            {{p.price}} {{p.currency}}
+          </div>
+          <div style="width:15%; text-align:left" class="pull-left p-price" >
+            {{calculateSubTotal(p)}} {{p.currency}}
+          </div>
+          <div v-if="selected && selected === p.id" style="width:15%; text-align:right" class="pull-right p-price" >
+            <b-button size="sm" @click="submitNumberIncrease(p)"><i class="fa fa-plus"></i></b-button>
+            <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true"><i class="fa fa-minus"></i></b-button>
+          </div>
+          <div class="clearboth"></div>
+        </div>
+      </div>
+      <div class="content-calculator">
+          <div class="content-btn-card" style="display: none;">
+            <b-button
+              v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
+              size="lg"
+              @click="addToCard(products)" title="Add to card"
+            >
+              <i class="fa fa-cart-arrow-down font-size-28"></i>
+            </b-button>
+          </div>
           <div class="content-btn pull-right" style="right: 55%;">
             <b-button size="lg"
                       v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
@@ -91,6 +94,9 @@
             show-empty
             small
           ></b-table>
+          <div>
+            <span>Total : {{$t('title_total')}}</span>
+          </div>
         </b-form>
       </b-modal>
     </div>
@@ -112,8 +118,8 @@ export default {
       fields: [
         { key: 'name', label: 'ឈ្មោះទំនិញ', thClass: "header-th"},
         { key: 'qty', label: 'ចំនួន'},
-        { key: 'price', label: 'តម្លៃឯកតា' },
-        { key: 'total', label: 'តម្លៃសរុប' },
+        { key: 'price', label: 'តម្លៃឯកតា ($)' },
+        { key: 'total', label: 'តម្លៃសរុប ($)' },
       ],
       totalRows: 0,
       customers : [{text : "ជ្រើសរើសឈ្មោះ អតិថិជន", value : null}],
@@ -136,19 +142,22 @@ export default {
         console.log(error);
       }
     },
-    onSubmit(event) {
-      event.preventDefault();
-      alert(JSON.stringify(this.form));
-    },
-    calculate($currency, $products){
-      let total = [];
-      Object.entries($products).forEach(([key, val]) => {
-        if(val.currency === $currency){
-          total.push(val.price * val.qty);
-        }
-      });
-      return total.reduce(function(total, num){ return total + num }, 0);
-    },
+      onSubmit(event) {
+        event.preventDefault();
+        alert(JSON.stringify(this.form));
+      },
+      calculate($currency, $products){
+        let total = [];
+        Object.entries($products).forEach(([key, val]) => {
+          if(val.currency === $currency){
+            total.push(val.price * val.qty);
+          }
+        });
+        return total.reduce(function(total, num){ return total + num }, 0);
+      },
+      calculateSubTotal($product){
+        return ($product.price * $product.qty);
+      },
     selectedItem($item, $event){
       this.selected = $item.id;
       this.$emit("selectedItem", $item);
@@ -248,7 +257,6 @@ export default {
 
       self.$toast.info("Data starting submit").goAway(1500);
       await this.$axios.post('/api/sale', dataSubmit).then(function (response) {
-        console.log(response.data);
         if(response.data.hasOwnProperty("data")){
 
         }
@@ -294,7 +302,7 @@ export default {
   },
 }
 </script>
-<style  scoped>
+<style scoped>
     .p-name {
         font-weight: bold;
         font-size: 15px;

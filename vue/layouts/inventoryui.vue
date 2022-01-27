@@ -33,7 +33,6 @@
   .control-panel{
     border-bottom: 1px solid #cccccc;
     display: inline-block;
-    /*margin-bottom: 5px;*/
     padding: 5px 16px;
     width: 100%;
   }
@@ -77,7 +76,7 @@
     border-radius: 5px;
     display: inline-block;
     background-color: #fff;
-    min-height: calc(100vh - 132px);
+    min-height: calc(100vh - 133px);
   }
   .content-product .content-product-input{
     max-width: 20%;

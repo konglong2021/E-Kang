@@ -1,17 +1,38 @@
 <template>
   <div>
     <b-container fluid class="bv-example-row">
-      <b-row>
-        <b-col cols="6" class="content-product-select">
-          <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
-        </b-col>
-        <b-col cols="6" class="product-list">
-          <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
-        </b-col>
-      </b-row>
+      <div>
+        <b-modal id="modal-select-store" ref="select-store-modal" size="lg" :hide-header="true" :hide-footer="true">
+          <div class="content-loading" v-if="loadingField">
+            <div class="spinner-grow text-muted"></div>
+          </div>
+          <div class="full-content" v-if="!loadingField && storeList.length > 0">
+             <ul class="ul-no-style">
+               <li class="content-li-menu-store" v-for="store in storeList">
+                 <b-button variant="dark" class="content-button">
+                   <i class="fa fa-home fa-3x" ></i> <div>
+                   <span>{{ store.name }}</span>
+                 </div>
+                 </b-button>
+               </li>
+             </ul>
+          </div>
+        </b-modal>
+      </div>
+      <div style="display:none;">
+        <b-row>
+          <b-col cols="6" class="content-product-select">
+            <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
+          </b-col>
+          <b-col cols="6" class="product-list">
+            <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
+          </b-col>
+        </b-row>
+      </div>
     </b-container>
   </div>
 </template>
+
 <script>
 
 export default {
@@ -24,6 +45,15 @@ export default {
       calculateItem: {},
       productSelectItem: {},
       warehouseSelectedId: null,
+      storeList : [],
+      loadingField : false,
+    }
+  },
+  watch:{
+    newSelectModal:{
+      handler(val){
+      },
+      deep:true
     }
   },
   methods: {
@@ -86,11 +116,29 @@ export default {
     selectWarehouse($event){
       this.warehouseSelectedId = $event;
     },
+    async getListStores(){
+      let self = this;
+      self.loadingField = true;
+      await self.$axios.get('/api/warehouse').then(function (response) {
+        self.loadingField = false;
+        if(response && response.hasOwnProperty("data") && response.data.hasOwnProperty("data")){
+          console.log(response.data.data);
+          self.storeList = self.cloneObject(response.data.data);
+          // self.$store.commit('auth/setToken', token);
+        }
+      }).catch(function (error) {
+        self.$toast.error("getting data error ").goAway(2000);
+      });
+    },
+    cloneObject(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    },
   },
 
   mounted() {
     let self = this;
-
+    self.$refs['select-store-modal'].show();
+    self.getListStores();
     window.addEventListener('keyup', function(ev) {
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){

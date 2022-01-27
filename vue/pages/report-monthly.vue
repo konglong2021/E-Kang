@@ -75,7 +75,6 @@
   </b-container>
 </template>
 <script>
-  import {empty} from "../.nuxt/utils";
   export default {
     middleware: "local-auth",
     layout:'report',
