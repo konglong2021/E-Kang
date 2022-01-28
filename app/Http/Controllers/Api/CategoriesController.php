@@ -56,7 +56,7 @@ class CategoriesController extends Controller
             'description' => $request->description,
         ]);
         $brands = ($request->brands);
-        $categories->brands()->sync(json_decode($brands));
+        $categories->brands()->sync(($brands));
         return response()->json([
             "success" => true,
             "message" => "Category successfully Created",
@@ -99,7 +99,7 @@ class CategoriesController extends Controller
         $input = $request->all();
         $category->update($input);
         $brands = ($request->brands);
-        $category->brands()->sync(json_decode($brands));
+        $category->brands()->sync(($brands));
             return response()->json([
             "success" => true,
             "message" => "Successfully Updated",

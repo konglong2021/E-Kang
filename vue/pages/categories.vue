@@ -220,7 +220,7 @@
 
         dataSubmit["en_name"] = self.category.en_name;
         dataSubmit["kh_name"] = self.category.kh_name;
-        dataSubmit["brand"] = JSON.stringify(brands);
+        dataSubmit["brands"] = (brands);
         dataSubmit["description"] = self.category.description;
 
         if(self.category.hasOwnProperty("id") && self.category.id){
@@ -279,7 +279,7 @@
         if(!empty(item)){
           this.category["id"] = item.hasOwnProperty("id") ? JSON.parse(item["id"]) : null;
           this.category["name"] = item.hasOwnProperty("name") ? JSON.parse(JSON.stringify(item["name"])) : null;
-          this.category["kh_name"] = item.hasOwnProperty("kh_name") ? JSON.parse(item["kh_name"]) : null;
+          this.category["kh_name"] = item.hasOwnProperty("kh_name") ? JSON.parse(JSON.stringify(item["kh_name"])) : null;
           this.category["en_name"] = item.hasOwnProperty("name") ? JSON.parse(JSON.stringify(item["name"])) : null;
           this.category["description"] = item.hasOwnProperty("description") ? JSON.parse(item["description"]) : null;
 

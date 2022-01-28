@@ -169,7 +169,7 @@
         }
         dataSubmit["kh_name"] = this.brand.kh_name;
         dataSubmit["name"] = this.brand.en_name;
-        dataSubmit["categories"] = JSON.stringify(categories);
+        dataSubmit["categories"] = (categories);
         dataSubmit["description"] = this.brand.description;
 
         let self = this;
@@ -179,7 +179,7 @@
             .then(function (response) {
               if(response.hasOwnProperty("data")){
                 let brand = response.data.brand;
-                let categoriesId = JSON.parse(response.data.categories);
+                let categoriesId = (response.data.categories);
                 let brandCategories = [];
 
                 for(let k=0; k< categoriesId.length; k++){
@@ -204,6 +204,7 @@
                 self.$toasted.success("Data successfully Updated..!").goAway(1500);
                 self.hideBrandModal();
                 self.brand = {};
+                // this.$router.go();
               }
             })
             .catch(function (error) {
