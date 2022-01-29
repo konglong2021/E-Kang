@@ -19,11 +19,30 @@ class StockController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $stocks = Stock::with('product')
-                ->with('warehouse')
-                ->get();
+        // $stocks = Stock::with('product')
+        //         ->with('warehouse')
+        //         ->get();
+
+        if (empty($request->all())) {
+            $stocks = Stock::with('product')
+                    ->with('warehouse')
+                    ->get();
+        }
+        else
+        {
+            $input = $request->input('search');
+            $stocks= Stock::
+            WhereHas('product', function($q) use ($input) {
+                return $q->where('en_name', 'LIKE', '%' . $input . '%')
+                         ->orwhere('kh_name', 'LIKE', '%' . $input . '%')
+                         ->orwhere('code', 'LIKE', '%' . $input . '%');
+            })
+            ->orWhereHas('warehouse', function($q) use ($input) {
+                return $q->where('name', 'LIKE', '%'. $input . '%');
+            })->get();
+        }        
 
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();

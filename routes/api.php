@@ -53,6 +53,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
     Route::post('/brand/search',[App\Http\Controllers\Api\BrandsController::class,'index'])->name('brand.search');
     Route::post('/sale/search',[App\Http\Controllers\Api\OrdersController::class,'index'])->name('sale.search');
+    Route::post('/stock/search',[App\Http\Controllers\Api\StockController::class,'index'])->name('stock.search');
     
 
     //Delete Purchase Items
