@@ -64,10 +64,14 @@ class UsersController extends Controller
            
             'name' => $request['name'],
             'email' => $request['email'],
+            'warehouse_id' => $request['warehouse_id'],
             'password' => Hash::make($request['password']),
         ]);
 
         $token =  $user->createToken('Apptoken')->plainTextToken;
+
+        $brand->categories()->sync(($request->roles));
+        
         return response()->json([
             "success" => true,
             "message" => "User successfully Created",
@@ -123,7 +127,7 @@ class UsersController extends Controller
         $user->update($request->all());
         $user->roles()->sync(json_decode($request->input('roles', [])));
         return response()->json([
-           
+           "success" =>true,
             "message" => "Successfully Updated",
             "user" =>  $user
         ]);
