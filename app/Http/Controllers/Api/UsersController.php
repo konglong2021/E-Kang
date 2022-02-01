@@ -70,7 +70,7 @@ class UsersController extends Controller
 
         $token =  $user->createToken('Apptoken')->plainTextToken;
 
-        $brand->categories()->sync(($request->roles));
+        $user->roles()->sync(($request->roles));
         
         return response()->json([
             "success" => true,
@@ -125,7 +125,7 @@ class UsersController extends Controller
         ]);
         
         $user->update($request->all());
-        $user->roles()->sync(json_decode($request->input('roles', [])));
+        $user->roles()->sync(($request->roles));
         return response()->json([
            "success" =>true,
             "message" => "Successfully Updated",
