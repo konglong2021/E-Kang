@@ -14,7 +14,7 @@
                     <b-col>
                       <div class="input-group input-group-sm search-content">
                         <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                        <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                        <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchingFunction()" @change="handleClick"/>
                       </div>
                     </b-col>
                     <div class="btn-wrapper">
@@ -113,6 +113,7 @@
         totalRows: 0,
         isLoading : true,
         maskDate: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
+        searchInput: null,
       }
     },
     watch : {
@@ -194,7 +195,26 @@
       },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
-      }
+      },
+      async searchingFunction(){
+        let self = this;
+        self.isLoading = true;
+        self.items = [];
+        await this.$axios.post('/api/supplier/search', {search: this.searchInput}).then(function (response) {
+          if(response && response.hasOwnProperty("data")){
+            self.items = vm.cloneObject(response.data);
+          }
+        }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("Submit data getting error").goAway(3000);
+        });
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = null;
+          this.getAllSupplier();
+        }
+      },
     },
     mounted() {
       this.getAllSupplier().catch(error => {

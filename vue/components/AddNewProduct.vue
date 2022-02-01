@@ -39,7 +39,7 @@
                       <b-col sm="4"><b-form-select :id="'input-brand'" class="form-control input-content" v-model="form.brand" :options="brands"></b-form-select></b-col>
                     </b-row>
                     <b-row class="my-1">
-                      <b-col sm="2"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
+                      <b-col sm="2"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់ ($)</label></b-col>
                       <b-col sm="4"><b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="form.sale_price"></b-form-input></b-col>
                       <b-col sm="2"><label :for="'input-description'" class="label-input">ការពិពណ៌នា</label></b-col>
                       <b-col sm="4"><b-form-textarea :id="'input-description'" class="input-content" v-model="form.description"></b-form-textarea></b-col>

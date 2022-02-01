@@ -173,6 +173,7 @@
             vm.$toast.error("Getting data error").goAway(3000);
           });
         }
+        vm.warehouse = {};
       },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));

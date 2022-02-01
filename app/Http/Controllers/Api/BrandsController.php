@@ -22,15 +22,22 @@ class BrandsController extends Controller
             $brands = Brand::with('categories')
                     ->withCount('products')
                     ->orderBy('id', 'desc')->get();
-        }else {
+        }
+        else {
           $query = $request->input('search');
-          $brands= Brand::where('name','like','%'.$query.'%')
-                        ->orwhere('kh_name','like','%'.$query.'%')
-                        ->orderBy('id','desc')->get();
+//          $brands= Brand::where('name','like','%'.$query.'%')
+//                        ->orwhere('kh_name','like','%'.$query.'%')
+//                        ->orderBy('id','desc')->get();
                         // paginate(8)->appends(request()->query());;
+            $brandQuery = Brand::query();
+            $brandQuery->where('name','like','%'.$query.'%');
+            $brandQuery->orWhere('kh_name','like','%'.$query.'%');
+            $brandQuery->with('categories');
+            $brandQuery->orderBy('id', 'desc');
+            $brands = $brandQuery->get();
         }
 
-        
+
 
         return response()->json([
         'brands' =>   $brands,

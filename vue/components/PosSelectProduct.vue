@@ -94,8 +94,8 @@
             show-empty
             small
           ></b-table>
-          <div>
-            <span>Total : {{$t('title_total')}}</span>
+          <div style="display: inline-block;float: right;">
+            <span>{{$t('title_total')}} : {{calculate("USD", items)}} USD</span>
           </div>
         </b-form>
       </b-modal>
@@ -122,7 +122,7 @@ export default {
         { key: 'total', label: 'តម្លៃសរុប ($)' },
       ],
       totalRows: 0,
-      customers : [{text : "ជ្រើសរើសឈ្មោះ អតិថិជន", value : null}],
+      customers : [],
       warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
       vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
       order: { customer : null, warehouse : null, vat: 0.1, discount : 0,},

@@ -13,7 +13,7 @@
                     <b-col>
                       <div class="input-group input-group-sm search-content">
                         <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                        <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                        <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchBrand()" @change="handleClick"/>
                       </div>
                     </b-col>
                     <div class="btn-wrapper">
@@ -105,6 +105,7 @@
         brand: {},
         isLoading: false,
         totalRows: 0,
+        searchInput: null,
       }
     },
     watch : {
@@ -130,17 +131,17 @@
         }
       },
       async getBrands(){
-        this.isLoading = true;
-        const response = await this.$axios.get('/api/brand');
+        let self = this;
+        self.isLoading = true;
+        await self.$axios.get('/api/brand').then(function (response) {
         if(response.data.hasOwnProperty("brands")){
-          this.isLoading = false;
+          self.isLoading = false;
           let items = [];
           for(let index=0; index < response.data.brands.length; index++){
             let brandItem = response.data.brands[index];
             let categories = [];
             let item = {};
-            item['categoryList'] = this.cloneObject(brandItem["categories"]);
-
+            item['categoryList'] = self.cloneObject(brandItem["categories"]);
             if(brandItem["categories"] && brandItem["categories"].length > 0){
               for(let i =0; i < brandItem["categories"].length; i++){
                 categories.push(brandItem["categories"][i]["name"]);
@@ -155,8 +156,13 @@
             item['total_product'] = brandItem["products_count"];
             items.push(item);
           }
-          this.items = this.cloneObject(items);
+          self.items = self.cloneObject(items);
         }
+        })
+          .catch(function (error) {
+            console.log(error);
+            self.$toast.error("Submit data getting error").goAway(3000);
+          });
       },
       onReset(){},
       onSubmit(){
@@ -169,29 +175,35 @@
         }
         dataSubmit["kh_name"] = this.brand.kh_name;
         dataSubmit["name"] = this.brand.en_name;
-        dataSubmit["categories"] = (categories);
+        dataSubmit["categories"] = categories;
         dataSubmit["description"] = this.brand.description;
 
         let self = this;
         self.$toast.info("submit data in progress").goAway(1000);
         if(self.brand.hasOwnProperty("id")){
-          self.$axios.put('/api/brand/' + this.brand.id, dataSubmit)
+          self.$axios.put('/api/brand/' + self.brand.id, dataSubmit)
             .then(function (response) {
               if(response.hasOwnProperty("data")){
                 let brand = response.data.brand;
                 let categoriesId = (response.data.categories);
                 let brandCategories = [];
+                let newCategory = [];
+                let newCategoryList = [];
 
                 for(let k=0; k< categoriesId.length; k++){
                   for (let i=0; i < self.categories.length; i++){
                     if(categoriesId[k] === self.categories[i]["value"]){
                       brandCategories.push(self.categories[i]["name"]);
+                      newCategory.push({name : self.categories[i]["name"], value : self.categories[i]["value"]});
+                      newCategoryList.push({name : self.categories[i]["name"], id : self.categories[i]["value"]});
                       break;
                     }
                   }
                 }
                 for(let index=0; index < self.items.length; index++){
                   if(self.items[index]["id"] === brand.id){
+                    self.items[index]["category"] = self.cloneObject(newCategory);
+                    self.items[index]['categoryList'] = self.cloneObject(newCategoryList);
                     self.items[index]['id'] = brand["id"];
                     self.items[index]['name'] = brand["name"] + (brand["kh_name"] ? "(" + brand["kh_name"] + ")": "");
                     self.items[index]['kh_name'] = brand["kh_name"];
@@ -204,7 +216,6 @@
                 self.$toasted.success("Data successfully Updated..!").goAway(1500);
                 self.hideBrandModal();
                 self.brand = {};
-                // this.$router.go();
               }
             })
             .catch(function (error) {
@@ -233,6 +244,14 @@
         this.$refs['brand-form-modal'].hide();
       },
       viewDetail(item, index, target){
+        this.brand = this.cloneObject(item);
+        if(item.hasOwnProperty("categoryList")){
+          let categoryList = [];
+          for (let index=0; index < item["categoryList"].length; index++){
+            categoryList.push({name: item["categoryList"][index]['name'], value: item["categoryList"][index]['id']});
+          }
+          this.brand["category"] = this.cloneObject(categoryList);
+        }
         this.showModal();
       },
       editBrand(item, index, target){
@@ -245,6 +264,46 @@
           this.brand["category"] = this.cloneObject(categoryList);
         }
         this.showModal();
+      },
+      async searchBrand() {
+        let self = this;
+        self.isLoading = true;
+        self.items = [];
+        await this.$axios.post('/api/brand/search', {search: this.searchInput}).then(function (response) {
+        if (response) {
+          self.isLoading = false;
+          let items = [];
+          for(let index=0; index < response.data.brands.length; index++){
+            let brandItem = response.data.brands[index];
+            let categories = [];
+            let item = {};
+            item['categoryList'] = self.cloneObject(brandItem["categories"]);
+            if(brandItem["categories"] && brandItem["categories"].length > 0){
+              for(let i =0; i < brandItem["categories"].length; i++){
+                categories.push(brandItem["categories"][i]["name"]);
+              }
+            }
+            item['id'] = brandItem["id"];
+            item['name'] = brandItem["name"] + (brandItem["kh_name"] ? "(" + brandItem["kh_name"] + ")": "");
+            item['kh_name'] = brandItem["kh_name"];
+            item['en_name'] = brandItem["name"];
+            item['categories'] = categories.join(", ");
+            item['parent'] = "--ROOT--";
+            item['total_product'] = brandItem["products_count"];
+            items.push(item);
+          }
+          self.items = self.cloneObject(items);
+        }
+        }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("Submit data getting error").goAway(3000);
+        });
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = null;
+          this.getBrands();
+        }
       },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));

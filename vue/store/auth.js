@@ -1,13 +1,20 @@
 import Cookie from 'js-cookie';
 
 export const state = () => ({
+  //token: Cookie.get('token'),
+  token: null,
   user: null,
-  token: Cookie.get('token')
+  cashBalance: 0,
+  storeItem: null,
+  setting: null,
 });
 
 export const getters = {
-  user: state => state.user,
   token: state => state.token,
+  user: state => state.user,
+  cashBalance: state => state.cashBalance,
+  storeItem: state => state.storeItem,
+  setting: state => state.setting,
   check: state => state.user !== null,
 };
 
@@ -33,6 +40,18 @@ export const mutations = {
   setUser(state, user){
     state.user = user;
     Cookie.set('user', user);
+  },
+  setCashBalance(state, cashBalance){
+    state.cashBalance = cashBalance;
+    Cookie.set('cashBalance', cashBalance);
+  },
+  setStoreItem(state, storeItem){
+    state.storeItem = storeItem;
+    Cookie.set('storeItem', storeItem);
+  },
+  setSetting(state, token){
+    state.token = token;
+    Cookie.set('token', token);
   },
 };
 

@@ -186,12 +186,13 @@
     },
     methods: {
       async getListProducts() {
-        this.isLoading = true;
-        const response = await this.$axios.get('/api/product');
+        let self = this;
+        self.isLoading = true;
+        await self.$axios.get('/api/product').then(function (response) {
         if (response.hasOwnProperty("data")) {
-          this.isLoading = false;
+          self.isLoading = false;
           let items = [];
-          this.responseProductList = response.data;
+          self.responseProductList = response.data;
           for (let index = 0; index < response.data.length; index++) {
             let productItem = response.data[index];
             let newItem = {};
@@ -219,8 +220,13 @@
             newItem["kh_name"] = productItem["kh_name"];
             items.push(newItem);
           }
-          this.items = this.cloneObject(items);
+          self.items = this.cloneObject(items);
         }
+        })
+          .catch(function (error) {
+            console.log(error);
+            self.$toast.error("Submit data getting error").goAway(3000);
+          });
       },
       showModal() {
         //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component

@@ -13,7 +13,7 @@
                      <b-col>
                        <div class="input-group input-group-sm search-content">
                          <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                         <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                         <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchCategories()" @change="handleClick"/>
                        </div>
                      </b-col>
                      <div class="btn-wrapper">
@@ -63,7 +63,7 @@
             <div class="full-content">
               <b-row class="my-1">
                 <b-col sm="4"><label :for="'input-enname'" class="label-input">Name</label></b-col>
-                <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="category.en_name" class="input-content"></b-form-input></b-col>
+                <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="category.name" class="input-content"></b-form-input></b-col>
               </b-row>
               <b-row class="my-1">
                 <b-col sm="4"><label :for="'input-khname'" class="label-input">Name(KH)</label></b-col>
@@ -89,14 +89,14 @@
             </div>
           </b-form>
         </b-modal>
-      <b-modal id="modal-view-product" ref="view-product-form-modal" size="lg"
+      <b-modal id="modal-view-category-form" ref="view-category-form-modal" size="lg"
         title="Product View" title-class="text-center mx-auto" hide-footer
       >
         <b-form enctype="multipart/form-data" v-if="categoryView !== null && categoryView !== undefined">
           <div class="full-content">
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-enname'" class="label-input">Name</label></b-col>
-              <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="categoryItemSelected.en_name" class="input-content"></b-form-input></b-col>
+              <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="categoryItemSelected.name" class="input-content"></b-form-input></b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-khname'" class="label-input">Name(KH)</label></b-col>
@@ -120,7 +120,6 @@
 </template>
 <script>
   import {empty} from "../.nuxt/utils";
-
   export default {
     middleware: "local-auth",
     layout:'inventoryui',
@@ -143,6 +142,7 @@
         categoryItemSelected: {},
         categoryView : {},
         totalRows: 0,
+        searchInput: null,
       }
     },
     watch : {
@@ -190,12 +190,13 @@
                 }
               }
               item["brands"] = self.cloneObject(categoryItem["brands"]);
+              item['brand'] = brands.join(", ");
+
               item['id'] = categoryItem["id"];
               item['kh_name'] = categoryItem["kh_name"];
-              item['en_name'] = categoryItem["en_name"];
+              item['name'] = categoryItem["name"];
               item['name'] = categoryItem["name"];
               item['parent'] = "--ROOT--";
-              item['brand'] = brands.join(", ");
               item['products_count'] = categoryItem["products_count"];
               items.push(item);
             }
@@ -217,8 +218,7 @@
             brands.push(self.category.brand[index]["value"]);
           }
         }
-
-        dataSubmit["en_name"] = self.category.en_name;
+        dataSubmit["name"] = self.category.name;
         dataSubmit["kh_name"] = self.category.kh_name;
         dataSubmit["brands"] = (brands);
         dataSubmit["description"] = self.category.description;
@@ -229,6 +229,8 @@
           await self.$axios.put(('/api/category/' + self.category.id), dataSubmit)
             .then(function (response) {
               if(response){
+                let brands = self.cloneObject(response.data.brands);
+                self.updatedCategoryData(self.items, response.data.category.id, brands);
                 self.$toast.success("Submit data successfully").goAway(2000);
               }
             })
@@ -266,6 +268,33 @@
             });
         }
       },
+      updatedCategoryData(categoryList, categoryId, brands){
+        for(let i=0; i < categoryList.length; i++){
+          if(categoryList[i]["id"] === categoryId){
+            let responseBrandName = [];
+            let responseBrand = [];
+            for(let i=0; i < brands.length; i++){
+              let itemResponseBrand = this.cloneObject(this.selectedBrandList(brands[i]));
+              let itemData = {"name": itemResponseBrand["name"], "id": itemResponseBrand["value"]};
+              responseBrandName.push(itemResponseBrand["name"]);
+            }
+            categoryList[i]["brands"] = this.cloneObject(responseBrand);
+            categoryList[i]["brand"] = responseBrandName.join(", ");
+          }
+        }
+      },
+      selectedBrandList(item){
+        let itemData;
+        if(this.brands && this.brands.length > 0){
+          for (let index=0; this.brands.length; index++){
+            if(this.brands[index] && this.brands[index]["value"] && item === this.brands[index]["value"]){
+              itemData = this.brands[index];
+              break;
+            }
+          }
+        }
+        return itemData;
+      },
       showModal(){
         this.$refs['category-form-modal'].show();
       },
@@ -280,7 +309,6 @@
           this.category["id"] = item.hasOwnProperty("id") ? JSON.parse(item["id"]) : null;
           this.category["name"] = item.hasOwnProperty("name") ? JSON.parse(JSON.stringify(item["name"])) : null;
           this.category["kh_name"] = item.hasOwnProperty("kh_name") ? JSON.parse(JSON.stringify(item["kh_name"])) : null;
-          this.category["en_name"] = item.hasOwnProperty("name") ? JSON.parse(JSON.stringify(item["name"])) : null;
           this.category["description"] = item.hasOwnProperty("description") ? JSON.parse(item["description"]) : null;
 
           let brandList = [];
@@ -290,7 +318,6 @@
             }
             this.category["brand"] = this.cloneObject(brandList);
           }
-          console.log(this.category);
         }
       },
       cloneObject(obj) {
@@ -301,7 +328,50 @@
       },
       removeElement($obj){
         this.$forceUpdate();
-      }
+      },
+      async searchCategories() {
+        let self = this;
+        self.isLoading = true;
+        self.items = [];
+        await this.$axios.post('/api/category/search', {search: this.searchInput}).then(function (response) {
+          if(response.hasOwnProperty("data") && response.data && response.data.hasOwnProperty("data")){
+            self.isLoading = false;
+            let items = [];
+            let responseData = self.cloneObject(response.data.data);
+            for(let index=0; index < responseData.length; index++){
+              let categoryItem = responseData[index];
+              let brands = [];
+              let item = {};
+
+              if(categoryItem["brands"] && categoryItem["brands"].length > 0){
+                for(let i =0; i < categoryItem["brands"].length; i++){
+                  brands.push(categoryItem["brands"][i]["name"]);
+                }
+              }
+              item["brands"] = self.cloneObject(categoryItem["brands"]);
+              item['brand'] = brands.join(", ");
+
+              item['id'] = categoryItem["id"];
+              item['kh_name'] = categoryItem["kh_name"];
+              item['name'] = categoryItem["name"];
+              item['name'] = categoryItem["name"];
+              item['parent'] = "--ROOT--";
+              item['products_count'] = categoryItem["products_count"];
+              items.push(item);
+            }
+            self.items = self.cloneObject(items);
+          }
+        }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("Submit data getting error").goAway(3000);
+        });
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = null;
+          this.getBrands();
+        }
+      },
     },
     mounted() {
       this.onGetBrand();

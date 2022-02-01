@@ -1,25 +1,21 @@
 <template>
   <div>
     <b-container fluid class="bv-example-row">
-      <div>
-        <b-modal id="modal-select-store" ref="select-store-modal" size="lg" :hide-header="true" :hide-footer="true">
-          <div class="content-loading" v-if="loadingField">
-            <div class="spinner-grow text-muted"></div>
-          </div>
-          <div class="full-content" v-if="!loadingField && storeList.length > 0">
-             <ul class="ul-no-style">
-               <li class="content-li-menu-store" v-for="store in storeList">
-                 <b-button variant="dark" class="content-button">
-                   <i class="fa fa-home fa-3x" ></i> <div>
-                   <span>{{ store.name }}</span>
-                 </div>
-                 </b-button>
-               </li>
-             </ul>
-          </div>
+      <div v-show="showModalCashBalance">
+        <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal" size="lg" :hide-header="true" :hide-footer="true">
+          <b-form enctype="multipart/form-data">
+            <div class="full-content">
+              <b-row class="my-1">
+                <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">បញ្ចូលចំនួនលុយដែលមាន</label></b-col>
+                <b-col sm="8">
+                  <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
+                </b-col>
+              </b-row>
+            </div>
+          </b-form>
         </b-modal>
       </div>
-      <div style="display:none;">
+      <div v-if="!showModalCashBalance">
         <b-row>
           <b-col cols="6" class="content-product-select">
             <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
@@ -34,7 +30,6 @@
 </template>
 
 <script>
-
 export default {
   middleware: "local-auth",
   layout:'posui',
@@ -45,8 +40,9 @@ export default {
       calculateItem: {},
       productSelectItem: {},
       warehouseSelectedId: null,
-      storeList : [],
       loadingField : false,
+      cashBalance: 0,
+      showModalCashBalance: false,
     }
   },
   watch:{
@@ -116,29 +112,22 @@ export default {
     selectWarehouse($event){
       this.warehouseSelectedId = $event;
     },
-    async getListStores(){
-      let self = this;
-      self.loadingField = true;
-      await self.$axios.get('/api/warehouse').then(function (response) {
-        self.loadingField = false;
-        if(response && response.hasOwnProperty("data") && response.data.hasOwnProperty("data")){
-          console.log(response.data.data);
-          self.storeList = self.cloneObject(response.data.data);
-          // self.$store.commit('auth/setToken', token);
-        }
-      }).catch(function (error) {
-        self.$toast.error("getting data error ").goAway(2000);
-      });
-    },
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
     },
+    setCashBalance(cashBalance){
+      if(cashBalance){
+        this.$store.commit('auth/setCashBalance', cashBalance);
+      }
+    },
   },
-
   mounted() {
     let self = this;
-    self.$refs['select-store-modal'].show();
-    self.getListStores();
+    self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
+    //self.warehouseSelectedId =
+    if(!self.$store.$cookies.get('cashBalance')){
+      self.$refs['input-cash-balance-modal'].show();
+    }
     window.addEventListener('keyup', function(ev) {
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){

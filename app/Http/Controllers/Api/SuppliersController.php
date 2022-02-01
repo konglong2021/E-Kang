@@ -13,9 +13,19 @@ class SuppliersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::orderBy('id', 'desc')->get();
+        if (empty($request->all())) {
+            $suppliers = Supplier::orderBy('id', 'desc')->get();
+        }
+        else {
+            $query = $request->input('search');
+            $supplierQuery = Supplier::query();
+            $supplierQuery->where('name', 'like', '%' . $query . '%');
+            $supplierQuery->orWhere('email', 'like', '%' . $query . '%');
+            $supplierQuery->orderBy('id', 'desc');
+            $suppliers = $supplierQuery->get();
+        }
         return response()->json($suppliers);
     }
 
@@ -80,9 +90,9 @@ class SuppliersController extends Controller
         $input = $request->all();
         $supplier->update($input);
 
-       
+
             return response()->json([
-           
+
             "message" => "Successfully Updated",
             "supplier" =>  $supplier
         ]);
@@ -100,7 +110,7 @@ class SuppliersController extends Controller
 
         $supplier->destroy($id);
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "supplier" =>  $supplier
         ]);

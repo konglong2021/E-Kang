@@ -1,13 +1,7 @@
 export default ({ $axios, store , redirect }) => {
-
   $axios.setBaseURL('http://localhost:8000');
   $axios.setHeader('Access-Control-Allow-Origin', '*');
-
-  //const token = store.getters['auth/token'];
-  const token = store.$cookies.get("token");
-  if (token) {
-    $axios.setToken(token, 'Bearer')
-  }
+  $axios.setToken(store.$cookies.get("token"), 'Bearer');
 
   $axios.interceptors.response.use(function (response) {
     return response
@@ -15,16 +9,9 @@ export default ({ $axios, store , redirect }) => {
     const { config, response } = error;
     const originalRequest = config;
 
-    if (response && response.status === 401) {
-      //notication or redirection
-      if(response.data && response.data.message === 'Unauthenticated.'){
-        store.$cookies.set('token', null);
-      }
-    }
-    if(response && response.status === 422){
+    if (response && (response.status === 401 || response.status === 422)) {
       store.$cookies.set('token', null);
       return redirect('/login');
-       //store.$router.push("/login");
     }
     return Promise.reject(error);
   });

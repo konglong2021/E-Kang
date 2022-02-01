@@ -25,17 +25,6 @@ export default {
   script: ['~/static/js/jquery-3.3.1.min.js'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-    '~/plugins/axios',
-    '~/plugins/vue-input-mask',
-    '~/plugins/number-only',
-    '~/plugins/vee-validate',
-    '~/plugins/vue-html-to-paper',
-    '~/plugins/vue-barcode',
-    '~/plugins/moment',
-    '~/plugins/i18n',
-  ],
-
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
@@ -47,14 +36,27 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/bootstrap
-    'bootstrap-vue/nuxt',
     '@nuxtjs/axios',
+    'bootstrap-vue/nuxt',
     '@nuxtjs/proxy',
     'nuxt-vue-multiselect',
     '@nuxtjs/i18n',
     '@nuxtjs/toast',
     'cookie-universal-nuxt',
     '@nuxtjs/moment',
+  ],
+  router: {
+    middleware: ['local-auth', 'check-auth']
+  },
+  plugins: [
+    '~/plugins/axios',
+    '~/plugins/vue-input-mask',
+    '~/plugins/number-only',
+    '~/plugins/vee-validate',
+    '~/plugins/vue-html-to-paper',
+    '~/plugins/vue-barcode',
+    '~/plugins/moment',
+    '~/plugins/i18n',
   ],
 
   axios: {
@@ -73,28 +75,24 @@ export default {
   proxy: {
     '/api/': { target: 'http://localhost:8000/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
   },
-  router: {
-    middleware: ['local-auth', 'check-auth']
-  },
-
   ssr: true,
   target: 'server',
 
-  // i18n: {
-  //   locales: [
-  //     {
-  //       code: 'en',
-  //       file: 'en-US.js'
-  //     },
-  //     {
-  //       code: 'kh',
-  //       file: 'kh-KH.js'
-  //     }
-  //   ],
-  //   lazy: true,
-  //   langDir: 'locales/',
-  //   defaultLocale: 'kh'
-  // },
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        file: 'en-US.js'
+      },
+      {
+        code: 'kh',
+        file: 'kh-KH.js'
+      }
+    ],
+    lazy: true,
+    langDir: 'locales/',
+    defaultLocale: 'kh'
+  },
 
   toast: {
     position: 'top-center',
@@ -108,9 +106,6 @@ export default {
       }
     ]
   },
-
-  // mode: 'spa',
-  // devtools: true,
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
