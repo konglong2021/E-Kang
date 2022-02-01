@@ -17,7 +17,6 @@ class CreateSettingsTable extends Migration
             $table->id();
             $table->decimal("digit");
             $table->tinyInteger('negative');
-            $table->foreignId('warehouse_id')->constrained(); // default warehouse
             $table->foreignId('user_id')->constrained()->onUpdate('cascade'); 
             $table->timestamps();
         });

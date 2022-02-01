@@ -69,6 +69,10 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //search log from date to date
 
+
+    //setting
+    Route::post('/user/warehouse',[App\Http\Controllers\Api\UsersController::class,'updatewarehouse'])->name('user.warehouse');
+    Route::post('/balance/verifybalance',[App\Http\Controllers\Api\BanlancesController::class,'verifybalance']); // Cash Balance
 });
 
 

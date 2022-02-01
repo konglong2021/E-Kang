@@ -193,4 +193,20 @@ class UsersController extends Controller
             "Token" => $token
         ]);
     }
+
+    // update user default warehouse
+    public function updatewarehouse(Request $request,User $user)
+    {
+        $user= User::find(auth()->user()->id);
+        $user->warehouse_id = $request["warehouse_id"];
+        $user->update();
+
+        return response()->json([
+            "success" => true,
+            "message" => "Warehouse Update Successfully",
+            "user"     => $user
+        ], 200);
+
+    }
+
 }

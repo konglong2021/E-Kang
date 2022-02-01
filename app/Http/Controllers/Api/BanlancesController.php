@@ -14,7 +14,7 @@ class BanlancesController extends Controller
      */
     public function index()
     {
-        $balance = Balance::all()->last();
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
         return response()->json($balance, 200); 
     }
 
@@ -28,40 +28,67 @@ class BanlancesController extends Controller
      //remain + income - withdraw = balance
     public function store(Request $request)
     {
-        $balance = Balance::all()->last();
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
         $balance_date = date('Y-m-d');
-        if($balance->balance_date < $balance_date)
+        if($balance->balance_date > $balance_date)
         {
-            $create = Balance::create([
-                'remain' => $request['remain'],
-                'income' => $request['income'],
-                'withdraw' => $request['withdraw'],
-                'balance' => $request['remain'] + $request['income'] - $request['withdraw'],
-                'balance_date' => $request['balance_date'],
-                'user_id' => auth()->user()->id,
-            ]);
+            $input = $request->all();
+            $ubalance = Balance::find($balance->id);
+            $ubalance->update($input);
             return response()->json([
                 "success" => true,
-                "message" =>  "create new record",
-                "balance" => $balance
-            ], 200); //create recode 
+                "message" =>  "update record",
+                "balance" => $ubalance
+            ], 200); //update recode
+           
         }
-        
-        $input = $request->all();
-        $ubalance = Balance::find($balance->id);
-        $ubalance->update($input);
+
+        $create = Balance::create([
+            'remain' => $request['remain'],
+            'income' => $request['income'],
+            'withdraw' => $request['withdraw'],
+            'balance' => $request['remain'] + $request['income'] - $request['withdraw'],
+            'balance_date' => $request['balance_date'],
+            'user_id' => auth()->user()->id,
+        ]);
         return response()->json([
             "success" => true,
-            "message" =>  "update record",
-            "balance" => $ubalance
-        ], 200); //update recode
+            "message" =>  "create new record",
+            "balance" => $balance
+        ], 200); //create recode 
         
     }
 
     public function showbalance()
     {
-        $balance = Balance::all()->last();
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
         return response()->json($balance->balance, 200);
+    }
+
+    public function verifybalance(Request $request)
+    {
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        if($balance->balance != $request["balance"]){
+            return response()->json([
+                "success" => false,
+                "message" => "The Balance is not correct Please Contact with admin to verify the balance!"
+            ], 201);
+        }
+        $create = Balance::create([
+            'remain' => $balance->balance,
+            'income' => 0,
+            'withdraw' => 0,
+            'balance' => $balance->balance,
+            'balance_date' => date('Y-m-d'),
+            'user_id' => auth()->user()->id,
+        ]);
+            return response()->json([
+                "success" => true,
+                "message" => "Cash Balance Successfully Update!",
+                "balance" => $create
+            ], 200);
+        
+        
     }
     public function show($id)
     {
