@@ -284,7 +284,7 @@ class PurchasesController extends Controller
 
             });
             return response()->json([
-
+                "success" => true,
                 "message" => "Successfully Created",
     
             ]);
