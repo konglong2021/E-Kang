@@ -25,11 +25,48 @@ class BanlancesController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+     public function verified()
+     {
+        if(!auth()->user()->warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
+
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        if(!$balance){
+            return response()->json([
+                "success" => false,
+                "message" => "No Balance Please Create One!"
+            ], 201);
+        }
+
+        return $balance;
+     }
+
      //remain + income - withdraw = balance
     public function store(Request $request)
     {
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        if(!auth()->user()->warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
         $balance_date = date('Y-m-d');
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        if(!$balance){
+            $create = Balance::create([
+                'remain' => $request['remain'],
+                'income' => $request['income'],
+                'withdraw' => $request['withdraw'],
+                'balance' => $request['balance'],
+                'balance_date' => $balance_date,
+                'warehouse_id' => auth()->user()->warehouse_id,
+                'user_id' => auth()->user()->id,
+            ]);
+            return response()->json([
+                "success" => true,
+                "message" =>  "create new record",
+                "balance" => $create
+            ], 200); //create recode 
+        }
+
         if($balance->balance_date >= $balance_date)
         {
             $input = $request->all();
@@ -42,7 +79,6 @@ class BanlancesController extends Controller
             ], 200); //update recode
            
         }
-
         $create = Balance::create([
             'remain' => $request['remain'],
             'income' => $request['income'],
@@ -52,6 +88,8 @@ class BanlancesController extends Controller
             'warehouse_id' => auth()->user()->warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
+
+        
         return response()->json([
             "success" => true,
             "message" =>  "create new record",
@@ -64,15 +102,11 @@ class BanlancesController extends Controller
     //show last balance by warehouse
     public function showbalance()
     {
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-        if(!$balance){
-            return response()->json([
-                "success" => false,
-                "message" => "No Balance Please Create One!"
-            ], 201);
-        }
-        return response()->json($balance->balance, 200);
+       $balance = $this->verified();
+        return response()->json($balance, 200);
     }
+
+
 
     //verify cash balance
     public function verifybalance(Request $request)
