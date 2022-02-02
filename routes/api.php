@@ -68,12 +68,13 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
     Route::get('/stockbyproduct/{product_id}',[App\Http\Controllers\Api\StockController::class,'stockbyproduct']);
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
-    Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //search log from date to date
+    Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
 
 
     //setting
-    Route::post('/user/warehouse',[App\Http\Controllers\Api\UsersController::class,'updatewarehouse'])->name('user.warehouse');
+    Route::post('/user/warehouse',[App\Http\Controllers\Api\UsersController::class,'updatewarehouse'])->name('user.warehouse');//user update default warehouse
     Route::post('/balance/verifybalance',[App\Http\Controllers\Api\BanlancesController::class,'verifybalance']); // Cash Balance
+    Route::post('/balance/withdrawal',[App\Http\Controllers\Api\BanlancesController::class,'withdrawal']); // Cash withdraw
 });
 
 

@@ -30,15 +30,15 @@ class BanlancesController extends Controller
     {
         $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
         $balance_date = date('Y-m-d');
-        if($balance->balance_date > $balance_date)
+        if($balance->balance_date >= $balance_date)
         {
             $input = $request->all();
-            $ubalance = Balance::find($balance->id);
-            $ubalance->update($input);
+            $upbalance = Balance::find($balance->id);
+            $upbalance->update($input);
             return response()->json([
                 "success" => true,
                 "message" =>  "update record",
-                "balance" => $ubalance
+                "balance" => $upbalance
             ], 200); //update recode
            
         }
@@ -47,26 +47,39 @@ class BanlancesController extends Controller
             'remain' => $request['remain'],
             'income' => $request['income'],
             'withdraw' => $request['withdraw'],
-            'balance' => $request['remain'] + $request['income'] - $request['withdraw'],
-            'balance_date' => $request['balance_date'],
+            'balance' => $request['balance'],
+            'balance_date' => $balance_date,
+            'warehouse_id' => auth()->user()->warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
         return response()->json([
             "success" => true,
             "message" =>  "create new record",
-            "balance" => $balance
+            "balance" => $create
         ], 200); //create recode 
         
     }
 
+
+    //show last balance by warehouse
     public function showbalance()
     {
         $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        if(!$balance){
+            return response()->json([
+                "success" => false,
+                "message" => "No Balance Please Create One!"
+            ], 201);
+        }
         return response()->json($balance->balance, 200);
     }
 
+    //verify cash balance
     public function verifybalance(Request $request)
     {
+        if(!auth()->user()->warehouse_id){
+         return response()->json("No default warehouse found!", 200);
+        }
         $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
         if($balance->balance != $request["balance"]){
             return response()->json([
@@ -74,12 +87,24 @@ class BanlancesController extends Controller
                 "message" => "The Balance is not correct Please Contact with admin to verify the balance!"
             ], 201);
         }
+
+        $balance_date = date('Y-m-d');
+        if($balance->balance_date >= $balance_date)
+        {
+            return response()->json([
+                "success" => false,
+                "message" =>  "Balance has beed verified! Please change it manually!"
+            ], 200); 
+           
+        }
+
         $create = Balance::create([
             'remain' => $balance->balance,
             'income' => 0,
             'withdraw' => 0,
             'balance' => $balance->balance,
             'balance_date' => date('Y-m-d'),
+            'warehouse_id' => auth()->user()->warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
             return response()->json([
@@ -90,6 +115,40 @@ class BanlancesController extends Controller
         
         
     }
+
+
+    //withdraw cash balance
+    public function withdrawal(Request $request)
+    {
+        if(!auth()->user()->warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
+
+           $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+           if($balance->balance < $request["withdraw"]){
+               return response()->json([
+                   "success" => false,
+                   "message" => "The Balance is not correct Please Contact with admin to verify the balance!"
+               ], 201);
+            }
+
+           $balance_date = date('Y-m-d');
+        if($balance->balance_date >= $balance_date)
+        {
+            $input['withdraw'] = $request['withdraw'] + $balance->withdraw;
+            $input['balance']= $balance->remain + $balance->income - $input['withdraw'];
+            $balance->update($input);
+            return response()->json([
+                "success" => true,
+                "message" =>  "Balance has beed update successfully!",
+                "balance" => $balance
+            ], 200); 
+           
+        }
+
+    }
+
+
     public function show($id)
     {
         //

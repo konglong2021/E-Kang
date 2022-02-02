@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Balance;
 
 
 class OrdersController extends Controller
@@ -103,6 +104,7 @@ class OrdersController extends Controller
         $orders->grandtotal = round($request->grandtotal,$digit);
         $orders->save();
         
+        $this->income($orders->grandtotal);
         
         $orders_items= $request->items; // purchase is the array of purchase details
 
@@ -153,9 +155,6 @@ class OrdersController extends Controller
     }
 
 
-
-
-
     }
 
     /**
@@ -164,6 +163,29 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+
+    public function income($income)
+    {
+        if(!auth()->user()->warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
+
+           $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+           
+
+           $balance_date = date('Y-m-d');
+        if($balance->balance_date >= $balance_date)
+        {
+            $input['income'] = $income + $balance->income;
+            $input['balance']= $balance->remain +  $input['income'] - $balance->income;
+            $balance->update($input);
+            return  $balance;
+           
+        }
+
+    }
+
     public function show($id)
     {
         //

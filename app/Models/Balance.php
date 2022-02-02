@@ -14,6 +14,8 @@ class Balance extends Model
         'withdraw',
         'balance',
         'balance_date',
+        'warehouse_id',
+        'user_id'
        
     ];
     protected static $logAttributes = [
@@ -21,7 +23,9 @@ class Balance extends Model
         'income',
         'withdraw',
         'balance',
-        'balance_date'
+        'balance_date',
+        'warehouse_id',
+        'user_id'
     ];
     
 }
