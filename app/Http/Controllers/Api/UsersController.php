@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Warehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -202,6 +203,13 @@ class UsersController extends Controller
     public function updatewarehouse(Request $request,User $user)
     {
         $user= User::find(auth()->user()->id);
+        $warehouse = Warehouse::find($request["warehouse_id"]);
+        if(!$warehouse){
+            return response()->json([
+                "success" => false,
+                "message" => "Can't find this warehouse please Create it"
+            ], 200);
+        }
         $user->warehouse_id = $request["warehouse_id"];
         $user->update();
 
