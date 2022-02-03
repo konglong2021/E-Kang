@@ -61,7 +61,7 @@
           </div>
         </div>
         <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
-                 @hidden="onResetWareHouse" cancel-title="Cancel"
+                 @hidden="onResetWareHouse" cancel-title="Cancel" no-close-on-backdrop
                  @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
           <b-form enctype="multipart/form-data">
             <div class="full-content">

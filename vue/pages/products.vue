@@ -71,7 +71,7 @@
         </div>
         <add-new-product-modal v-model="newProductModal" :productItemSelected="productItemSelected" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
         <b-modal
-          id="modal-view-product" ref="view-product-form-modal" size="lg"
+          id="modal-view-product" ref="view-product-form-modal" size="lg" no-close-on-backdrop
           title="Product View" title-class="text-center mx-auto" hide-footer
         >
           <b-form enctype="multipart/form-data" v-if="productView !== null && productView !== undefined">
@@ -115,8 +115,8 @@
           </b-form>
         </b-modal>
         <b-modal
-          id="modal-input-number-barcode" ref="input-number-barcode-modal" size="lg"
-          title="Product View"  @ok="barcodePrint" ok-title="Save" title-class="text-center mx-auto">
+          id="modal-input-number-barcode" ref="input-number-barcode-modal" size="lg" no-close-on-backdrop
+          title="Product View"  @ok="barcodePrint" ok-title="Save" title-class="text-center mx-auto" no-close-on-backdrop>
             <b-form>
               <div class="product-data data">
                 <b-row class="my-1">
@@ -211,7 +211,7 @@
 
             if (productItem.hasOwnProperty("categories")) {
               newItem['category_name'] = productItem["categories"]["name"];
-              newItem["categories"] = this.cloneObject(productItem["categories"]);
+              newItem["categories"] = self.cloneObject(productItem["categories"]);
             }
             newItem['description'] = productItem["description"];
             newItem['sale_price'] = productItem["sale_price"];
@@ -220,7 +220,7 @@
             newItem["kh_name"] = productItem["kh_name"];
             items.push(newItem);
           }
-          self.items = this.cloneObject(items);
+          self.items = self.cloneObject(items);
         }
         })
           .catch(function (error) {

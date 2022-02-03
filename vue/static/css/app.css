@@ -284,6 +284,9 @@ body {
   width: 137px;
   height: 114px;
 }
+.btn-store-item{
+  height: 100%;
+}
 .content-menu{
   display: inline-block;
   font-weight: 400;

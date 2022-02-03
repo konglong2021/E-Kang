@@ -55,7 +55,7 @@
           </div>
       </div>
       <b-modal id="modal-create-category" ref="category-form-modal" size="lg"
-                 @hidden="onReset" cancel-title="Cacnel"
+                 @hidden="onReset" cancel-title="Cacnel" no-close-on-backdrop
                  @ok="onSubmit" ok-title="Save" title="New Category">
           <b-form enctype="multipart/form-data">
             <div class="full-content">
@@ -90,7 +90,7 @@
           </b-form>
         </b-modal>
       <b-modal id="modal-view-category-form" ref="view-category-form-modal" size="lg"
-        title="Product View" title-class="text-center mx-auto" hide-footer
+        no-close-on-backdrop title="Product View" title-class="text-center mx-auto" hide-footer
       >
         <b-form enctype="multipart/form-data" v-if="categoryView !== null && categoryView !== undefined">
           <div class="full-content">

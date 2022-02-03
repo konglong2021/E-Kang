@@ -7,6 +7,7 @@ export const state = () => ({
   cashBalance: 0,
   storeItem: null,
   setting: null,
+  storeList: [],
 });
 
 export const getters = {
@@ -15,6 +16,7 @@ export const getters = {
   cashBalance: state => state.cashBalance,
   storeItem: state => state.storeItem,
   setting: state => state.setting,
+  storeList: state => state.storeList,
   check: state => state.user !== null,
 };
 
@@ -52,6 +54,10 @@ export const mutations = {
   setSetting(state, token){
     state.token = token;
     Cookie.set('token', token);
+  },
+  setStoreList(state, storeList){
+    state.storeList = storeList;
+    Cookie.set('storeList', storeList);
   },
 };
 

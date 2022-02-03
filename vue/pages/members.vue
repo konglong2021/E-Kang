@@ -50,7 +50,7 @@
         <div></div>
       </div>
       <b-modal id="modal-create-category" ref="member-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cancel"
+               @hidden="onReset" cancel-title="Cancel" no-close-on-backdrop
                @ok="onSubmit" ok-title="Save" title="New User">
         <b-form enctype="multipart/form-data">
           <div class="full-content">

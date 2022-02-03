@@ -4,6 +4,7 @@
                @hidden="onReset" cancel-title="បោះបង់"
                @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី"
                :ok-disabled="!product.brand || !product.category || !product.sale_price"
+               no-close-on-backdrop
       >
         <b-form enctype="multipart/form-data">
           <div class="full-content">
@@ -54,7 +55,7 @@
               </b-col>
             </b-row>
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
+              <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់ ($)</label></b-col>
               <b-col sm="8">
                 <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="product.sale_price" required></b-form-input>
               </b-col>
@@ -156,6 +157,7 @@
       },
       async getBrands(){
         let vm = this;
+        vm.brands = [];
         await vm.$axios.get('/api/brand')
           .then(function (response) {
             if(response.data.brands){
@@ -170,6 +172,7 @@
       },
       async getCategories(){
         let vm = this;
+        vm.categories = [];
         vm.$axios.get('/api/category')
           .then(function (response) {
             if(response.data.data){

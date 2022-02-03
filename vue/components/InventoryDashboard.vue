@@ -71,7 +71,7 @@
                 <b-button
                   href="#" size="sm" variant="primary"
                   title="Add product to stock"
-                  :disabled="warehouses.length === 0 && suppliers.length === 0"
+                  :disabled="(warehouses.length === 0 && suppliers.length === 0) || products.length === 0"
                   @click="showExistingProductModal()">
                   Add product to stock
                 </b-button>
@@ -141,7 +141,9 @@
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
              @hidden="onResetSupplier" cancel-title="Cancel"
-             @ok="onSubmitSupplier" ok-title="Save" title="New Supplier">
+             @ok="onSubmitSupplier" ok-title="Save" title="New Supplier"
+             no-close-on-backdrop
+    >
       <b-form enctype="multipart/form-data">
         <div class="full-content">
         </div>
@@ -174,8 +176,10 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
-      @hidden="onResetWareHouse" cancel-title="Cancel"
-      @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
+             @hidden="onResetWareHouse" cancel-title="Cancel"
+             @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse"
+             no-close-on-backdrop
+    >
       <b-form enctype="multipart/form-data">
         <div class="full-content">
         </div>
@@ -197,7 +201,7 @@
     </b-modal>
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
       @hidden="onResetExistingProduct" cancel-title="Cancel"
-      @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product">
+      @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product" no-close-on-backdrop>
       <b-form enctype="multipart/form-data">
         <div class="full-content" v-if="products && products.length > 0">
           <div class="display-inline-block full-with">
@@ -207,7 +211,7 @@
                 <b-form-select class="form-control select-content-inline" v-model="product_select.product" :options="products" @change="selectedProduct(productList, product_select.product)"></b-form-select>
               </div>
               <div class="form-group form-content-detail">
-                <label class="label-with">Import price</label>
+                <label class="label-with">Import price ($)</label>
                 <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" :disabled="isDisabledImportPrice === true"></b-form-input>
               </div>
               <div class="form-group form-content-detail">
@@ -221,7 +225,7 @@
     </b-modal>
     <b-modal
       id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
-      cancel-title="No" @ok="removeProductAdd(product_select)" ok-title="Yes">
+      cancel-title="No" @ok="removeProductAdd(product_select)" ok-title="Yes" no-close-on-backdrop>
       <h3 class="center">Are you sure want to remove product select from list?</h3>
     </b-modal>
   </div>
@@ -237,8 +241,8 @@
         fields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
-          { key: 'code', label: 'QR Code' },
-          { key: 'sale_price', label: 'Sell Price' },
+          { key: 'code', label: 'Bar Code' },
+          { key: 'sale_price', label: 'Sell Price ($)' },
           { key: 'import_price', label: 'Import Price' },
           { key: 'qty', label: 'Qty' },
           { key: 'actions', label: 'Actions' }
@@ -247,9 +251,9 @@
         purchaseFields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
-          { key: 'code', label: 'QR Code' },
-          { key: 'sale_price', label: 'Sell Price' },
-          { key: 'import_price', label: 'Import Price' },
+          { key: 'code', label: 'Bar Code' },
+          { key: 'sale_price', label: 'Sell Price ($)' },
+          { key: 'import_price', label: 'Import Price ($)' },
           { key: 'product_qty', label: 'Qty' },
           { key: 'store', label: 'Store' },
           { key : 'supplier', label: "Supplier"},
@@ -260,8 +264,8 @@
           { key: 'en_name', label: 'Name'},
           { key: 'kh_name', label: 'Name(KH)'},
           { key: 'image', label: 'Icon' },
-          { key: 'code', label: 'QR Code'},
-          { key: 'sale_price', label: 'Sell Price'},
+          { key: 'code', label: 'Bar Code'},
+          { key: 'sale_price', label: 'Sell Price ($)'},
           { key: 'product_qty', label: 'Total in stock'},
           { key: 'store', label: 'Store' },
         ],
@@ -367,9 +371,11 @@
             console.log(error);
           });
       },
+
       async onResetExistingProduct(){
         this.product_select = {};
       },
+
       onSubmitExistingProduct($product){
         let items = [];
         if(this.items && this.items.length > 0){
@@ -410,9 +416,11 @@
         };
         this.isDisabledImportPrice = false;
       },
+
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
+
       selectedProduct(productList, productId){
         this.isAddMoreProduct = true;
         let isFoundAlreadyAdd = false;
@@ -448,15 +456,18 @@
           }
         }
       },
+
       adjustProductAdd(item, index, target){
         this.product_select = item;
         this.product_select["isUpdateProductAdd"] = true;
         this.$refs['existing-product-form-modal'].show();
       },
+
       showRemoveProductSelect(item, index, target){
         this.removeProductSelect = item;
         this.$refs['remove-existing-product-form-modal'].show();
       },
+
       removeProductAdd(){
         let removeItemId = null;
         for(let j=0; j < this.items.length; j++){
@@ -466,12 +477,14 @@
           }
         }
         if(removeItemId !== null){
-          this.items.slice(removeItemId, 1);
+          this.items.splice(removeItemId, 1);
         }
       },
 
       async getProductList(){
         let vm = this;
+        vm.products = [];
+
         vm.loadingFields.productListLoading = true;
         await vm.$axios.get('/api/product').then(function (response) {
           vm.loadingFields.productListLoading = false;
@@ -492,6 +505,7 @@
           vm.$toast.error("getting data error ").goAway(2000);
         });
       },
+
       async getAllWarehouse(){
         let vm = this;
         vm.loadingFields.warehouseListLoading = true;
@@ -513,6 +527,7 @@
           vm.$toast.error("Getting data error").goAway(3000);
         });
       },
+
       async getAllSupplier(){
         let vm = this;
         vm.loadingFields.supplierListLoading = true;
@@ -539,6 +554,7 @@
 
       viewDetailStock(item, index, target){
       },
+
       adjustStock( item,index,target ){
         alert('adjust stock click '+index);
       },
@@ -615,8 +631,8 @@
         this.isShowStockTable = false;
         this.items = [];
         this.purchase.supplier = null;
-        this.purchase.warehouse = null;
         this.purchase.vat = null;
+        this.purchase.warehouse = this.$store.$cookies.get("storeItem");
 
         this.getProductList();
         this.getAllWarehouse();
@@ -651,9 +667,10 @@
           subtotal += productTotalPrice;
           purchaseDetail.push(purchaseDetailItem);
         }
+        let vat = vm.purchase.vat !== null ? vm.purchase.vat : 0;
         dataSubmit["purchases"] = purchaseDetail;
         dataSubmit["subtotal"] = subtotal;
-        dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(vm.purchase.vat)));
+        dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(vat)));
 
         vm.loadingFields.stockLoading = true;
         vm.isShowFormAddProductInPurchase = false;
@@ -661,16 +678,17 @@
         vm.$toast.info("Data starting submit").goAway(1500);
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
-            if(response.hasOwnProperty("data")){
+            if(response && response.hasOwnProperty("data")){
               vm.isShowStockTable = true;
               vm.loadingFields.stockLoading = false;
               vm.purchase = {};
               vm.$toast.success("Submit data successfully").goAway(2000);
-              if(response.data.message){
+              if(response && response.data && response.data.message){
                 vm.$axios.get('/api/stock')
-                .then(function (response) {
-                    if(response.data.data){
-                      let dataStock = response.data.data;
+                  .then(function (response) {
+                    if(response.data){
+                      vm.stockItems = [];
+                      let dataStock = response.data;
                       if(dataStock && dataStock.length > 0){
                         for (let i=0; i < dataStock.length; i++){
                           vm.stock = {};
@@ -686,11 +704,11 @@
                         }
                       }
                     }
-                })
-                .catch(function (error) {
+                  })
+                  .catch(function (error) {
                     vm.$toast.error("getting data error ").goAway(2000);
                     console.log(error);
-                });
+                  });
               }
             }
           })
@@ -758,11 +776,10 @@
               }
             }
           }
-        })
-          .catch(function (error) {
+        }).catch(function (error) {
             self.$toast.error("getting data error ").goAway(2000);
             console.log(error);
-          });
+        });
       },
 
       cloneObject(obj) {
@@ -770,6 +787,7 @@
       },
 
       generateBatch(){
+        console.log(this.purchases);
         return this.getFullDate() + "_v";
       },
 
@@ -785,6 +803,7 @@
         let time = today.getTime();
         return (yyyy + "" + month + "" + day + "" + "" + hours + "" + "" + minutes + "" + time);
       },
+
       getFullDate(){
         let today = new Date();
         let dd = today.getDate();
@@ -795,6 +814,7 @@
 
         return (yyyy + "" + month + "" + day);
       },
+
     },
     mounted() {
       // this.getDataPurchase();

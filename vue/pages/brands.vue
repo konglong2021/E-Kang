@@ -54,7 +54,7 @@
       </div>
       <b-modal id="modal-create-brand" ref="brand-form-modal" size="lg"
                @hidden="onReset" cancel-title="Cannel"
-               @ok="onSubmit" ok-title="Save" title="New Brand">
+               @ok="onSubmit" ok-title="Save" title="New Brand" no-close-on-backdrop>
         <b-form enctype="multipart/form-data">
           <div class="full-content">
           </div>

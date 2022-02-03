@@ -1,29 +1,38 @@
 <template>
   <div>
     <b-container fluid class="bv-example-row">
-      <div v-show="showModalCashBalance">
-        <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal" size="lg" :hide-header="true" :hide-footer="true">
-          <b-form enctype="multipart/form-data">
-            <div class="full-content">
-              <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">បញ្ចូលចំនួនលុយដែលមាន</label></b-col>
-                <b-col sm="8">
-                  <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
-                </b-col>
-              </b-row>
-            </div>
-          </b-form>
-        </b-modal>
+      <div class="display-inline-block pos-select-store" v-if="showSelectStoreModal">
+        <default-ware-house></default-ware-house>
       </div>
-      <div v-if="!showModalCashBalance">
-        <b-row>
-          <b-col cols="6" class="content-product-select">
-            <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
-          </b-col>
-          <b-col cols="6" class="product-list">
-            <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
-          </b-col>
-        </b-row>
+      <div class="display-inline-block full-with"  v-if="!showSelectStoreModal">
+        <div v-show="showModalCashBalance">
+          <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal"
+                   size="lg" title="Balance" ok-only
+                   no-close-on-backdrop
+                   @ok="submitBalance"
+          >
+            <b-form enctype="multipart/form-data">
+              <div class="full-content">
+                <b-row class="my-1" v-if="isCreatedBalance">
+                  <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">Create Balance ($)</label></b-col>
+                  <b-col sm="8">
+                    <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
+                  </b-col>
+                </b-row>
+              </div>
+            </b-form>
+          </b-modal>
+        </div>
+        <div v-if="!showModalCashBalance">
+          <b-row>
+            <b-col cols="6" class="content-product-select">
+              <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
+            </b-col>
+            <b-col cols="6" class="product-list">
+              <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
+            </b-col>
+          </b-row>
+        </div>
       </div>
     </b-container>
   </div>
@@ -43,6 +52,9 @@ export default {
       loadingField : false,
       cashBalance: 0,
       showModalCashBalance: false,
+      cashBalanceData: {},
+      isCreatedBalance: false,
+      showSelectStoreModal: false,
     }
   },
   watch:{
@@ -53,6 +65,19 @@ export default {
     }
   },
   methods: {
+    async getBalanceData(){
+      let self = this;
+      await self.$axios.get('/api/showbalance').then(function (response) {
+        if(response && response.hasOwnProperty("data")){
+          self.isCreatedBalance = !response.data.success;
+          self.cashBalanceData = response.data;
+          self.$store.commit('auth/setCashBalance', response.data);
+        }
+      }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("Submit data getting error").goAway(3000);
+      });
+    },
     selectProduct($data){
       if($data){
         if(!$data.hasOwnProperty("qty")){
@@ -120,11 +145,34 @@ export default {
         this.$store.commit('auth/setCashBalance', cashBalance);
       }
     },
+    closeModal(e){
+      e.preventDefault();
+    },
+    async submitBalance(){
+      if(this.cashBalance !== 0){
+        let data = {}, self = this;
+        data["remain"] = 0;
+        data["income"] = 0;
+        data["withdraw"] = 0;
+        data["balance"] = parseFloat(self.cashBalance);
+        data["warehouse_id"] = null;
+        data["user_id"] =  self.$store.$cookies.get('user').id;
+
+        await self.$axios.post('/api/balance', data).then(function (response) {
+          if(response && response.hasOwnProperty("data")){
+          }
+        }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("Submit data getting error").goAway(3000);
+        });
+      }
+    },
   },
   mounted() {
     let self = this;
+    self.showSelectStoreModal = !self.$store.$cookies.get("storeItem") ? true : false;
+    self.getBalanceData();
     self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
-    //self.warehouseSelectedId =
     if(!self.$store.$cookies.get('cashBalance')){
       self.$refs['input-cash-balance-modal'].show();
     }

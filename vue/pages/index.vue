@@ -1,27 +1,5 @@
 <template>
   <div class="main-screen" >
-    <div v-show="showSelectStoreModal">
-      <b-modal
-        id="modal-select-store-default"
-        ref="select-store-default-modal" size="lg"
-        :hide-header="true" :hide-footer="true"
-      >
-        <div class="content-loading" v-show="loadingField">
-          <div class="spinner-grow text-muted"></div>
-        </div>
-        <div class="full-content" v-show="!loadingField && storeList && storeList.length > 0">
-          <ul class="ul-no-style">
-            <li class="content-li-menu-store" v-for="store in storeList">
-              <b-button variant="dark" class="content-button" @click="selectStore(store)">
-                <i class="fa fa-home fa-3x" ></i> <div>
-                <span>{{ store.name }}</span>
-              </div>
-              </b-button>
-            </li>
-          </ul>
-        </div>
-      </b-modal>
-    </div>
     <div>
       <div class="main-menu">
         <b-container class="col-6 mx-auto menu-wrapper">
@@ -34,7 +12,7 @@
               </b-button>
             </b-col>
             <b-col>
-              <b-button href="/pos"  variant="primary" >
+              <b-button href="/pos" variant="primary" >
                 <i class="fa fa-desktop fa-3x" > </i>
                 <div>
                   Point of Sale
@@ -63,12 +41,13 @@
 </template>
 
 <script>
+import DefaultWareHouse from "../components/DefaultWareHouse";
 export default {
+  components: {DefaultWareHouse},
   middleware: "local-auth",
   layout: "main",
   data(){
     return {
-      showSelectStoreModal: false,
       loadingField: false,
       storeList : [],
     }
@@ -97,27 +76,12 @@ export default {
         self.$toast.error("getting data error").goAway(2000);
       });
     },
-    selectStore(store){
-      let self = this;
-      if(!self.$store.$cookies.get('storeItem')){
-        self.$store.commit('auth/setStoreItem', store);
-        self.$refs['select-store-default-modal'].hide();
-      }
-    },
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
     },
   },
   mounted() {
     let self = this;
-    console.log("Token in index : " + self.$store.$cookies.get("token") );
-    self.showSelectStoreModal = !self.$store.$cookies.get("storeItem") ? true : false;
-    // if (self.$store.$cookies.get("storeItem") === undefined) {
-    //   if(self.$store.$cookies.get("token") !== undefined && self.$store.$cookies.get("token") !== null){
-    //     self.getListStores();
-    //   }
-    //   self.$refs["select-store-default-modal"].show();
-    // }
   }
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-modal id="modal-select-store" ref="select-store-modal" size="lg" :hide-footer="true">
+    <b-modal id="modal-select-store" ref="select-store-modal" size="lg" :hide-footer="true" no-close-on-backdrop>
       <div>
         <i class="fa fa-home fa-2x"></i>
       </div>

@@ -56,12 +56,12 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
-          
-           
+
+
         ]);
         //Hash::make($input['password'])
         $user = User::create([
-           
+
             'name' => $request['name'],
             'email' => $request['email'],
             'warehouse_id' => $request['warehouse_id'],
@@ -71,7 +71,7 @@ class UsersController extends Controller
         $token =  $user->createToken('Apptoken')->plainTextToken;
 
         $user->roles()->sync(($request->roles));
-        
+
         return response()->json([
             "success" => true,
             "message" => "User successfully Created",
@@ -123,7 +123,7 @@ class UsersController extends Controller
                 'required',
             ],
         ]);
-        
+
         $user->update($request->all());
         $user->roles()->sync(($request->roles));
         return response()->json([
@@ -143,7 +143,7 @@ class UsersController extends Controller
     {
         $user->delete();
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "user" =>  $user
         ]);
@@ -199,7 +199,7 @@ class UsersController extends Controller
     }
 
     // update user default warehouse
-    public function updatewarehouse(Request $request,User $user)
+    public function updatewarehouse(Request $request, User $user)
     {
         $user= User::find(auth()->user()->id);
         $user->warehouse_id = $request["warehouse_id"];

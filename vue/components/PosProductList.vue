@@ -238,6 +238,7 @@
     },
     mounted() {
       this.getWareHouseList();
+      this.warehouse = this.$store.$cookies.get('storeItem');
     }
   }
 </script>

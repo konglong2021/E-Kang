@@ -57,6 +57,7 @@ export default {
       show: true,
       isExist: false,
       loginUser : {},
+      storeList : [],
     };
   },
   methods: {
@@ -68,6 +69,7 @@ export default {
           let user = self.cloneObject(response.data.user);
           self.$store.commit('auth/setToken', token);
           self.$store.commit('auth/setUser', user);
+          self.$store.commit('auth/setStoreItem', user.warehouse_id);
           self.$router.push('/');
         }
       }).catch(function (error) {
@@ -78,17 +80,6 @@ export default {
         self.$toast.error("getting data error ").goAway(2000);
       });
     },
-
-    async gettingDefaultWareHouse(event) {
-      let self = this;
-      await self.$axios.post('/api/login', self.form).then(function (response) {
-
-      }).catch(function (error) {
-        console.log(error);
-        self.$toast.error("getting data error ").goAway(2000);
-      });
-    },
-
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
     },

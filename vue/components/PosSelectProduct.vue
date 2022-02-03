@@ -53,7 +53,7 @@
         </div>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg"
                @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitPayment" ok-title="រក្សាទុក" title="ការលក់">
+               @ok="onSubmitPayment" ok-title="រក្សាទុក" title="ការលក់" no-close-on-backdrop>
         <b-form enctype="multipart/form-data">
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-45-percentage float-left">

@@ -56,7 +56,7 @@
           </div>
         </div>
         <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
-                 @hidden="onResetSupplier" cancel-title="Cancel"
+                 @hidden="onResetSupplier" cancel-title="Cancel" no-close-on-backdrop
                  @ok="onSubmitSupplier" ok-title="Save" title="New Supplier">
           <b-form enctype="multipart/form-data">
             <div class="full-content">
