@@ -15,7 +15,7 @@ class BanlancesController extends Controller
     public function index()
     {
         $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-        return response()->json($balance, 200); 
+        return response()->json($balance, 200);
     }
 
     /**
@@ -64,9 +64,8 @@ class BanlancesController extends Controller
                 "success" => true,
                 "message" =>  "create new record",
                 "balance" => $create
-            ], 200); //create recode 
+            ], 200); //create recode
         }
-
         if($balance->balance_date >= $balance_date)
         {
             $input = $request->all();
@@ -77,7 +76,7 @@ class BanlancesController extends Controller
                 "message" =>  "update record",
                 "balance" => $upbalance
             ], 200); //update recode
-           
+
         }
         $create = Balance::create([
             'remain' => $request['remain'],
@@ -89,13 +88,13 @@ class BanlancesController extends Controller
             'user_id' => auth()->user()->id,
         ]);
 
-        
+
         return response()->json([
             "success" => true,
             "message" =>  "create new record",
             "balance" => $create
-        ], 200); //create recode 
-        
+        ], 200); //create recode
+
     }
 
 
@@ -128,8 +127,8 @@ class BanlancesController extends Controller
             return response()->json([
                 "success" => false,
                 "message" =>  "Balance has beed verified! Please change it manually!"
-            ], 200); 
-           
+            ], 200);
+
         }
 
         $create = Balance::create([
@@ -146,8 +145,8 @@ class BanlancesController extends Controller
                 "message" => "Cash Balance Successfully Update!",
                 "balance" => $create
             ], 200);
-        
-        
+
+
     }
 
 
@@ -176,8 +175,8 @@ class BanlancesController extends Controller
                 "success" => true,
                 "message" =>  "Balance has beed update successfully!",
                 "balance" => $balance
-            ], 200); 
-           
+            ], 200);
+
         }
 
     }
