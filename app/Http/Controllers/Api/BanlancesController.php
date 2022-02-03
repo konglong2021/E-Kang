@@ -15,7 +15,7 @@ class BanlancesController extends Controller
     public function index()
     {
         $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-        return response()->json($balance, 200);
+        return response()->json($balance, 200); 
     }
 
     /**
@@ -25,12 +25,49 @@ class BanlancesController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+     public function verified()
+     {
+        if(!auth()->user()->warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
+
+        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        if(!$balance){
+            return response()->json([
+                "success" => false,
+                "message" => "No Balance Please Create One!"
+            ], 201);
+        }
+
+        return $balance;
+     }
+
      //remain + income - withdraw = balance
     public function store(Request $request)
     {
+        if(!auth()->user()->warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
+        $balance_date = date('Y-m-d');
         $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-        $balance_date = new \DateTime();
-        if($balance && $balance->balance_date >= $balance_date)
+        if(!$balance){
+            $create = Balance::create([
+                'remain' => $request['remain'],
+                'income' => $request['income'],
+                'withdraw' => $request['withdraw'],
+                'balance' => $request['balance'],
+                'balance_date' => $balance_date,
+                'warehouse_id' => auth()->user()->warehouse_id,
+                'user_id' => auth()->user()->id,
+            ]);
+            return response()->json([
+                "success" => true,
+                "message" =>  "create new record",
+                "balance" => $create
+            ], 200); //create recode 
+        }
+
+        if($balance->balance_date >= $balance_date)
         {
             $input = $request->all();
             $upbalance = Balance::find($balance->id);
@@ -40,9 +77,8 @@ class BanlancesController extends Controller
                 "message" =>  "update record",
                 "balance" => $upbalance
             ], 200); //update recode
-
+           
         }
-
         $create = Balance::create([
             'remain' => $request['remain'],
             'income' => $request['income'],
@@ -52,27 +88,25 @@ class BanlancesController extends Controller
             'warehouse_id' => auth()->user()->warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
+
+        
         return response()->json([
             "success" => true,
             "message" =>  "create new record",
             "balance" => $create
-        ], 200); //create recode
-
+        ], 200); //create recode 
+        
     }
 
 
     //show last balance by warehouse
     public function showbalance()
     {
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-        if(!$balance){
-            return response()->json([
-                "success" => false,
-                "message" => "No Balance Please Create One!"
-            ], 201);
-        }
-        return response()->json($balance->balance, 200);
+       $balance = $this->verified();
+        return response()->json($balance, 200);
     }
+
+
 
     //verify cash balance
     public function verifybalance(Request $request)
@@ -94,8 +128,8 @@ class BanlancesController extends Controller
             return response()->json([
                 "success" => false,
                 "message" =>  "Balance has beed verified! Please change it manually!"
-            ], 200);
-
+            ], 200); 
+           
         }
 
         $create = Balance::create([
@@ -112,8 +146,8 @@ class BanlancesController extends Controller
                 "message" => "Cash Balance Successfully Update!",
                 "balance" => $create
             ], 200);
-
-
+        
+        
     }
 
 
@@ -142,8 +176,8 @@ class BanlancesController extends Controller
                 "success" => true,
                 "message" =>  "Balance has beed update successfully!",
                 "balance" => $balance
-            ], 200);
-
+            ], 200); 
+           
         }
 
     }
