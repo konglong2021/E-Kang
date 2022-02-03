@@ -17,7 +17,7 @@ class CreateMembersTable extends Migration
             $table->id();
             $table->string('title');
             $table->decimal('discount');
-            $table->boolean('default');
+            $table->boolean('default')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

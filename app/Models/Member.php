@@ -13,12 +13,14 @@ class Member extends Model
     protected $fillable = [
         
         'title',
-        'discount'
+        'discount',
+        'default'
        
     ];
     protected static $logAttributes = [
         'title',
-        "discount"
+        "discount",
+        'default'
     ];
 
 

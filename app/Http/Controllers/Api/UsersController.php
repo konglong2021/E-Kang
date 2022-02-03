@@ -200,25 +200,6 @@ class UsersController extends Controller
     }
 
     // update user default warehouse
-    public function updatewarehouse(Request $request, User $user)
-    {
-        $user= User::find(auth()->user()->id);
-        $warehouse = Warehouse::find($request["warehouse_id"]);
-        if(!$warehouse){
-            return response()->json([
-                "success" => false,
-                "message" => "Can't find this warehouse please Create it"
-            ], 200);
-        }
-        $user->warehouse_id = $request["warehouse_id"];
-        $user->update();
-
-        return response()->json([
-            "success" => true,
-            "message" => "Warehouse Update Successfully",
-            "user"     => $user
-        ], 200);
-
-    }
+    
 
 }
