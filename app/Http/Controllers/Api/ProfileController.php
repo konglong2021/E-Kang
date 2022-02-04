@@ -16,7 +16,11 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        //
+        $profile = Profile::all();
+        return response()->json([
+            "success" => true,
+            "profile" => $profile
+        ], 200, $headers);
     }
 
     /**
@@ -29,7 +33,7 @@ class ProfileController extends Controller
 
     public function updatewarehouse(Request $request)
     {
-        $profile= Profile::where('user_id',auth()->user()->id)->get()->last();
+        $profile= Profile::where('user_id',$request["user_id"])->get()->last();
         if(!$profile){
             return response()->json([
                 "success" =>false,
@@ -78,7 +82,7 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
-        //
+        // $profile = Profile::where('user_id',$id)
     }
 
     /**

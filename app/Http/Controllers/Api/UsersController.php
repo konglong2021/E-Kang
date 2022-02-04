@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use App\Models\Warehouse;
+use App\Models\Profile;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -172,23 +173,14 @@ class UsersController extends Controller
             ],
         ]);
 
-        $user = User::where('email',$request['email'])->first();
-
-        // if(!$user || !Hash::check($request['password'], $user->password))
-        // {
-        //     return response()->json([
-        //         'message' => 'Email and Password invalid'
-        //     ],401);
-        // }
+        $user = User::where('email',$request['email'])->with('profile')->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        // if (!Auth::attempt($attr)) {
-        //     return $this->error('Credentials not match', 401);
-        // }
+
 
         $token =  $user->createToken('Apptoken')->plainTextToken;
         return response()->json([
@@ -197,6 +189,7 @@ class UsersController extends Controller
             "user" =>  $user,
             "Token" => $token
         ]);
+        
     }
 
     // update user default warehouse
