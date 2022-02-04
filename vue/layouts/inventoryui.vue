@@ -28,7 +28,7 @@
 <style>
   .main-inventory{
     background-color: #eff3f6;
-       height: 100vh;
+    height: 100vh;
   }
   .control-panel{
     border-bottom: 1px solid #cccccc;
@@ -76,7 +76,7 @@
     border-radius: 5px;
     display: inline-block;
     background-color: #fff;
-    min-height: calc(100vh - 133px);
+    min-height: calc(100vh - 170px);
   }
   .content-product .content-product-input{
     max-width: 20%;

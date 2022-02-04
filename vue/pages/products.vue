@@ -46,6 +46,11 @@
                        :current-page="currentPage"
                        head-variant="light"
               >
+                <template #cell(code)="row">
+                  <div style="display: inline-block; overflow : hidden;">
+                    <barcode :value="row.item.code" height ='15' marginTop="0" marginBottom="0" fontSize="12" textMargin="1"></barcode>
+                  </div>
+                </template>
                 <template #cell(actions)="row">
                   <b-button size="sm" variant="primary" title="View Inventory History Detail" @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                     <i class="fa fa-eye"></i>
@@ -61,7 +66,7 @@
               </b-table>
             </div>
           </div>
-          <div v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code" class="display-inline-block">
+          <div style="display: none;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code" class="display-inline-block">
             <div v-for="item in barcodeListToPrint" class="display-inline-block">
               <barcode :value="item"></barcode>
             </div>

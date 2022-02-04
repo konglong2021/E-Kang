@@ -2,11 +2,11 @@
   <div class="main-screen" >
     <div>
       <div class="main-menu">
-        <b-container class="col-6 mx-auto menu-wrapper">
+        <b-container class="col-8 mx-auto menu-wrapper">
           <b-row>
             <b-col>
               <b-button href="/users"  variant="dark">
-                <i class="fa fa-user fa-3x" > </i> <div>
+                <i class="fa fa-users fa-3x" > </i> <div>
                 User Management
               </div>
               </b-button>
@@ -92,7 +92,7 @@ export default {
   }
   .main-menu .btn {
     padding-top: 10px;
-    min-width: 150px;
+    min-width: 200px;
     min-height: 150px;
     margin:10px 2px;
   }

@@ -26,7 +26,7 @@
         </div>
         <div v-if="!productLoading && warehouse" >
           <div class="content-product" v-if="products && products.length > 0">
-            <div  v-for="p in products" class="pro-item" >
+            <div  v-for="p in products" class="pro-item">
               <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
                 <div class="pro-price">{{ p.price }} {{ p.currency }}</div>
               </div>
@@ -80,7 +80,7 @@
                       productItem.id = productList[index].id;
                       productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
                       productItem.price = productList[index].sale_price;
-                      productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
+                      productItem.img = (productList[index].image !== "no image" && productList[index].image !== "no image created" ) ? vm.generateImageUrlDisplay(productList[index].image) : "images/no_icon.png";
                       productItem.code = productList[index].code;
                       vm.products.push(productItem);
                     }
@@ -90,7 +90,7 @@
                     productItem.id = productList.id;
                     productItem.name = productList.en_name + " (" + productList.kh_name + ")";
                     productItem.price = productList.sale_price;
-                    productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
+                    productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : "images/no_icon.png";
                     productItem.code = productList.code;
                     vm.products.push(productItem);
                   }
@@ -237,8 +237,11 @@
       },
     },
     mounted() {
-      this.getWareHouseList();
       this.warehouse = this.$store.$cookies.get('storeItem');
+      if(this.$store.$cookies.get('storeItem')){
+        this.getListProduct(this.$store.$cookies.get('storeItem'));
+      }
+      this.getWareHouseList();
     }
   }
 </script>

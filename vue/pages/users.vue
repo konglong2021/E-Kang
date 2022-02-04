@@ -29,7 +29,7 @@
             <div class="panel-bottom"></div>
           </div>
         </div>
-        <div class="content-product">
+        <div class="content-product content-user">
           <div class="content-loading" v-if="isLoading">
             <div class="spinner-grow text-muted"></div>
           </div>

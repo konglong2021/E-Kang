@@ -26,6 +26,7 @@
     "jsbarcode": "^3.11.5",
     "nuxt": "^2.15.7",
     "nuxt-vue-multiselect": "^1.0.4",
+    "require-vuejs": "^1.1.3",
     "vee-validate": "^3.4.14",
     "vue-barcode": "^1.3.0",
     "vue-html-to-paper": "^1.4.4",

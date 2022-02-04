@@ -5910,6 +5910,20 @@ repeat-string@^1.6.1:
   version "1.6.1"
   resolved "https://registry.npmjs.org/repeat-string/-/repeat-string-1.6.1.tgz"
 
+require-vuejs@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/require-vuejs/-/require-vuejs-1.1.3.tgz#fd9a1d60ed93134f97f5b2e6f73f447ed36e7d89"
+  integrity sha512-8p2/0eb6DIJU/bHbvXhsQZfePGHZHHiEuQPEc87cKzdKUifXyXOoS5/bs4BEWX+WMMHB/EVSX82xXrHeM0PnUQ==
+  dependencies:
+    requirejs "^2.3.3"
+    vue "^2.3.4"
+    vue-template-compiler "^2.3.4"
+
+requirejs@^2.3.3:
+  version "2.3.6"
+  resolved "https://registry.yarnpkg.com/requirejs/-/requirejs-2.3.6.tgz#e5093d9601c2829251258c0b9445d4d19fa9e7c9"
+  integrity sha512-ipEzlWQe6RK3jkzikgCupiTbTvm4S0/CAU5GlgptkN5SO6F3u0UD0K18wy6ErDqiCyP4J4YYe1HuAShvsxePLg==
+
 requires-port@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/requires-port/-/requires-port-1.0.0.tgz"
@@ -6946,7 +6960,7 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-template-compiler@^2.6.12, vue-template-compiler@^2.6.14:
+vue-template-compiler@^2.3.4, vue-template-compiler@^2.6.12, vue-template-compiler@^2.6.14:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue-template-compiler/-/vue-template-compiler-2.6.14.tgz#a2f0e7d985670d42c9c9ee0d044fed7690f4f763"
   dependencies:
@@ -6961,7 +6975,7 @@ vue-toasted@^1.1.28:
   version "1.1.28"
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.28.tgz#dbabb83acc89f7a9e8765815e491d79f0dc65c26"
 
-vue@^2.4.4, vue@^2.6.12:
+vue@^2.3.4, vue@^2.4.4, vue@^2.6.12:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
 

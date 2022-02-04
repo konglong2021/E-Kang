@@ -89,6 +89,9 @@ body {
 .content-product-full-height{
   height: calc(100vh - 150px)
 }
+.content-user{
+  min-height: calc(100vh - 140px);
+}
 
 .content-input-date{
   padding-left: 5px;
@@ -368,4 +371,7 @@ body {
   color: white;
   outline: none;
   text-decoration: none;
+}
+.td-code{
+  padding: 0 !important;
 }

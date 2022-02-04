@@ -3,8 +3,8 @@
       <div  class="calculator-product-content">
         <div class="p-item" v-if="products.length > 0">
           <div style="width:69%;" class="display-inline-block"><span></span></div>
-          <div style="width:14%; text-align:left" class="display-inline-block p-price">Unit Price</div>
-          <div style="width:14%; text-align:left" class="display-inline-block p-price">Sub Total</div>
+          <div style="width:14%; text-align:left" class="display-inline-block p-price">Unit Price ($)</div>
+          <div style="width:14%; text-align:left" class="display-inline-block p-price">Sub Total ($)</div>
         </div>
         <div v-for="p in products" v-bind:key="p.id" class="p-item"
              @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
