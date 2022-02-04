@@ -153,8 +153,6 @@ class ProductsController extends Controller
 
     public function update(Request $request, Product $product)
     {
-
-
         $input = $request->all();
 //         return response()->json($input);
 

@@ -25,6 +25,7 @@ class CreateProfilesTable extends Migration
             $table->string("email")->nullable();
             $table->date("birthdate")->nullable();
             $table->string("address")->nullable();
+            $table->string('image')->nullable();
             $table->boolean("active")->nullable();
             $table->timestamps();
         });

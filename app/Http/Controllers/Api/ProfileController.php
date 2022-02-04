@@ -64,6 +64,19 @@ class ProfileController extends Controller
         $input = $request->all();
         $input['user_id']= auth()->user()->id;
 
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+            // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            // $product['image'] = "$image_name";
+        }
+        else{
+            $image_name ="no image created";
+        }
+
+        $input['image']= $image_name;
+
         $profile = Profile::create($input);
         // $customers = json_encode($request->customers);
         // $members->customers()->sync(json_decode($customers));
