@@ -47,6 +47,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/setting','App\Http\Controllers\Api\SettingsController');
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
     Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
+    Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
@@ -72,7 +73,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
 
     //setting
-    Route::post('/user/warehouse',[App\Http\Controllers\Api\UsersController::class,'updatewarehouse']);//user update default warehouse
+    Route::post('/user/warehouse',[App\Http\Controllers\Api\ProfileController::class,'updatewarehouse']);//user update default warehouse
     Route::post('/balance/verifybalance',[App\Http\Controllers\Api\BanlancesController::class,'verifybalance']); // Cash Balance
     Route::post('/balance/withdrawal',[App\Http\Controllers\Api\BanlancesController::class,'withdrawal']); // Cash withdraw
 });
