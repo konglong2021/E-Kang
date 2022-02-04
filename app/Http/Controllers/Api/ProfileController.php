@@ -20,7 +20,7 @@ class ProfileController extends Controller
         return response()->json([
             "success" => true,
             "profile" => $profile
-        ], 200, $headers);
+        ], 200);
     }
 
     /**
@@ -95,7 +95,13 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
-        // $profile = Profile::where('user_id',$id)
+        $profile = Profile::where('user_id',$id)->with('user')
+                            ->get();
+
+        return response()->json([
+            "success" => true,
+            "profile" => $profile
+        ], 200);
     }
 
     /**
