@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Models\Balance;
+use App\Models\Profile;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,10 +13,17 @@ class BanlancesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function CheckProfileWarehouse($user_id)
+     {
+        $profile= Profile::where('user_id',$user_id)->get()->last();
+        return $profile->warehouse_id;
+     }
     public function index()
     {
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-        return response()->json($balance, 200);
+        $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+        $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
+        return response()->json($warehouse_id, 200);
     }
 
     /**
@@ -27,11 +35,12 @@ class BanlancesController extends Controller
 
      public function verified()
      {
-        if(!auth()->user()->warehouse_id){
+        $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+        if(!$warehouse_id){
             return response()->json("No default warehouse found!", 200);
            }
 
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
         if(!$balance){
             return response()->json([
                 "success" => false,
@@ -45,11 +54,13 @@ class BanlancesController extends Controller
      //remain + income - withdraw = balance
     public function store(Request $request)
     {
-        if(!auth()->user()->warehouse_id){
+        
+        $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+        if(!$warehouse_id){
             return response()->json("No default warehouse found!", 200);
            }
         $balance_date = date('Y-m-d');
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
         if(!$balance){
             $create = Balance::create([
                 'remain' => $request['remain'],
@@ -57,7 +68,7 @@ class BanlancesController extends Controller
                 'withdraw' => $request['withdraw'],
                 'balance' => $request['balance'],
                 'balance_date' => $balance_date,
-                'warehouse_id' => auth()->user()->warehouse_id,
+                'warehouse_id' => $warehouse_id,
                 'user_id' => auth()->user()->id,
             ]);
             return response()->json([
@@ -84,7 +95,7 @@ class BanlancesController extends Controller
             'withdraw' => $request['withdraw'],
             'balance' => $request['balance'],
             'balance_date' => $balance_date,
-            'warehouse_id' => auth()->user()->warehouse_id,
+            'warehouse_id' => $warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
 
@@ -110,10 +121,11 @@ class BanlancesController extends Controller
     //verify cash balance
     public function verifybalance(Request $request)
     {
-        if(!auth()->user()->warehouse_id){
+        $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+        if(!$warehouse_id){
          return response()->json("No default warehouse found!", 200);
         }
-        $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+        $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
         if($balance->balance != $request["balance"]){
             return response()->json([
                 "success" => false,
@@ -137,7 +149,7 @@ class BanlancesController extends Controller
             'withdraw' => 0,
             'balance' => $balance->balance,
             'balance_date' => date('Y-m-d'),
-            'warehouse_id' => auth()->user()->warehouse_id,
+            'warehouse_id' => $warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
             return response()->json([
@@ -153,11 +165,12 @@ class BanlancesController extends Controller
     //withdraw cash balance
     public function withdrawal(Request $request)
     {
-        if(!auth()->user()->warehouse_id){
+        $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+        if(!$warehouse_id){
             return response()->json("No default warehouse found!", 200);
            }
 
-           $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
+           $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
            if($balance->balance < $request["withdraw"]){
                return response()->json([
                    "success" => false,
