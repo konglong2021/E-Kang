@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e13f70efa63a246d2a319d9ebe237d65",
+    "content-hash": "45db61b64250f0d28cecf016ad644f7f",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1061,53 +1061,6 @@
             "time": "2021-10-06T17:43:30+00:00"
         },
         {
-            "name": "haruncpi/laravel-id-generator",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/haruncpi/laravel-id-generator.git",
-                "reference": "b227dc2391ea45e9d070f19d35dc0a5f7a8f4185"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/haruncpi/laravel-id-generator/zipball/b227dc2391ea45e9d070f19d35dc0a5f7a8f4185",
-                "reference": "b227dc2391ea45e9d070f19d35dc0a5f7a8f4185",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Haruncpi\\LaravelIdGenerator\\IdGeneratorServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Haruncpi\\LaravelIdGenerator\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "cc-by-4.0"
-            ],
-            "authors": [
-                {
-                    "name": "Md.Harun-Ur-Rashid",
-                    "email": "harun.cox@gmail.com"
-                }
-            ],
-            "description": "Easy way to generate custom ID in laravel framework",
-            "support": {
-                "issues": "https://github.com/haruncpi/laravel-id-generator/issues",
-                "source": "https://github.com/haruncpi/laravel-id-generator/tree/v1.1.0"
-            },
-            "time": "2021-10-01T06:16:03+00:00"
-        },
-        {
             "name": "jaybizzle/crawler-detect",
             "version": "v1.2.110",
             "source": {
@@ -2143,80 +2096,6 @@
                 }
             ],
             "time": "2022-01-21T13:39:10+00:00"
-        },
-        {
-            "name": "milon/barcode",
-            "version": "8.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/milon/barcode.git",
-                "reference": "a1b1ee1a743c1368597f1742e6ee4765333a15a1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/milon/barcode/zipball/a1b1ee1a743c1368597f1742e6ee4765333a15a1",
-                "reference": "a1b1ee1a743c1368597f1742e6ee4765333a15a1",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "^8.0",
-                "php": "^7.3 | ^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Milon\\Barcode\\BarcodeServiceProvider"
-                    ],
-                    "aliases": {
-                        "DNS1D": "Milon\\Barcode\\Facades\\DNS1DFacade",
-                        "DNS2D": "Milon\\Barcode\\Facades\\DNS2DFacade"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Milon\\Barcode": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Nuruzzaman Milon",
-                    "email": "contact@milon.im"
-                }
-            ],
-            "description": "Barcode generator like Qr Code, PDF417, C39, C39+, C39E, C39E+, C93, S25, S25+, I25, I25+, C128, C128A, C128B, C128C, 2-Digits UPC-Based Extention, 5-Digits UPC-Based Extention, EAN 8, EAN 13, UPC-A, UPC-E, MSI (Variation of Plessey code)",
-            "keywords": [
-                "CODABAR",
-                "CODE 128",
-                "CODE 39",
-                "barcode",
-                "datamatrix",
-                "ean",
-                "laravel",
-                "pdf417",
-                "qr code",
-                "qrcode"
-            ],
-            "support": {
-                "issues": "https://github.com/milon/barcode/issues",
-                "source": "https://github.com/milon/barcode/tree/8.0.1"
-            },
-            "funding": [
-                {
-                    "url": "https://paypal.me/tomilon",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/milon",
-                    "type": "github"
-                }
-            ],
-            "time": "2021-01-08T11:36:07+00:00"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
