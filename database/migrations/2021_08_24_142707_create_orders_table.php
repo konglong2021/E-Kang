@@ -22,6 +22,7 @@ class CreateOrdersTable extends Migration
             $table->double('vat')->nullable(); //default 10%
             $table->double('discount')->nullable();
             $table->double('grandtotal');
+            $table->double('kh_grandtotal')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

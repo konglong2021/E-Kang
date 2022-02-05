@@ -19,6 +19,7 @@ class Order extends Model
         'vat',
         'discount',
         'grandtotal',
+        'kh_grandtotal',
     ];
 
     protected static $logAttributes = [
@@ -29,6 +30,8 @@ class Order extends Model
         'vat',
         'discount',
         'grandtotal',
+        'kh_grandtotal',
+        
     ];
 
     public function orderdetails()

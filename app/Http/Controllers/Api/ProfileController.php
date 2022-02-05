@@ -111,9 +111,13 @@ class ProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Profile $profile)
     {
-        //
+        $profile->update($request->all());
+        return response()->json([
+            "success" => true,
+            "profile" => $profile
+        ], 200);
     }
 
     /**
@@ -122,8 +126,13 @@ class ProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Profile $profile)
     {
-        //
+        $profile->delete();
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully Deleted",
+            "profile" =>  $profile
+        ]);
     }
 }
