@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PurchasesResource;
-
+use Carbon\Carbon;
 class PurchasesController extends Controller
 {
     /**
@@ -24,11 +24,21 @@ class PurchasesController extends Controller
     public function index()
     {
         $purchase = Purchase::with('purchasedetails')
-                  ->orderBy('id', 'desc')->paginate(8);
+                  ->orderBy('id', 'desc')->get();
 
         return PurchasesResource::collection($purchase)->response();
 //       return response()->json($purchase);
     }
+
+    public function today()
+    {
+        $purchase = Purchase::with('purchasedetails')
+                    ->whereDate('created_at',Carbon::today())
+                  ->orderBy('id', 'desc')->get();
+
+        return PurchasesResource::collection($purchase)->response();
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -153,7 +163,8 @@ class PurchasesController extends Controller
      */
     public function show($id)
     {
-        //
+        $pdetail=Purchase::with('purchasedetails')->find($id);
+        return response()->json($pdetail);
     }
 
     /**
@@ -176,7 +187,116 @@ class PurchasesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'subtotal'     => [
+                'required',
+            ],
+            'grandtotal'    => [
+                'required',
+            ],
+            'supplier_id'    => [
+                'required',
+            ],
+            'warehouse_id'    => [
+                'required',
+            ],
+            'purchases'    => [
+                'required',
+            ],
+        ]);
+
+        // try{
+            try {
+                //code...
+           
+        DB::transaction(function () use ($request,$id ){
+        $purchase = Purchase::find($id);
+        $purchase->warehouse_id = $request->warehouse_id;
+        $purchase->supplier_id = $request->supplier_id;
+        $purchase->user_id = auth()->user()->id;
+        $purchase->batch = $request->batch;
+        $purchase->subtotal = $request->subtotal;
+        $purchase->vat = $request->vat;
+        $purchase->grandtotal = $request->grandtotal;
+        $purchase->update();
+
+        //stock roll back
+        $pdetail = PurchaseDetail::where('purchase_id',$purchase->id)->get();
+
+        foreach($pdetail as $detail)
+        {
+            $stock = Stock::where('product_id',$detail->product_id)
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+            $stock->total = $stock->total - $detail->quantity;
+            if($stock->total >= 0){
+                // throw new \Exception($stock);
+                $stock->update();
+            }else{
+                throw new \Exception($stock);
+            }
+        }
+        //end of stock roll back
+
+        // $user->roles()->sync($request->input('roles', []));
+
+        $purchase_details= $request->purchases; // purchase is the array of purchase details
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
+        
+
+        foreach($purchase_details as $item)
+        {
+
+            $pdetail = PurchaseDetail::Create([
+
+                'purchase_id' => $purchase->id,
+                'product_id' => $item['product_id'],
+                'unitprice' => $item['unitprice'],
+                'quantity' => $item['quantity'],
+    
+    
+            ] );
+            
+
+
+           
+
+            $stock = Stock::where('product_id',$item['product_id'])
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+
+
+
+            if ($stock !== null) {
+                $stock->total = $stock->total + $item['quantity'];
+                $stock->update();
+            } else {
+                $stock = Stock::create([
+                'product_id' => $item['product_id'],
+                'warehouse_id' => $request['warehouse_id'],
+
+                'alert' => 0,
+                'total' => $item['quantity'],
+                ]);
+            }
+        }
+
+
+            });
+            return response()->json([
+                "success" => true,
+                "message" => "Successfully Created",
+    
+            ]);
+         } catch (\Exception $th) {
+            DB::rollback();
+            // return response()->json($th);
+            throw $th;
+            // return response()->json("Insufficient Please Check again");
+         }
+//End of transaction
+
+        
     }
 
     /**
@@ -185,8 +305,41 @@ class PurchasesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function delete(Request $request ,$id)
+    {
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
+
+        foreach($pdetail as $detail)
+        {
+            $stock = Stock::where('product_id',$detail->product_id)
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+            $stock->total = $stock->total - $detail->quantity;
+            if($stock->total >= 0){
+                // throw new \Exception($stock);
+                $stock->update();
+            }else{
+                throw new \Exception($stock);
+            }
+        }
+       
+
+        $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
+        $Purchase = Purchase::find($id);
+
+        $Purchase->destroy($id);
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully Deleted",
+            "Purchase" =>  $Purchase
+        ]);
+      
+    }
+
+
     public function destroy($id)
     {
-        //
+        
     }
 }

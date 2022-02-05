@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\Profile;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -56,18 +58,22 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
-          
-           
+
+
         ]);
         //Hash::make($input['password'])
         $user = User::create([
-           
+
             'name' => $request['name'],
             'email' => $request['email'],
+            'warehouse_id' => $request['warehouse_id'],
             'password' => Hash::make($request['password']),
         ]);
 
         $token =  $user->createToken('Apptoken')->plainTextToken;
+
+        $user->roles()->sync(($request->roles));
+
         return response()->json([
             "success" => true,
             "message" => "User successfully Created",
@@ -107,7 +113,7 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
         $request->validate([
             'name'     => [
@@ -119,11 +125,11 @@ class UsersController extends Controller
                 'required',
             ],
         ]);
-        
+
         $user->update($request->all());
-        $user->roles()->sync(json_decode($request->input('roles', [])));
+        $user->roles()->sync(($request->roles));
         return response()->json([
-           
+           "success" =>true,
             "message" => "Successfully Updated",
             "user" =>  $user
         ]);
@@ -139,7 +145,7 @@ class UsersController extends Controller
     {
         $user->delete();
         return response()->json([
-           
+
             "message" => "Successfully Deleted",
             "user" =>  $user
         ]);
@@ -167,23 +173,14 @@ class UsersController extends Controller
             ],
         ]);
 
-        $user = User::where('email',$request['email'])->first();
-
-        // if(!$user || !Hash::check($request['password'], $user->password))
-        // {
-        //     return response()->json([
-        //         'message' => 'Email and Password invalid'
-        //     ],401);
-        // }
+        $user = User::where('email',$request['email'])->with('profile')->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        // if (!Auth::attempt($attr)) {
-        //     return $this->error('Credentials not match', 401);
-        // }
+
 
         $token =  $user->createToken('Apptoken')->plainTextToken;
         return response()->json([
@@ -192,5 +189,10 @@ class UsersController extends Controller
             "user" =>  $user,
             "Token" => $token
         ]);
+        
     }
+
+    // update user default warehouse
+    
+
 }

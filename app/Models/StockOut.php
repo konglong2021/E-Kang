@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Models;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 
 class StockOut extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
 
 
     protected $fillable = [
@@ -19,6 +19,13 @@ class StockOut extends Model
         'quantity',
         'user_id',
 
+    ];
+    protected static $logAttributes = [
+        'from_warehouse',
+        'product_id',
+        'to_warehouse',
+        'quantity',
+        'user_id',
     ];
 
     public function product()

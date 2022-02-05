@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseDetail extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
     use softDeletes;
 
     protected $table = 'purchase_details';
@@ -19,6 +20,12 @@ class PurchaseDetail extends Model
         'unitprice',
         'quantity',
        
+    ];
+    protected static $logAttributes = [
+        'purchase_id',
+        'product_id',
+        'unitprice',
+        'quantity',
     ];
 
     public function purchases()

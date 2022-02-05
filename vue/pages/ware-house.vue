@@ -2,10 +2,7 @@
   <b-container fluid class="bv-example-row main-page-content">
     <b-row>
       <div class="display-inline-block full-with">
-        <div class="content-loading" v-if="loadingFields">
-          <div class="spinner-grow text-muted"></div>
-        </div>
-        <div class="inventory-dashboard-content main-page-content" v-if="!loadingFields">
+        <div class="inventory-dashboard-content main-page-content">
           <div class="control-panel">
             <div class="panel-top">
               <div class="content-panel-left">
@@ -24,7 +21,7 @@
                     <div class="btn-wrapper">
                       <b-button href="#"  title="Add new WareHouse" size="sm" variant="primary"
                                 @click="showModal()">
-                        New Loyalty
+                        New WareHouse
                         <i class="fa fa-plus" aria-hidden="true"></i>
                       </b-button>
                     </div>
@@ -36,33 +33,35 @@
             </div>
           </div>
           <div class="content-product">
-
-
-            <b-table
-              :items="items"
-              :fields="fields"
-              stacked="md"
-              show-empty
-              small
-
-            >
-
-              <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
-                  <i class="fa fa-eye"></i>
-                </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustStock(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
-              </template>
-              <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
-            </b-table>
+            <div class="content-loading" v-if="loadingFields">
+              <div class="spinner-grow text-muted"></div>
+            </div>
+            <div v-if="!loadingFields">
+              <div v-if="items">
+                <b-table
+                  class="content-table-scroll-ware-house"
+                  sticky-header="true"
+                  :items="items"
+                  :fields="fields"
+                  head-variant="light">
+                  <template #cell(actions)="row">
+                    <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                      <i class="fa fa-eye"></i>
+                    </b-button>
+                    <b-button size="sm" title="Adjust invetory stock" variant="success" @click="editWareHouse(row.item, row.index, $event.target)">
+                      <i class="fa fa-edit"></i>
+                    </b-button>
+                  </template>
+                  <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
+                </b-table>
+              </div>
+            </div>
           </div>
           <div>
           </div>
         </div>
         <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
-                 @hidden="onResetWareHouse" cancel-title="Cancel"
+                 @hidden="onResetWareHouse" cancel-title="Cancel" no-close-on-backdrop
                  @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
           <b-form enctype="multipart/form-data">
             <div class="full-content">
@@ -100,15 +99,17 @@
           { key: 'actions', label: 'Actions' }
         ],
         warehouse: {},
-        loadingFields: false,
+        loadingFields: true,
         perPage: 8,
         currentPage: 1,
         totalRows: 0,
+        dataView: {},
       }
     },
     watch : {
       currentPage: {
         handler: function(value) {
+          this.loadingFields = true;
           this.getListData().catch(error => {
             console.error(error)
           });
@@ -118,17 +119,11 @@
     methods:{
       async getListData(){
         let vm = this;
-        vm.loadingFields = true;
         await this.$axios.get('/api/warehouse').then(function (response) {
           vm.loadingFields = false;
-          if(response.data.hasOwnProperty('meta')){
-            vm.perPage = response.data.meta["per_page"];
-            vm.currentPage = response.data.meta['current_page'];
-            vm.totalRows = response.data.meta['total'];
-          }
-          if(response && response.hasOwnProperty("data")){
-            if(response.data){
-              vm.items = this.cloneObject(response.data);
+          if(response && response.data.hasOwnProperty("data")){
+            if(response.data.data){
+              vm.items = vm.cloneObject(response.data.data);
             }
           }
         }).catch(function (error) {
@@ -139,15 +134,68 @@
       showModal(){
         this.$refs['warehouse-form-modal'].show();
       },
+      onResetWareHouse(){
 
-      onResetWareHouse(){},
-      onSubmitWareHouse(){},
+      },
+      async onSubmitWareHouse(){
+        let vm = this;
+        if(!vm.warehouse.hasOwnProperty("id")){
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.post('/api/warehouse/', vm.warehouse).then(function (response) {
+            vm.$toast.success("Submit data successfully").goAway(2000);
+            vm.loadingFields = false;
+            if(response && response.data.hasOwnProperty("warehouse")){
+              if(response.data.warehouse){
+                vm.items.push(response.data.warehouse);
+              }
+            }
+          }).catch(function (error) {
+            console.log(error);
+            vm.$toast.error("Getting data error").goAway(3000);
+          });
+        }
+        else {
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.put('/api/warehouse/' + vm.warehouse.id, vm.warehouse).then(function (response) {
+            vm.$toast.success("Submit data successfully").goAway(2000);
+            vm.loadingFields = false;
+            if(response && response.data.hasOwnProperty("warehouse")){
+              if(response.data.warehouse){
+                for(let i=0; i < vm.items.length; i++){
+                  if(vm.items[i]["id"] === response.data.warehouse.id){
+                    vm.items[i] = response.data.warehouse;
+                  }
+                }
+              }
+            }
+          }).catch(function (error) {
+            console.log(error);
+            vm.$toast.error("Getting data error").goAway(3000);
+          });
+        }
+        vm.warehouse = {};
+      },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
-      }
+      },
+      viewDetail(item, index, target){
+        this.categoryView = item;
+        this.$refs['brand-form-modal'].show();
+      },
+      editWareHouse(item, index, target){
+        this.warehouse = item;
+        console.log(this.warehouse);
+        this.showModal();
+      },
     },
     mounted() {
+      this.loadingFields = true;
       this.getListData();
     }
   }
 </script>
+<style scoped>
+  .content-table-scroll-ware-house{
+    max-height: calc(100vh - 165px);
+  }
+</style>

@@ -59,7 +59,7 @@
 
   </div>
       <b-modal id="modal-create-category" ref="brand-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cacnel"
+               @hidden="onReset" cancel-title="Cacnel" no-close-on-backdrop
                @ok="onSubmit" ok-title="Save" title="New Loyalty">
         <b-form enctype="multipart/form-data">
           <div class="full-content">

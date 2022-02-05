@@ -21,12 +21,21 @@
     "cookie-universal-nuxt": "^2.1.5",
     "core-js": "^3.15.1",
     "cors": "^2.8.5",
+    "inputmask-core": "^2.2.0",
     "jquery": "^3.6.0",
+    "jsbarcode": "^3.11.5",
     "nuxt": "^2.15.7",
     "nuxt-vue-multiselect": "^1.0.4",
-    "vue-i18n": "^8.26.1"
+    "require-vuejs": "^1.1.3",
+    "vee-validate": "^3.4.14",
+    "vue-barcode": "^1.3.0",
+    "vue-html-to-paper": "^1.4.4",
+    "vue-i18n": "^8.26.1",
+    "vue-input-mask": "^0.0.11",
+    "vue-numeric-keyboard": "^0.0.11"
   },
   "devDependencies": {
-    "@nuxtjs/fontawesome": "^1.1.2"
+    "@nuxtjs/fontawesome": "^1.1.2",
+    "@nuxtjs/moment": "^1.6.1"
   }
 }

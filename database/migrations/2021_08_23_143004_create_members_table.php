@@ -16,6 +16,8 @@ class CreateMembersTable extends Migration
         Schema::create('members', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->decimal('discount');
+            $table->boolean('default')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

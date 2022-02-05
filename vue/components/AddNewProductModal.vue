@@ -2,7 +2,10 @@
     <div>
       <b-modal id="modal-create-product" ref="product-form-modal" size="lg"
                @hidden="onReset" cancel-title="បោះបង់"
-               @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី">
+               @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី"
+               :ok-disabled="!product.brand || !product.category || !product.sale_price"
+               no-close-on-backdrop
+      >
         <b-form enctype="multipart/form-data">
           <div class="full-content">
             <div class="content-file-upload">
@@ -35,17 +38,24 @@
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
               <b-col sm="8">
-                <b-form-select :id="'input-category'" class="form-control input-content" v-model="product.category" :options="categories" required></b-form-select>
+                <b-form-select
+                  :id="'input-category'" class="form-control input-content"
+                  v-model="product.category" :options="categories" required></b-form-select>
               </b-col>
             </b-row>
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-brand'" class="label-input">ប្រេនទំនិញ</label></b-col>
               <b-col sm="8">
-                <multiselect class="input-content" v-model="product.brand" :options="brands" track-by="name" label="name" :show-labels="false" :multiple="true" aria-placeholder="Select brands"></multiselect>
+                <multiselect class="input-content"
+                             v-model="product.brand" :options="brands"
+                             track-by="name" label="name" :show-labels="false"
+                             :multiple="true" aria-placeholder="Select brands"
+                             @select="selectionChange"
+                             @remove="removeElement"></multiselect>
               </b-col>
             </b-row>
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់</label></b-col>
+              <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់ ($)</label></b-col>
               <b-col sm="8">
                 <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="product.sale_price" required></b-form-input>
               </b-col>
@@ -99,6 +109,8 @@
          handler(value){
            if(value==true){
               this.$refs['product-form-modal'].show();
+             this.getBrands();
+             this.getCategories();
            }
          },
          deep:true
@@ -107,12 +119,13 @@
         deep: true,
         handler: function(selectedProduct){
           this.product = selectedProduct;
+          //this.product['category'] = this.filterCategoriesData(selectedProduct["category_id"]);
         }
       }
     },
     mounted(){
-      this.getBrands();
-      this.getCategories();
+      //this.getBrands();
+      //this.getCategories();
     },
     methods: {
       checkForm: function (e) {
@@ -143,20 +156,35 @@
         e.preventDefault();
       },
       async getBrands(){
-        const response = await this.$axios.get('/api/brand');
-        if(response.data.data){
-          for(let index=0; index < response.data.data.length; index++){
-            this.brands.push({name : response.data.data[index]["name"], value : response.data.data[index]["id"]});
-          }
-        }
+        let vm = this;
+        vm.brands = [];
+        await vm.$axios.get('/api/brand')
+          .then(function (response) {
+            if(response.data.brands){
+              for(let index=0; index < response.data.brands.length; index++){
+                vm.brands.push({name : response.data.brands[index]["name"], value : response.data.brands[index]["id"]});
+              }
+            }
+          }).catch(function (error) {
+            vm.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+          });
       },
       async getCategories(){
-        const response = await this.$axios.get('/api/category');
-        if(response.data.data){
-          for(let index=0; index < response.data.data.length; index++){
-            this.categories.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+        let vm = this;
+        vm.categories = [];
+        vm.$axios.get('/api/category')
+          .then(function (response) {
+            if(response.data.data){
+              for(let index=0; index < response.data.data.length; index++){
+                vm.categories.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+            }
           }
-        }
+        })
+        .catch(function (error) {
+            vm.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+        });
       },
       onReset(event) {
         event.preventDefault();
@@ -184,35 +212,39 @@
           document.getElementById("output").setAttribute("style","background-image: url(" + e.target.result + ')');
         };
         reader.readAsDataURL($event.target.files[0]);
-        console.log(this.product.image);
       },
       async onSubmit(event) {
+        let vm = this;
         let brands= [];
         let formData = new FormData();
-        if(this.product.brand && this.product.brand.length > 0){
-          for(let index=0; index < this.product.brand.length; index++){
-            brands.push(this.product.brand[index]["value"]);
+
+        if(vm.product.brand && vm.product.brand.length > 0){
+          for(let index=0; index < vm.product.brand.length; index++){
+            brands.push(vm.product.brand[index]["value"]);
           }
         }
-        formData.append("en_name", this.product.en_name);
-        formData.append("kh_name", this.product.kh_name);
-        formData.append("category_id", this.product.category);
-        formData.append("description", this.product.description);
-        formData.append("image", this.uploadFile);
-        formData.append("sale_price", this.product.sale_price);
+        formData.append("en_name", vm.product.en_name);
+        formData.append("kh_name", vm.product.kh_name);
+        formData.append("category_id", vm.product.category);
+        formData.append("description", vm.product.description);
+        formData.append("image", vm.uploadFile);
+        formData.append("sale_price", vm.product.sale_price);
         formData.append("brands" , JSON.stringify(brands));
-        let vm = this;
 
-        if(this.product.hasOwnProperty("id") && this.product.id){
+        if(vm.product.hasOwnProperty("id") && vm.product.id){
           formData.append("_method", "PUT");
 
-          this.$toast.info("Data starting submit").goAway(1500);
-          await this.$axios.post('/api/product/' + this.product.id, formData)
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.post('/api/product/' + vm.product.id, formData)
             .then(function (response) {
               if(response){
+                console.log(response.data);
                 vm.$toast.success("Submit data successfully").goAway(2000);
-                let itemProduct = response.data.product;
-                vm.$emit("checkingProductAdd", itemProduct);
+               if(response.hasOwnProperty("data") && response.data){
+                 let Brands = response.data.Brands;
+                 let itemProduct = vm.cloneObject(response.data.product);
+                 vm.$emit("checkingProductAdd", {itemProduct: vm.cloneObject(itemProduct), brands: Brands});
+               }
                 vm.hideModal();
                 vm.product =
                   {
@@ -233,12 +265,12 @@
             });
         }
         else {
-          this.$toast.info("Data starting submit").goAway(1500);
-          await this.$axios.post('/api/product', formData)
+          vm.$toast.info("Data starting submit").goAway(1500);
+          await vm.$axios.post('/api/product', formData)
             .then(function (response) {
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
-                let brandList = response.data.Brands;
+                let brandList = response.data.hasOwnProperty("Brands") ? response.data.Brands : [];
                 let itemProduct = response.data.product;
                 let newDataBrand = [];
                 if(vm.brands.length > 0){
@@ -251,8 +283,11 @@
                     }
                   }
                 }
-                if(brandList.length > 0){
-                  itemProduct.brands = brandList;
+                if(response.data.hasOwnProperty("Brands")){
+                  let brandList = response.data.Brands;
+                  if(brandList.length > 0){
+                    itemProduct.brands = brandList;
+                  }
                 }
                 vm.$emit("checkingProductAdd", itemProduct);
                 vm.hideModal();
@@ -273,9 +308,29 @@
       },
       generateImageUrlDisplay(img){
         if (typeof window !== "undefined") {
-          return window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img;
+          if((img !== "no image" && img !== "no image created")){
+            return (window.location.protocol + "//" + window.location.hostname + ":8000/" + "storage/img/" + img) ;
+          }
         }
-      }
+      },
+      filterCategoriesData(category_id){
+        if(this.categories.length > 0){
+          for (let k=0; k < this.categories.length; k++){
+            if(category_id === this.categories[k]["value"]){
+              return this.categories[k]["value"];
+            }
+          }
+        }
+      },
+      selectionChange($obj){
+        this.$forceUpdate();
+      },
+      removeElement($obj){
+        this.$forceUpdate();
+      },
+      cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      },
     },
   }
 </script>

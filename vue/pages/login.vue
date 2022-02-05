@@ -6,47 +6,47 @@
               <div class="mx-auto">
                   <center><h2>Login</h2></center>
               </div>
-        <b-form @submit.prevent="onSubmit">
-          <b-form-group
-            id="input-group-1"
-            label="Username:"
-            label-for="input-1"
-          >
-            <b-form-input
-              id="input-1"
-              v-model="form.email"
-              placeholder="Username"
-              required
-            ></b-form-input>
-          </b-form-group>
+            <ValidationObserver v-slot="{ invalid }">
+              <b-form @submit.prevent="onSubmit">
+                <b-form-group id="input-group-1">
+                  <b-form-input
+                    id="input-1" v-model="form.email"
+                    placeholder="Username" required focus
+                  ></b-form-input>
 
-          <b-form-group
-            id="input-group-2"
-            label="Password:"
-            label-for="input-2"
-          >
-            <b-form-input
-              id="input-2"
-              v-model="form.password"
-              placeholder="Enter passwrod"
-              type="password"
-              required
-            ></b-form-input>
-          </b-form-group>
+                </b-form-group>
 
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="checkPassword"
+                  rules="required">
+                  <b-form-group id="input-group-2">
+                    <b-form-input
+                      id="input-2" v-model="form.password"
+                      placeholder="Enter passwrod" type="password" required
+                      :error-messages="errors"
+                    ></b-form-input>
+                    <span class="input-invalid-message" style="color: red;">
+                        {{ errors[0] }}
+                      </span>
+                  </b-form-group>
+                </ValidationProvider>
 
-
-          <b-button type="submit" class="col-sm-12" variant="success"> Login </b-button>
-
-        </b-form>
-
+                <b-button type="submit" class="col-sm-12" variant="success"> Login </b-button>
+              </b-form>
+            </ValidationObserver>
           </div>
       </b-row>
     </b-container>
   </div>
 </template>
 <script>
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 export default {
+    components: {
+      ValidationObserver: ValidationObserver,
+      ValidationProvider: ValidationProvider
+    },
   layout: "main",
   data() {
     return {
@@ -54,22 +54,55 @@ export default {
         email: "",
         password: "",
       },
-      show: true
+      show: true,
+      isExist: false,
+      loginUser : {},
+      storeList : [],
     };
   },
   methods: {
     async onSubmit(event) {
-      let response = await this.$axios.post('/api/login', this.form);
-      let token = response.data.Token;
-      let user = response.data.user;
-      await this.$store.commit('auth/setToken', token);
-      await this.$store.commit('auth/updateUser', user);
-      console.log("Login " + this.$store.getters['auth/token']);
-      await this.$router.push('/');
-    }
+      let self = this;
+      await self.$axios.post('/api/login', self.form).then(function (response) {
+        if(response && response.hasOwnProperty("data")){
+          let token = response.data.Token;
+          let user = self.cloneObject(response.data.user);
+          self.$store.commit('auth/setToken', token);
+          self.$store.commit('auth/setUser', user);
+          self.$store.commit('auth/setStoreItem', user.warehouse_id);
+          self.$router.push('/');
+        }
+      }).catch(function (error) {
+        console.log(error);
+        self.form.email = null;
+        self.form.password = null;
+        self.form.isFieldError = true;
+        self.$toast.error("getting data error ").goAway(2000);
+      });
+    },
+    cloneObject(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    },
   },
   mounted(){
     //this.form.email.focus();
+  },
+  checkPassword() {
+    const that = this;
+    clearTimeout(this.timeout);
+    this.timeout = setTimeout(function() {
+      that.$axios
+        .post("/user", { password: that.form.password })
+        .then(response => {
+          that.isExist = response.data.isExist;
+          if (that.isExist) {
+          } else {
+            error[0] ="text";
+
+            // do something if username not exist
+          }
+        });
+    }, 1400);
   }
 };
 </script>

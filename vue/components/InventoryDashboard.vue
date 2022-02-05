@@ -1,13 +1,10 @@
 <template>
   <div class="inventory-dashboard-content main-page-content">
-    <div class="content-loading" v-if="loadingFields && (loadingFields.productListLoading || loadingFields.supplierListLoading || loadingFields.warehouseListLoading)">
-      <div class="spinner-grow text-muted"></div>
-    </div>
-    <div v-if="!loadingFields.productListLoading && !loadingFields.supplierListLoading && !loadingFields.warehouseListLoading">
+    <div class="full-content">
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-left">
-            <h3 class="head-title">Inventory Overview</h3>
+            <h3 class="head-title">{{ $t('title') }} Inventory Overview</h3>
           </div>
           <div class="content-panel-right">
             <b-container class="col-12 mx-auto menu-wrapper">
@@ -15,7 +12,7 @@
                 <b-col>
                   <div class="input-group input-group-sm search-content">
                     <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                    <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                    <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchStock()" @change="handleClick" />
                   </div>
                 </b-col>
 
@@ -60,7 +57,7 @@
               <span class="margin-span-btn">Check Stock</span>
             </b-button>
           </div>
-          <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase">
+          <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
               <div>
                 <label class="label-with">Supplier</label>
@@ -74,17 +71,21 @@
                 <b-button
                   href="#" size="sm" variant="primary"
                   title="Add product to stock"
-                  :disabled="warehouses.length === 0 && suppliers.length === 0"
-                  @click="showExistingProductModal()">Add product to stock</b-button>
+                  :disabled="(warehouses.length === 0 && suppliers.length === 0) || products.length === 0"
+                  @click="showExistingProductModal()">
+                  Add product to stock
+                </b-button>
                 <b-button
                   v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
                   href="#" size="sm" variant="primary"
-                  title="Save stock" @click="submitPurchase()"
-                >Save purchase</b-button>
+                  title="Save stock" @click="submitPurchase()">
+                  Save purchase
+                </b-button>
                 <b-button
                   href="#" size="sm" variant="primary"
-                  title="Discard stock" @click="discardPurchase()"
-                >Discard add stock</b-button>
+                  title="Discard stock" @click="discardPurchase()">
+                  Discard add stock
+                </b-button>
               </div>
             </div>
             <div class="display-inline-block content-field-purchase float-right">
@@ -98,14 +99,11 @@
               </div>
             </div>
           </div>
-          <div class="margin-5" v-if="isShowFormAddProductInPurchase">
+          <div class="margin-5" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <h4 class="font-700">Product list</h4>
-            <b-table
-              :items="items"
-              :fields="fields"
-              stacked="md"
-              show-empty
-              small
+            <b-table :items="items"
+              :fields="fields" stacked="md"
+              show-empty small
             >
               <template #cell(actions)="row">
                 <b-button size="sm" title="Adjust product select" variant="success" @click="adjustProductAdd(row.item, row.index, $event.target)">
@@ -118,16 +116,17 @@
               <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
             </b-table>
           </div>
-          <div>
-            <div class="content-loading" v-if="loadingFields.stockLoading">
+          <div class="full-content">
+            <div class="content-loading" v-if="loadingFields.stockLoading || loadingFields.productListLoading">
               <div class="spinner-grow text-muted"></div>
             </div>
-            <b-table v-if="!loadingFields.stockLoading && isShowStockTable"
-                     :items="stockItems"
-                     :fields="stockFields"
-                     stacked="md"
-                     show-empty
-                     small
+            <b-table
+              class="content-table-scroll"
+              v-if="!loadingFields.stockLoading && isShowStockTable"
+              sticky-header="true"
+              :items="stockItems"
+              :fields="stockFields"
+              head-variant="light"
             >
               <template #cell(image)="row">
                 <div class="pro-img">
@@ -138,10 +137,13 @@
         </div>
       </div>
     </div>
+
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
              @hidden="onResetSupplier" cancel-title="Cancel"
-             @ok="onSubmitSupplier" ok-title="Save" title="New Supplier">
+             @ok="onSubmitSupplier" ok-title="Save" title="New Supplier"
+             no-close-on-backdrop
+    >
       <b-form enctype="multipart/form-data">
         <div class="full-content">
         </div>
@@ -175,7 +177,9 @@
     </b-modal>
     <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
              @hidden="onResetWareHouse" cancel-title="Cancel"
-             @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse">
+             @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse"
+             no-close-on-backdrop
+    >
       <b-form enctype="multipart/form-data">
         <div class="full-content">
         </div>
@@ -196,8 +200,8 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
-             @hidden="onResetExistingProduct" cancel-title="Cancel"
-             @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product">
+      @hidden="onResetExistingProduct" cancel-title="Cancel"
+      @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product" no-close-on-backdrop>
       <b-form enctype="multipart/form-data">
         <div class="full-content" v-if="products && products.length > 0">
           <div class="display-inline-block full-with">
@@ -207,7 +211,7 @@
                 <b-form-select class="form-control select-content-inline" v-model="product_select.product" :options="products" @change="selectedProduct(productList, product_select.product)"></b-form-select>
               </div>
               <div class="form-group form-content-detail">
-                <label class="label-with">Import price</label>
+                <label class="label-with">Import price ($)</label>
                 <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" :disabled="isDisabledImportPrice === true"></b-form-input>
               </div>
               <div class="form-group form-content-detail">
@@ -219,9 +223,9 @@
         </div>
       </b-form>
     </b-modal>
-    <b-modal id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
-             cancel-title="No"
-             @ok="removeProductAdd(product_select)" ok-title="Yes">
+    <b-modal
+      id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
+      cancel-title="No" @ok="removeProductAdd(product_select)" ok-title="Yes" no-close-on-backdrop>
       <h3 class="center">Are you sure want to remove product select from list?</h3>
     </b-modal>
   </div>
@@ -231,40 +235,38 @@
   export default {
     data() {
       return {
-        newProductModal:{
-          showModal:false
-        },
-        loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: false},
-        items:[],
+        newProductModal: {showModal:false},
+        loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: true},
+        items: [],
         fields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
-          { key: 'code', label: 'QR Code' },
-          { key: 'sale_price', label: 'Sell Price' },
+          { key: 'code', label: 'Bar Code' },
+          { key: 'sale_price', label: 'Sell Price ($)' },
           { key: 'import_price', label: 'Import Price' },
           { key: 'qty', label: 'Qty' },
           { key: 'actions', label: 'Actions' }
         ],
-        purchaseItems:[],
+        purchaseItems: [],
         purchaseFields: [
           { key: 'en_name', label: 'Name' },
           { key: 'kh_name', label: 'Name(KH)' },
-          { key: 'code', label: 'QR Code' },
-          { key: 'sale_price', label: 'Sell Price' },
-          { key: 'import_price', label: 'Import Price' },
+          { key: 'code', label: 'Bar Code' },
+          { key: 'sale_price', label: 'Sell Price ($)' },
+          { key: 'import_price', label: 'Import Price ($)' },
           { key: 'product_qty', label: 'Qty' },
           { key: 'store', label: 'Store' },
           { key : 'supplier', label: "Supplier"},
           { key: 'actions', label: 'Actions' }
         ],
-        stockItems:[],
+        stockItems: [],
         stockFields: [
-          { key: 'en_name', label: 'Name' },
-          { key: 'kh_name', label: 'Name(KH)' },
+          { key: 'en_name', label: 'Name'},
+          { key: 'kh_name', label: 'Name(KH)'},
           { key: 'image', label: 'Icon' },
-          { key: 'code', label: 'QR Code' },
-          { key: 'sale_price', label: 'Sell Price' },
-          { key: 'product_qty', label: 'Total in stock' },
+          { key: 'code', label: 'Bar Code'},
+          { key: 'sale_price', label: 'Sell Price ($)'},
+          { key: 'product_qty', label: 'Total in stock'},
           { key: 'store', label: 'Store' },
         ],
         product: {
@@ -289,12 +291,12 @@
           subtotal: 0,
           grandtotal: 0,
           qty: 0,
-          batch: null
+          batch: this.generateBatch(),
         },
         products: [],
         productList: [],
-        suppliers: [],
-        warehouses: [],
+        suppliers: [{text : "ជ្រើសរើស អ្នកផ្គត់ផ្គង់", value : null}],
+        warehouses: [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
         isAddMoreProduct : false,
         isShowFormPurchase: false,
         isAddExistingProduct: false,
@@ -325,6 +327,9 @@
         removeProductSelect: {},
         isDisabledImportPrice : false,
         isUpdateProductAdd: false,
+        purchases: [],
+        searchInput: null,
+        excelImportFile: null,
       };
     },
     watch:{
@@ -342,9 +347,9 @@
         vm.loadingFields.stockLoading = true;
         vm.$axios.get('/api/stock')
           .then(function (response) {
-            if(response.data.data){
+            if(response.data){
               vm.loadingFields.stockLoading = false;
-              let dataStock = response.data.data;
+              let dataStock = response.data;
               if(dataStock && dataStock.length > 0){
                 for (let i=0; i < dataStock.length; i++){
                   vm.stock = {};
@@ -366,9 +371,11 @@
             console.log(error);
           });
       },
+
       async onResetExistingProduct(){
         this.product_select = {};
       },
+
       onSubmitExistingProduct($product){
         let items = [];
         if(this.items && this.items.length > 0){
@@ -409,9 +416,11 @@
         };
         this.isDisabledImportPrice = false;
       },
+
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
+
       selectedProduct(productList, productId){
         this.isAddMoreProduct = true;
         let isFoundAlreadyAdd = false;
@@ -447,15 +456,18 @@
           }
         }
       },
+
       adjustProductAdd(item, index, target){
         this.product_select = item;
         this.product_select["isUpdateProductAdd"] = true;
         this.$refs['existing-product-form-modal'].show();
       },
+
       showRemoveProductSelect(item, index, target){
         this.removeProductSelect = item;
         this.$refs['remove-existing-product-form-modal'].show();
       },
+
       removeProductAdd(){
         let removeItemId = null;
         for(let j=0; j < this.items.length; j++){
@@ -465,17 +477,19 @@
           }
         }
         if(removeItemId !== null){
-          this.items.slice(removeItemId, 1);
+          this.items.splice(removeItemId, 1);
         }
       },
 
       async getProductList(){
         let vm = this;
+        vm.products = [];
+
         vm.loadingFields.productListLoading = true;
-        await this.$axios.get('/api/product').then(function (response) {
+        await vm.$axios.get('/api/product').then(function (response) {
           vm.loadingFields.productListLoading = false;
           if(response && response.hasOwnProperty("data")){
-            let dataResponse = response.data.data;
+            let dataResponse = response.data;
             if(dataResponse){
               for(let index=0; index < dataResponse.length; index++){
                 let productItem =  { text: '', value: null};
@@ -491,10 +505,11 @@
           vm.$toast.error("getting data error ").goAway(2000);
         });
       },
+
       async getAllWarehouse(){
         let vm = this;
-        this.loadingFields.warehouseListLoading = true;
-        await this.$axios.get('/api/warehouse').then(function (response) {
+        vm.loadingFields.warehouseListLoading = true;
+        await vm.$axios.get('/api/warehouse').then(function (response) {
           vm.loadingFields.warehouseListLoading = false;
           if(response && response.hasOwnProperty("data")){
             if(response.data.data){
@@ -512,15 +527,16 @@
           vm.$toast.error("Getting data error").goAway(3000);
         });
       },
+
       async getAllSupplier(){
         let vm = this;
         vm.loadingFields.supplierListLoading = true;
-        await this.$axios.get('/api/supplier')
+        await vm.$axios.get('/api/supplier')
           .then(function (response) {
             vm.loadingFields.supplierListLoading = false;
             if(response && response.hasOwnProperty("data")){
-              if(response.data.data){
-                let data = response.data.data;
+              if(response.data){
+                let data = response.data;
                 for(let index=0; index < data.length; index++){
                   let supplierItem =  { text: '', value: null};
                   supplierItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
@@ -538,19 +554,21 @@
 
       viewDetailStock(item, index, target){
       },
+
       adjustStock( item,index,target ){
         alert('adjust stock click '+index);
       },
 
       showModal(){
-        //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
-        //alert('Debug me , I am going to popup the modal');
-        //console.log('modal data' ,this.newProductModal);
       },
 
       showSupplierModal(){
         this.$refs['supplier-form-modal'].show();
+        this.supplier ={};
+      },
+      hideSupplierModal(){
+        this.$refs['supplier-form-modal'].hide();
       },
       onResetSupplier(){},
       onSubmitSupplier(){
@@ -569,16 +587,19 @@
               supplierItem.value = data["id"];
               vm.suppliers.push(supplierItem);
             }
-            vm.hideModal();
+            vm.hideSupplierModal();
           })
           .catch(function (error) {
             vm.$toast.error("getting data error ").goAway(2500);
             console.log(error);
           });
       },
-
       showWareHouseModal(){
+        this.warehouse = {};
         this.$refs['warehouse-form-modal'].show();
+      },
+      hideModalWareHouse(){
+        this.$refs['warehouse-form-modal'].hide();
       },
       onResetWareHouse(){},
       async onSubmitWareHouse(){
@@ -587,7 +608,7 @@
         vm.loadingFields.warehouseListLoading = true;
         vm.$toast.info("Data starting submit").goAway(1500);
 
-        await this.$axios.post('/api/warehouse', this.warehouse)
+        await this.$axios.post('/api/warehouse', vm.warehouse)
           .then(function (response) {
             if(response.data.warehouse){
               vm.loadingFields.warehouseListLoading = false;
@@ -597,7 +618,7 @@
               warehouseItem.text = data["name"] + "(" + data["address"] + ")";
               warehouseItem.value = data["id"];
               vm.warehouses.push(warehouseItem);
-              this.hideModal();
+              vm.hideModalWareHouse();
             }
           })
           .catch(function (error) {
@@ -605,20 +626,17 @@
             vm.$toast.error("Submit data getting error").goAway(3000);
           });
       },
-
-      getCurrentDate(){
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var day = (dd<10) ? '0'+dd : dd;
-        var month = (mm<10) ? '0'+mm : mm;
-        var yyyy = today.getFullYear();
-        return day+'_'+month+'_'+yyyy;
-      },
-
       showPurchaseModal(){
         this.isShowFormAddProductInPurchase = true;
         this.isShowStockTable = false;
+        this.items = [];
+        this.purchase.supplier = null;
+        this.purchase.vat = null;
+        this.purchase.warehouse = this.$store.$cookies.get("storeItem");
+
+        this.getProductList();
+        this.getAllWarehouse();
+        this.getAllSupplier();
       },
       discardPurchase(){
         this.isShowFormAddProductInPurchase = false;
@@ -630,34 +648,68 @@
       },
       async submitPurchase(){
         let dataSubmit = {};
-        dataSubmit["warehouse_id"] = this.purchase.warehouse;
-        dataSubmit["supplier_id"] = this.purchase.supplier;
-        dataSubmit["batch"] = "V_" + this.purchase.batch;
+        let vm = this;
+        dataSubmit["warehouse_id"] = vm.purchase.warehouse;
+        dataSubmit["supplier_id"] = vm.purchase.supplier;
+        dataSubmit["batch"] = vm.purchase.batch;
+        dataSubmit["vat"] = vm.purchase.vat;
 
         let purchaseDetail = [];
         let subtotal = 0;
-        for(let index=0; index < this.items.length; index++){
+        for(let index=0; index < vm.items.length; index++){
           let purchaseDetailItem = {};
           let productTotalPrice = 0;
 
-          purchaseDetailItem['product_id']= this.items[index]['id'];
-          purchaseDetailItem['unitprice'] = this.items[index]['import_price'];
-          purchaseDetailItem['quantity'] = this.items[index]['qty'];
-          productTotalPrice = parseInt(this.items[index]['qty']) * parseFloat(this.items[index]['import_price']);
+          purchaseDetailItem['product_id']= vm.items[index]['id'];
+          purchaseDetailItem['unitprice'] = vm.items[index]['import_price'];
+          purchaseDetailItem['quantity'] = vm.items[index]['qty'];
+          productTotalPrice = parseInt(vm.items[index]['qty']) * parseFloat(this.items[index]['import_price']);
           subtotal += productTotalPrice;
           purchaseDetail.push(purchaseDetailItem);
         }
+        let vat = vm.purchase.vat !== null ? vm.purchase.vat : 0;
         dataSubmit["purchases"] = purchaseDetail;
         dataSubmit["subtotal"] = subtotal;
-        dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(this.purchase.vat)));
-        let vm = this;
+        dataSubmit["grandtotal"] = (subtotal + (subtotal * parseFloat(vat)));
+
         vm.loadingFields.stockLoading = true;
+        vm.isShowFormAddProductInPurchase = false;
+
         vm.$toast.info("Data starting submit").goAway(1500);
         await this.$axios.post('/api/purchase', dataSubmit)
           .then(function (response) {
-            if(response){
+            if(response && response.hasOwnProperty("data")){
+              vm.isShowStockTable = true;
               vm.loadingFields.stockLoading = false;
+              vm.purchase = {};
               vm.$toast.success("Submit data successfully").goAway(2000);
+              if(response && response.data && response.data.message){
+                vm.$axios.get('/api/stock')
+                  .then(function (response) {
+                    if(response.data){
+                      vm.stockItems = [];
+                      let dataStock = response.data;
+                      if(dataStock && dataStock.length > 0){
+                        for (let i=0; i < dataStock.length; i++){
+                          vm.stock = {};
+                          let product = dataStock[i]["product"];
+                          vm.stock.store = dataStock[i]["warehouse"]["name"] + " (" + dataStock[i]["warehouse"]["address"] + ")";
+                          vm.stock.product_qty = dataStock[i]["total"].toString();
+                          vm.stock.en_name = product["en_name"];
+                          vm.stock.kh_name = product["kh_name"];
+                          vm.stock.code = product["code"];
+                          vm.stock.image = product["image"];
+                          vm.stock.sale_price = product["sale_price"].toString();
+                          vm.stockItems.push(vm.stock);
+                        }
+                      }
+                    }
+                  })
+                  .catch(function (error) {
+                    vm.$toast.error("getting data error ").goAway(2000);
+                    console.log(error);
+                  });
+              }
             }
           })
           .catch(function (error) {
@@ -670,11 +722,11 @@
         await this.$axios.get('/api/purchase')
           .then(function (response) {
             if(response.data.data){
-              let responsePurchases = response.data.data;
-              if(responsePurchases && responsePurchases.length > 0){
-                for (let index=0; index < responsePurchases.length; index++){
-                }
-              }
+              vm.purchases = vm.cloneObject(response.data.data);
+              vm.purchases.sort(function(a, b) {
+                return a.batch.localeCompare(b.batch);
+              });
+              console.log(vm.purchases);
             }
           })
           .catch(function (error) {
@@ -682,7 +734,6 @@
             vm.$toast.success("Submit data getting error").goAway(3000);
           });
       },
-
       renderProductOptionData(product){
         let productItem =  { text: '', value: null};
         productItem.text = product["en_name"] + " (" + product["kh_name"] + ")";
@@ -695,16 +746,81 @@
           await this.productList.push($event);
         }
       },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = '';
+          this.showStockTable();
+        }
+      },
+
+      async searchStock() {
+        this.isLoading = true;
+        this.items = [];
+        let self = this;
+        await self.$axios.post('/api/stock/search', {search: self.searchInput}).then(function (response) {
+          if(response.data){
+            self.loadingFields.stockLoading = false;
+            let dataStock = response.data;
+            if(dataStock && dataStock.length > 0){
+              for (let i=0; i < dataStock.length; i++){
+                self.stock = {};
+                let product = dataStock[i]["product"];
+                self.stock.store = dataStock[i]["warehouse"]["name"] + " (" + dataStock[i]["warehouse"]["address"] + ")";
+                self.stock.product_qty = dataStock[i]["total"].toString();
+                self.stock.en_name = product["en_name"];
+                self.stock.kh_name = product["kh_name"];
+                self.stock.code = product["code"];
+                self.stock.image = product["image"];
+                self.stock.sale_price = product["sale_price"].toString();
+                self.stockItems.push(vm.stock);
+              }
+            }
+          }
+        }).catch(function (error) {
+            self.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+        });
+      },
 
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
-      }
+      },
+
+      generateBatch(){
+        console.log(this.purchases);
+        return this.getFullDate() + "_v";
+      },
+
+      getFullDateAndTime(){
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth() + 1; //January is 0!
+        let day = (dd < 10) ? ('0' + dd) : dd;
+        let month = (mm < 10) ? ('0' + mm) : mm;
+        let yyyy = today.getFullYear();
+        let hours = today.getHours();
+        let minutes = today.getMinutes();
+        let time = today.getTime();
+        return (yyyy + "" + month + "" + day + "" + "" + hours + "" + "" + minutes + "" + time);
+      },
+
+      getFullDate(){
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = (today.getMonth() + 1); //January is 0!
+        let day = (dd < 10) ? ("0" + dd) : dd;
+        let month = (mm < 10) ? ("0" + mm) : mm;
+        let yyyy = today.getFullYear();
+
+        return (yyyy + "" + month + "" + day);
+      },
+
     },
     mounted() {
-      this.getDataPurchase();
-      this.getProductList();
-      this.getAllWarehouse();
-      this.getAllSupplier();
+      // this.getDataPurchase();
+      //this.getProductList();
+      //this.getAllWarehouse();
+      //this.getAllSupplier();
       this.showStockTable();
     }
   }

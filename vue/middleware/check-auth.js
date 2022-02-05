@@ -1,8 +1,6 @@
 
 export default async ({ $axios, store }) => {
-  //const token = store.getters['auth/token'];
   const token = store.$cookies.get("token");
-
   if (process.server) {
     if (token) {
       $axios.defaults.headers.common.Authorization = `Bearer ${token}`;

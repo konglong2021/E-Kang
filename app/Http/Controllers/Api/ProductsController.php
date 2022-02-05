@@ -23,13 +23,22 @@ class ProductsController extends Controller
         if (empty($request->all())) {
             $products = Product::with('brands')
             ->with('categories')
-            ->orderBy('id', 'desc')->paginate(15);
-        }else {
+            ->orderBy('id', 'desc')->get();
+        }
+        else {
           $query = $request->input('search');
-          $products= Product::where('en_name','like','%'.$query.'%')
+          /*$products= Product::where('en_name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
                         ->orwhere('code','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(8);
+                        ->orderBy('id','desc')->get();*/
+            $productQuery = Product::query();
+            $productQuery->where('en_name','like','%'.$query.'%');
+            $productQuery->orWhere('kh_name','like','%'.$query.'%');
+            $productQuery->orWhere('code','like','%'.$query.'%');
+            $productQuery->with('brands');
+            $productQuery->with('categories');
+            $productQuery->orderBy('id', 'desc');
+            $products = $productQuery->get();
         }
 
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
@@ -39,22 +48,35 @@ class ProductsController extends Controller
        return response()->json($products);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+
+
+    function generateBarcodeNumber() {
+        $number = mt_rand(100000000000, 999999999999); // better than rand()
+
+        // call the same function if the barcode exists already
+        if ($this->barcodeNumberExists($number)) {
+           return generateBarcodeNumber();
+        }
+
+        // otherwise, it's valid and can be used
+        return $number;
+     }
+
+     function barcodeNumberExists($number) {
+         //$product = Product::where('code',$number)->first();
+
+        // query the database and return a boolean
+        return Product::where('code',$number)->exists();
+     }
+
+
+     public function show($id)
     {
-        //
+        $barcode = $this->generateBarcodeNumber();
+        return response()->json($barcode);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
 
@@ -75,8 +97,8 @@ class ProductsController extends Controller
         //  dd($request);
 
 
-         $prefix = date("ymd");
-         $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        //  $prefix = date("ymd");
+        //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $code = IdGenerator::generate(['table' => 'products','field'=>'code', 'length' => 12, 'prefix' =>date('P')]);
 
         if ($image = $request->file('image')) {
@@ -90,11 +112,27 @@ class ProductsController extends Controller
             $image_name ="no image created";
         }
 
+
+
+
+        //Barcode check if not submit barcode will auto generate
+        if(!$request['code']){
+            $code=$this->generateBarcodeNumber();
+        }else{
+            if ($this->barcodeNumberExists( $request['code'])) {
+                $code = $this->generateBarcodeNumber();
+             }else{
+                $code =$request['code'];
+             }
+           
+        }
+
+
         $product = Product::create([
 
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
-            'code' => $code,
+            'code' =>$code,
             'description' => $request['description'],
             'category_id' => $request['category_id'],
             'sale_price' => $request['sale_price'],
@@ -115,8 +153,6 @@ class ProductsController extends Controller
 
     public function update(Request $request, Product $product)
     {
-
-
         $input = $request->all();
 //         return response()->json($input);
 
@@ -128,21 +164,20 @@ class ProductsController extends Controller
             $image_name = time().'.'.$request->image->extension();
             $path = $request->file('image')->storeAs($destination_path,$image_name);
             $input['image'] = $image_name;
-        }else{
+        }
+        else{
             unset($input['image']);
         }
 
         $product->update($input);
-
         $brands =($request->brands) ;
         $product->brands()->sync(json_decode($brands));
         $brandsStr = implode(",", json_decode($brands));
-
             return response()->json([
-
+            "success" => true,
             "message" => "Successfully Updated",
             "product" =>  $product,
-                "Brands" => $brandsStr
+            "Brands" => $brandsStr
         ]);
     }
 

@@ -20,12 +20,12 @@ class CategoriesController extends Controller
         if (empty($request->all())) {
             $categories = Category::withCount('products')
                         ->with('brands')
-                        ->orderBy('id', 'desc')->paginate(10);
+                        ->orderBy('id', 'desc')->get();
         }else {
           $query = $request->input('search');
           $categories= Category::where('name','like','%'.$query.'%')
                         ->orwhere('kh_name','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(15);
+                        ->orderBy('id','desc')->get();
         }
 
         
@@ -56,7 +56,7 @@ class CategoriesController extends Controller
             'description' => $request->description,
         ]);
         $brands = ($request->brands);
-        $categories->brands()->sync(json_decode($brands));
+        $categories->brands()->sync(($brands));
         return response()->json([
             "success" => true,
             "message" => "Category successfully Created",
@@ -99,11 +99,12 @@ class CategoriesController extends Controller
         $input = $request->all();
         $category->update($input);
         $brands = ($request->brands);
-        $category->brands()->sync(json_decode($brands));
+        $category->brands()->sync(($brands));
             return response()->json([
-
+            "success" => true,
             "message" => "Successfully Updated",
-            "category" =>  $category
+            "category" =>  $category,
+            "brands" => $brands
         ]);
     }
 

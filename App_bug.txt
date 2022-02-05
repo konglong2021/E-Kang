@@ -1,0 +1,6 @@
+Customer and member not yet implement
+    - input memeber and then Customer
+EX: title = Gold member
+    discount = 0.2 // discount 20%
+
+    

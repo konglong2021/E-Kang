@@ -29,7 +29,7 @@
             <span><i class="fa fa-gift" aria-hidden="true"></i> Products</span>
           </a>
         </li>
-        <li class="menu-text-item">
+        <li class="menu-text-item" style="display:none;">
           <a href="/loyalty">
             <span><i class="fa fa-trophy" aria-hidden="true"></i> Loyalty</span>
           </a>
@@ -46,8 +46,45 @@
         </li>
       </ul>
     </div>
+    <div class="content-logout">
+      <ul class="ul-style">
+        <li class="li-style">
+          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        </li>
+        <li class="li-style">
+          <b-button class="button-no-background" @click="logOut()">
+            <span>Logout</span>
+          </b-button>
+        </li>
+      </ul>
+    </div>
   </b-navbar>
 </template>
+
+<script>
+  export default {
+    data(){
+      return {
+        isLoading: false
+      }
+    },
+    methods: {
+      async logOut(){
+        let response = await this.$axios.post('/api/logout');
+        if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
+          await this.$router.push('/login');
+        }
+      },
+    },
+    mounted() {
+      let self = this;
+      self.$nextTick(() => {
+        self.$nuxt.$loading.start();
+        setTimeout(() => self.$nuxt.$loading.finish(), 700)
+      });
+    },
+  }
+</script>
 
 <style >
   .inventory-bar{
@@ -103,9 +140,7 @@
   .content-menu-text .list-menu-text .menu-text-item a {
     color: #FFFFFF !important;
   }
-    .content-menu-text .list-menu-text .menu-text-item:hover{
- background-color: #000;
-    }
+
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
 

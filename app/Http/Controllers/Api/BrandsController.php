@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class BrandsController extends Controller
 {
@@ -18,24 +20,34 @@ class BrandsController extends Controller
      */
     public function index(Request $request)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (empty($request->all())) {
-            $brands = Brand::withCount('categories')
+            $brands = Brand::with('categories')
                     ->withCount('products')
-                    ->orderBy('id', 'desc')->paginate(10);
-        }else {
+                    ->orderBy('id', 'desc')->get();
+        }
+        else {
           $query = $request->input('search');
-          $brands= Brand::where('name','like','%'.$query.'%')
-                        ->orwhere('kh_name','like','%'.$query.'%')
-                        ->orderBy('id','desc')->paginate(15);
+//          $brands= Brand::where('name','like','%'.$query.'%')
+//                        ->orwhere('kh_name','like','%'.$query.'%')
+//                        ->orderBy('id','desc')->get();
+                        // paginate(8)->appends(request()->query());;
+            $brandQuery = Brand::query();
+            $brandQuery->where('name','like','%'.$query.'%');
+            $brandQuery->orWhere('kh_name','like','%'.$query.'%');
+            $brandQuery->with('categories');
+            $brandQuery->orderBy('id', 'desc');
+            $brands = $brandQuery->get();
         }
 
-        
 
-        // return response()->json([
-        // 'brands' =>   $brands,
-        // ]);
 
-        return BrandResource::collection($brands)->response();
+        return response()->json([
+        'brands' =>   $brands,
+        ]);
+        // return new BrandResource($brands->paginate(request('per_page')));
+        // return BrandResource::collection($brands->paginate(8));
+    //    return new BrandResource($brands);
     }
 
     /**
@@ -56,6 +68,7 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
+         abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $brand = Brand::create([
             'name' => $request['name'],
             'kh_name' => $request['kh_name'],
@@ -64,7 +77,7 @@ class BrandsController extends Controller
 
         $categories = ($request->categories);
 
-        $brand->categories()->sync(json_decode($categories));
+        $brand->categories()->sync(($categories));
 
 
 
@@ -83,6 +96,7 @@ class BrandsController extends Controller
      */
     public function show($id)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $brand = Brand::with('categories')
         ->with('products')->find($id);
         // $brand =Brand::find($id);
@@ -109,14 +123,16 @@ class BrandsController extends Controller
      */
     public function update(Request $request,Brand $brand)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $input = $request->all();
         $brand->update($input);
         $categories = ($request->categories);
-        $brand->categories()->sync(json_decode($categories));
+        $brand->categories()->sync($categories);
             return response()->json([
-
+            "success" => true,
             "message" => "Successfully Updated",
-            "brand" =>  $brand
+            "brand" =>  $brand,
+            "categories" => $categories
         ]);
     }
 
@@ -128,11 +144,11 @@ class BrandsController extends Controller
      */
     public function destroy($id)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $brand = Brand::find($id);
 
         $brand->destroy($id);
         return response()->json([
-
             "message" => "Successfully Deleted",
             "brand" =>  $brand
         ]);

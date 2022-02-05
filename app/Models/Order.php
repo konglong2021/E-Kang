@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Models;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
     use softDeletes;
 
     protected $fillable = [
@@ -19,6 +19,19 @@ class Order extends Model
         'vat',
         'discount',
         'grandtotal',
+        'kh_grandtotal',
+    ];
+
+    protected static $logAttributes = [
+        'warehouse_id',
+        'customer_id',
+        'user_id',
+        'subtotal',
+        'vat',
+        'discount',
+        'grandtotal',
+        'kh_grandtotal',
+        
     ];
 
     public function orderdetails()

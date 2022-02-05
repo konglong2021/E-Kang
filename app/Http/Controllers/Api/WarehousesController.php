@@ -17,7 +17,7 @@ class WarehousesController extends Controller
      */
     public function index()
     {
-        $warehouses = Warehouse::orderBy('id', 'desc')->paginate(8);
+        $warehouses = Warehouse::orderBy('id', 'desc')->get();
 
         return WarehousesResource::collection($warehouses)->response();
         //return response()->json($warehouses);

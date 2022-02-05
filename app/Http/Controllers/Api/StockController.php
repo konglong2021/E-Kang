@@ -19,13 +19,68 @@ class StockController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $stocks = Stock::with('product')
-                ->with('warehouse')->paginate(8);
+        // $stocks = Stock::with('product')
+        //         ->with('warehouse')
+        //         ->get();
+
+        if (empty($request->all())) {
+            $stocks = Stock::with('product')
+                    ->with('warehouse')
+                    ->get();
+        }
+        else
+        {
+            $input = $request->input('search');
+            $stocks= Stock::
+            WhereHas('product', function($q) use ($input) {
+                return $q->where('en_name', 'LIKE', '%' . $input . '%')
+                         ->orwhere('kh_name', 'LIKE', '%' . $input . '%')
+                         ->orwhere('code', 'LIKE', '%' . $input . '%');
+            })
+            ->orWhereHas('warehouse', function($q) use ($input) {
+                return $q->where('name', 'LIKE', '%'. $input . '%');
+            })->get();
+        }        
 
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();
+    }
+
+    public function stocksell()
+    {
+        $stocks = Stock::with('product')
+                ->with('warehouse')
+                ->where('total','>','0')
+                ->get();
+
+        return response()->json($stocks);
+    }
+
+
+    //check stock by warehouse
+    public function stockbywarehouse($warehouse)
+    {
+        $stocks = Stock::with('product')
+                ->with('warehouse')
+                ->where('total','>','0')
+                ->where('warehouse_id',$warehouse)
+                ->get();
+
+        return response()->json($stocks);
+    }
+
+
+    public function stockbyproduct($product)
+    {
+        $stocks = Stock::with('product')
+                ->with('warehouse')
+                ->where('total','>','0')
+                ->where('product_id',$product)
+                ->get();
+
+        return response()->json($stocks);
     }
 
     /**
@@ -57,21 +112,26 @@ class StockController extends Controller
                 {
 
                     $stock = Stock::where('product_id',$item['product_id'])
-                    ->where('warehouse_id',$item['warehouse_id'])
+                    ->where('warehouse_id',$item['warehouse_id'])                 //find item and warehouse from main
                     ->first();
 
-                    $stockin = Stock::where('product_id',$item['product_id'])
+                    $stockin = Stock::where('product_id',$item['product_id'])   //find item and warehouse to transfer
                     ->where('warehouse_id',$request['to_warehouse'])
                     ->first();
 
 
-                    if ($stock !== null) {
+                    if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total = $stock->total - $item['quantity'];
-                        if($stock->total<0){
-                            return response()->json("Insufficient Please Check again", 403);
+                        if($stock->total<0){                                        //check amount items from warehouse to transfter
+                            return response()->json([
+                                "success" => false,
+                                "message" => "Insufficient Please Check again"
+                            ], 403);
                         }else{
                         $stock->update();
                         }
+
+                        
                         if($stockin !== null){
                             $stockin->total = $stockin->total + $item['quantity'];
                             $stockin->update();
@@ -87,7 +147,10 @@ class StockController extends Controller
 
 
                     } else {
-                        return response()->json("Please Check Input Stock",403);
+                        return response()->json([
+                            "success" => false,
+                            "message" => "Please Check Input Stock",
+                        ],403);
 
                     }
 
@@ -101,11 +164,17 @@ class StockController extends Controller
 
                        ] );
                 }
-                return response()->json("Successfully Stock Transfer");
+                return response()->json([
+                     "success" => true,
+                     "message" => "Successfully Stock Transfer"
+                ]);
 
             //  });
         } else{
-            return response()->json("Warehouse Id Is not valid", 403);
+            return response()->json([
+                "success" => false,
+                "message" => "Warehouse Id Is not valid"
+           ], 403);
         }
 
     }
@@ -133,8 +202,9 @@ class StockController extends Controller
         $input = $request->alert;
         $stock->update($input);
             return response()->json([
-            "message" => "Successfully Updated",
-            "stock" =>  $stock
+                "success" => true,
+                "message" => "Successfully Updated",
+                "stock" =>  $stock
         ]);
     }
 

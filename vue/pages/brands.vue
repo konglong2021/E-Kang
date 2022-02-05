@@ -13,7 +13,7 @@
                     <b-col>
                       <div class="input-group input-group-sm search-content">
                         <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                        <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                        <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchBrand()" @change="handleClick"/>
                       </div>
                     </b-col>
                     <div class="btn-wrapper">
@@ -35,33 +35,26 @@
             </div>
             <div v-if="items && items.length > 0 && !isLoading">
               <b-table class="content-table-body"
+                       sticky-header="true"
                        :items="items"
                        :fields="fields"
-                       :per-page="0"
-                       :current-page="currentPage"
-                       stacked="md"
-                       show-empty
-                       small
+                       head-variant="light"
               >
                 <template #cell(actions)="row">
-                  <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
+                  <b-button size="sm" variant="primary" title="View data brand detail"  @click="viewDetail(row.item, row.index, $event.target)" class="mr-1">
                     <i class="fa fa-eye"></i>
                   </b-button>
-                  <b-button size="sm" title="Adjust invetory stock" variant="success" @click="adjustBrand(row.item, row.index, $event.target)">
+                  <b-button size="sm" title="Adjust invetory Brand" variant="success" @click="editBrand(row.item, row.index, $event.target)">
                     <i class="fa fa-edit"></i>
                   </b-button>
                 </template>
-                <!-- check this url : https://bootstrap-vue.org/docs/components/table#tables -->
               </b-table>
-              <div class="content-pagination">
-                <b-pagination v-model="currentPage" :per-page="perPage" :total-rows="totalRows" align="right"></b-pagination>
-              </div>
             </div>
           </div>
       </div>
-      <b-modal id="modal-create-category" ref="brand-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cacnel"
-               @ok="onSubmit" ok-title="Save" title="New Brand">
+      <b-modal id="modal-create-brand" ref="brand-form-modal" size="lg"
+               @hidden="onReset" cancel-title="Cannel"
+               @ok="onSubmit" ok-title="Save" title="New Brand" no-close-on-backdrop>
         <b-form enctype="multipart/form-data">
           <div class="full-content">
           </div>
@@ -70,14 +63,15 @@
               <b-col sm="4"><label :for="'input-enname'" class="label-input">Name</label></b-col>
               <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="brand.en_name" class="input-content"></b-form-input></b-col>
             </b-row>
-            <b-row class="my-1" style="display: none;">
-              <b-col sm="4"><label :for="'input-khname'" class="label-input">Name(KH)</label></b-col>
-              <b-col sm="8"><b-form-input :id="'input-khname'" type="text" v-model="brand.kh_name" class="input-content"></b-form-input></b-col>
-            </b-row>
             <b-row class="my-1" >
               <b-col sm="4"><label :for="'input-category'" class="label-input">Category</label></b-col>
               <b-col sm="8">
-                <multiselect class="input-content" v-model="brand.category" :options="categories" track-by="name" label="name" :multiple="true" :show-labels="false" aria-placeholder="Select categories"></multiselect>
+                <multiselect class="input-content"
+                             v-model="brand.category"
+                             :options="categories" track-by="name" label="name"
+                             :multiple="true" :show-labels="false" aria-placeholder="Select categories"
+                             @select="selectionChange"
+                             @remove="removeElement"></multiselect>
               </b-col>
             </b-row>
 
@@ -97,10 +91,10 @@
     layout:'inventoryui',
     data(){
       return {
-        categories:[],
+        categories: [],
         perPage: 8,
         currentPage: 1,
-        items:[],
+        items: [],
         fields: [
           { key: 'name', label: 'Name' },
           { key: 'parent', label: 'Parent' },
@@ -108,9 +102,10 @@
           { key: 'categories', label: 'Categories' },
           { key: 'actions', label: 'Actions' }
         ],
-        brand:{},
+        brand: {},
         isLoading: false,
         totalRows: 0,
+        searchInput: null,
       }
     },
     watch : {
@@ -136,34 +131,38 @@
         }
       },
       async getBrands(){
-        this.isLoading = true;
-        const response = await this.$axios.get('/api/brand' + "?page=" + this.currentPage);
-        if(response.data.hasOwnProperty('meta')){
-          this.perPage = response.data.meta["per_page"];
-          this.currentPage = response.data.meta['current_page'];
-          this.totalRows = response.data.meta['total'];
-        }
-        if(response.data.hasOwnProperty("data")){
-          this.isLoading = false;
+        let self = this;
+        self.isLoading = true;
+        await self.$axios.get('/api/brand').then(function (response) {
+        if(response.data.hasOwnProperty("brands")){
+          self.isLoading = false;
           let items = [];
-          for(let index=0; index < response.data.data.length; index++){
-            let brandItem = response.data.data[index];
+          for(let index=0; index < response.data.brands.length; index++){
+            let brandItem = response.data.brands[index];
             let categories = [];
             let item = {};
+            item['categoryList'] = self.cloneObject(brandItem["categories"]);
             if(brandItem["categories"] && brandItem["categories"].length > 0){
               for(let i =0; i < brandItem["categories"].length; i++){
                 categories.push(brandItem["categories"][i]["name"]);
               }
             }
+            item['id'] = brandItem["id"];
             item['name'] = brandItem["name"] + (brandItem["kh_name"] ? "(" + brandItem["kh_name"] + ")": "");
+            item['kh_name'] = brandItem["kh_name"];
+            item['en_name'] = brandItem["name"];
             item['categories'] = categories.join(", ");
             item['parent'] = "--ROOT--";
             item['total_product'] = brandItem["products_count"];
             items.push(item);
           }
-          this.items = this.cloneObject(items);
-          console.log(this.items);
+          self.items = self.cloneObject(items);
         }
+        })
+          .catch(function (error) {
+            console.log(error);
+            self.$toast.error("Submit data getting error").goAway(3000);
+          });
       },
       onReset(){},
       onSubmit(){
@@ -176,51 +175,152 @@
         }
         dataSubmit["kh_name"] = this.brand.kh_name;
         dataSubmit["name"] = this.brand.en_name;
-        dataSubmit["categories"] = JSON.stringify(categories);
+        dataSubmit["categories"] = categories;
         dataSubmit["description"] = this.brand.description;
 
-        this.$toast.info("submit data in progress").goAway(1000);
-        this.$axios.post('/api/brand', dataSubmit)
-          .then(function (response) {
-            if(response.data.hasOwnProperty("data")){
-              this.$toasted.success("Data successfully added..!").goAway(1500);
-              this.hideModal();
-            }
-          })
-          .catch(function (error) {
-            this.$toast.success("Data is getting error").goAway(2000);
-            console.log(error);
-          });
+        let self = this;
+        self.$toast.info("submit data in progress").goAway(1000);
+        if(self.brand.hasOwnProperty("id")){
+          self.$axios.put('/api/brand/' + self.brand.id, dataSubmit)
+            .then(function (response) {
+              if(response.hasOwnProperty("data")){
+                let brand = response.data.brand;
+                let categoriesId = (response.data.categories);
+                let brandCategories = [];
+                let newCategory = [];
+                let newCategoryList = [];
+
+                for(let k=0; k< categoriesId.length; k++){
+                  for (let i=0; i < self.categories.length; i++){
+                    if(categoriesId[k] === self.categories[i]["value"]){
+                      brandCategories.push(self.categories[i]["name"]);
+                      newCategory.push({name : self.categories[i]["name"], value : self.categories[i]["value"]});
+                      newCategoryList.push({name : self.categories[i]["name"], id : self.categories[i]["value"]});
+                      break;
+                    }
+                  }
+                }
+                for(let index=0; index < self.items.length; index++){
+                  if(self.items[index]["id"] === brand.id){
+                    self.items[index]["category"] = self.cloneObject(newCategory);
+                    self.items[index]['categoryList'] = self.cloneObject(newCategoryList);
+                    self.items[index]['id'] = brand["id"];
+                    self.items[index]['name'] = brand["name"] + (brand["kh_name"] ? "(" + brand["kh_name"] + ")": "");
+                    self.items[index]['kh_name'] = brand["kh_name"];
+                    self.items[index]['en_name'] = brand["name"];
+                    self.items[index]['categories'] = brandCategories.join(", ");
+                    self.items[index]['parent'] = "--ROOT--";
+                    self.items[index]['total_product'] = brand["products_count"];
+                  }
+                }
+                self.$toasted.success("Data successfully Updated..!").goAway(1500);
+                self.hideBrandModal();
+                self.brand = {};
+              }
+            })
+            .catch(function (error) {
+              self.$toast.success("Data is getting error").goAway(2000);
+              console.log(error);
+            });
+        }
+        else {
+          self.$axios.post('/api/brand', dataSubmit)
+            .then(function (response) {
+              if(response.data.hasOwnProperty("data")){
+                self.$toasted.success("Data successfully added..!").goAway(1500);
+                self.hideBrandModal();
+              }
+            })
+            .catch(function (error) {
+              self.$toast.success("Data is getting error").goAway(2000);
+              console.log(error);
+            });
+        }
       },
       showModal(){
         this.$refs['brand-form-modal'].show();
       },
-      viewDetail(item, index, target){
-        this.categoryView = item;
-        this.$refs['view-category-form-modal'].show();
+      hideBrandModal(){
+        this.$refs['brand-form-modal'].hide();
       },
-      adjustBrand(item, index, target){
-        this.$refs['category-form-modal'].show();
-        this.categoryItemSelected = {};
-        this.categoryItemSelected.id = item["id"];
-        this.categoryItemSelected.kh_name = item["kh_name"];
-        this.categoryItemSelected.en_name = item["en_name"];
-        this.categoryItemSelected.parent = "--ROOT--";
-        this.categoryItemSelected.products_count = item["products_count"];
-        let brandList = [];
-        if(item["brands"] && item["brands"].length > 0){
-          for (let index=0; index < item["brands"].length; index++){
-            brandList.push({name: item["brands"][index]['name'], value: item["brands"][index]['id']});
+      viewDetail(item, index, target){
+        this.brand = this.cloneObject(item);
+        if(item.hasOwnProperty("categoryList")){
+          let categoryList = [];
+          for (let index=0; index < item["categoryList"].length; index++){
+            categoryList.push({name: item["categoryList"][index]['name'], value: item["categoryList"][index]['id']});
           }
-          this.categoryItemSelected.brand = brandList;
+          this.brand["category"] = this.cloneObject(categoryList);
+        }
+        this.showModal();
+      },
+      editBrand(item, index, target){
+        this.brand = item;
+        if(item.hasOwnProperty("categoryList")){
+          let categoryList = [];
+          for (let index=0; index < item["categoryList"].length; index++){
+            categoryList.push({name: item["categoryList"][index]['name'], value: item["categoryList"][index]['id']});
+          }
+          this.brand["category"] = this.cloneObject(categoryList);
+        }
+        this.showModal();
+      },
+      async searchBrand() {
+        let self = this;
+        self.isLoading = true;
+        self.items = [];
+        await this.$axios.post('/api/brand/search', {search: this.searchInput}).then(function (response) {
+        if (response) {
+          self.isLoading = false;
+          let items = [];
+          for(let index=0; index < response.data.brands.length; index++){
+            let brandItem = response.data.brands[index];
+            let categories = [];
+            let item = {};
+            item['categoryList'] = self.cloneObject(brandItem["categories"]);
+            if(brandItem["categories"] && brandItem["categories"].length > 0){
+              for(let i =0; i < brandItem["categories"].length; i++){
+                categories.push(brandItem["categories"][i]["name"]);
+              }
+            }
+            item['id'] = brandItem["id"];
+            item['name'] = brandItem["name"] + (brandItem["kh_name"] ? "(" + brandItem["kh_name"] + ")": "");
+            item['kh_name'] = brandItem["kh_name"];
+            item['en_name'] = brandItem["name"];
+            item['categories'] = categories.join(", ");
+            item['parent'] = "--ROOT--";
+            item['total_product'] = brandItem["products_count"];
+            items.push(item);
+          }
+          self.items = self.cloneObject(items);
+        }
+        }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("Submit data getting error").goAway(3000);
+        });
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = null;
+          this.getBrands();
         }
       },
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
+      },
+      selectionChange($obj){
+        this.$forceUpdate();
+      },
+      removeElement($obj){
+        this.$forceUpdate();
       }
     },
-    computed:{
-    },
-
+    computed:{},
   }
 </script>
+
+<style scoped>
+  .content-table-body{
+    max-height: calc(100vh - 165px);
+  }
+</style>

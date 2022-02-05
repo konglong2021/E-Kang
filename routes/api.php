@@ -43,12 +43,39 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/permission','App\Http\Controllers\Api\PermissionsController');
     Route::ApiResource('/role','App\Http\Controllers\Api\RolesController');
     Route::ApiResource('/stock','App\Http\Controllers\Api\StockController');
+    Route::ApiResource('/sale','App\Http\Controllers\Api\OrdersController');
+    Route::ApiResource('/setting','App\Http\Controllers\Api\SettingsController');
+    Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
+    Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
+    Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
     Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
     Route::post('/brand/search',[App\Http\Controllers\Api\BrandsController::class,'index'])->name('brand.search');
-    Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']);
+    Route::post('/sale/search',[App\Http\Controllers\Api\OrdersController::class,'index'])->name('sale.search');
+    Route::post('/stock/search',[App\Http\Controllers\Api\StockController::class,'index'])->name('stock.search');
+    Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
+
+
+    //Delete Purchase Items
+    Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
+
+
+    //Check Stock
+    Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
+    Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
+    Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
+    Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
+    Route::get('/stockbyproduct/{product_id}',[App\Http\Controllers\Api\StockController::class,'stockbyproduct']);
+    Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
+    Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
+
+
+    //setting
+    Route::post('/user/warehouse',[App\Http\Controllers\Api\ProfileController::class,'updatewarehouse']);//user update default warehouse
+    Route::post('/balance/verifybalance',[App\Http\Controllers\Api\BanlancesController::class,'verifybalance']); // Cash Balance
+    Route::post('/balance/withdrawal',[App\Http\Controllers\Api\BanlancesController::class,'withdrawal']); // Cash withdraw
 });
 
 

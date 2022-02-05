@@ -16,16 +16,49 @@
         </li>
         <li class="menu-text-item">
           <a href="/report-monthly">
-            <span> <i class="fa fa-calendar" aria-hidden="true"></i>
-  Sale Monthly</span>
+            <span> <i class="fa fa-calendar" aria-hidden="true"></i>Sale Monthly</span>
           </a>
         </li>
-
-    
+      </ul>
+    </div>
+    <div class="content-logout">
+      <ul class="ul-style">
+        <li class="li-style">
+          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        </li>
+        <li class="li-style">
+          <b-button class="button-no-background" @click="logOut()">
+            <span>Logout</span>
+          </b-button>
+        </li>
       </ul>
     </div>
   </b-navbar>
 </template>
+<script>
+  export default {
+    data(){
+      return {
+        isLoading: false
+      }
+    },
+    methods: {
+      async logOut(){
+        let response = await this.$axios.post('/api/logout');
+        if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
+          await this.$router.push('/login');
+        }
+      },
+    },
+    mounted() {
+      let self = this;
+      self.$nextTick(() => {
+        self.$nuxt.$loading.start();
+        setTimeout(() => self.$nuxt.$loading.finish(), 700)
+      });
+    },
+  }
+</script>
 <style >
   .inventory-bar{
     background-color:#232d3b;
@@ -80,12 +113,9 @@
   .content-menu-text .list-menu-text .menu-text-item a {
     color: #FFFFFF !important;
   }
-    .content-menu-text .list-menu-text .menu-text-item:hover{
- background-color: #000;
-    }
   .content-menu-text .list-menu-text .menu-text-item a:hover{
     text-decoration: none;
-        
+
   }
   .font-size-23{
     font-size: 23px;

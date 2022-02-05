@@ -809,13 +809,7 @@
   version "0.2.36"
   resolved "https://registry.npmjs.org/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.36.tgz"
 
-"@fortawesome/fontawesome-svg-core@^1.2.27":
-  version "1.2.36"
-  resolved "https://registry.npmjs.org/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.36.tgz"
-  dependencies:
-    "@fortawesome/fontawesome-common-types" "^0.2.36"
-
-"@fortawesome/fontawesome-svg-core@^1.2.36":
+"@fortawesome/fontawesome-svg-core@^1.2.27", "@fortawesome/fontawesome-svg-core@^1.2.36":
   version "1.2.36"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.36.tgz#4f2ea6f778298e0c47c6524ce2e7fd58eb6930e3"
   dependencies:
@@ -1229,6 +1223,16 @@
     lodash.merge "^4.6.2"
     ufo "^0.7.9"
     vue-i18n "^8.25.0"
+
+"@nuxtjs/moment@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@nuxtjs/moment/-/moment-1.6.1.tgz#a4e98a861c9d21e34f983046143f4c9bb92bdb7c"
+  integrity sha512-Mo2/3NQB0XryMQuNCTVnAclrDvt9I9sr6dwVm56KhYCoiWTKgQ78tDV9tmrxw7lahw1IBwyPGhw+3pwkM4phAA==
+  dependencies:
+    moment "^2.25.3"
+    moment-locales-webpack-plugin "^1.2.0"
+    moment-timezone "^0.5.28"
+    moment-timezone-data-webpack-plugin "^1.3.0"
 
 "@nuxtjs/proxy@^2.1.0":
   version "2.1.0"
@@ -3723,6 +3727,11 @@ ini@^1.3.5:
   version "1.3.8"
   resolved "https://registry.npmjs.org/ini/-/ini-1.3.8.tgz"
 
+inputmask-core@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/inputmask-core/-/inputmask-core-2.2.0.tgz#79a75f7f3a4d3312ae95fd2b55a2366a7c91dfba"
+  integrity sha1-eadffzpNMxKulf0rVaI2anyR37o=
+
 inquirer@^7.3.3:
   version "7.3.3"
   resolved "https://registry.npmjs.org/inquirer/-/inquirer-7.3.3.tgz"
@@ -4047,6 +4056,11 @@ js-yaml@^3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
+jsbarcode@^3.11.5, jsbarcode@^3.5.8:
+  version "3.11.5"
+  resolved "https://registry.yarnpkg.com/jsbarcode/-/jsbarcode-3.11.5.tgz#390b3efd0271f35b9d68c7b8af6e972445969014"
+  integrity sha512-zv3KsH51zD00I/LrFzFSM6dst7rDn0vIMzaiZFL7qusTjPZiPtxg3zxetp0RR7obmjTw4f6NyGgbdkBCgZUIrA==
+
 jsesc@^2.5.1:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-2.5.2.tgz#80564d2e483dacf6e8ef209650a67df3f0c283a4"
@@ -4178,6 +4192,11 @@ lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.npmjs.org/lodash.debounce/-/lodash.debounce-4.0.8.tgz"
 
+lodash.difference@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.difference/-/lodash.difference-4.5.0.tgz#9ccb4e505d486b91651345772885a2df27fd017c"
+  integrity sha1-nMtOUF1Ia5FlE0V3KIWi3yf9AXw=
+
 lodash.kebabcase@^4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/lodash.kebabcase/-/lodash.kebabcase-4.1.1.tgz"
@@ -4253,7 +4272,7 @@ make-dir@^2.0.0:
     pify "^4.0.1"
     semver "^5.6.0"
 
-make-dir@^3.0.2, make-dir@^3.1.0:
+make-dir@^3.0.0, make-dir@^3.0.2, make-dir@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-3.1.0.tgz#415e967046b3a7f1d185277d84aa58203726a13f"
   dependencies:
@@ -4474,6 +4493,33 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@~0.5.1:
 mkdirp@^1.0.3, mkdirp@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
+
+moment-locales-webpack-plugin@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/moment-locales-webpack-plugin/-/moment-locales-webpack-plugin-1.2.0.tgz#9af83876a44053706b868ceece5119584d10d7aa"
+  integrity sha512-QAi5v0OlPUP7GXviKMtxnpBAo8WmTHrUNN7iciAhNOEAd9evCOvuN0g1N7ThIg3q11GLCkjY1zQ2saRcf/43nQ==
+  dependencies:
+    lodash.difference "^4.5.0"
+
+moment-timezone-data-webpack-plugin@^1.3.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/moment-timezone-data-webpack-plugin/-/moment-timezone-data-webpack-plugin-1.5.0.tgz#229d98f36662adc41d7d30b154c81ec98e0c589d"
+  integrity sha512-eidUVGn6Fc8jR0tBf8xAhBR1C3jqknFJe0rfzThnglnJjmzqTXRYVTOeobUzWvlEfgTSu+b0W7GgOdqAWvGbYA==
+  dependencies:
+    find-cache-dir "^3.0.0"
+    make-dir "^3.0.0"
+
+moment-timezone@^0.5.28:
+  version "0.5.34"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.34.tgz#a75938f7476b88f155d3504a9343f7519d9a405c"
+  integrity sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==
+  dependencies:
+    moment ">= 2.9.0"
+
+"moment@>= 2.9.0", moment@^2.25.3:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
+  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -5864,6 +5910,20 @@ repeat-string@^1.6.1:
   version "1.6.1"
   resolved "https://registry.npmjs.org/repeat-string/-/repeat-string-1.6.1.tgz"
 
+require-vuejs@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/require-vuejs/-/require-vuejs-1.1.3.tgz#fd9a1d60ed93134f97f5b2e6f73f447ed36e7d89"
+  integrity sha512-8p2/0eb6DIJU/bHbvXhsQZfePGHZHHiEuQPEc87cKzdKUifXyXOoS5/bs4BEWX+WMMHB/EVSX82xXrHeM0PnUQ==
+  dependencies:
+    requirejs "^2.3.3"
+    vue "^2.3.4"
+    vue-template-compiler "^2.3.4"
+
+requirejs@^2.3.3:
+  version "2.3.6"
+  resolved "https://registry.yarnpkg.com/requirejs/-/requirejs-2.3.6.tgz#e5093d9601c2829251258c0b9445d4d19fa9e7c9"
+  integrity sha512-ipEzlWQe6RK3jkzikgCupiTbTvm4S0/CAU5GlgptkN5SO6F3u0UD0K18wy6ErDqiCyP4J4YYe1HuAShvsxePLg==
+
 requires-port@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/requires-port/-/requires-port-1.0.0.tgz"
@@ -6799,6 +6859,11 @@ vary@^1, vary@^1.1.2, vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz"
 
+vee-validate@^3.4.14:
+  version "3.4.14"
+  resolved "https://registry.yarnpkg.com/vee-validate/-/vee-validate-3.4.14.tgz#51f91c01d6660c43c6252c417c89fb07cdf8b8dd"
+  integrity sha512-Hqqic8G9WcRSIzCxiCPqMZv4qB8JE1lIQqIOLDm2K5BXUiL8d4a2+kqkanv8gQSGDzYpnCQZ7BO/T99Aj05T1Q==
+
 vendors@^1.0.0:
   version "1.0.4"
   resolved "https://registry.npmjs.org/vendors/-/vendors-1.0.4.tgz"
@@ -6806,6 +6871,13 @@ vendors@^1.0.0:
 vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
+
+vue-barcode@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/vue-barcode/-/vue-barcode-1.3.0.tgz#c1a4fede73b2d45cdd154a176d6fd0e20fb32df0"
+  integrity sha512-DxQ0hxes/dP6GajsJumpW6jV14VwlnTwStZbtE6G0wkewuJVDoDOdxUr5seGuxsMT9fJ0aty4X47Z5TG0M/gxg==
+  dependencies:
+    jsbarcode "^3.5.8"
 
 vue-client-only@^2.0.0:
   version "2.1.0"
@@ -6819,9 +6891,21 @@ vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://registry.npmjs.org/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz"
 
+vue-html-to-paper@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/vue-html-to-paper/-/vue-html-to-paper-1.4.4.tgz#98af39a81e5dc426fbf3e1575f220c76d233709d"
+  integrity sha512-5Stkm0jJDsC7A/WJWroxqxiASR1+9fcgVWy7AXv30uxdxTPOr7k1Z4KUklZJm7dkHR45tExVCMSOHuxrC22TEw==
+
 vue-i18n@^8.25.0, vue-i18n@^8.26.1:
   version "8.26.1"
   resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.26.1.tgz#56419bcb2414a01e0e9046fe1883d0edd421bf41"
+
+vue-input-mask@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/vue-input-mask/-/vue-input-mask-0.0.11.tgz#16589c819779fa7bb0bcf572c5ebcfff8e0453b2"
+  integrity sha512-QiY67mNW7DlUsCQXmeCOGUw2nz/hUF+Z7lEGlKrOeh6M46buzZlqsPis4ZOgJazX3gml/y8hKRq7uGJXRaBDJg==
+  dependencies:
+    vue "^2.4.4"
 
 vue-loader@^15.9.7:
   version "15.9.8"
@@ -6847,6 +6931,11 @@ vue-no-ssr@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/vue-no-ssr/-/vue-no-ssr-1.1.1.tgz#875f3be6fb0ae41568a837f3ac1a80eaa137b998"
 
+vue-numeric-keyboard@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/vue-numeric-keyboard/-/vue-numeric-keyboard-0.0.11.tgz#c87337d0bcffc9ee4cf0c736d230acf6a2a4eeb6"
+  integrity sha1-yHM30Lz/ye5M8Mc20jCs9qKk7rY=
+
 vue-router@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.5.2.tgz#5f55e3f251970e36c3e8d88a7cd2d67a350ade5c"
@@ -6871,7 +6960,7 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-template-compiler@^2.6.12, vue-template-compiler@^2.6.14:
+vue-template-compiler@^2.3.4, vue-template-compiler@^2.6.12, vue-template-compiler@^2.6.14:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue-template-compiler/-/vue-template-compiler-2.6.14.tgz#a2f0e7d985670d42c9c9ee0d044fed7690f4f763"
   dependencies:
@@ -6886,7 +6975,7 @@ vue-toasted@^1.1.28:
   version "1.1.28"
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.28.tgz#dbabb83acc89f7a9e8765815e491d79f0dc65c26"
 
-vue@^2.6.12:
+vue@^2.3.4, vue@^2.4.4, vue@^2.6.12:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Member;
+use Illuminate\Support\Facades\DB;
 
 class CustomersController extends Controller
 {
@@ -14,10 +16,20 @@ class CustomersController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function index()
-    {
-        $customer = Customer::orderBy('id', 'desc')->paginate(8);
-        return response()->json($customer);
+    {   
+        
+        $customer = DB::table('members')
+                        ->join('customers','members.id','=','customers.member_id')
+                        ->select('customers.id','customers.name','customers.phone','customers.address','members.title','members.discount')
+                        ->orWhereNull('customers.deleted_at')
+                        ->get();
+
+        return response()->json([
+                "success" => true,
+                "customer" => $customer
+        ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -53,8 +65,17 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        $customer =Customer::find($id);
-        return response()->json($customer);
+        $customer = DB::table('members')
+                        ->join('customers','members.id','=','customers.member_id')
+                        ->select('customers.id','customers.name','customers.phone','customers.address','members.title','members.discount')
+                        ->where('customers.id','=',$id)
+                        ->WhereNull('customers.deleted_at')
+                        ->get();
+
+        return response()->json([
+                "success" => true,
+                "customer" => $customer
+        ]);
     }
 
     /**

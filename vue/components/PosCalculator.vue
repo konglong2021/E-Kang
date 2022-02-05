@@ -82,7 +82,6 @@
     watch: {
       productItem: {
         handler(value){
-          console.log(value);
           this.dataSelected = JSON.parse(JSON.stringify(value));
         }
       }

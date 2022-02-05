@@ -1,28 +1,38 @@
 <template>
-  <div class="main-inventory">
-    <InventoryTopBar/>
-    <Nuxt />
+  <div>
+    <div class="main-inventory" v-if="!isLoading">
+      <InventoryTopBar/>
+      <Nuxt />
+    </div>
+    <loading v-if="isLoading"></loading>
   </div>
+
 </template>
 
-<style>
-  .main-pos {
-    background-color: #dedede;
-    height: 100vh;
+<script>
+  export default {
+    data(){
+      return {
+        isLoading: true,
+      }
+    },
+    mounted() {
+      let self = this;
+      setTimeout(function(){
+        self.isLoading = false;
+      }, 500);
+    }
   }
+</script>
+
+<style>
   .main-inventory{
     background-color: #eff3f6;
-       height: 100vh;
-  }
-
-  .inventory-dashboard-content{
-    display: inline-block;
-    width: 100%;
+    height: 100vh;
   }
   .control-panel{
     border-bottom: 1px solid #cccccc;
     display: inline-block;
-    /*margin-bottom: 5px;*/
     padding: 5px 16px;
     width: 100%;
   }
@@ -49,6 +59,9 @@
     background-color: #fff;
     border: 1px solid #fff;
     line-height: 1.7;
+    padding-left: 10px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
   }
   .input-search-box{
     border: none;
@@ -56,14 +69,14 @@
   .input-search-box:focus, .input-search-box:active{
     box-shadow: none;
   }
-
   .content-product{
-    display: inline-block;
-    padding-left: 16px;
     width: 100%;
-    background-color: #fff;
-    border-radius: 5px;
     padding-top: 10px;
+    padding-left: 16px;
+    border-radius: 5px;
+    display: inline-block;
+    background-color: #fff;
+    min-height: calc(100vh - 170px);
   }
   .content-product .content-product-input{
     max-width: 20%;
