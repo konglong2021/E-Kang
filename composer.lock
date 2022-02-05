@@ -2067,9 +2067,7 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
+                
                 "psr-4": {
                     "Livewire\\": "src/"
                 }
@@ -3502,7 +3500,7 @@
             },
             "autoload": {
                 "files": [
-                    "src/helpers.php"
+                   
                 ],
                 "psr-4": {
                     "Spatie\\Activitylog\\": "src"
@@ -6144,12 +6142,8 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "2.12-dev"
-                },
-                "laravel": {
-                    "providers": [
-                        "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider"
-                    ]
                 }
+               
             },
             "autoload": {
                 "psr-4": {
@@ -7242,7 +7236,7 @@
                     "Facade\\FlareClient\\": "src"
                 },
                 "files": [
-                    "src/helpers.php"
+                    
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -7324,7 +7318,7 @@
                     "Facade\\Ignition\\": "src"
                 },
                 "files": [
-                    "src/helpers.php"
+                   
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
