@@ -1396,10 +1396,9 @@
             },
             "autoload": {
                 "files": [
-                    "src/Illuminate/Collections/helpers.php",
-                    "src/Illuminate/Events/functions.php",
-                    "src/Illuminate/Foundation/helpers.php",
-                    "src/Illuminate/Support/helpers.php"
+                    
+                    "src/Illuminate/Events/functions.php"
+                   
                 ],
                 "psr-4": {
                     "Illuminate\\": "src/Illuminate/",
