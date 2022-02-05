@@ -6,6 +6,8 @@ use App\Models\Warehouse;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProfileController extends Controller
 {
@@ -95,6 +97,7 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
+        abort_if(Gate::denies('profile_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $profile = Profile::where('user_id',$id)->with('user')
                             ->get();
 

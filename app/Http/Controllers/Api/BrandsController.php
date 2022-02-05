@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class BrandsController extends Controller
 {
@@ -18,6 +20,7 @@ class BrandsController extends Controller
      */
     public function index(Request $request)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (empty($request->all())) {
             $brands = Brand::with('categories')
                     ->withCount('products')
@@ -65,6 +68,7 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
+         abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $brand = Brand::create([
             'name' => $request['name'],
             'kh_name' => $request['kh_name'],
@@ -92,6 +96,7 @@ class BrandsController extends Controller
      */
     public function show($id)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $brand = Brand::with('categories')
         ->with('products')->find($id);
         // $brand =Brand::find($id);
@@ -118,6 +123,7 @@ class BrandsController extends Controller
      */
     public function update(Request $request,Brand $brand)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $input = $request->all();
         $brand->update($input);
         $categories = ($request->categories);
@@ -138,11 +144,11 @@ class BrandsController extends Controller
      */
     public function destroy($id)
     {
+        abort_if(Gate::denies('brand_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $brand = Brand::find($id);
 
         $brand->destroy($id);
         return response()->json([
-
             "message" => "Successfully Deleted",
             "brand" =>  $brand
         ]);
