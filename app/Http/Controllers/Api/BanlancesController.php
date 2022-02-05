@@ -23,7 +23,10 @@ class BanlancesController extends Controller
     {
         $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
         $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
-        return response()->json($warehouse_id, 200);
+        return response()->json([
+            "success" => true,
+            "balance" => $balance
+        ], 200);
     }
 
     /**
@@ -54,7 +57,7 @@ class BanlancesController extends Controller
      //remain + income - withdraw = balance
     public function store(Request $request)
     {
-        
+
         $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
         if(!$warehouse_id){
             return response()->json("No default warehouse found!", 200);
@@ -219,10 +222,15 @@ class BanlancesController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Balance $balance)
     {
-        //
+        $balance->delete();
+        return response()->json([
+            "success" => true,
+            "message" => "Balance recode deleted",
+            "balance" => $balance
+        ],200);
     }
 }
