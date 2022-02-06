@@ -116,7 +116,20 @@ class ProfileController extends Controller
      */
     public function update(Request $request, Profile $profile)
     {
-        $profile->update($request->all());
+        $input = $request->all();
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+
+
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            $input['image'] = $image_name;
+        }
+        else{
+            unset($input['image']);
+        }
+
+        $profile->update($input);
         return response()->json([
             "success" => true,
             "profile" => $profile

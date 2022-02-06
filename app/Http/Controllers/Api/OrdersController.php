@@ -8,6 +8,7 @@ use App\Models\Stock;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Settings;
+use App\Models\Profile;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -80,9 +81,6 @@ class OrdersController extends Controller
 
         // Exaple of transaction
 
-        
-    
-
         // try{
         try {
                 //code...
@@ -104,8 +102,11 @@ class OrdersController extends Controller
         $orders->grandtotal = round($request->grandtotal,$digit);
         $orders->save();
         
-        $this->income($orders->grandtotal);
-        
+        $income = $this->income($orders->grandtotal);
+
+        if(!$income){
+            throw new \Exception('Please update Today Balance');
+        }
         $orders_items= $request->items; // purchase is the array of purchase details
 
         foreach($orders_items as $item)
@@ -163,26 +164,32 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-
+    public function CheckProfileWarehouse($user_id)
+    {
+       $profile= Profile::where('user_id',$user_id)->get()->last();
+       return $profile->warehouse_id;
+    }
 
     public function income($income)
     {
-        if(!auth()->user()->warehouse_id){
+        
+           $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+           $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
+           if(!$balance)
+           {
             return response()->json("No default warehouse found!", 200);
            }
-
-           $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
            
-
            $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
             $input['income'] = $income + $balance->income;
-            $input['balance']= $balance->remain +  $input['income'] - $balance->income;
+            $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
            
         }
+            return false;
 
     }
 
