@@ -41,7 +41,8 @@ class StockController extends Controller
             })
             ->orWhereHas('warehouse', function($q) use ($input) {
                 return $q->where('name', 'LIKE', '%'. $input . '%');
-            })->get();
+            })->with('product')
+            ->with('warehouse')->get();
         }        
 
         return response()->json($stocks);
