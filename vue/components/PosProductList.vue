@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="product-list-body">
-        <div class="scanning-input" style="display:none;">
+        <div class="scanning-input">
           <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
         <div v-if="!productLoading && warehouse" >
@@ -47,6 +47,7 @@
       </div>
     </div>
 </template>
+
 <script>
   export default {
     data() {
@@ -206,12 +207,14 @@
             if(productItem["code"] === scanningInput || productItem["name"] === scanningInput){
               foundItem = true;
               this.$emit('selectProduct', productItem);
+              this.scanningInput = null;
               break;
             }
           }
 
           if(!foundItem){
             alert("មិនមាន ទំនិញប្រភេទនេះទេ !!!");
+            this.scanningInput = null;
           }
         }
       },
@@ -245,6 +248,7 @@
     }
   }
 </script>
+
 <style scoped>
   .content-panel-right-full-width{
     width: 100%;
@@ -281,7 +285,8 @@
   }
   .pro-img {
       background-repeat: no-repeat;
-      padding: 55px;
+      padding: 58px;
+    background-size: contain;
   }
   .pro-price{
       color :#fff;

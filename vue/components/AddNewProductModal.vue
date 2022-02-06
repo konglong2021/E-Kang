@@ -36,6 +36,12 @@
               </b-col>
             </b-row>
             <b-row class="my-1">
+              <b-col sm="4"><label :for="'input-code'" class="label-input">លេខកូដទំនិញ</label></b-col>
+              <b-col sm="8">
+                <b-form-input :id="'input-code'" type="text" v-model="product.code" class="input-content" required></b-form-input>
+              </b-col>
+            </b-row>
+            <b-row class="my-1">
               <b-col sm="4"><label :for="'input-category'" class="label-input">ប្រភេទទំនិញ</label></b-col>
               <b-col sm="8">
                 <b-form-select
@@ -229,6 +235,9 @@
         formData.append("description", vm.product.description);
         formData.append("image", vm.uploadFile);
         formData.append("sale_price", vm.product.sale_price);
+        if(vm.product.code){
+          formData.append("code", vm.product.code);
+        }
         formData.append("brands" , JSON.stringify(brands));
 
         if(vm.product.hasOwnProperty("id") && vm.product.id){

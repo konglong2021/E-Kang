@@ -69,7 +69,9 @@ export default {
           let user = self.cloneObject(response.data.user);
           self.$store.commit('auth/setToken', token);
           self.$store.commit('auth/setUser', user);
-          self.$store.commit('auth/setStoreItem', user.warehouse_id);
+          if(user && user.hasOwnProperty("profile") && user.profile && user.profile.warehouse_id){
+            self.$store.commit('auth/setStoreItem', user.profile.warehouse_id);
+          }
           self.$router.push('/');
         }
       }).catch(function (error) {

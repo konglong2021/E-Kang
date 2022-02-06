@@ -36,6 +36,7 @@
           </b-row>
         </b-container>
       </div>
+      <div class="footer">@ Footer</div>
     </div>
   </div>
 </template>

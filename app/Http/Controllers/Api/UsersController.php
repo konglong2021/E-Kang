@@ -22,7 +22,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')
+        $users = User::with('roles')->with('profile')
         ->orderBy('id', 'desc')->get();
         return response()->json($users);
     }
@@ -189,10 +189,10 @@ class UsersController extends Controller
             "user" =>  $user,
             "Token" => $token
         ]);
-        
+
     }
 
     // update user default warehouse
-    
+
 
 }

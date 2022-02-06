@@ -48,7 +48,8 @@
               >
                 <template #cell(code)="row">
                   <div style="display: inline-block; overflow : hidden;">
-                    <barcode :value="row.item.code" height ='15' marginTop="0" marginBottom="0" fontSize="12" textMargin="1"></barcode>
+                    <span>{{ row.item.code.length }}</span>
+                    <barcode :value="row.item.code" height ='30' width = '1.9' marginTop="0" marginBottom="0" fontSize="12" textMargin="1"></barcode>
                   </div>
                 </template>
                 <template #cell(actions)="row">
@@ -66,9 +67,18 @@
               </b-table>
             </div>
           </div>
-          <div style="display: none;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code" class="display-inline-block">
-            <div v-for="item in barcodeListToPrint" class="display-inline-block">
-              <barcode :value="item"></barcode>
+          <div style="height:30mm; width:40mm;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code">
+            <div v-if="barcodeItem.code.length > 12">
+              <div v-for="item in barcodeListToPrint">
+                <span style="text-align: center !important;">{{ barcodeItem.name }}</span>
+                <barcode :value="item" height ='75' width="2" paddingTop="0" marginTop="0" marginBottom="0" fontSize="12" paddingBottom="0" marginLeft="0"></barcode>
+              </div>
+            </div>
+            <div v-if="barcodeItem.code.length === 12">
+              <div v-for="item in barcodeListToPrint">
+                <span style="text-align: center !important;">{{ barcodeItem.name }}</span>
+                <barcode :value="item" height ='80' width="2" paddingTop="0" marginTop="0" marginBottom="0" fontSize="12" paddingBottom="0" marginLeft="3"></barcode>
+              </div>
             </div>
           </div>
         </div>
@@ -234,7 +244,6 @@
           });
       },
       showModal() {
-        //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
         this.productItemSelected = {};
       },
@@ -267,7 +276,7 @@
         let foundItem = false, indexItem = null;
         if ($event && $event.hasOwnProperty("brands") && $event.hasOwnProperty("itemProduct")) {
           let brands = $event.brands;
-          let itemProduct = $event.itemProduct;
+          let itemProduct = this.cloneObject($event.itemProduct);
           if (this.items.length > 0) {
             for (let i = 0; i < this.items.length; i++) {
               if (itemProduct.id === this.items[i].id) {
@@ -276,8 +285,8 @@
                 if (brands && brands.length > 0) {
                   this.items[indexItem]["brands"] = brands;
                 }
+                break;
               }
-              break;
             }
           }
           if (!foundItem) {
@@ -345,12 +354,15 @@
       },
       barcodePrint() {
         this.$htmlToPaper(("barcode-" + this.barcodeItem.code));
+        this.barcodeItem = {};
+        this.numberPrint = 0;
       },
       barcodeInputNumberPrint(item) {
         this.barcodeItem = item;
         this.$refs['input-number-barcode-modal'].show();
       },
       updateNumberBarcodePrint(input) {
+        this.barcodeListToPrint = [];
         if (input > 0) {
           for (let i = 1; i <= input; i++) {
             this.barcodeListToPrint.push(this.barcodeItem.code);

@@ -16,7 +16,7 @@
                   </div>
                 </b-col>
 
-                <div class="btn-wrapper">
+                <div class="btn-wrapper" style="display:none;">
                   <b-button href="#" size="sm" variant="primary" title="Import product from Supplier">
                     <span class="margin-span-btn">Import</span>
                     <i class="fa fa-cart-plus" aria-hidden="true"></i>
@@ -77,12 +77,12 @@
                 </b-button>
                 <b-button
                   v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
-                  href="#" size="sm" variant="primary"
+                  href="#" size="sm" variant="success"
                   title="Save stock" @click="submitPurchase()">
                   Save purchase
                 </b-button>
                 <b-button
-                  href="#" size="sm" variant="primary"
+                  href="#" size="sm" variant="danger"
                   title="Discard stock" @click="discardPurchase()">
                   Discard add stock
                 </b-button>
@@ -330,6 +330,7 @@
         purchases: [],
         searchInput: null,
         excelImportFile: null,
+        warehouseList : [],
       };
     },
     watch:{
@@ -484,6 +485,7 @@
       async getProductList(){
         let vm = this;
         vm.products = [];
+        vm.productList = [];
 
         vm.loadingFields.productListLoading = true;
         await vm.$axios.get('/api/product').then(function (response) {
@@ -509,6 +511,9 @@
       async getAllWarehouse(){
         let vm = this;
         vm.loadingFields.warehouseListLoading = true;
+        vm.warehouseList = [];
+        vm.warehouses = [];
+
         await vm.$axios.get('/api/warehouse').then(function (response) {
           vm.loadingFields.warehouseListLoading = false;
           if(response && response.hasOwnProperty("data")){
@@ -519,6 +524,7 @@
                 warehouseItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                 warehouseItem.value = data[index]["id"];
                 vm.warehouses.push(warehouseItem);
+                vm.warehouseList.push(data[index]);
               }
             }
           }
@@ -634,8 +640,8 @@
         this.purchase.vat = null;
         this.purchase.warehouse = this.$store.$cookies.get("storeItem");
 
-        this.getProductList();
-        this.getAllWarehouse();
+        //this.getProductList();
+        //this.getAllWarehouse();
         this.getAllSupplier();
       },
       discardPurchase(){
@@ -757,6 +763,8 @@
         this.isLoading = true;
         this.items = [];
         let self = this;
+        self.stockItems = [];
+        self.loadingFields.stockLoading = true;
         await self.$axios.post('/api/stock/search', {search: self.searchInput}).then(function (response) {
           if(response.data){
             self.loadingFields.stockLoading = false;
@@ -772,7 +780,7 @@
                 self.stock.code = product["code"];
                 self.stock.image = product["image"];
                 self.stock.sale_price = product["sale_price"].toString();
-                self.stockItems.push(vm.stock);
+                self.stockItems.push(self.stock);
               }
             }
           }
@@ -803,7 +811,6 @@
         let time = today.getTime();
         return (yyyy + "" + month + "" + day + "" + "" + hours + "" + "" + minutes + "" + time);
       },
-
       getFullDate(){
         let today = new Date();
         let dd = today.getDate();
@@ -818,8 +825,8 @@
     },
     mounted() {
       // this.getDataPurchase();
-      //this.getProductList();
-      //this.getAllWarehouse();
+      this.getProductList();
+      this.getAllWarehouse();
       //this.getAllSupplier();
       this.showStockTable();
     }

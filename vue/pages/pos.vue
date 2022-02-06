@@ -7,17 +7,20 @@
       <div class="display-inline-block full-with"  v-if="!showSelectStoreModal">
         <div v-show="showModalCashBalance">
           <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal"
-                   size="lg" title="Balance" ok-only
+                   size="lg" title="ទឹកប្រាក់នៅសល់" ok-only
                    no-close-on-backdrop
                    @ok="submitBalance"
           >
             <b-form enctype="multipart/form-data">
               <div class="full-content">
-                <b-row class="my-1" v-if="isCreatedBalance">
+                <b-row class="my-1" v-show="isCreatedBalance">
                   <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">Create Balance ($)</label></b-col>
                   <b-col sm="8">
                     <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
                   </b-col>
+                </b-row>
+                <b-row class="my-1" v-show="!isCreatedBalance">
+                  <b-col sm="12"><label>{{ cashBalanceData.balance }}</label></b-col>
                 </b-row>
               </div>
             </b-form>
@@ -26,7 +29,7 @@
         <div v-if="!showModalCashBalance">
           <b-row>
             <b-col cols="6" class="content-product-select">
-              <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" />
+              <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" @updateListProduct="updateListProduct" />
             </b-col>
             <b-col cols="6" class="product-list">
               <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
@@ -55,6 +58,7 @@ export default {
       cashBalanceData: {},
       isCreatedBalance: false,
       showSelectStoreModal: false,
+      loading: false,
     }
   },
   watch:{
@@ -65,19 +69,7 @@ export default {
     }
   },
   methods: {
-    async getBalanceData(){
-      let self = this;
-      await self.$axios.get('/api/showbalance').then(function (response) {
-        if(response && response.hasOwnProperty("data")){
-          self.isCreatedBalance = !response.data.success;
-          self.cashBalanceData = response.data;
-          self.$store.commit('auth/setCashBalance', response.data);
-        }
-      }).catch(function (error) {
-          console.log(error);
-          self.$toast.error("Submit data getting error").goAway(3000);
-      });
-    },
+
     selectProduct($data){
       if($data){
         if(!$data.hasOwnProperty("qty")){
@@ -90,7 +82,7 @@ export default {
             for(let i=0; i < this.productSelectList.length; i++){
               if(this.productSelectList[i]["id"] === $data["id"]){
                 let itemTemp = JSON.parse(JSON.stringify(this.productSelectList[i]));
-                itemTemp["qty"] = Number(itemTemp['qty']) + 1;
+                itemTemp["qty"] = parseInt(itemTemp['qty']) + 1;
                 this.$set(this.productSelectList, i, itemTemp);
                 foundItem = true;
                 break;
@@ -122,6 +114,9 @@ export default {
     },
     selectedItem($item){
       this.calculateItem = $item;
+    },
+    updateListProduct($event){
+      this.productSelectList = $event;
     },
     increaseQty($event){
       this.productSelectItem = $event;
@@ -155,11 +150,12 @@ export default {
         data["income"] = 0;
         data["withdraw"] = 0;
         data["balance"] = parseFloat(self.cashBalance);
-        data["warehouse_id"] = null;
+        data["warehouse_id"] =  self.$store.$cookies.get('storeItem');
         data["user_id"] =  self.$store.$cookies.get('user').id;
 
         await self.$axios.post('/api/balance', data).then(function (response) {
-          if(response && response.hasOwnProperty("data")){
+          if(response && response.hasOwnProperty("data") && response.data.balance){
+            this.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
           }
         }).catch(function (error) {
           console.log(error);
@@ -167,16 +163,39 @@ export default {
         });
       }
     },
+    async getBalanceData(){
+      let self = this;
+      await self.$axios.get('/api/showbalance').then(function (response) {
+        console.log(response.data);
+        if(
+          response && response.hasOwnProperty("data")
+          && response.data && !response.data.hasOwnProperty("original")
+          && response.data.hasOwnProperty("balance")
+        ){
+          self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance));
+          self.cashBalanceData = response.data;
+        }
+        else if(
+          response && response.hasOwnProperty("data") && response.data
+          && !response.data.hasOwnProperty("balance") && response.data.hasOwnProperty("original")
+        ){
+          self.isCreatedBalance = !response.data.original.success;
+        }
+      }).catch(function (error) {
+        console.log(error);
+        self.$toast.error("Submit data getting error").goAway(3000);
+      });
+    },
   },
   mounted() {
     let self = this;
-    self.showSelectStoreModal = !self.$store.$cookies.get("storeItem") ? true : false;
     self.getBalanceData();
+    self.showSelectStoreModal = (self.$store.$cookies.get('storeItem') === null || self.$store.$cookies.get('storeItem') === undefined || self.$store.$cookies.get('storeItem') === 'undefined') ? true : false;
     self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
     if(!self.$store.$cookies.get('cashBalance')){
       self.$refs['input-cash-balance-modal'].show();
     }
-    window.addEventListener('keyup', function(ev) {
+    /*window.addEventListener('keyup', function(ev) {
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){
           if(self.productSelectList[i]["id"] === self.calculateItem["id"]){
@@ -187,8 +206,13 @@ export default {
           }
         }
       }
-    });
-  }
+    });*/
+  },
+  computed:{
+    rows() {
+      return this.items.length
+    }
+  },
 }
 </script>
 

@@ -34,14 +34,14 @@
       return {
         orders: [],
         fields: [
-          { key: 'user_id', label: 'Sale by' },
-          { key: 'product_id', label: 'Product Name' },
+          { key: 'sale_by', label: 'Sale by' },
+          { key: 'name', label: 'Product Name' },
           { key: 'customer_id', label: 'Customer Name' },
           { key: 'discount', label: 'Discount' },
           { key: 'grandtotal', label: 'Grand Total' },
           { key: 'subtotal', label: 'Sub Total' },
           { key: 'vat', label: 'Vat' },
-          { key: 'quantity', label: 'Quantity' },
+          { key: 'qty', label: 'Quantity' },
         ],
         warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
         warehouse: null,
@@ -54,11 +54,27 @@
         await self.$axios.get('/api/sale').then(function (response) {
           if(response && response.hasOwnProperty("data")){
             self.orders = response.data;
+            let itemOrder = [];
+
             if(self.orders.hasOwnProperty("orderdetails")){
               let orderdetails = self.orders.orderdetails;
               if(orderdetails.length > 0){
                 for (let i=0; i < orderdetails.length; i++){
-
+                  let productData = self.cloneObject(self.filterProduct(orderdetails[i]));
+                  if(productData !== null && productData !== undefined){
+                    let createdDate = new Date(orderdetails[i].created_at);
+                    let dd = createdDate.getDate();
+                    let mm = createdDate.getMonth() + 1;
+                    let day = (dd < 10) ? ('0' + dd) : dd;
+                    let month = (mm < 10) ? ('0' + mm) : mm;
+                    let yyyy = createdDate.getFullYear();
+                    itemOrder["date"] = (day + "/" + month + "/" + yyyy);
+                    let user = self.cloneObject(self.$store.$cookies.get('user'));
+                    itemOrder["sale_by"] = user["name"];
+                    itemOrder["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
+                    itemOrder["qty"] = parseInt(orderdetails[i].quantity);
+                    self.items.push(itemOrder);
+                  }
                 }
               }
             }
