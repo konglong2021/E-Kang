@@ -30,4 +30,12 @@ class Customer extends Model
     {
         return $this->belongsTo(Member::class);
     }
+
+   
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+   
 }

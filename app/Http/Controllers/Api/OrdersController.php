@@ -28,7 +28,10 @@ class OrdersController extends Controller
     public function index(Request $request)
     {
         if (empty($request->all())) {
-        $orders = Order::with('orderdetails')
+        $orders = Order::with('customers')
+                        ->with('warehouse')
+                        ->with('user')
+                        ->with('orderdetails')
                   ->orderBy('id', 'desc')->get();
         }
         else {
