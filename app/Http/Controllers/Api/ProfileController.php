@@ -37,9 +37,15 @@ class ProfileController extends Controller
     {
         $profile= Profile::where('user_id',$request["user_id"])->get()->last();
         if(!$profile){
+            $profile_create = Profile::create([
+                'user_id' => auth()->user()->id,
+                'warehouse_id' => $request['warehouse_id']
+            ]);
+
             return response()->json([
-                "success" =>false,
-                "message" => "No user data Found! Please Create One!"
+                "success" =>true,
+                "message" => "User data Created",
+                "profile" => $profile_create
             ], 200);
         }
         // User::find(auth()->user()->id);
