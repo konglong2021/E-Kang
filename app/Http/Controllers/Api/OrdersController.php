@@ -180,7 +180,7 @@ class OrdersController extends Controller
            $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
            if(!$balance)
            {
-            return response()->json("No default warehouse found!", 200);
+            return false;
            }
 
            $balance_date = date('Y-m-d');

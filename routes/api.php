@@ -76,6 +76,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/user/warehouse',[App\Http\Controllers\Api\ProfileController::class,'updatewarehouse']);//user update default warehouse
     Route::post('/balance/verifybalance',[App\Http\Controllers\Api\BanlancesController::class,'verifybalance']); // Cash Balance
     Route::post('/balance/withdrawal',[App\Http\Controllers\Api\BanlancesController::class,'withdrawal']); // Cash withdraw
+    Route::post('/balance/income',[App\Http\Controllers\Api\BanlancesController::class,'income']); // Cash In
 });
 
 

@@ -40,12 +40,12 @@ class BanlancesController extends Controller
      {
         $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
         if(!$warehouse_id){
-            return response()->json("No default warehouse found!", 200);
+            $balance=  response()->json("No default warehouse found!", 200);
            }
 
         $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
         if(!$balance){
-            return response()->json([
+            $balance= response()->json([
                 "success" => false,
                 "message" => "No Balance Please Create One!"
             ], 201);
@@ -197,6 +197,43 @@ class BanlancesController extends Controller
 
     }
 
+    //insert income
+    public function income(Request $request)
+    {
+        
+        $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+        if(!$warehouse_id){
+            return response()->json("No default warehouse found!", 200);
+           }
+
+           $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
+           if(!$balance){
+               return response()->json([
+                   "success" => false,
+                   "message" => "No this balance found"
+               ], 200);
+           }
+
+           $balance_date = date('Y-m-d');
+        if($balance->balance_date >= $balance_date)
+        {
+            
+            $input['income'] = $request['income'] + $balance->income;
+            $input['balance']= $balance->remain + $input['income'] - $balance->withdraw;
+            $balance->update($input);
+            return response()->json([
+                "success" => true,
+                "message" =>  "Balance has beed update successfully!",
+                "balance" => $balance
+            ], 200);
+
+        }
+        return response()->json([
+            "success" => false,
+            "message" => "Please Verify today balance first!"
+        ], 200);
+
+    }
 
     public function show($id)
     {
