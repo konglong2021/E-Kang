@@ -401,3 +401,26 @@ body {
 .footer{
   text-align: center;
 }
+
+.content-user-img{
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  overflow: hidden;
+  background: wheat;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.content-user-img img{
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.content-user-profile{
+  display: inline-block;
+  overflow: hidden;
+}

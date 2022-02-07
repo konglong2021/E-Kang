@@ -11,11 +11,10 @@
                <b-container class="col-6 mx-auto menu-wrapper">
                 <b-row>
                   <b-col>
-
-              <div class="input-group input-group-sm search-content">
-                 <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchProduct()" @change="handleClick" />
-              </div>
+                    <div class="input-group input-group-sm search-content">
+                       <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
+                      <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchProduct()" @change="handleClick" />
+                    </div>
                   </b-col>
                   <div class="btn-wrapper">
                        <b-button href="#"  title="Add new Category" size="sm" variant="primary"

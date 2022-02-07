@@ -205,6 +205,7 @@
         });
       },
       async onSubmit(){
+        let formData = new FormData();
         let self = this, dataSubmit = {}, rolesId = [], dataSubmitProfile ={};
         dataSubmit["name"] = (self.user["firstname"] + " " + self.user["lastname"]);
         dataSubmit["password"] = self.user.password;
@@ -215,14 +216,30 @@
         });
         dataSubmit["roles"] = rolesId;
 
-        dataSubmitProfile["firstname"] = self.user["firstname"];
-        dataSubmitProfile["lastname"] = self.user["lastname"];
-        dataSubmitProfile["gender"] = self.user["gender"];
-        dataSubmitProfile["occupation"] = self.user["occupation"];
-        dataSubmitProfile["phone"] = self.user["phone"];
-        dataSubmitProfile["email"] = self.user["email"];
-        dataSubmitProfile["birthdate"] = self.user["birthdate"];
-        dataSubmitProfile["address"] = self.user["address"];
+        //dataSubmitProfile["firstname"] = self.user["firstname"];
+        formData.append("firstname", self.user["firstname"]);
+
+        //dataSubmitProfile["lastname"] = self.user["lastname"];
+        formData.append("lastname", self.user["lastname"]);
+
+        //dataSubmitProfile["gender"] = self.user["gender"];
+        formData.append("gender", self.user["gender"]);
+
+        //dataSubmitProfile["occupation"] = self.user["occupation"];
+        formData.append("occupation", self.user["occupation"]);
+
+        //dataSubmitProfile["phone"] = self.user["phone"];
+        formData.append("phone", self.user["phone"]);
+
+        //dataSubmitProfile["email"] = self.user["email"];
+        formData.append("email", self.user["email"]);
+
+        //dataSubmitProfile["birthdate"] = self.user["birthdate"];
+        formData.append("birthdate", self.user["birthdate"]);
+
+        //dataSubmitProfile["address"] = self.user["address"];
+        formData.append("address", self.user["address"]);
+        formData.append("image", self.uploadFile);
 
         self.$toast.info("submit data in progress").goAway(1000);
         if(self.user.hasOwnProperty("id") && self.user.id){
@@ -265,12 +282,13 @@
             self.$toast.error("Submit data getting error").goAway(3000);
           });
         }
-        await self.submitProfileData(dataSubmitProfile);
+        await self.submitProfileData(formData);
 
       },
       async submitProfileData(dataSubmit){
         let self = this;
         if(self.user.hasOwnProperty("profile_id") && self.user.profile_id){
+          dataSubmit.append("_method", "PUT");
           self.$axios.put('/api/profile/' + self.user.profile_id, dataSubmit)
             .then(function (response) {
               console.log(response);

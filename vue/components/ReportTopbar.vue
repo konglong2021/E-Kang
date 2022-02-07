@@ -23,10 +23,15 @@
     </div>
     <div class="content-logout">
       <ul class="ul-style">
-        <li class="li-style">
-          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        <li class="li-style" style="overflow: hidden;">
+          <a class="cursor-default no-cursor content-user-profile">
+            <span class="content-user-img">
+              <img :src="getUrlDisplayImgUser()" alt="" />
+            </span>
+            <span>{{ $store.$cookies.get('user').name }}</span>
+          </a>
         </li>
-        <li class="li-style">
+        <li class="li-style" style="overflow: hidden;">
           <b-button class="button-no-background" @click="logOut()">
             <span>Logout</span>
           </b-button>
@@ -48,6 +53,9 @@
         if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
           await this.$router.push('/login');
         }
+      },
+      getUrlDisplayImgUser(){
+        return this.$store.$cookies.get('user').image ? this.$store.$cookies.get('user').image : "images/no_icon.png";
       },
     },
     mounted() {

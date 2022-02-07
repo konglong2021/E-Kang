@@ -77,7 +77,7 @@ class OrdersController extends Controller
                 'required',
             ],
         ]);
-       
+
 
         // Exaple of transaction
 
@@ -101,7 +101,7 @@ class OrdersController extends Controller
         $orders->discount = $request->discount;   //fetch from member value
         $orders->grandtotal = round($request->grandtotal,$digit);
         $orders->save();
-        
+
         $income = $this->income($orders->grandtotal);
 
         if(!$income){
@@ -124,7 +124,7 @@ class OrdersController extends Controller
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
             ->first();
-            
+
 
                 // setting negative 1 is allow to update
             if ($stock !== null) {
@@ -172,14 +172,14 @@ class OrdersController extends Controller
 
     public function income($income)
     {
-        
+
            $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
            $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
            if(!$balance)
            {
             return response()->json("No default warehouse found!", 200);
            }
-           
+
            $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
@@ -187,7 +187,7 @@ class OrdersController extends Controller
             $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
-           
+
         }
             return false;
 

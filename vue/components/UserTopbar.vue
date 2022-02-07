@@ -3,7 +3,7 @@
     <div class="content-menu-icon">
       <ul class="list-menu">
         <li class="list-menu-item line-height">
-          <a href="/"><span><i class="fa fa-th font-size-23"></i></span></a>
+          <a href="/"><span><i class="fa fa-th font-size-28"></i></span></a>
         </li>
       </ul>
     </div>
@@ -33,16 +33,50 @@
     </div>
     <div class="content-logout">
       <ul class="ul-style">
-        <li class="li-style">
-          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        <li class="li-style" style="overflow: hidden;">
+          <a class="cursor-default no-cursor content-user-profile">
+            <span class="content-user-img">
+              <img :src="getUrlDisplayImgUser()" alt="" />
+            </span>
+            <span>{{ $store.$cookies.get('user').name }}</span>
+          </a>
         </li>
-        <li class="li-style">
-          <a>Logout</a>
+        <li class="li-style" style="overflow: hidden;">
+          <b-button class="button-no-background" @click="logOut()">
+            <span>Logout</span>
+          </b-button>
         </li>
       </ul>
     </div>
   </b-navbar>
 </template>
+<script>
+  export default {
+    data(){
+      return {
+        isLoading: false
+      }
+    },
+    methods: {
+      async logOut(){
+        let response = await this.$axios.post('/api/logout');
+        if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
+          await this.$router.push('/login');
+        }
+      },
+      getUrlDisplayImgUser(){
+        return this.$store.$cookies.get('user').image ? this.$store.$cookies.get('user').image : "images/no_icon.png";
+      },
+    },
+    mounted() {
+      let self = this;
+      self.$nextTick(() => {
+        self.$nuxt.$loading.start();
+        setTimeout(() => self.$nuxt.$loading.finish(), 700)
+      });
+    },
+  }
+</script>
 <style >
   .inventory-bar{
     background-color:#232d3b;

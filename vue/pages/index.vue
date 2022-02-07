@@ -36,7 +36,11 @@
           </b-row>
         </b-container>
       </div>
-      <div class="footer">@ Footer</div>
+      <div style="text-align: center; font-size: 12px;">
+        <div class="footer-rights">
+          Copyright © 2022 Fireart Studio. All rights reserved.
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -90,6 +94,7 @@ export default {
 <style  scoped>
   .main-menu {
     padding-top :100px;
+    height: calc(100vh - 20px);
   }
   .main-menu .btn {
     padding-top: 10px;

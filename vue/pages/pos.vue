@@ -1,42 +1,42 @@
 <template>
   <div>
-    <b-container fluid class="bv-example-row">
-      <div class="display-inline-block pos-select-store" v-if="showSelectStoreModal">
-        <default-ware-house></default-ware-house>
-      </div>
-      <div class="display-inline-block full-with"  v-if="!showSelectStoreModal">
-        <div v-show="showModalCashBalance">
-          <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal"
-                   size="lg" title="ទឹកប្រាក់នៅសល់" ok-only
-                   no-close-on-backdrop
-                   @ok="submitBalance"
-          >
-            <b-form enctype="multipart/form-data">
-              <div class="full-content">
-                <b-row class="my-1" v-show="isCreatedBalance">
-                  <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">Create Balance ($)</label></b-col>
-                  <b-col sm="8">
-                    <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
-                  </b-col>
-                </b-row>
-                <b-row class="my-1" v-show="!isCreatedBalance">
-                  <b-col sm="12"><label>{{ cashBalanceData.balance }}</label></b-col>
-                </b-row>
-              </div>
-            </b-form>
-          </b-modal>
+    <b-container fluid class="bv-example-row main-page-content">
+        <div class="display-inline-block pos-select-store" v-if="showSelectStoreModal">
+          <default-ware-house></default-ware-house>
         </div>
-        <div v-if="!showModalCashBalance">
-          <b-row>
-            <b-col cols="6" class="content-product-select">
-              <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" @updateListProduct="updateListProduct" />
-            </b-col>
-            <b-col cols="6" class="product-list">
-              <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
-            </b-col>
-          </b-row>
+        <div class="display-inline-block full-with"  v-if="!showSelectStoreModal">
+          <div v-show="showModalCashBalance">
+            <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal"
+                     size="lg" title="ទឹកប្រាក់នៅសល់" ok-only
+                     no-close-on-backdrop
+                     @ok="submitBalance"
+            >
+              <b-form enctype="multipart/form-data">
+                <div class="full-content">
+                  <b-row class="my-1" v-show="isCreatedBalance">
+                    <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">Create Balance ($)</label></b-col>
+                    <b-col sm="8">
+                      <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
+                    </b-col>
+                  </b-row>
+                  <b-row class="my-1" v-show="!isCreatedBalance">
+                    <b-col sm="12"><label>{{ cashBalanceData.balance }}</label></b-col>
+                  </b-row>
+                </div>
+              </b-form>
+            </b-modal>
+          </div>
+          <div v-if="!showModalCashBalance">
+            <b-row>
+              <b-col cols="6" class="content-product-select">
+                <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" @updateListProduct="updateListProduct" />
+              </b-col>
+              <b-col cols="6" class="product-list">
+                <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
+              </b-col>
+            </b-row>
+          </div>
         </div>
-      </div>
     </b-container>
   </div>
 </template>
