@@ -120,9 +120,22 @@ class ProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Profile $profile)
+    public function update(Request $request, $id)
     {
         $input = $request->all();
+        $profile= Profile::where('user_id',$id)->get()->last();
+        if(!$profile){
+            $input['user_id']= $id;
+            $input['warehouse_id']= $request['warehouse_id'];
+            $profile = Profile::create($input);
+
+            return response()->json([
+                "success" => true,
+                "message" => "create profile successfully!",
+                "profile" => $profile
+            ], 200);
+        }
+        
         if ($image = $request->file('image')) {
             $destination_path = 'public/img';
 
