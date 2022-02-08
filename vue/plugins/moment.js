@@ -1,1 +1,1 @@
-import * as moment from 'moment';
+import moment from 'moment';

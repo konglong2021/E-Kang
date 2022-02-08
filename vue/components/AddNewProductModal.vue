@@ -11,8 +11,8 @@
             <div class="content-file-upload">
               <b-form-file id="file" name="file" class="input-file" v-on:change="onFileChange" plain></b-form-file>
               <div id="output" v-if="uploadFile" class="img"></div>
-              <div v-if="!uploadFile && (!product.image || product.image === 'no image')" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
-              <div v-if="!uploadFile && (product.image || product.image !== 'no image')" class="img" :style="{ backgroundImage: `url('${generateImageUrlDisplay(product.image)}')` }"></div>
+              <div v-if="!uploadFile && (!product.image || product.image === 'no image' || product.image === 'no image created')" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
+              <div v-if="!uploadFile && (product.image || product.image !== 'no image' || product.image !== 'no image created')" class="img" :style="{ backgroundImage: `url('${generateImageUrlDisplay(product.image)}')` }"></div>
             </div>
           </div>
           <div class="full-content">

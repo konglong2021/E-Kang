@@ -424,3 +424,14 @@ body {
   display: inline-block;
   overflow: hidden;
 }
+.margin-right-20-px{
+  margin-right: 20px;
+}
+.margin-right-80-px{
+  margin-right: 80px;
+}
+
+.color-black{
+  color: #000000;
+  font-weight: 700;
+}

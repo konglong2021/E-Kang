@@ -4,7 +4,7 @@
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-left">
-            <h3 class="head-title">{{ $t('title') }} Inventory Overview</h3>
+            <h3 class="head-title"> {{ $t('content_title_inventory')}}</h3>
           </div>
           <div class="content-panel-right">
             <b-container class="col-12 mx-auto menu-wrapper">
@@ -24,19 +24,19 @@
                 </div>
                 <div class="btn-wrapper margin-right-20-percentage">
                   <b-button href="#" title="Add new Product" size="sm" variant="primary" @click="showModal()">
-                    <span class="margin-span-btn">New Product</span>
+                    <span class="margin-span-btn">{{$t('title_new_product')}}</span>
                     <i class="fa fa-plus" aria-hidden="true"></i>
                   </b-button>
                 </div>
                 <div class="btn-wrapper margin-right-20-percentage">
                   <b-button href="#" title="Add new Supplier" size="sm" variant="primary"  @click="showSupplierModal()">
-                    <span class="margin-span-btn">New Supplier</span>
+                    <span class="margin-span-btn">{{$t('title_new_supplier')}}</span>
                     <i class="fa fa-plus" aria-hidden="true"></i>
                   </b-button>
                 </div>
                 <div class="btn-wrapper">
                   <b-button href="#" title="Add new WareHouse" size="sm" variant="primary"  @click="showWareHouseModal()">
-                    <span class="margin-span-btn">New WareHouse</span>
+                    <span class="margin-span-btn">{{$t('title_new_warehouse')}}</span>
                     <i class="fa fa-plus" aria-hidden="true"></i>
                   </b-button>
                 </div>
@@ -50,21 +50,21 @@
         <div class="content-data">
           <div class="btn-wrapper margin-btn" v-if="!isShowFormAddProductInPurchase">
             <b-button href="#" size="sm" variant="primary" title="Add new purchase record" @click="showPurchaseModal()">
-              <span class="margin-span-btn">Stock In</span>
+              <span class="margin-span-btn">{{$t('stock_in')}}</span>
               <i class="fa fa-plus" aria-hidden="true"></i>
             </b-button>
             <b-button href="#" size="sm" variant="primary" title="Check stock record" @click="showStockTable()" style="display:none;">
-              <span class="margin-span-btn">Check Stock</span>
+              <span class="margin-span-btn">{{$t('check_stock')}}</span>
             </b-button>
           </div>
           <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
               <div>
-                <label class="label-with">Supplier</label>
+                <label class="label-with">{{$t('title_supplier')}}</label>
                 <b-form-select :disabled="suppliers.length === 0" class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
               </div>
               <div class="margin-bottom-20">
-                <label class="label-with">Store</label>
+                <label class="label-with">{{ $t('title_warehouse') }}</label>
                 <b-form-select :disabled="warehouses.length === 0" class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
               </div>
               <div class="display-inline-block">
@@ -73,24 +73,24 @@
                   title="Add product to stock"
                   :disabled="(warehouses.length === 0 && suppliers.length === 0) || products.length === 0"
                   @click="showExistingProductModal()">
-                  Add product to stock
+                  {{$t('title_add_product_to_stock')}}
                 </b-button>
                 <b-button
                   v-show="purchase.supplier && purchase.warehouse && this.items.length > 0"
                   href="#" size="sm" variant="success"
                   title="Save stock" @click="submitPurchase()">
-                  Save purchase
+                  {{$t('save_purchase')}}
                 </b-button>
                 <b-button
                   href="#" size="sm" variant="danger"
                   title="Discard stock" @click="discardPurchase()">
-                  Discard add stock
+                  {{$t('title_discard_add_stock')}}
                 </b-button>
               </div>
             </div>
             <div class="display-inline-block content-field-purchase float-right">
               <div>
-                <label class="label-with">Vat</label>
+                <label class="label-with">ពន្ធ</label>
                 <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
               </div>
               <div class="margin-bottom-20">
@@ -100,7 +100,7 @@
             </div>
           </div>
           <div class="margin-5" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
-            <h4 class="font-700">Product list</h4>
+            <h4 class="font-700">{{$t('product_list')}}</h4>
             <b-table :items="items"
               :fields="fields" stacked="md"
               show-empty small
@@ -141,7 +141,7 @@
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
              @hidden="onResetSupplier" cancel-title="Cancel"
-             @ok="onSubmitSupplier" ok-title="Save" title="New Supplier"
+             @ok="onSubmitSupplier" ok-title="Save" :title="$t('title_supplier')"
              no-close-on-backdrop
     >
       <b-form enctype="multipart/form-data">
@@ -149,25 +149,25 @@
         </div>
         <div class="full-content">
           <b-row class="my-1">
-            <b-col sm="4"><label :for="'input-name'" class="label-input">Name</label></b-col>
+            <b-col sm="4"><label :for="'input-name'" class="label-input">{{ $t('label_name') }}</label></b-col>
             <b-col sm="8">
               <b-form-input :id="'input-name'" type="text" v-model="supplier.name" class="input-content"></b-form-input>
             </b-col>
           </b-row>
           <b-row class="my-1">
-            <b-col sm="4"><label :for="'input-address'" class="label-input">Address</label></b-col>
+            <b-col sm="4"><label :for="'input-address'" class="label-input">{{$t('label_address')}}</label></b-col>
             <b-col sm="8">
               <b-form-input :id="'input-address'" type="text" v-model="supplier.address" class="input-content"></b-form-input>
             </b-col>
           </b-row>
           <b-row class="my-1">
-            <b-col sm="4"><label :for="'input-email'" class="label-input">Email</label></b-col>
+            <b-col sm="4"><label :for="'input-email'" class="label-input">{{$t('label_email')}}</label></b-col>
             <b-col sm="8">
               <b-form-input :id="'input-email'" type="email" v-model="supplier.email" class="input-content"></b-form-input>
             </b-col>
           </b-row>
           <b-row class="my-1">
-            <b-col sm="4"><label :for="'input-phone'" class="label-input">Phone number</label></b-col>
+            <b-col sm="4"><label :for="'input-phone'" class="label-input">{{$t('label_phone')}}</label></b-col>
             <b-col sm="8">
               <b-form-input :id="'input-phone'" class="input-content" v-model="supplier.phone"></b-form-input>
             </b-col>
@@ -200,22 +200,23 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
-      @hidden="onResetExistingProduct" cancel-title="Cancel"
-      @ok="onSubmitExistingProduct(product_select)" ok-title="Save" title="Add Product" no-close-on-backdrop>
+      @hidden="onResetExistingProduct" :cancel-title="$t('label_cancel_button')"
+      @ok="onSubmitExistingProduct(product_select)" :ok-title="$t('label_save_button')"
+             :title="$t('title_add_product')" no-close-on-backdrop>
       <b-form enctype="multipart/form-data">
         <div class="full-content" v-if="products && products.length > 0">
           <div class="display-inline-block full-with">
             <div class="col-md-12 float-right">
               <div class="form-group form-content-detail">
-                <label class="label-with">Product</label>
+                <label class="label-with">{{ $t('title_product') }}</label>
                 <b-form-select class="form-control select-content-inline" v-model="product_select.product" :options="products" @change="selectedProduct(productList, product_select.product)"></b-form-select>
               </div>
               <div class="form-group form-content-detail">
-                <label class="label-with">Import price ($)</label>
+                <label class="label-with">{{$t('import_price')}} ($)</label>
                 <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" :disabled="isDisabledImportPrice === true"></b-form-input>
               </div>
               <div class="form-group form-content-detail">
-                <label class="label-with">Qty</label>
+                <label class="label-with">{{$t('label_quantity')}}</label>
                 <b-form-input class="select-content-inline display-inline-block" v-model="product_select.qty"></b-form-input>
               </div>
             </div>
@@ -536,6 +537,7 @@
 
       async getAllSupplier(){
         let vm = this;
+        vm.suppliers = [];
         vm.loadingFields.supplierListLoading = true;
         await vm.$axios.get('/api/supplier')
           .then(function (response) {
@@ -796,7 +798,7 @@
 
       generateBatch(){
         console.log(this.purchases);
-        return this.getFullDate() + "_v";
+        return this.getFullDate() + "_v" + this.getFullDateAndTime();
       },
 
       getFullDateAndTime(){
@@ -809,7 +811,7 @@
         let hours = today.getHours();
         let minutes = today.getMinutes();
         let time = today.getTime();
-        return (yyyy + "" + month + "" + day + "" + "" + hours + "" + "" + minutes + "" + time);
+        return (hours + "_" + "_" + minutes + "_" + time);
       },
       getFullDate(){
         let today = new Date();

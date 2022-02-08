@@ -47,7 +47,6 @@
               >
                 <template #cell(code)="row">
                   <div style="display: inline-block; overflow : hidden;">
-                    <span>{{ row.item.code.length }}</span>
                     <barcode :value="row.item.code" height ='30' width = '1.9' marginTop="0" marginBottom="0" fontSize="12" textMargin="1"></barcode>
                   </div>
                 </template>
@@ -80,8 +79,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div>
         </div>
         <add-new-product-modal v-model="newProductModal" :productItemSelected="productItemSelected" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
         <b-modal

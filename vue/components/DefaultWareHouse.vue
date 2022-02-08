@@ -17,7 +17,7 @@
       <div class="display-inline-block" v-show="!loadingField && storeList && storeList.length > 0">
         <ul class="ul-no-style">
           <li class="content-li-menu-store" v-for="store in storeList">
-            <b-button variant="dark" class="content-button" @click="selectStore(store)">
+            <b-button variant="dark" class="content-button" style="min-height: 135px;" @click="selectStore(store)">
               <i class="fa fa-home fa-3x" ></i> <div>
               <span>{{ store.name }}</span>
             </div>
@@ -73,16 +73,8 @@
               else {
                 if(response.data && response.data.profile){
                   self.$store.commit('auth/setStoreItem', response.data.profile.warehouse_id);
+                  self.$emit("checkingWarehouseData", response.data.profile.warehouse_id);
                 }
-                // if(!store.$cookies.get("user").hasOwnProperty("warehouse_id")
-                //   ||
-                //   (
-                //     store.$cookies.get("user").hasOwnProperty("warehouse_id")
-                //     && !store.$cookies.get("user").warehouse_id
-                //   )
-                // ){
-                //   self.$store.commit('auth/setUser', response.data);
-                // }
               }
             }
             else {

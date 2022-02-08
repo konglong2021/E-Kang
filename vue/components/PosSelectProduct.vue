@@ -1,5 +1,5 @@
 <template>
-    <div class="display-inline-block full-with">
+    <div class="display-inline-block full-with" v-show="$store.$cookies.get('cashBalance') > 0">
       <div  class="calculator-product-content">
         <div class="p-item" v-if="products && products.length > 0">
           <div style="width:69%;" class="display-inline-block"><span></span></div>
@@ -54,7 +54,7 @@
         </div>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg" modal-class="payment-form-modal"
                @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitPayment" ok-title="រក្សាទុក" title="ការលក់" no-close-on-backdrop>
+               @ok="onSubmitPayment" ok-title="រក្សាទុកនិងព្រីនចេញ" title="ការលក់" no-close-on-backdrop>
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-45-percentage float-left">
@@ -110,10 +110,9 @@
           </div>
         </b-form>
 
-
-        <div id="invoice-print" style="display: inline-block; width: 100%; height: 100%; overflow: hidden; padding: 30px 70px !important; font-family: 'Arial', 'Khmer OS Bokor', sans-serif !important;">
+        <div id="invoice-print" style="display:none; width: 100%; height: 100%; overflow: hidden; padding: 30px 70px !important; font-family: 'Arial', 'Khmer OS Bokor', sans-serif !important;">
           <div style="margin-bottom: 30px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif; display:inline-block">
-            <h1 class="text-center" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{ $t('title') }}</h1>
+            <h1 style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif; text-align: center;">{{ $t('title') }}</h1>
           </div>
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-60-percentage float-left">
@@ -122,7 +121,7 @@
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{displayCustomerName(order.customer)}}</strong>
               </div>
               <div class="form-row-content-detail row-content-view">
-                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចូលអត្រាប្តូរប្រាក់រៀល : </label>
+                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">អត្រាប្តូរប្រាក់រៀល : </label>
                   <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ exchange_rate + "(៛)"}}</strong>
               </div>
               <div class="form-row-content-detail row-content-view">

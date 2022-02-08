@@ -2,16 +2,14 @@
   <div>
     <b-container fluid class="bv-example-row main-page-content">
         <div class="display-inline-block pos-select-store" v-if="showSelectStoreModal">
-          <default-ware-house></default-ware-house>
+          <default-ware-house @checkingWarehouseData="checkingWarehouseData($event)"></default-ware-house>
         </div>
         <div class="display-inline-block full-with"  v-if="!showSelectStoreModal">
           <div v-show="showModalCashBalance">
-            <b-modal id="modal-input-cash-balance" ref="input-cash-balance-modal"
-                     size="lg" title="ទឹកប្រាក់នៅសល់" ok-only
-                     no-close-on-backdrop
-                     @ok="submitBalance"
+            <b-modal
+              id="modal-input-cash-balance" ref="input-cash-balance-modal"
+              title="ផ្ទៀងផ្ទាត់ទឹកប្រាក់" ok-only no-close-on-backdrop @ok="submitBalance"
             >
-              <b-form enctype="multipart/form-data">
                 <div class="full-content">
                   <b-row class="my-1" v-show="isCreatedBalance">
                     <b-col sm="4"><label :for="'input-cashBalance'" class="label-input">Create Balance ($)</label></b-col>
@@ -19,14 +17,23 @@
                       <b-form-input :id="'input-cashBalance'" type="text" v-model="cashBalance" class="input-content" required @keyup.enter="setCashBalance(cashBalance)"></b-form-input>
                     </b-col>
                   </b-row>
-                  <b-row class="my-1" v-show="!isCreatedBalance">
-                    <b-col sm="12"><label>{{ cashBalanceData.balance }}</label></b-col>
-                  </b-row>
+                  <div style="display:inline-block; margin-left: 45px;" v-show="!isCreatedBalance && cashBalanceData.balance">
+                    <label class="color-black margin-right-80-px">ទឹកប្រាក់មាន : {{ cashBalanceData.balance + "$"}}</label>
+                    <div class="display-inline-block" v-show="checkCurrentDateBalance(cashBalanceData)">
+                      <b-form-checkbox
+                        id="checkbox-1" v-model="add_balance" name="checkbox-1"
+                        value="add_more_balance" unchecked-value="not_add_more_balance"
+                      >បន្ថែមទឹកប្រាក់</b-form-checkbox>
+                    </div>
+                  </div>
+                  <div style="display:inline-block; margin-left: 45px;" v-if="add_balance === 'add_more_balance'">
+                    <label style="margin-right: 10px;">ចំនួនទឹកប្រាក់បន្ថែម ($)</label>
+                    <b-form-input class="display-inline-block input-content width-60-percentage" v-model="balance_income"></b-form-input>
+                  </div>
                 </div>
-              </b-form>
             </b-modal>
           </div>
-          <div v-if="!showModalCashBalance">
+          <div v-show="!showModalCashBalance">
             <b-row>
               <b-col cols="6" class="content-product-select">
                 <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" @updateListProduct="updateListProduct" />
@@ -42,6 +49,7 @@
 </template>
 
 <script>
+  import moment from 'moment';
 export default {
   middleware: "local-auth",
   layout:'posui',
@@ -59,6 +67,10 @@ export default {
       isCreatedBalance: false,
       showSelectStoreModal: false,
       loading: false,
+      add_balance : null,
+      cash_in: 0,
+      verify_balance_input : 0,
+      balance_income: 0
     }
   },
   watch:{
@@ -69,7 +81,18 @@ export default {
     }
   },
   methods: {
-
+    checkCurrentDateBalance(cashBalanceData){
+      let balance_dateObj = moment(cashBalanceData.balance_date,"YYY-MM-DD");
+      let balance_dateConvert = balance_dateObj.format("DD/MM/YYYY");
+      let currentDate = this.getFullDate();
+      return this.compareDate(currentDate, balance_dateConvert);
+    },
+    compareDate(dateTimeBegin, dateTimeEnd) {
+      let momentBegin = moment(dateTimeBegin,"DD/MM/YYYY");
+      let momentEnd = moment(dateTimeEnd,"DD/MM/YYYY");
+      if (momentBegin > momentEnd) return true;
+      else return false;
+    },
     selectProduct($data){
       if($data){
         if(!$data.hasOwnProperty("qty")){
@@ -144,8 +167,8 @@ export default {
       e.preventDefault();
     },
     async submitBalance(){
-      if(this.cashBalance !== 0){
-        let data = {}, self = this;
+      let data = {}, self = this;
+      if(self.cashBalance !== 0){
         data["remain"] = 0;
         data["income"] = 0;
         data["withdraw"] = 0;
@@ -155,24 +178,47 @@ export default {
 
         await self.$axios.post('/api/balance', data).then(function (response) {
           if(response && response.hasOwnProperty("data") && response.data.balance){
-            this.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
+            self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
+            self.cashBalance = 0;
           }
         }).catch(function (error) {
           console.log(error);
           self.$toast.error("Submit data getting error").goAway(3000);
         });
       }
+      else if(self.cashBalanceData && self.cashBalanceData.balance){
+        data["balance"] = parseFloat(self.cashBalanceData.balance);
+        try{
+          let responseVerifyBalance = await self.$axios.post('/api/balance/verifybalance', data);
+          if(
+            responseVerifyBalance && responseVerifyBalance.hasOwnProperty("data")
+            && responseVerifyBalance.data.success === true
+            && responseVerifyBalance.data.balance
+            && self.add_balance === 'add_more_balance'
+          ){
+            await self.$axios.post('/api/balance/income', {income: self.balance_income}).then(function (response) {
+              if(response.data && response.data.balance){
+                self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
+              }
+            }).catch(function (error) {
+              console.log(error);
+              self.$toast.error("Submit data getting error").goAway(3000);
+            });
+          }
+        }catch(err){
+          console.log(err)
+        }
+      }
     },
     async getBalanceData(){
       let self = this;
       await self.$axios.get('/api/showbalance').then(function (response) {
-        console.log(response.data);
         if(
           response && response.hasOwnProperty("data")
           && response.data && !response.data.hasOwnProperty("original")
           && response.data.hasOwnProperty("balance")
         ){
-          self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance));
+          //self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance));
           self.cashBalanceData = response.data;
         }
         else if(
@@ -186,11 +232,29 @@ export default {
         self.$toast.error("Submit data getting error").goAway(3000);
       });
     },
+    getFullDate(){
+      let today = new Date();
+      let dd = today.getDate();
+      let mm = (today.getMonth() + 1); //January is 0!
+      let day = (dd < 10) ? ("0" + dd) : dd;
+      let month = (mm < 10) ? ("0" + mm) : mm;
+      let yyyy = today.getFullYear();
+
+      return (day + "/" + month + "/" + yyyy);
+    },
+    checkingWarehouseData($event){
+      if($event){
+        this.warehouseSelectedId = $event;
+        this.showModalCashBalance = this.$store.$cookies.get('cashBalance') === 0 ? true : false;
+      }
+    }
   },
   mounted() {
     let self = this;
-    self.getBalanceData();
     self.showSelectStoreModal = (self.$store.$cookies.get('storeItem') === null || self.$store.$cookies.get('storeItem') === undefined || self.$store.$cookies.get('storeItem') === 'undefined') ? true : false;
+    if(self.showSelectStoreModal === false){
+      self.getBalanceData();
+    }
     self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
     if(!self.$store.$cookies.get('cashBalance')){
       self.$refs['input-cash-balance-modal'].show();

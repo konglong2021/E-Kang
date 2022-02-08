@@ -1,5 +1,5 @@
 <template>
-    <div id="pos-product-list">
+    <div id="pos-product-list" v-show="$store.$cookies.get('cashBalance') > 0">
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-right content-panel-right-full-width">
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="product-list-body">
-        <div class="scanning-input">
+        <div class="scanning-input" style="display: none;">
           <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
         <div v-if="!productLoading && warehouse" >
