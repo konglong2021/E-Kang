@@ -17,6 +17,10 @@ class BanlancesController extends Controller
      public function CheckProfileWarehouse($user_id)
      {
         $profile= Profile::where('user_id',$user_id)->get()->last();
+        if(!$profile){
+            $profile = response()->json("No Profile created yet", 200);
+            return $profile;
+        }
         return $profile->warehouse_id;
      }
     public function index()
