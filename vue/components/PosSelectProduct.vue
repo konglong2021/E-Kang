@@ -1,5 +1,5 @@
 <template>
-    <div class="display-inline-block full-with" v-show="$store.$cookies.get('cashBalance') > 0">
+    <div class="display-inline-block full-with" v-show="cashBalance">
       <div  class="calculator-product-content">
         <div class="p-item" v-if="products && products.length > 0">
           <div style="width:69%;" class="display-inline-block"><span></span></div>
@@ -11,7 +11,7 @@
         >
           <div style="width:70%;" class="pull-left">
             <div class="p-name">{{ p.name }} </div>
-            <div class="p-qty"> {{ (p.qty) }}  / Unit</div>
+            <div class="p-qty"> {{ (p.qty) }}  / {{ $t('label_product_sale_item') }}</div>
           </div>
           <div style="width:15%; text-align:left" class="pull-left p-price" >
             {{p.price}} {{p.currency}}
@@ -21,7 +21,9 @@
           </div>
           <div v-if="selected && selected === p.id" style="width:15%; text-align:right" class="pull-right p-price" >
             <b-button size="sm" @click="submitNumberIncrease(p)"><i class="fa fa-plus"></i></b-button>
-            <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true"><i class="fa fa-minus"></i> </b-button>
+            <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true">
+              <i class="fa fa-minus"></i>
+            </b-button>
           </div>
           <div class="clearboth"></div>
         </div>
@@ -167,6 +169,7 @@ export default {
   props: {
     products: [],
     warehouseSelectedId: null,
+    cashBalance : 0
   },
   data() {
     return {

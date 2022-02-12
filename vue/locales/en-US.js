@@ -27,4 +27,5 @@ export default {
   "label_quantity":"Quantity",
   "label_cancel_button":"Cancel",
   "label_save_button":"Save",
+  "label_product_sale_item":"Unit"
 };

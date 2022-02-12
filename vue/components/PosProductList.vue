@@ -1,5 +1,5 @@
 <template>
-    <div id="pos-product-list" v-show="$store.$cookies.get('cashBalance') > 0">
+    <div id="pos-product-list" v-show="cashBalance">
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-right content-panel-right-full-width">
@@ -50,6 +50,9 @@
 
 <script>
   export default {
+    props: {
+    cashBalance : 0
+  },
     data() {
       return {
         categories : [],

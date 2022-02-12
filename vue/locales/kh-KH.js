@@ -27,4 +27,5 @@ export default {
   "label_quantity":"ចំនួន",
   "label_cancel_button":"បោះបង់",
   "label_save_button":"រក្សាទុក",
+  "label_product_sale_item":"ឯកតា"
 };

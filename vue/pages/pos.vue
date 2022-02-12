@@ -36,10 +36,10 @@
           <div v-show="!showModalCashBalance">
             <b-row>
               <b-col cols="6" class="content-product-select">
-                <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" @updateListProduct="updateListProduct" />
+                <PosSelectProduct :products="productSelectList" @selectedItem="selectedItem" :warehouseSelectedId ="warehouseSelectedId" @updateListProduct="updateListProduct" :cashBalance="cashBalanceData.balance" />
               </b-col>
               <b-col cols="6" class="product-list">
-                <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" />
+                <PosProductList @selectProduct="selectProduct($event)" @selectWarehouse="selectWarehouse($event)" :cashBalance="cashBalanceData.balance" />
               </b-col>
             </b-row>
           </div>
@@ -66,18 +66,11 @@ export default {
       cashBalanceData: {},
       isCreatedBalance: false,
       showSelectStoreModal: false,
-      loading: false,
+      isLoading: false,
       add_balance : null,
       cash_in: 0,
       verify_balance_input : 0,
       balance_income: 0
-    }
-  },
-  watch:{
-    newSelectModal:{
-      handler(val){
-      },
-      deep:true
     }
   },
   methods: {
@@ -179,6 +172,10 @@ export default {
         await self.$axios.post('/api/balance', data).then(function (response) {
           if(response && response.hasOwnProperty("data") && response.data.balance){
             self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
+            self.showModalCashBalance = false;
+            if(self.$store.$cookies.get('cashBalance')){
+              self.$refs['input-cash-balance-modal'].hide();
+            }
             self.cashBalance = 0;
           }
         }).catch(function (error) {
@@ -199,11 +196,18 @@ export default {
             await self.$axios.post('/api/balance/income', {income: self.balance_income}).then(function (response) {
               if(response.data && response.data.balance){
                 self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
+                self.showModalCashBalance = false;
+                if(self.$store.$cookies.get('cashBalance')){
+                  self.$refs['input-cash-balance-modal'].hide();
+                }
               }
             }).catch(function (error) {
               console.log(error);
               self.$toast.error("Submit data getting error").goAway(3000);
             });
+          }
+          else {
+            
           }
         }catch(err){
           console.log(err)
@@ -218,14 +222,33 @@ export default {
           && response.data && !response.data.hasOwnProperty("original")
           && response.data.hasOwnProperty("balance")
         ){
-          //self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance));
           self.cashBalanceData = response.data;
+          let balanceDateObj = moment(response.data.balance_date, "YYYY-MM-DD");
+          let currentDate = self.getFullDate();
+          //let isBalanceDateBeforeCurrentDate = ;
+          if(moment(balanceDateObj, "DD/MM/YYYY").format('YYYYMMDD') >= moment(currentDate, "DD/MM/YYYY").format('YYYYMMDD')){
+            self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance));
+            self.showModalCashBalance = false;
+            if(self.$store.$cookies.get('cashBalance')){
+              self.$refs['input-cash-balance-modal'].hide();
+            }
+          }
+          else{
+            self.showModalCashBalance = !self.$store.$cookies.get('cashBalance') ? true : false;
+            if(!self.$store.$cookies.get('cashBalance')){
+              self.$refs['input-cash-balance-modal'].show();
+            }
+          }
         }
         else if(
           response && response.hasOwnProperty("data") && response.data
           && !response.data.hasOwnProperty("balance") && response.data.hasOwnProperty("original")
         ){
           self.isCreatedBalance = !response.data.original.success;
+          self.showModalCashBalance = !self.$store.$cookies.get('cashBalance') ? true : false;
+          if(!self.$store.$cookies.get('cashBalance')){
+            self.$refs['input-cash-balance-modal'].show();
+          }
         }
       }).catch(function (error) {
         console.log(error);
@@ -255,10 +278,10 @@ export default {
     if(self.showSelectStoreModal === false){
       self.getBalanceData();
     }
-    self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
-    if(!self.$store.$cookies.get('cashBalance')){
-      self.$refs['input-cash-balance-modal'].show();
-    }
+    // self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
+    // if(!self.$store.$cookies.get('cashBalance')){
+    //   self.$refs['input-cash-balance-modal'].show();
+    // }
     /*window.addEventListener('keyup', function(ev) {
       if(ev.keyCode === 12){
         for(let i=0; i < self.productSelectList.length; i++){
