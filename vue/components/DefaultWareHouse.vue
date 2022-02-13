@@ -68,7 +68,6 @@
           await self.$axios.post('api/user/warehouse', dataSubmit).then(function (response) {
             if(response && response.hasOwnProperty("data")){
               if(response.data.success === false){
-              //   window.open(window.location.origin + "/" + $url,"_blank");
               }
               else {
                 if(response.data && response.data.profile){

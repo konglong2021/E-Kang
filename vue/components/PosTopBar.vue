@@ -1,6 +1,6 @@
 <template>
   <b-navbar toggleable="lg" class="pos-bar">
-        <div class="content-menu-icon">
+        <div class="content-menu-icon" style="display: none;">
           <ul class="list-menu">
             <li class="list-menu-item line-height">
               <a class="content-link" href="/"><span><i class="fa fa-th font-size-28"></i></span></a>
@@ -12,12 +12,12 @@
             <ul class="ul-style">
               <li class="li-style" style="overflow: hidden;" v-if="routePath !== '/pos'">
                 <a class="content-link" href="/pos">
-                  <span>Point of Sale</span>
+                  <span>{{ $t('title_pos') }}</span>
                 </a>
               </li>
               <li class="li-style" style="overflow: hidden;">
                 <a class="content-link" href="/transaction">
-                  <span>Transaction</span>
+                  <span>{{ $t('title_transaction') }}</span>
                 </a>
               </li>
               <li class="li-style" style="overflow: hidden;">

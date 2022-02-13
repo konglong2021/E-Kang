@@ -172,6 +172,7 @@ export default {
         await self.$axios.post('/api/balance', data).then(function (response) {
           if(response && response.hasOwnProperty("data") && response.data.balance){
             self.$store.commit('auth/setCashBalance', parseFloat(response.data.balance.balance));
+            self.cashBalanceData = response.data.balance;
             self.showModalCashBalance = false;
             if(self.$store.$cookies.get('cashBalance')){
               self.$refs['input-cash-balance-modal'].hide();
@@ -206,8 +207,16 @@ export default {
               self.$toast.error("Submit data getting error").goAway(3000);
             });
           }
-          else {
-            
+          else if(
+            responseVerifyBalance && responseVerifyBalance.hasOwnProperty("data")
+            && responseVerifyBalance.data.success === true
+            && responseVerifyBalance.data.balance
+            && self.add_balance !== 'add_more_balance'
+          ){
+            self.showModalCashBalance = false;
+            if(self.$store.$cookies.get('cashBalance')){
+              self.$refs['input-cash-balance-modal'].hide();
+            }
           }
         }catch(err){
           console.log(err)
@@ -269,6 +278,9 @@ export default {
       if($event){
         this.warehouseSelectedId = $event;
         this.showModalCashBalance = this.$store.$cookies.get('cashBalance') === 0 ? true : false;
+        if(!this.$store.$cookies.get('cashBalance')){
+          this.$refs['input-cash-balance-modal'].show();
+        }
       }
     }
   },

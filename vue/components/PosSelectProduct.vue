@@ -3,8 +3,8 @@
       <div  class="calculator-product-content">
         <div class="p-item" v-if="products && products.length > 0">
           <div style="width:69%;" class="display-inline-block"><span></span></div>
-          <div style="width:14%; text-align:left" class="display-inline-block p-price">Unit Price ($)</div>
-          <div style="width:14%; text-align:left" class="display-inline-block p-price">Sub Total ($)</div>
+          <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_unit_price') + " ($)"}} </div>
+          <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_sub_total') + " ($)"}} </div>
         </div>
         <div v-if="products && products.length > 0" v-for="p in products" v-bind:key="p.id" class="p-item"
              @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
@@ -48,15 +48,15 @@
             </b-button>
           </div>
           <div class="total-wrapper pull-right">
-            <div class="total">Total (No Tax included) : {{calculate("USD", products)}} USD </div>
-            <div class="total">Total (No Tax included) After Discount : {{calculateAfterDis(calculate("USD", products))}} USD </div>
-            <div class="total">Total (No Tax included) (Riel): {{calculate("Riel", products)}} Riel </div>
-            <div class="tax"> Taxes:  10% </div>
+            <div class="total">{{ $t('title_total_no_tax') }} : {{calculate("USD", products)}} USD </div>
+            <div class="total">{{ $t('title_total_no_tax_add_discount') }} : {{calculateAfterDis(calculate("USD", products))}} USD </div>
+            <div class="total"> {{ $t('title_total_no_tax_in_riel') }}: {{calculate("Riel", products)}} Riel </div>
+<!--            <div class="tax"> Taxes:  10% </div>-->
           </div>
         </div>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg" modal-class="payment-form-modal"
                @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitPayment" ok-title="រក្សាទុកនិងព្រីនចេញ" title="ការលក់" no-close-on-backdrop>
+               @ok="onSubmitPayment" ok-title="រក្សាទុកនិងព្រីនជាវិក័យប័ត្រ" title="ការលក់" no-close-on-backdrop>
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-45-percentage float-left">
@@ -192,7 +192,7 @@ export default {
       customers : [],
       warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
       vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
-      order: { customer : null, warehouse : null, vat: 0.1, discount : 0,},
+      order: { customer : null, warehouse : null, vat: 0, discount : 0,},
       exchange_rate: 0,
       isIncreaseNumber: false,
       isDisCreaseNumber: false,

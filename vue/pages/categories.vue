@@ -232,6 +232,7 @@
                 let brands = self.cloneObject(response.data.brands);
                 self.updatedCategoryData(self.items, response.data.category.id, brands);
                 self.$toast.success("Submit data successfully").goAway(2000);
+                self.category = {};
               }
             })
             .catch(function (error) {
@@ -245,21 +246,24 @@
             .then(function (response) {
               if(response.data.hasOwnProperty("data")){
                 let categoryItem = response.data.data;
-                let brands = [];
+                let brands = self.cloneObject(response.data.brands);
                 let item = {};
 
-                if(categoryItem["brands"] && categoryItem["brands"].length > 0){
-                  for(let i =0; i < categoryItem["brands"].length; i++){
-                    brands.push(categoryItem["brands"][i]["name"]);
-                  }
+                let responseBrandName = [];
+                let responseBrand = [];
+                for(let i=0; i < brands.length; i++){
+                  let itemResponseBrand = self.cloneObject(self.selectedBrandList(brands[i]));
+                  responseBrandName.push(itemResponseBrand["name"]);
                 }
+                item["brands"] = self.cloneObject(responseBrand);
+                item["brand"] = responseBrandName.join(", ");
                 item['name'] = categoryItem["name"];
                 item['parent'] = "--ROOT--";
-                item['brand'] = brands.join(", ");
                 item['products_count'] = categoryItem["products_count"];
                 self.items.push(item);
                 self.$toast.success("submit data is successfully").goAway(1500);
                 self.hideModal();
+                self.category = {};
               }
             })
             .catch(function (error) {
@@ -297,6 +301,9 @@
       },
       showModal(){
         this.$refs['category-form-modal'].show();
+      },
+      hideModal(){
+        this.$refs['category-form-modal'].hide();
       },
       viewDetail(item, index, target){
         this.categoryView = item;

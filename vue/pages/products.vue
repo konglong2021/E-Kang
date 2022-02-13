@@ -5,7 +5,7 @@
         <div class="control-panel">
           <div class="panel-top">
             <div class="content-panel-left">
-              <h3 class="head-title">Products Overview</h3>
+              <h3 class="head-title">{{ $t('content_title_product')}}</h3>
             </div>
             <div class="content-panel-right">
                <b-container class="col-6 mx-auto menu-wrapper">
@@ -19,7 +19,7 @@
                   <div class="btn-wrapper">
                        <b-button href="#"  title="Add new Category" size="sm" variant="primary"
                        @click="showModal()">
-                        New Product
+                        {{ $t('title_new_product') }}
                         <i class="fa fa-plus" aria-hidden="true"></i>
                       </b-button>
                   </div>
@@ -157,17 +157,17 @@
         currentPage: 1,
         items: [],
         fields: [
-          {key: 'name', label: 'Name'},
+          {key: 'name', label: this.$t('label_name')},
           {
-            key: 'code', label: 'BarCode',
+            key: 'code', label: this.$t('title_barcode'),
             tdAttr: (_, __, {name, code}) => ({
               id: `${code}`
             }), tdClass: 'td-code'
           },
-          {key: 'category_name', label: 'Category'},
-          {key: 'brand', label: 'Brand'},
+          {key: 'category_name', label: this.$t('title_category')},
+          {key: 'brand', label: this.$t('title_brand')},
           {key: 'loyalty', label: 'Loyalty'},
-          {key: 'actions', label: 'Actions'}
+          {key: 'actions', label: this.$t('title_action')}
         ],
         category: {}, //new item for category
         isLoading: false,
@@ -269,24 +269,21 @@
         this.productItemSelected.code = item["code"];
       },
       async checkingProductAdd($event) {
-        let foundItem = false, indexItem = null;
+        let foundItem = false, indexItem = null, self = this;
         if ($event && $event.hasOwnProperty("brands") && $event.hasOwnProperty("itemProduct")) {
           let brands = $event.brands;
           let itemProduct = this.cloneObject($event.itemProduct);
-          if (this.items.length > 0) {
-            for (let i = 0; i < this.items.length; i++) {
-              if (itemProduct.id === this.items[i].id) {
+          if (self.items.length > 0) {
+            for (let i = 0; i < self.items.length; i++) {
+              if (itemProduct.id === self.items[i].id) {
                 foundItem = true;
-                this.items[indexItem] = itemProduct;
-                if (brands && brands.length > 0) {
-                  this.items[indexItem]["brands"] = brands;
-                }
+                self.items[indexItem] = itemProduct;
                 break;
               }
             }
           }
-          if (!foundItem) {
-            await this.items.push(itemProduct);
+          if (foundItem === false) {
+            self.items.push(itemProduct);
           }
         }
       },

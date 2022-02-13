@@ -250,7 +250,7 @@
                 console.log(response.data);
                 vm.$toast.success("Submit data successfully").goAway(2000);
                if(response.hasOwnProperty("data") && response.data){
-                 let Brands = response.data.Brands;
+                 let Brands = self.cloneObject(response.data.Brands);
                  let itemProduct = vm.cloneObject(response.data.product);
                  vm.$emit("checkingProductAdd", {itemProduct: vm.cloneObject(itemProduct), brands: Brands});
                }
@@ -282,23 +282,28 @@
                 let brandList = response.data.hasOwnProperty("Brands") ? response.data.Brands : [];
                 let itemProduct = response.data.product;
                 let newDataBrand = [];
-                if(vm.brands.length > 0){
-                  for (let index =0; index < vm.brands.length; index++){
-                    for(let k=0; k< brandList.length; k++){
-                      if(brandList[k] === vm.brands[index].id){
-                        newDataBrand.push(vm.brands[index]);
-                        break;
-                      }
+                if(response.data.hasOwnProperty("Brands")){
+                  let brandList = vm.cloneObject(response.data.Brands);
+                  if(brandList.length > 0){
+                    let responseBrandName = [];
+                    let responseBrand = [];
+                    for(let k=0; k < brands.length; k++){
+                      let itemResponseBrand = vm.cloneObject(vm.selectedBrandList(brands[k]));
+                      let itemData = {"name": itemResponseBrand["name"], "id": itemResponseBrand["value"]};
+                      responseBrandName.push(itemResponseBrand["name"]);
+                      responseBrand.push(itemData);
+                    }
+                    itemProduct["brands"] = vm.cloneObject(responseBrand);
+                    itemProduct["brand"] = responseBrandName.join(", ");
+                    if(!itemProduct.hasOwnProperty("category_name")){
+                      itemProduct["category_name"]= vm.filterCategoriesData(itemProduct["category_id"]);
+                    }
+                    if(!itemProduct.hasOwnProperty("name")){
+                      itemProduct['name'] = itemProduct["en_name"] + " (" + itemProduct["kh_name"] + ")";
                     }
                   }
                 }
-                if(response.data.hasOwnProperty("Brands")){
-                  let brandList = response.data.Brands;
-                  if(brandList.length > 0){
-                    itemProduct.brands = brandList;
-                  }
-                }
-                vm.$emit("checkingProductAdd", itemProduct);
+                vm.$emit("checkingProductAdd", {itemProduct: itemProduct, brands: brandList});
                 vm.hideModal();
               }
             })
@@ -307,6 +312,18 @@
               vm.$toast.error("Submit data getting error").goAway(3000);
             });
         }
+      },
+      selectedBrandList(item){
+        let itemData;
+        if(this.brands && this.brands.length > 0){
+          for (let index=0; this.brands.length; index++){
+            if(this.brands[index] && this.brands[index]["value"] && item === this.brands[index]["value"]){
+              itemData = this.brands[index];
+              break;
+            }
+          }
+        }
+        return itemData;
       },
       hideModal() {
         this.$refs['product-form-modal'].hide();

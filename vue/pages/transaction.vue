@@ -5,7 +5,7 @@
         <div class="control-panel">
           <div class="panel-top">
             <div class="content-panel-left">
-              <h3 class="head-title">Order Overview</h3>
+              <h3 class="head-title">{{$t('content_title_order')}}</h3>
             </div>
             <div class="content-panel-right content-panel-right-full-width">
               <div class="float-right">
@@ -23,16 +23,16 @@
               <b-table-simple v-if="items.length > 0">
                 <b-thead>
                   <b-tr>
-                    <b-th>Date</b-th>
-                    <b-th>Sale by</b-th>
-                    <b-th>Customer Name</b-th>
-                    <b-th>Product Name</b-th>
-                    <b-th>Qty</b-th>
-                    <b-th>Sale Price ($)</b-th>
-                    <b-th>Discount</b-th>
-                    <b-th>Vat</b-th>
-                    <b-th>Sub Total ($)</b-th>
-                    <b-th>Grand Total ($)</b-th>
+                    <b-th>{{$t('label_date_sale')}}</b-th>
+                    <b-th>{{$t('label_sale_by')}}</b-th>
+                    <b-th>{{$t('label_customer_name')}}</b-th>
+                    <b-th>{{$t('label_product_name')}}</b-th>
+                    <b-th>{{$t('label_quantity')}}</b-th>
+                    <b-th>{{$t('label_sale_price')}} ($)</b-th>
+                    <b-th>{{$t('label_discount')}}</b-th>
+                    <b-th>{{$t('label_vat')}}</b-th>
+                    <b-th>{{$t('label_sub_total')}} ($)</b-th>
+                    <b-th>{{$t('label_grand_total')}} ($)</b-th>
                     <b-th>Action</b-th>
                   </b-tr>
                 </b-thead>
@@ -49,9 +49,7 @@
                     <b-td class="subtotal" v-show="item.subtotal" :rowspan="item.lengthDetail"><b>{{ item.subtotal + "$"}}</b></b-td>
                     <b-td class="grandtotal" v-show="item.grandtotal" :rowspan="item.lengthDetail"><b>{{ item.grandtotal + "$"}}</b></b-td>
                     <b-td v-show="item.order_id" :rowspan="item.lengthDetail">
-<!--                      <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetail(item)" class="mr-1">-->
-<!--                        <i class="fa fa-eye"></i>-->
-<!--                      </b-button>-->
+
                       <b-button size="sm" title="Adjust invetory stock" variant="success" @click="UpdateOrder(item)">
                         <i class="fa fa-eye"></i>
                       </b-button>
@@ -164,14 +162,11 @@
       return {
         items: [],
         fields: [
-          { key: 'sale_by', label: 'Sale by'},
-          { key: 'customer', label: 'Customer Name'},
-          { key: 'discount', label: 'Discount'},
-          { key: 'vat', label: 'Vat'},
-          { key: 'name', label: 'Product Name'},
-          // { key: 'qty', label: 'Quantity' },
-          // { key: 'grandtotal', label: 'Grand Total' },
-          // { key: 'subtotal', label: 'Sub Total' },
+          { key: 'sale_by', label: this.$t('label_sale_by')},
+          { key: 'customer', label: this.$t('label_customer_name')},
+          { key: 'discount', label: this.$t('label_discount')},
+          { key: 'vat', label: this.$t('label_vat')},
+          { key: 'name', label: this.$t('label_product_name')},
         ],
         itemsProductDetail: [],
         fieldsProductDetail: [
@@ -526,7 +521,9 @@
         return (day + "/" + month + "/" + yyyy);
       },
       onResetPayment(){},
-      onSubmitPayment(){},
+      onSubmitPayment(){
+        this.$htmlToPaper("invoice-print-again", this.optionStyleHtmlToPaper);
+      },
     },
     mounted() {
       this.warehouse = this.$store.$cookies.get('storeItem');

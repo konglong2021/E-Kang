@@ -124,7 +124,7 @@ class ProductsController extends Controller
              }else{
                 $code =$request['code'];
              }
-           
+
         }
 
 
@@ -146,7 +146,8 @@ class ProductsController extends Controller
         return response()->json([
             "success" => true,
             "message" => "File successfully uploaded",
-            "product" =>  $product
+            "product" =>  $product,
+            "Brands" => $brands
         ]);
 
     }
@@ -177,7 +178,7 @@ class ProductsController extends Controller
             "success" => true,
             "message" => "Successfully Updated",
             "product" =>  $product,
-            "Brands" => $brandsStr
+            "Brands" => $brands
         ]);
     }
 

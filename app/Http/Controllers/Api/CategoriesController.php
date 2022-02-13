@@ -28,7 +28,7 @@ class CategoriesController extends Controller
                         ->orderBy('id','desc')->get();
         }
 
-        
+
         return CategoriesResource::collection($categories)->response();
     }
 
@@ -60,7 +60,8 @@ class CategoriesController extends Controller
         return response()->json([
             "success" => true,
             "message" => "Category successfully Created",
-            "product" =>  $categories
+            "data" =>  $categories,
+            "brands" => $brands
         ]);
     }
 
@@ -103,7 +104,7 @@ class CategoriesController extends Controller
             return response()->json([
             "success" => true,
             "message" => "Successfully Updated",
-            "category" =>  $category,
+            "data" =>  $category,
             "brands" => $brands
         ]);
     }
@@ -122,7 +123,7 @@ class CategoriesController extends Controller
         return response()->json([
 
             "message" => "Successfully Deleted",
-            "category" =>  $category
+            "data" =>  $category
         ]);
     }
 }

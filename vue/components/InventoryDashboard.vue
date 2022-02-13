@@ -15,13 +15,6 @@
                     <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchStock()" @change="handleClick" />
                   </div>
                 </b-col>
-
-                <div class="btn-wrapper" style="display:none;">
-                  <b-button href="#" size="sm" variant="primary" title="Import product from Supplier">
-                    <span class="margin-span-btn">Import</span>
-                    <i class="fa fa-cart-plus" aria-hidden="true"></i>
-                  </b-button>
-                </div>
                 <div class="btn-wrapper margin-right-20-percentage">
                   <b-button href="#" title="Add new Product" size="sm" variant="primary" @click="showModal()">
                     <span class="margin-span-btn">{{$t('title_new_product')}}</span>
@@ -59,6 +52,14 @@
           </div>
           <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
+              <p class="text-danger" v-if="suppliers.length === 0 || products.length === 0">
+                មិនអាចបញ្ចូលទំនិញក្នុងស្តុកបានទេ ព្រោះ
+                <span v-if="suppliers.length === 0">មិនមានបញ្ចូលទិន្នន័យអ្នកផ្គត់ផ្គង់់, </span>
+                <span v-if="products.length === 0">មិនមានបញ្ចូលទិន្នន័យទំនិញ, </span>
+                សូមបង្កើត
+                <span v-if="suppliers.length === 0">ទិន្នន័យអ្នកផ្គត់ផ្គង់់</span>
+                <span v-if="products.length === 0">ទិន្នន័យទំនិញ</span>
+              </p>
               <div>
                 <label class="label-with">{{$t('title_supplier')}}</label>
                 <b-form-select :disabled="suppliers.length === 0" class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
@@ -140,8 +141,8 @@
 
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
-             @hidden="onResetSupplier" cancel-title="Cancel"
-             @ok="onSubmitSupplier" ok-title="Save" :title="$t('title_supplier')"
+             @hidden="onResetSupplier" :cancel-title="$t('label_cancel_button')"
+             @ok="onSubmitSupplier" :ok-title="$t('label_save_button')" :title="$t('title_supplier')"
              no-close-on-backdrop
     >
       <b-form enctype="multipart/form-data">
@@ -176,8 +177,8 @@
       </b-form>
     </b-modal>
     <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
-             @hidden="onResetWareHouse" cancel-title="Cancel"
-             @ok="onSubmitWareHouse" ok-title="Save" title="New Warehouse"
+             @hidden="onResetWareHouse" :cancel-title="$t('label_cancel_button')"
+             @ok="onSubmitWareHouse" :ok-title="$t('label_save_button')" :title="$t('title_new_warehouse')"
              no-close-on-backdrop
     >
       <b-form enctype="multipart/form-data">
@@ -185,13 +186,13 @@
         </div>
         <div class="full-content">
           <b-row class="my-1">
-            <b-col sm="4"><label :for="'input-name'" class="label-input">Name</label></b-col>
+            <b-col sm="4"><label :for="'input-name'" class="label-input">{{ $t('label_name') }}</label></b-col>
             <b-col sm="8">
               <b-form-input :id="'input-name'" type="text" v-model="warehouse.name" class="input-content"></b-form-input>
             </b-col>
           </b-row>
           <b-row class="my-1">
-            <b-col sm="4"><label :for="'input-address'" class="label-input">Address</label></b-col>
+            <b-col sm="4"><label :for="'input-address'" class="label-input">{{$t('label_address')}}</label></b-col>
             <b-col sm="8">
               <b-form-input :id="'input-address'" type="text" v-model="warehouse.address" class="input-content"></b-form-input>
             </b-col>
@@ -226,8 +227,8 @@
     </b-modal>
     <b-modal
       id="modal-remove-existing-product" ref="remove-existing-product-form-modal" size="lg"
-      cancel-title="No" @ok="removeProductAdd(product_select)" ok-title="Yes" no-close-on-backdrop>
-      <h3 class="center">Are you sure want to remove product select from list?</h3>
+      cancel-title="No" @ok="removeProductAdd(product_select)" :ok-title="$t('label_yes_button')" no-close-on-backdrop>
+      <h3 class="center">{{ $t('question_remove_existing_product') }}</h3>
     </b-modal>
   </div>
 </template>
@@ -240,35 +241,35 @@
         loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: true},
         items: [],
         fields: [
-          { key: 'en_name', label: 'Name' },
-          { key: 'kh_name', label: 'Name(KH)' },
-          { key: 'code', label: 'Bar Code' },
-          { key: 'sale_price', label: 'Sell Price ($)' },
-          { key: 'import_price', label: 'Import Price' },
-          { key: 'qty', label: 'Qty' },
-          { key: 'actions', label: 'Actions' }
+          { key: 'en_name', label: this.$t('label_name_english') },
+          { key: 'kh_name', label: this.$t('label_name_khmer') },
+          { key: 'code', label: this.$t('title_barcode') },
+          { key: 'sale_price', label: this.$t('label_sale_price') + ' ($)' },
+          { key: 'import_price', label: this.$t('import_price') + ' ($)' },
+          { key: 'qty', label: this.$t('label_quantity') },
+          { key: 'actions', label: this.$t('title_action') }
         ],
         purchaseItems: [],
         purchaseFields: [
-          { key: 'en_name', label: 'Name' },
-          { key: 'kh_name', label: 'Name(KH)' },
-          { key: 'code', label: 'Bar Code' },
-          { key: 'sale_price', label: 'Sell Price ($)' },
-          { key: 'import_price', label: 'Import Price ($)' },
-          { key: 'product_qty', label: 'Qty' },
-          { key: 'store', label: 'Store' },
-          { key : 'supplier', label: "Supplier"},
-          { key: 'actions', label: 'Actions' }
+          { key: 'en_name', label: this.$t('label_name_english') },
+          { key: 'kh_name', label: this.$t('label_name_khmer') },
+          { key: 'code', label: this.$t('title_barcode') },
+          { key: 'sale_price', label: this.$t('label_sale_price') + ' ($)' },
+          { key: 'import_price', label: this.$t('import_price') + ' ($)' },
+          { key: 'product_qty', label: this.$t('label_quantity') },
+          { key: 'store', label: this.$t('title_store') },
+          { key : 'supplier', label: this.$t('title_supplier')},
+          { key: 'actions', label: this.$t('title_action') }
         ],
         stockItems: [],
         stockFields: [
-          { key: 'en_name', label: 'Name'},
-          { key: 'kh_name', label: 'Name(KH)'},
-          { key: 'image', label: 'Icon' },
-          { key: 'code', label: 'Bar Code'},
-          { key: 'sale_price', label: 'Sell Price ($)'},
-          { key: 'product_qty', label: 'Total in stock'},
-          { key: 'store', label: 'Store' },
+          { key: 'en_name', label: this.$t('label_name_english')},
+          { key: 'kh_name', label: this.$t('label_name_khmer')},
+          { key: 'image', label: this.$t('title_icon') },
+          { key: 'code', label: this.$t('title_barcode')},
+          { key: 'sale_price', label: this.$t('label_sale_price') + ' ($)'},
+          { key: 'product_qty', label: this.$t('title_label_total_stock')},
+          { key: 'store', label: this.$t('title_store') },
         ],
         product: {
           en_name: '',
@@ -641,9 +642,6 @@
         this.purchase.supplier = null;
         this.purchase.vat = null;
         this.purchase.warehouse = this.$store.$cookies.get("storeItem");
-
-        //this.getProductList();
-        //this.getAllWarehouse();
         this.getAllSupplier();
       },
       discardPurchase(){

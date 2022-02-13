@@ -11,12 +11,17 @@
       <ul class="list-menu-text">
         <li class="menu-text-item">
           <a href="/report-daily">
-            <span><i class="fa fa-calendar-plus-o" aria-hidden="true"></i>Sales Daily</span>
+            <span><i class="fa fa-calendar-plus-o" aria-hidden="true"></i>  {{ $t('title_report_menu_daily') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/report-monthly">
-            <span> <i class="fa fa-calendar" aria-hidden="true"></i>Sale Monthly</span>
+            <span> <i class="fa fa-calendar" aria-hidden="true"></i>  {{ $t('title_report_menu_monthly') }}</span>
+          </a>
+        </li>
+        <li class="menu-text-item">
+          <a href="/balance">
+            <span> <i class="fa fa-money" aria-hidden="true"></i>  {{ $t('title_balance_balance') }}</span>
           </a>
         </li>
       </ul>
