@@ -15,6 +15,7 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice_id')->unique();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('warehouse_id')->constrained();
             $table->foreignId('user_id')->constrained()->onUpdate('cascade');

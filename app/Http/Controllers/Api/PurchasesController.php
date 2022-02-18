@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PurchasesResource;
 use Carbon\Carbon;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
+
 class PurchasesController extends Controller
 {
     /**
@@ -79,7 +81,9 @@ class PurchasesController extends Controller
         // try{
 
         DB::transaction(function () use ($request){
+        $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
         $purchase = new Purchase();
+        $purchase->invoice_id = $invoice;
         $purchase->warehouse_id = $request->warehouse_id;
         $purchase->supplier_id = $request->supplier_id;
         $purchase->user_id = auth()->user()->id;

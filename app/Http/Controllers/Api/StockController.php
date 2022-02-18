@@ -65,7 +65,7 @@ class StockController extends Controller
     {
         $stocks = Stock::with('product')
                 ->with('warehouse')
-                ->where('total','>','0')
+                //->where('total','>','0')
                 ->where('warehouse_id',$warehouse)
                 ->get();
 
@@ -77,7 +77,7 @@ class StockController extends Controller
     {
         $stocks = Stock::with('product')
                 ->with('warehouse')
-                ->where('total','>','0')
+                //->where('total','>','0')
                 ->where('product_id',$product)
                 ->get();
 

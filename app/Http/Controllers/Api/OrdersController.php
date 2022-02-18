@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Balance;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 
 class OrdersController extends Controller
@@ -95,7 +96,12 @@ class OrdersController extends Controller
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
 
+        //  $prefix = date("ymd");
+        //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
+
         $orders = new Order();
+        $orders->invoice_id = $invoice;
         $orders->warehouse_id = $request->warehouse_id;
         $orders->customer_id = $request->customer_id;
         $orders->user_id = auth()->user()->id;
