@@ -81,7 +81,8 @@ class PurchasesController extends Controller
         // try{
 
         DB::transaction(function () use ($request){
-        $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
+        $prefix = date("ymd");
+        $invoice = IdGenerator::generate(['table' => 'purchases', 'field'=>'invoice_id','length' => 12, 'prefix' =>'P-'.$prefix]);
         $purchase = new Purchase();
         $purchase->invoice_id = $invoice;
         $purchase->warehouse_id = $request->warehouse_id;

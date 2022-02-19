@@ -96,9 +96,11 @@ class OrdersController extends Controller
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
 
-        //  $prefix = date("ymd");
+         $prefix = date("ymd");
         //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
-        $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
+        // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
+        $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
+
 
         $orders = new Order();
         $orders->invoice_id = $invoice;
