@@ -172,6 +172,23 @@ class PurchasesController extends Controller
         return response()->json($pdetail);
     }
 
+
+    public function ShowLastUnitPrice($product_id)
+    {
+        $price = PurchaseDetail::where('product_id',$product_id)->get()->last();
+        if(!$price){
+            return response()->json([
+                "success" => true,
+                "price" => "New Item"
+            ], 200);
+        }
+        
+        return response()->json([
+            "success" => true,
+            "price" => $price
+        ], 200);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -347,4 +364,7 @@ class PurchasesController extends Controller
     {
         
     }
+
+
+
 }

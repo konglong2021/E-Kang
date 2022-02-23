@@ -58,6 +58,9 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
 
 
+    Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
+
+
     //Delete Purchase Items
     Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
 
@@ -70,6 +73,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/stockbyproduct/{product_id}',[App\Http\Controllers\Api\StockController::class,'stockbyproduct']);
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
+    Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
 
 
     //setting

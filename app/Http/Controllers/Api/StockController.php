@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\Stock;
 use App\Models\StockOut;
 use App\Models\Warehouse;
+use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\Purchase;
+use App\Models\PurchaseDetail;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -231,5 +235,36 @@ class StockController extends Controller
         //
     }
 
-   
+    public function stockdetail(Request $request)
+    {
+        $from = $request['from'];
+        $to = $request['to'];
+        $warehouse_id = $request['warehouse_id'];
+        $product_id = $request['product_id'];
+        $order = Order::where('warehouse_id',$warehouse_id)
+                      ->where('created_at','>=',$from)
+                      ->where('created_at','<=',$to)
+                      ->with('orderdetails')->get();
+        
+       $data =0;
+        foreach($order as $item)
+        {
+            $invoice_id = $item->invoice_id;
+            $orderdetails = $item->orderdetails;
+            foreach($orderdetails as $detail)
+            {   
+                if($detail->product_id == $product_id){
+                    $data = $data + (int)$detail->quantity;
+                }
+                
+            }
+
+        }
+        
+        return response()->json([
+            "success" => true,
+            "order" => $data
+        ], 200);
+    }
+
 }
