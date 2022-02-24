@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
+
 class StockController extends Controller
 {
     /**
@@ -241,29 +242,25 @@ class StockController extends Controller
         $to = $request['to'];
         $warehouse_id = $request['warehouse_id'];
         $product_id = $request['product_id'];
-        $order = Order::where('warehouse_id',$warehouse_id)
-                      ->where('created_at','>=',$from)
-                      ->where('created_at','<=',$to)
-                      ->with('orderdetails')->get();
-        
-       $data =0;
-        foreach($order as $item)
-        {
-            $invoice_id = $item->invoice_id;
-            $orderdetails = $item->orderdetails;
-            foreach($orderdetails as $detail)
-            {   
-                if($detail->product_id == $product_id){
-                    $data = $data + (int)$detail->quantity;
-                }
-                
-            }
 
-        }
+        // Order query Total of all products order
+        $order = DB::table('order_details')
+        ->join('orders','order_details.order_id','=','orders.id')
+        ->select('order_details.product_id', DB::raw('SUM(order_details.quantity) AS qty'))
+        ->whereDate('orders.created_at','>=',$from)
+        ->whereDate('orders.created_at','<=',$to)
+        ->WhereNull('orders.deleted_at')
+        ->groupBy('order_details.product_id')
+        ->get();
+
+         
+
+    
+  
         
         return response()->json([
             "success" => true,
-            "order" => $data
+            "order" => $order
         ], 200);
     }
 
