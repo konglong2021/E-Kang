@@ -246,21 +246,40 @@ class StockController extends Controller
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('orders','order_details.order_id','=','orders.id')
-        ->select('order_details.product_id', DB::raw('SUM(order_details.quantity) AS qty'))
+        ->select('order_details.product_id', DB::raw('SUM(order_details.quantity) AS o_qty'))
         ->whereDate('orders.created_at','>=',$from)
         ->whereDate('orders.created_at','<=',$to)
         ->WhereNull('orders.deleted_at')
         ->groupBy('order_details.product_id')
         ->get();
 
-         
+        // Purchase query Total all products
+        $purchase = DB::table('purchase_details')
+                    ->join('purchases','purchase_details.purchase_id','=','purchases.id')
+                    ->select('purchase_details.product_id',DB::raw('SUM(purchase_details.quantity) AS p_qty'))
+                    ->whereDate('purchases.created_at','>=',$from)
+                    ->whereDate('purchases.created_at','<=',$to)
+                    ->WhereNull('purchases.deleted_at')
+                    ->groupBy('purchase_details.product_id')
+                    ->get();
 
+        // for ($i = 0 ; $i < Str::length($purchase); $i++)
+
+
+        // $array1 = get_price_tiers_by_product($variantPrice, $supplier);
+        // $array2 = get_price_tiers_by_product($productPrice, $supplier);
+        // $grouped  =  collect(array_merge($array1, $array2))->groupBy('qty')->map(function($value, $key){
+        //     return ['qty'  =>  $key, 'price'  =>  collect($value)->sum('price')];
+        // })->values()->all();
+        // return  $grouped;
     
   
         
         return response()->json([
             "success" => true,
+            "purchase" => Str::length($purchase),
             "order" => $order
+            
         ], 200);
     }
 
