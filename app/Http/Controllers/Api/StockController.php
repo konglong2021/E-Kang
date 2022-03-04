@@ -263,22 +263,34 @@ class StockController extends Controller
                     ->groupBy('purchase_details.product_id')
                     ->get();
 
-        // for ($i = 0 ; $i < Str::length($purchase); $i++)
+       
+        // $len = count($purchase);
+        // for ($i=0; $i<$len; $i++) {
+        //     $total_price[] = $purchase[$i]->p_qty - $order[$i]->o_qty;
+        //  }
+            $total= array();
+        foreach ($purchase as $key=>$purchaseval) {
+            $total_product[]= [
+                "product_id" => $purchaseval->product_id,
+                "qty"       => $purchaseval->p_qty - $order[$key]->o_qty
+
+            ];
+           
+            // $total1[]=[ 
+            //     "product_id" => $total_product,
+            //     "total" =>$total_price
+            // ];
 
 
-        // $array1 = get_price_tiers_by_product($variantPrice, $supplier);
-        // $array2 = get_price_tiers_by_product($productPrice, $supplier);
-        // $grouped  =  collect(array_merge($array1, $array2))->groupBy('qty')->map(function($value, $key){
-        //     return ['qty'  =>  $key, 'price'  =>  collect($value)->sum('price')];
-        // })->values()->all();
-        // return  $grouped;
-    
+            $total =array_merge($total_product);
+          } 
   
         
         return response()->json([
             "success" => true,
-            "purchase" => Str::length($purchase),
-            "order" => $order
+            "purchase" => $purchase,
+            "order" => $order,
+            "total" =>$total
             
         ], 200);
     }
