@@ -26,7 +26,7 @@
         </div>
         <div v-if="!productLoading && warehouse" >
           <div class="content-product" v-if="products && products.length > 0">
-            <div  v-for="p in products" class="pro-item">
+            <div  v-for="p in products" class="pro-item" v-bind:key="p.id">
               <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
                 <div class="pro-price">{{ p.price }} {{ p.currency }}</div>
               </div>

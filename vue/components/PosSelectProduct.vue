@@ -6,7 +6,8 @@
           <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_unit_price') + " ($)"}} </div>
           <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_sub_total') + " ($)"}} </div>
         </div>
-        <div v-if="products && products.length > 0" v-for="p in products" v-bind:key="p.id" class="p-item"
+        <div v-if="products && products.length > 0">
+          <div v-for="p in products" v-bind:key="p.id" class="p-item"
              @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
         >
           <div style="width:70%;" class="pull-left">
@@ -26,6 +27,7 @@
             </b-button>
           </div>
           <div class="clearboth"></div>
+        </div>
         </div>
       </div>
       <div class="content-calculator">

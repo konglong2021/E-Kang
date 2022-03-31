@@ -1,6 +1,6 @@
 <template>
   <b-navbar toggleable="lg" class="pos-bar">
-        <div class="content-menu-icon" style="display: none;">
+        <div class="content-menu-icon">
           <ul class="list-menu">
             <li class="list-menu-item line-height">
               <a class="content-link" href="/"><span><i class="fa fa-th font-size-28"></i></span></a>

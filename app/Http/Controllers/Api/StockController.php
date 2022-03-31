@@ -15,6 +15,7 @@ use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
 
 
 class StockController extends Controller
@@ -264,26 +265,36 @@ class StockController extends Controller
                     ->get();
 
 
-            $total= array();
-        foreach ($purchase as $key=>$purchase_val) {
-            foreach($order as $key =>$order_val){
-                if($purchase_val->product_id == $order_val->product_id){
-                    $total_product[]= [
-                    "product_id" => $order_val->product_id,
-                    "qty"       => $purchase_val->p_qty - $order_val->o_qty
-                    ];
-                }
-                
-            } 
+       
+        // $total= array();
+        // foreach ($purchase as $key=>$purchase_val) {
 
-        $total = $total_product;
-        }
+        //     if(in_array($purchase_val->product_id,$order->product_id)){
+        //         $total_product[]= [
+        //             "product_id" => $purchase_val->product_id,
+        //             "qty"       => $purchase_val->p_qty
+        //             ];
+        //     }
+        //     foreach($order as $key =>$order_val){
+        //         if($order_val->product_id == $purchase_val->product_id){
+        //             $total_product[]= [
+        //             "product_id" => $purchase_val->product_id,
+        //             "qty"       => $purchase_val->p_qty - $order_val->o_qty
+        //             ];
+        //         }
+        //         //nodraws[] = $order.filter(item => !wons.includes(item));
+
+        //     } 
+
+        // $total = $total_product;
+        // }
 
         return response()->json([
             "success" => true,
             "purchase" => $purchase,
             "order" => $order,
-            "total" =>$total
+            // "total" =>$total
+           
             
             ], 200);
         

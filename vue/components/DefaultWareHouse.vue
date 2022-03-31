@@ -16,7 +16,7 @@
       </div>
       <div class="display-inline-block" v-show="!loadingField && storeList && storeList.length > 0">
         <ul class="ul-no-style">
-          <li class="content-li-menu-store" v-for="store in storeList">
+          <li class="content-li-menu-store" v-for="store in storeList" v-bind:key="store.id">
             <b-button variant="dark" class="content-button" style="min-height: 135px;" @click="selectStore(store)">
               <i class="fa fa-home fa-3x" ></i> <div>
               <span>{{ store.name }}</span>

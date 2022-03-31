@@ -155,6 +155,8 @@ class OrdersController extends Controller
             return response()->json([
                 "success" => true,
                 "message" => "Successfully Added",
+                "order"   =>$orders,
+                "items"   =>$orders_items
 
             ]);
      });
@@ -162,7 +164,7 @@ class OrdersController extends Controller
         DB::rollback();
         return response()->json([
             "success" => false,
-            "message" => "Insufficient Please Check again"
+            "message" => "Insufficient Please Check again1"
         ]);
     }
 
