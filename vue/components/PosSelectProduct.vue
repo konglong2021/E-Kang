@@ -40,6 +40,9 @@
               <i class="fa fa-cart-arrow-down font-size-28"></i>
             </b-button>
           </div>
+        <div class="content-btn pull-left" style="left: 0;" v-if="invoiceNumber !== null">
+          <b-button @click="printInvoice()"><i class="fa fa-print font-size-28"></i></b-button>
+        </div>
           <div class="content-btn pull-right" style="right: 55%;">
             <b-button size="lg"
                       v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
@@ -238,6 +241,7 @@ export default {
         autoClose: true,
       },
       invoiceNumber: null,
+      is_show_content_print: false,
     };
   },
   watch:{
@@ -429,11 +433,10 @@ export default {
       await this.$axios.post('/api/sale', dataSubmit).then(function (response) {
         if(response.data.success === true){
           self.$toast.success("Submit data successfully").goAway(2000);
-          console.log(response.data.order);
           self.invoiceNumber = response.data.order["invoice_id"];
-          console.log(self.invoiceNumber);
-          self.$htmlToPaper("invoice-print", self.optionStyleHtmlToPaper);
+          self.is_show_content_print = true;
           self.items = [];
+          self.order = [];
           self.$emit("updateListProduct", []);
         }
       })
@@ -441,6 +444,13 @@ export default {
           self.$toast.error("getting data error ").goAway(2000);
           console.log(error);
       });
+    },
+    async printInvoice(){
+      this.$htmlToPaper("invoice-print", this.optionStyleHtmlToPaper);
+      setTimeout(() => {
+        this.is_show_content_print = false;
+        this.invoiceNumber = null;
+      }, 700);
     },
     onResetPayment(){
     },
