@@ -280,7 +280,8 @@
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
                 let brandList = response.data.hasOwnProperty("Brands") ? response.data.Brands : [];
-                let itemProduct = response.data.product;
+                console.log(response.data.product);
+                let itemProduct = vm.cloneObject(response.data.product);
                 let newDataBrand = [];
                 if(response.data.hasOwnProperty("Brands")){
                   let brandList = vm.cloneObject(response.data.Brands);

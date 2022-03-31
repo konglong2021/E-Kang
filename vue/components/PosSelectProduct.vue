@@ -72,7 +72,7 @@
               </div>
               <div class="form-row-content-detail">
                 <div class="form-column-label">
-                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom">បញ្ចូលអត្រាប្តូរប្រាក់រៀល</label>
+                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom">អត្រាប្តូរប្រាក់រៀល</label>
                 </div>
                 <div class="form-column-input">
                   <b-form-input type="number" class="input-content" v-model="exchange_rate"></b-form-input>
@@ -96,6 +96,21 @@
                   <b-form-input type="number" class="input-content" v-model="order.discount" @change="updatedPriceInListDetailOrder(order.discount)"></b-form-input>
                 </div>
               </div>
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-getting-money'" class="label-input no-margin-bottom">ទទួលទឹកប្រាក់</label>
+                </div>
+                <div class="form-column-input" v-if="!is_getting_money_usd && !is_getting_money_riel">
+                  <b-button size="sm" @click="checkGettingMoney('USD')">ដុល្លា</b-button>
+                  <b-button size="sm" @click="checkGettingMoney('Riel')">ប្រាក់រៀល</b-button>
+                </div>
+                <div class="form-column-input" v-if="is_getting_money_usd">
+                  <b-form-input v-if="is_getting_money_usd" :id="'input-getting-money'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
+                </div>
+                <div class="form-column-input" v-if="is_getting_money_riel">
+                  <b-form-input v-if="is_getting_money_riel" :id="'input-getting-money'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
+                </div>
+              </div>
             </div>
           </div>
           <b-table table-class="table-payment"
@@ -108,62 +123,66 @@
             small
           ></b-table>
           <div style="display: inline-block;float: right;margin-top: 25px;">
-            <span style="display: block;">{{$t('title_total_in_usd')}} : {{calculate("USD", items)}} USD</span>
-            <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{calculateIncludeTax(calculate("USD", items))}} USD</span>
-            <span style="display: block;margin-top: 10px;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{calculateToRiel(calculate("USD", items), exchange_rate)}} Riel</span>
+            <span style="display: block;">{{$t('title_total_in_usd')}} : {{ calculate("USD", items) }} USD</span>
+            <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ calculateIncludeTax(calculate("USD", items)) }} USD</span>
+            <span style="display: block;margin-top: 10px;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{ calculateToRiel(calculate("USD", items), exchange_rate) }} Riel</span>
+          <span style="display: block;">លុយត្រូវអាប់ : {{calculateMoneyGiveBack(items)}} USD</span>
           </div>
         </b-form>
-
-        <div id="invoice-print" style="display:none; width: 100%; height: 100%; overflow: hidden; padding: 30px 70px !important; font-family: 'Arial', 'Khmer OS Bokor', sans-serif !important;">
-          <div style="margin-bottom: 30px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif; display:inline-block">
-            <h1 style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif; text-align: center;">{{ $t('title') }}</h1>
-          </div>
-          <div class="full-content margin-bottom-20">
-            <div class="container-row-form width-60-percentage float-left">
-              <div class="form-row-content-detail row-content-view">
-                <label :for="'input-customer'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
-                <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{displayCustomerName(order.customer)}}</strong>
-              </div>
-              <div class="form-row-content-detail row-content-view">
-                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">អត្រាប្តូរប្រាក់រៀល : </label>
-                  <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ exchange_rate + "(៛)"}}</strong>
-              </div>
-              <div class="form-row-content-detail row-content-view">
-                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">លក់ដោយ : </label>
-                <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ $store.$cookies.get('user').name }}</strong>
-              </div>
+      </b-modal>
+      <div id="invoice-print" style="display:none; width: 100%; height: 100%; overflow: hidden; padding: 30px 70px !important; font-family: 'Arial', 'Khmer OS Bokor', sans-serif !important;">
+        <div style="margin-bottom: 30px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif; display:inline-block">
+          <h1 style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif; text-align: center;">{{ $t('title') }}</h1>
+        </div>
+        <div class="full-content margin-bottom-20">
+          <div class="container-row-form width-60-percentage float-left">
+            <div class="form-row-content-detail row-content-view" v-if="invoiceNumber">
+              <label class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{invoiceNumber}}</strong>
             </div>
-            <div class="container-row-form width-29-percentage float-right">
-              <div class="form-row-content-detail row-content-view">
-                  <label :for="'input-vat'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ពន្ធ : </label>
-                  <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.vat !== 0 ? (order.vat * 100) + "%": 0 }}</strong>
-              </div>
-              <div class="form-row-content-detail row-content-view">
-                  <label :for="'input-discount'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចុះតម្លៃ : </label>
-                  <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.discount + "%" }}</strong>
-              </div>
-              <div class="form-row-content-detail row-content-view">
-                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ថ្ងៃខែឆ្នាំលក់ : </label>
-                <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ getFullDate() }}</strong>
-              </div>
+            <div class="form-row-content-detail row-content-view">
+              <label :for="'input-customer'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{displayCustomerName(order.customer)}}</strong>
+            </div>
+            <div class="form-row-content-detail row-content-view">
+              <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">អត្រាប្តូរប្រាក់រៀល : </label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ exchange_rate + "(៛)"}}</strong>
+            </div>
+            <div class="form-row-content-detail row-content-view">
+              <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">លក់ដោយ : </label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ $store.$cookies.get('user').name }}</strong>
             </div>
           </div>
-          <b-table style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;" table-class="table-payment"
-                   :items="items"
-                   :fields="fields"
-                   :per-page="0"
-                   :current-page="currentPage"
-                   stacked="md"
-                   show-empty
-                   small
-          ></b-table>
-          <div style="display: inline-block;float: right; margin-top: 25px; margin-right: 75px;">
-            <span style="display: block; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{$t('title_total_in_usd')}} : {{calculate("USD", items)}} USD</span>
-            <span style="display: block;margin-top: 10px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{$t('title_total_after_vat_in_usd')}} : {{calculateIncludeTax(calculate("USD", items))}} USD</span>
-            <span style="display: block;margin-top: 10px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{calculateToRiel(calculate("USD", items), exchange_rate)}} Riel</span>
+          <div class="container-row-form width-29-percentage float-right">
+            <div class="form-row-content-detail row-content-view">
+              <label :for="'input-vat'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ពន្ធ : </label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.vat !== 0 ? (order.vat * 100) + "%": 0 }}</strong>
+            </div>
+            <div class="form-row-content-detail row-content-view">
+              <label :for="'input-discount'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចុះតម្លៃ : </label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.discount + "%" }}</strong>
+            </div>
+            <div class="form-row-content-detail row-content-view">
+              <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ថ្ងៃខែឆ្នាំលក់ : </label>
+              <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ getFullDate() }}</strong>
+            </div>
           </div>
         </div>
-      </b-modal>
+        <b-table style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;" table-class="table-payment"
+                 :items="items"
+                 :fields="fields"
+                 :per-page="0"
+                 :current-page="currentPage"
+                 stacked="md"
+                 show-empty
+                 small
+        ></b-table>
+        <div style="display: inline-block;float: right; margin-top: 25px; margin-right: 75px;">
+          <span style="display: block; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{$t('title_total_in_usd')}} : {{calculate("USD", items)}} USD</span>
+          <span style="display: block;margin-top: 10px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{$t('title_total_after_vat_in_usd')}} : {{calculateIncludeTax(calculate("USD", items))}} USD</span>
+          <span style="display: block;margin-top: 10px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{calculateToRiel(calculate("USD", items), exchange_rate)}} Riel</span>
+        </div>
+      </div>
     </div>
 </template>
 <script>
@@ -196,6 +215,10 @@ export default {
       vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
       order: { customer : null, warehouse : null, vat: 0, discount : 0,},
       exchange_rate: 0,
+      getting_money_riel: 0,
+      getting_money_usd: 0,
+      is_getting_money_usd : false,
+      is_getting_money_riel : false,
       isIncreaseNumber: false,
       isDisCreaseNumber: false,
       qtyInput : 0,
@@ -214,6 +237,7 @@ export default {
         ],
         autoClose: true,
       },
+      invoiceNumber: null,
     };
   },
   watch:{
@@ -317,7 +341,6 @@ export default {
         }
       }
     },
-
     closeDropdown($event){
       this.selected = undefined;
     },
@@ -403,11 +426,13 @@ export default {
       dataSubmit.grandtotal = (priceAfterDiscount + totalVat);
 
       self.$toast.info("Data starting submit").goAway(1500);
-      self.$htmlToPaper("invoice-print", self.optionStyleHtmlToPaper);
-
       await this.$axios.post('/api/sale', dataSubmit).then(function (response) {
-        self.$toast.success("Submit data successfully").goAway(2000);
         if(response.data.success === true){
+          self.$toast.success("Submit data successfully").goAway(2000);
+          console.log(response.data.order);
+          self.invoiceNumber = response.data.order["invoice_id"];
+          console.log(self.invoiceNumber);
+          self.$htmlToPaper("invoice-print", self.optionStyleHtmlToPaper);
           self.items = [];
           self.$emit("updateListProduct", []);
         }
@@ -480,6 +505,29 @@ export default {
 
       return (day + "/" + month + "/" + yyyy);
     },
+    checkGettingMoney($moneyType){
+      if($moneyType === "USD"){
+        this.is_getting_money_usd = true;
+        this.is_getting_money_riel = false;
+      }
+      else{
+        this.is_getting_money_riel = true;
+        this.is_getting_money_usd = false;
+      }
+    },
+    calculateMoneyGiveBack($items){
+      let moneyReturn = 0, totalPay =0;
+      if(this.is_getting_money_usd){
+        totalPay = this.calculateIncludeTax(this.calculate("USD", $items));
+        moneyReturn = (parseFloat(this.getting_money_usd) - parseFloat(totalPay));
+      }
+      else if(this.is_getting_money_riel){
+        totalPay = this.calculateToRiel(this.calculate("USD", $items), this.exchange_rate);
+        moneyReturn = (parseFloat(this.getting_money_riel) - parseFloat(totalPay));
+      }
+      return moneyReturn;
+    },
+
   },
   mounted() {
     let self = this;

@@ -5,6 +5,10 @@ export default {
   "content_title_product":"Products Overview",
   "content_title_balance":"Balance Overview",
   "content_title_order":"Order Overview",
+  "content_title_warehouse":"WareHouse Overview",
+  "label_menu_title_inventory":"Inventory",
+  "label_menu_title_categories":"Categories",
+  "label_menu_title_brands":"Brands",
   "title_total_in_usd":"Total ($)",
   "title_total_after_vat_in_usd":"Total After Tax ($)",
   "title_total_in_riel":"Total (៛)",
@@ -70,4 +74,5 @@ export default {
   "label_product_name":"Product Name",
   "label_date_sale":"Sale Date",
   "label_grand_total":"Grand Total",
+  "label_action_title":"Actions"
 };

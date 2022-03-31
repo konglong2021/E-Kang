@@ -275,11 +275,12 @@ export default {
       return (day + "/" + month + "/" + yyyy);
     },
     checkingWarehouseData($event){
-      if($event){
-        this.warehouseSelectedId = $event;
-        this.showModalCashBalance = this.$store.$cookies.get('cashBalance') === 0 ? true : false;
-        if(!this.$store.$cookies.get('cashBalance')){
-          this.$refs['input-cash-balance-modal'].show();
+      let self = this;
+      if($event !== undefined && $event !== null){
+        self.warehouseSelectedId = $event;
+        self.showModalCashBalance = self.$store.$cookies.get('cashBalance') === 0 ? true : false;
+        if(!self.$store.$cookies.get('cashBalance')){
+          self.$refs['input-cash-balance-modal'].show();
         }
       }
     }

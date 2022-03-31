@@ -96,7 +96,7 @@
         fields: [
           { key: 'name', label: this.$t('label_name') },
           { key: 'address', label: this.$t('label_address') },
-          { key: 'actions', label: this.$t('label_action') }
+          { key: 'actions', label: this.$t('label_action_title') }
         ],
         warehouse: {},
         loadingFields: true,

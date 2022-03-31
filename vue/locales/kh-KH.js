@@ -5,6 +5,10 @@ export default {
   "content_title_product":"អំពីទំនិញ",
   "content_title_balance":"អំពី ទឹកប្រាក់",
   "content_title_order":"អំពី ការលក់",
+  "content_title_warehouse":"ឃ្លាំងទំនិញ",
+  "label_menu_title_inventory":"សារពើភ័ណ្ឌ",
+  "label_menu_title_categories":"ប្រភេទទំនិញ",
+  "label_menu_title_brands":"ម៉ាកទំនិញ",
   "title_total_in_usd":"តម្លៃសរុប ($)",
   "title_total_after_vat_in_usd":"តម្លៃសរុបបូកបញ្ចូលពន្ធ ($)",
   "title_total_in_riel":"តម្លៃសរុប (៛)",
@@ -70,4 +74,5 @@ export default {
   "label_product_name":"ឈ្មោះទំនិញ",
   "label_date_sale":"ថ្ងៃខែនៃការលក់ ",
   "label_grand_total":"តម្លៃបូកសរុប",
+  "label_action_title":"សកម្មភាព"
 };

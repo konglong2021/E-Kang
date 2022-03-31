@@ -217,6 +217,10 @@
                 <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" :disabled="isDisabledImportPrice === true"></b-form-input>
               </div>
               <div class="form-group form-content-detail">
+                <label class="label-with">{{$t('label_sale_price')}} ($)</label>
+                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.sale_price" :disabled="true"></b-form-input>
+              </div>
+              <div class="form-group form-content-detail">
                 <label class="label-with">{{$t('label_quantity')}}</label>
                 <b-form-input class="select-content-inline display-inline-block" v-model="product_select.qty"></b-form-input>
               </div>
@@ -315,6 +319,7 @@
           id: '',
           import_price: 0,
           isDisableField: false,
+          sale_price: 0
         },
         vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
         stock: {
@@ -374,11 +379,9 @@
             console.log(error);
           });
       },
-
       async onResetExistingProduct(){
         this.product_select = {};
       },
-
       onSubmitExistingProduct($product){
         let items = [];
         if(this.items && this.items.length > 0){
@@ -416,18 +419,19 @@
           id: '',
           import_price: 0,
           isDisableField: false,
+          sale_price: 0
         };
         this.isDisabledImportPrice = false;
       },
-
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
-
       selectedProduct(productList, productId){
         this.isAddMoreProduct = true;
         let isFoundAlreadyAdd = false;
 
+        console.log(this.items);
+        console.log("productList " ,productList);
         if(this.items.length > 0){
           for(let k = 0; k < this.items.length; k++) {
             if(this.items[k]["id"] === productId){
@@ -458,6 +462,9 @@
             }
           }
         }
+
+        console.log(this.product_select);
+
       },
 
       adjustProductAdd(item, index, target){
@@ -748,8 +755,8 @@
       },
       async checkingProductAdd($event){
         if($event){
-          await this.products.push(this.renderProductOptionData($event));
-          await this.productList.push($event);
+          await this.products.push(this.renderProductOptionData($event["itemProduct"]));
+          await this.productList.push($event["itemProduct"]);
         }
       },
       handleClick(e) {

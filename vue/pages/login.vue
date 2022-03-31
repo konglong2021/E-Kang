@@ -74,6 +74,13 @@ export default {
           }
           self.$router.push('/');
         }
+        else {
+            console.log(error);
+            self.form.email = null;
+            self.form.password = null;
+            self.form.isFieldError = true;
+            self.$toast.error("getting data error ").goAway(2000);
+        }
       }).catch(function (error) {
         console.log(error);
         self.form.email = null;
