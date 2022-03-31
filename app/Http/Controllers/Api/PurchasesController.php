@@ -78,9 +78,10 @@ class PurchasesController extends Controller
             ],
         ]);
 
-        // try{
+        
+        try{
 
-        DB::transaction(function () use ($request){
+        return DB::transaction(function () use ($request){
         $prefix = date("ymd");
         $invoice = IdGenerator::generate(['table' => 'purchases', 'field'=>'invoice_id','length' => 12, 'prefix' =>'P-'.$prefix]);
         $purchase = new Purchase();
@@ -94,7 +95,7 @@ class PurchasesController extends Controller
         $purchase->grandtotal = $request->grandtotal;
         $purchase->save();
 
-
+        
         $purchase_details= $request->purchases; // purchase is the array of purchase details
 
         foreach($purchase_details as $item)
@@ -129,16 +130,23 @@ class PurchasesController extends Controller
                 ]);
             }
         }
-
-
-            });
-//End of transaction
-
+       
         return response()->json([
-
             "message" => "Successfully Created",
+            "purchase" => $purchase,
+            "items"     =>$purchase_details
+            ]);
 
-        ]);
+        });
+        //End of transaction
+        }catch (\Exception $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Please Check again1"
+            ]);
+        }
+        
 
 
 
