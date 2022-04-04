@@ -76,5 +76,7 @@ export default {
   "label_grand_total":"តម្លៃបូកសរុប",
   "label_action_title":"សកម្មភាព",
   "label_print_invoice": "ព្រីនវិក័យប័ត្រ",
-  "label_number_invoice":"វិក័យប័ត្រលេខ"
+  "label_number_invoice":"វិក័យប័ត្រលេខ",
+  "label_title_update":"កែប្រែ",
+  "label_update_selling_price_title":"កែប្រែតម្លៃទំនិញសម្រាប់លក់"
 };

@@ -76,5 +76,7 @@ export default {
   "label_grand_total":"Grand Total",
   "label_action_title":"Actions",
   "label_print_invoice":"Print Invoice",
-  "label_number_invoice":"Invoice No"
+  "label_number_invoice":"Invoice No",
+  "label_title_update":"Update",
+  "label_update_selling_price_title":"Updating Product selling price"
 };

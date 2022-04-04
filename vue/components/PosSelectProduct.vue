@@ -9,13 +9,14 @@
         <div v-if="products && products.length > 0">
           <div v-for="p in products" v-bind:key="p.id" class="p-item"
              @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
+             @dblclick="openUpdateUnitSalePrice(p)"
         >
-          <div style="width:70%;" class="pull-left">
+          <div style="width:70%;" class="display-inline-block pull-left">
             <div class="p-name">{{ p.name }} </div>
             <div class="p-qty"> {{ (p.qty) }}  / {{ $t('label_product_sale_item') }}</div>
           </div>
-          <div style="width:15%; text-align:left" class="pull-left p-price" >
-            {{p.price}} {{p.currency}}
+          <div style="width:15%; text-align:left; hieght: 100% !important; user-select: none;" class="display-inline-block pull-left" >
+            <div class="p-price">{{p.price}} {{p.currency}}</div>
           </div>
           <div style="width:15%; text-align:left" class="pull-left p-price" >
             {{calculateSubTotal(p)}} {{p.currency}}
@@ -61,6 +62,18 @@
             <div class="total"> {{ $t('title_total_no_tax_in_riel') }}: {{calculate("Riel", products)}} Riel </div>
           </div>
         </div>
+      <b-modal id="modal-update-selling-price-form" ref="update-selling-price-form-modal" modal-class="payment-form-modal"
+               @hidden="onResetUpdateSellingPrice" ok-only ok-variant="secondary" footer-class="justify-content-center"
+               @ok="onSubmitUpdateSellingPrice" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+          <b-row class="my-1" v-if="productItemSelectToUpdatePrice">
+            <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់ ($)</label></b-col>
+            <b-col sm="8">
+              <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" required></b-form-input>
+            </b-col>
+          </b-row>
+        </b-form>
+      </b-modal>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg" modal-class="payment-form-modal"
                @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
                @ok="onSubmitPayment" ok-title="រក្សាទុកនិងព្រីនជាវិក័យប័ត្រ" title="ការលក់" no-close-on-backdrop>
@@ -249,6 +262,7 @@ export default {
       invoiceNumber: null,
       is_show_content_print: false,
       isInvoicePrint : false,
+      productItemSelectToUpdatePrice : {},
     };
   },
   watch:{
@@ -559,6 +573,18 @@ export default {
       }
       return moneyReturn;
     },
+    openUpdateUnitSalePrice(productItem){
+      this.productItemSelectToUpdatePrice = productItem;
+      this.$refs['update-selling-price-form-modal'].show();
+    },
+    onResetUpdateSellingPrice(){},
+    onSubmitUpdateSellingPrice(){
+      for(let indexProduct = 0;indexProduct < this.items.length; indexProduct++){
+        if(this.items[indexProduct]["id"] === this.productItemSelectToUpdatePrice["id"]){
+          this.items[indexProduct]["price"] = this.productItemSelectToUpdatePrice["price"];
+        }
+      }
+    }
   },
   mounted() {
     let self = this;
