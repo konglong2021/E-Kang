@@ -74,5 +74,7 @@ export default {
   "label_product_name":"ឈ្មោះទំនិញ",
   "label_date_sale":"ថ្ងៃខែនៃការលក់ ",
   "label_grand_total":"តម្លៃបូកសរុប",
-  "label_action_title":"សកម្មភាព"
+  "label_action_title":"សកម្មភាព",
+  "label_print_invoice": "ព្រីនវិក័យប័ត្រ",
+  "label_number_invoice":"វិក័យប័ត្រលេខ"
 };

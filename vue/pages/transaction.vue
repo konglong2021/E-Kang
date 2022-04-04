@@ -26,6 +26,7 @@
                     <b-th>{{$t('label_date_sale')}}</b-th>
                     <b-th>{{$t('label_sale_by')}}</b-th>
                     <b-th>{{$t('label_customer_name')}}</b-th>
+                    <b-th>{{$t('label_number_invoice')}}</b-th>
                     <b-th>{{$t('label_product_name')}}</b-th>
                     <b-th>{{$t('label_quantity')}}</b-th>
                     <b-th>{{$t('label_sale_price')}} ($)</b-th>
@@ -41,6 +42,7 @@
                     <b-td class="date" v-show="item.date" :rowspan="item.lengthDetail"><b>{{ item.date }}</b></b-td>
                     <b-td class="sale_by" v-show="item.sale_by" :rowspan="item.lengthDetail"><b>{{ item.sale_by }}</b></b-td>
                     <b-td class="customer" v-show="item.customer" :rowspan="item.lengthDetail"><b>{{ item.customer }}</b></b-td>
+                    <b-td class="invoice_id" v-show="item.customer" :rowspan="item.lengthDetail"><b>{{ item.invoice_id }}</b></b-td>
                     <b-td class="name" v-show="item.name">{{ item.name }}</b-td>
                     <b-td class="qty" v-show="item.qty">{{ item.qty }}</b-td>
                     <b-td class="sale_price" v-show="item.sale_price">{{ item.sale_price + "$"}}</b-td>
@@ -69,6 +71,10 @@
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-60-percentage float-left">
+              <div class="form-row-content-detail row-content-view">
+                <label class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
+                <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.invoice_id}}</strong>
+              </div>
               <div class="form-row-content-detail row-content-view">
                 <label :for="'input-customer'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.customer}}</strong>
@@ -113,6 +119,10 @@
           </div>
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-60-percentage float-left">
+              <div class="form-row-content-detail row-content-view">
+                <label class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
+                <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.invoice_id}}</strong>
+              </div>
               <div class="form-row-content-detail row-content-view">
                 <label :for="'input-customer'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.customer}}</strong>
@@ -200,7 +210,8 @@
         order: {
           customer: null,
           vat: 0,
-          discount: 0
+          discount: 0,
+          invoice_id: null
         },
       }
     },
@@ -404,6 +415,7 @@
                     if(customerItem){
                       itemData["customer"] = customerItem["name"];
                     }
+                    itemData["invoice_id"] = orderItem["invoice_id"];
                     itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
                     itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
                     itemData["lengthDetail"] = itemOrder[orderItem.id].length;
@@ -458,6 +470,7 @@
       },
       UpdateOrder(item){
         this.order = item;
+        console.log(item);
         this.itemsProductDetail = [];
         let discount = 0;
         let orderDetailList = [];

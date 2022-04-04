@@ -74,5 +74,7 @@ export default {
   "label_product_name":"Product Name",
   "label_date_sale":"Sale Date",
   "label_grand_total":"Grand Total",
-  "label_action_title":"Actions"
+  "label_action_title":"Actions",
+  "label_print_invoice":"Print Invoice",
+  "label_number_invoice":"Invoice No"
 };

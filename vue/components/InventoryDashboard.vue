@@ -319,8 +319,8 @@
           id: '',
           import_price: 0,
           isDisableField: false,
-          sale_price: 0
         },
+        product_select_last_unit_price: {},
         vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
         stock: {
           en_name: null,
@@ -380,7 +380,18 @@
           });
       },
       async onResetExistingProduct(){
-        this.product_select = {};
+        this.product_select = {
+          en_name: '',
+          kh_name: '',
+          code: null,
+          sale_price: 0,
+          qty: 0,
+          store: null,
+          id: '',
+          import_price: 0,
+          isDisableField: false,
+        };
+        this.product_select_last_unit_price = {};
       },
       onSubmitExistingProduct($product){
         let items = [];
@@ -419,7 +430,6 @@
           id: '',
           import_price: 0,
           isDisableField: false,
-          sale_price: 0
         };
         this.isDisabledImportPrice = false;
       },
@@ -429,9 +439,6 @@
       selectedProduct(productList, productId){
         this.isAddMoreProduct = true;
         let isFoundAlreadyAdd = false;
-
-        console.log(this.items);
-        console.log("productList " ,productList);
         if(this.items.length > 0){
           for(let k = 0; k < this.items.length; k++) {
             if(this.items[k]["id"] === productId){
@@ -451,33 +458,29 @@
           if(productList &&  productList.length > 0){
             for(let index = 0; index < productList.length; index++) {
               if(productId === productList[index]["id"]){
+                console.log(productList[index]);
                 this.product_select.id = productList[index].id;
                 this.product_select.en_name = productList[index].en_name;
                 this.product_select.kh_name = productList[index].kh_name;
                 this.product_select.code = productList[index].code;
                 this.product_select.sale_price = parseFloat(productList[index].sale_price);
+                this.product_select.import_price = parseFloat(productList[index].import_price) ;
                 this.isDisabledImportPrice = false;
                 break;
               }
             }
           }
         }
-
-        console.log(this.product_select);
-
       },
-
       adjustProductAdd(item, index, target){
         this.product_select = item;
         this.product_select["isUpdateProductAdd"] = true;
         this.$refs['existing-product-form-modal'].show();
       },
-
       showRemoveProductSelect(item, index, target){
         this.removeProductSelect = item;
         this.$refs['remove-existing-product-form-modal'].show();
       },
-
       removeProductAdd(){
         let removeItemId = null;
         for(let j=0; j < this.items.length; j++){
@@ -490,22 +493,23 @@
           this.items.splice(removeItemId, 1);
         }
       },
-
       async getProductList(){
         let vm = this;
         vm.products = [];
         vm.productList = [];
 
         vm.loadingFields.productListLoading = true;
-        await vm.$axios.get('/api/product').then(function (response) {
+        /*await vm.$axios.get('/api/product').then(function (response) {
           vm.loadingFields.productListLoading = false;
           if(response && response.hasOwnProperty("data")){
             let dataResponse = response.data;
             if(dataResponse){
               for(let index=0; index < dataResponse.length; index++){
+                let itemProduct = vm.cloneObject(dataResponse[index]);
                 let productItem =  { text: '', value: null};
                 productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
                 productItem.value = dataResponse[index].id;
+                //itemProduct =
                 vm.products.push(productItem);
                 vm.productList.push(dataResponse[index]);
               }
@@ -514,9 +518,41 @@
         }).catch(function (error) {
           console.log(error);
           vm.$toast.error("getting data error ").goAway(2000);
-        });
+        });*/
+        const response = await this.$axios.get('/api/product');
+        if(response){
+          vm.loadingFields.productListLoading = false;
+          if(response && response.hasOwnProperty("data")){
+            let dataResponse = response.data;
+            if(dataResponse){
+              for(let index=0; index < dataResponse.length; index++){
+                let itemProduct = vm.cloneObject(dataResponse[index]);
+                itemProduct["import_price"] = 0;
+                let productItem =  { text: '', value: null};
+                productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
+                productItem.value = dataResponse[index].id;
+                vm.products.push(productItem);
+                if(itemProduct.hasOwnProperty("id")){
+                  await vm.$axios.get('/api/showlastunitprice/' + itemProduct["id"]).then(function (responsePrice) {
+                    if(responsePrice.data){
+                      if(responsePrice.data.price.constructor === Object){
+                        itemProduct["import_price"] = vm.cloneObject(responsePrice.data.price.unitprice);
+                      }
+                      else {
+                        itemProduct["import_price"] = 0;
+                      }
+                    }
+                  }).catch(function (error) {
+                    console.log(error);
+                    vm.$toast.success("Submit data getting error").goAway(3000);
+                  });
+                  vm.productList.push(itemProduct);
+                }
+              }
+            }
+          }
+        }
       },
-
       async getAllWarehouse(){
         let vm = this;
         vm.loadingFields.warehouseListLoading = true;
@@ -542,7 +578,6 @@
           vm.$toast.error("Getting data error").goAway(3000);
         });
       },
-
       async getAllSupplier(){
         let vm = this;
         vm.suppliers = [];
@@ -565,20 +600,15 @@
             console.log(error);
             vm.$toast.error("Getting data error").goAway(3000);
           });
-
       },
-
       viewDetailStock(item, index, target){
       },
-
       adjustStock( item,index,target ){
         alert('adjust stock click '+index);
       },
-
       showModal(){
         this.newProductModal.showModal = true;
       },
-
       showSupplierModal(){
         this.$refs['supplier-form-modal'].show();
         this.supplier ={};
@@ -739,7 +769,6 @@
               vm.purchases.sort(function(a, b) {
                 return a.batch.localeCompare(b.batch);
               });
-              console.log(vm.purchases);
             }
           })
           .catch(function (error) {
@@ -765,7 +794,6 @@
           this.showStockTable();
         }
       },
-
       async searchStock() {
         this.isLoading = true;
         this.items = [];
@@ -796,13 +824,10 @@
             console.log(error);
         });
       },
-
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
       },
-
       generateBatch(){
-        console.log(this.purchases);
         return this.getFullDate() + "_v" + this.getFullDateAndTime();
       },
 
@@ -828,13 +853,10 @@
 
         return (yyyy + "" + month + "" + day);
       },
-
     },
     mounted() {
-      // this.getDataPurchase();
       this.getProductList();
       this.getAllWarehouse();
-      //this.getAllSupplier();
       this.showStockTable();
     }
   }

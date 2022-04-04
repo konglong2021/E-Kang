@@ -31,19 +31,22 @@
         </div>
       </div>
       <div class="content-calculator">
-          <div class="content-btn-card" style="display: none;">
-            <b-button
-              v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
-              size="lg"
-              @click="addToCard(products)" title="Add to card"
-            >
-              <i class="fa fa-cart-arrow-down font-size-28"></i>
-            </b-button>
-          </div>
-        <div class="content-btn pull-left" style="left: 0;" v-if="invoiceNumber !== null">
-          <b-button @click="printInvoice()"><i class="fa fa-print font-size-28"></i></b-button>
+        <div class="content-btn-card" style="display: none;">
+          <b-button
+            v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
+            size="lg"
+            @click="addToCard(products)" title="Add to card"
+          >
+            <i class="fa fa-cart-arrow-down font-size-28"></i>
+          </b-button>
         </div>
-          <div class="content-btn pull-right" style="right: 55%;">
+        <div class="content-btn pull-left" style="left: -9px;" v-if="invoiceNumber !== null">
+          <b-button size="lg" @click="printInvoice()">
+              <i class="fa fa-print font-size-28"></i>
+              {{ $t('label_print_invoice') }}
+          </b-button>
+        </div>
+          <div class="content-btn pull-right" style="right: 50%;">
             <b-button size="lg"
                       v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
                       @click="openSubmitPaymentModal()"
@@ -56,7 +59,6 @@
             <div class="total">{{ $t('title_total_no_tax') }} : {{calculate("USD", products)}} USD </div>
             <div class="total">{{ $t('title_total_no_tax_add_discount') }} : {{calculateAfterDis(calculate("USD", products))}} USD </div>
             <div class="total"> {{ $t('title_total_no_tax_in_riel') }}: {{calculate("Riel", products)}} Riel </div>
-<!--            <div class="tax"> Taxes:  10% </div>-->
           </div>
         </div>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg" modal-class="payment-form-modal"
@@ -101,7 +103,11 @@
               </div>
               <div class="form-row-content-detail">
                 <div class="form-column-label">
-                  <label :for="'input-getting-money'" class="label-input no-margin-bottom">ទទួលទឹកប្រាក់</label>
+                  <label :for="'input-getting-money'" class="label-input no-margin-bottom">
+                    ទទួលទឹកប្រាក់
+                    <span v-if="is_getting_money_usd"> ($)</span>
+                    <span v-if="is_getting_money_riel"> (៛)</span>
+                  </label>
                 </div>
                 <div class="form-column-input" v-if="!is_getting_money_usd && !is_getting_money_riel">
                   <b-button size="sm" @click="checkGettingMoney('USD')">ដុល្លា</b-button>
@@ -129,7 +135,7 @@
             <span style="display: block;">{{$t('title_total_in_usd')}} : {{ calculate("USD", items) }} USD</span>
             <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ calculateIncludeTax(calculate("USD", items)) }} USD</span>
             <span style="display: block;margin-top: 10px;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{ calculateToRiel(calculate("USD", items), exchange_rate) }} Riel</span>
-          <span style="display: block;">លុយត្រូវអាប់ : {{calculateMoneyGiveBack(items)}} USD</span>
+          <span style="display: block;">លុយត្រូវអាប់ : {{(getting_money_usd || getting_money_riel) ? calculateMoneyGiveBack(items) : 0 }} USD </span>
           </div>
         </b-form>
       </b-modal>
@@ -242,6 +248,7 @@ export default {
       },
       invoiceNumber: null,
       is_show_content_print: false,
+      isInvoicePrint : false,
     };
   },
   watch:{
@@ -249,7 +256,17 @@ export default {
       handler: function(value){
 
       }
-    }
+    },
+    isInvoicePrint: {
+      handler: function(value){
+        if(value === true){
+          this.items = [];
+          this.order["vat"] = 0;
+          this.order["discount"] = 0;
+          this.isInvoicePrint = false;
+        }
+      }
+    },
   },
   methods: {
     async onInitData(){
@@ -435,8 +452,6 @@ export default {
           self.$toast.success("Submit data successfully").goAway(2000);
           self.invoiceNumber = response.data.order["invoice_id"];
           self.is_show_content_print = true;
-          self.items = [];
-          self.order = [];
           self.$emit("updateListProduct", []);
         }
       })
@@ -445,14 +460,21 @@ export default {
           console.log(error);
       });
     },
+
     async printInvoice(){
       this.$htmlToPaper("invoice-print", this.optionStyleHtmlToPaper);
       setTimeout(() => {
+        this.isInvoicePrint = true;
         this.is_show_content_print = false;
         this.invoiceNumber = null;
+          this.items = [];
+          this.order["vat"] =0;
+          this.order["discount"] = 0;
       }, 700);
     },
     onResetPayment(){
+      this.getting_money_usd = 0;
+      this.getting_money_riel = 0;
     },
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
@@ -537,7 +559,6 @@ export default {
       }
       return moneyReturn;
     },
-
   },
   mounted() {
     let self = this;
