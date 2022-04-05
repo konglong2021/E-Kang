@@ -61,7 +61,7 @@
                   </b-tr>
                 </b-thead>
                 <b-tbody>
-                  <b-tr v-for="item in items">
+                  <b-tr v-for="item in items" v-bind:key="item">
                     <b-td class="date" v-show="item.date" :rowspan="item.lengthDetail"><b>{{ item.date }}</b></b-td>
                     <b-td class="sale_by" v-show="item.sale_by" :rowspan="item.lengthDetail"><b>{{ item.sale_by }}</b></b-td>
                     <b-td class="customer" v-show="item.customer" :rowspan="item.lengthDetail"><b>{{ item.customer }}</b></b-td>
