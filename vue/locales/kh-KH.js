@@ -58,13 +58,13 @@ export default {
   "title_report_menu_monthly":"របាយការណ៏ ប្រចាំខែ",
   "label_name_english":"ឈ្មោះជាភាសាអង់គ្លេស",
   "label_name_khmer":"ឈ្មោះជាភាសាខ្មែរ (KH)",
-  "label_sale_price":"តម្លៃលក់របស់ទំនិញ",
+  "label_sale_price":"តម្លៃលក់ំនិញ",
   "title_store":"ហាងទំនិញ ឬ ឃ្លាំងទំនិញ",
   "title_icon":"រូបភាព",
   "title_label_total_stock":"ចំនួនសរុបនៅក្នុងឃ្លាំងទំនិញ",
   "question_remove_existing_product":"អ្នកប្រាកដថាចង់លុបទំនិញនេះចេញពីក្នុងតារាងទំនិញ?",
   "label_unit_price":"តម្លៃឯកតា",
-  "label_sub_total":"តម្លៃសរុបតាមចំនួន",
+  "label_sub_total":"តម្លៃសរុប តាមចំនួន",
   "title_transaction":"ប្រតិបត្តិការ",
   "title_pos":"ដំណើរការលក់",
   "label_sale_by":"លក់ដោយ",
@@ -78,5 +78,6 @@ export default {
   "label_print_invoice": "ព្រីនវិក័យប័ត្រ",
   "label_number_invoice":"វិក័យប័ត្រលេខ",
   "label_title_update":"កែប្រែ",
-  "label_update_selling_price_title":"កែប្រែតម្លៃទំនិញសម្រាប់លក់"
+  "label_update_selling_price_title":"កែប្រែតម្លៃទំនិញសម្រាប់លក់",
+  "text_tooltip_update_price":"ចុចលើនេះ2ដង ដើម្បីកែប្រែតម្លៃលក់របស់ទំនិញ"
 };

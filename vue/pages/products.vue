@@ -65,17 +65,17 @@
               </b-table>
             </div>
           </div>
-          <div style="height:30mm; width:40mm;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code">
+          <div style="width: 60mm; height: 35mm; display:inline-block;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code">
             <div v-if="barcodeItem.code.length > 12">
               <div v-for="item in barcodeListToPrint">
                 <span style="text-align: center !important;">{{ barcodeItem.name }}</span>
                 <barcode :value="item" height ='75' width="2" paddingTop="0" marginTop="0" marginBottom="0" fontSize="12" paddingBottom="0" marginLeft="0"></barcode>
               </div>
             </div>
-            <div v-if="barcodeItem.code.length === 12">
+            <div style="width: 60mm; height: 35mm; display:inline-block;" v-if="barcodeItem.code.length === 12">
               <div v-for="item in barcodeListToPrint">
-                <span style="text-align: center !important;">{{ barcodeItem.name }}</span>
-                <barcode :value="item" height ='80' width="2" paddingTop="0" marginTop="0" marginBottom="0" fontSize="12" paddingBottom="0" marginLeft="3"></barcode>
+                <span style="margin-left:12px; text-align: center !important; display: block;">{{ barcodeItem.name }}</span>
+                <barcode :value="item" height ='80' width="2" marginTop="0" marginBottom="0" fontSize="12"></barcode>
               </div>
             </div>
           </div>

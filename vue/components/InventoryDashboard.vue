@@ -273,7 +273,7 @@
           { key: 'code', label: this.$t('title_barcode')},
           { key: 'sale_price', label: this.$t('label_sale_price') + ' ($)'},
           { key: 'product_qty', label: this.$t('title_label_total_stock')},
-          { key: 'store', label: this.$t('title_store') },
+          { key: 'store', label: this.$t('title_store'), tdClass: "col-sm-3" },
         ],
         product: {
           en_name: '',

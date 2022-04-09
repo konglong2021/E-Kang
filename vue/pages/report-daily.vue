@@ -48,20 +48,20 @@
               <b-table-simple v-if="items.length > 0">
                 <b-thead>
                   <b-tr>
-                    <b-th>Date</b-th>
-                    <b-th>Sale by</b-th>
-                    <b-th>Customer Name</b-th>
-                    <b-th>Product Name</b-th>
-                    <b-th>Qty</b-th>
-                    <b-th>Sale Price ($)</b-th>
-                    <b-th>Discount</b-th>
-                    <b-th>Vat</b-th>
-                    <b-th>Sub Total ($)</b-th>
-                    <b-th>Grand Total ($)</b-th>
+                    <b-th style="vertical-align: top;">Date</b-th>
+                    <b-th style="vertical-align: top;">Sale by</b-th>
+                    <b-th style="vertical-align: top;">Customer Name</b-th>
+                    <b-th style="vertical-align: top;">Product Name</b-th>
+                    <b-th style="vertical-align: top;">Qty</b-th>
+                    <b-th style="vertical-align: top;">Sale Price ($)</b-th>
+                    <b-th style="vertical-align: top;">Discount</b-th>
+                    <b-th style="vertical-align: top;">Vat</b-th>
+                    <b-th style="vertical-align: top;">Sub Total ($)</b-th>
+                    <b-th style="vertical-align: top;">Grand Total ($)</b-th>
                   </b-tr>
                 </b-thead>
                 <b-tbody>
-                  <b-tr v-for="item in items" v-bind:key="item">
+                  <b-tr v-for="item in items" v-bind:key="item.order_id">
                     <b-td class="date" v-show="item.date" :rowspan="item.lengthDetail"><b>{{ item.date }}</b></b-td>
                     <b-td class="sale_by" v-show="item.sale_by" :rowspan="item.lengthDetail"><b>{{ item.sale_by }}</b></b-td>
                     <b-td class="customer" v-show="item.customer" :rowspan="item.lengthDetail"><b>{{ item.customer }}</b></b-td>
@@ -114,7 +114,6 @@
             Object.entries(items).forEach(([key, val]) => {
               total.push(val.grandtotal ? parseFloat(val.grandtotal) : 0) ;
             });
-            console.log(total);
             return total.reduce(function(total, num){ return total + num }, 0);
           },
           async getCustomerList(){

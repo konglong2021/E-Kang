@@ -78,5 +78,6 @@ export default {
   "label_print_invoice":"Print Invoice",
   "label_number_invoice":"Invoice No",
   "label_title_update":"Update",
-  "label_update_selling_price_title":"Updating Product selling price"
+  "label_update_selling_price_title":"Updating Product selling price",
+  "text_tooltip_update_price":"Double click to update selling price of product"
 };

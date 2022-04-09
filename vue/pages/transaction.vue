@@ -23,22 +23,22 @@
               <b-table-simple v-if="items.length > 0">
                 <b-thead>
                   <b-tr>
-                    <b-th>{{$t('label_date_sale')}}</b-th>
-                    <b-th>{{$t('label_sale_by')}}</b-th>
-                    <b-th>{{$t('label_customer_name')}}</b-th>
-                    <b-th>{{$t('label_number_invoice')}}</b-th>
-                    <b-th>{{$t('label_product_name')}}</b-th>
-                    <b-th>{{$t('label_quantity')}}</b-th>
-                    <b-th>{{$t('label_sale_price')}} ($)</b-th>
-                    <b-th>{{$t('label_discount')}}</b-th>
-                    <b-th>{{$t('label_vat')}}</b-th>
-                    <b-th>{{$t('label_sub_total')}} ($)</b-th>
-                    <b-th>{{$t('label_grand_total')}} ($)</b-th>
-                    <b-th>Action</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_date_sale')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_sale_by')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_customer_name')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_number_invoice')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_product_name')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_quantity')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_sale_price')}} ($)</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_discount')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_vat')}}</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_sub_total')}} ($)</b-th>
+                    <b-th style="vertical-align: top;">{{$t('label_grand_total')}} ($)</b-th>
+                    <b-th style="vertical-align: top;">{{$t('title_action')}}</b-th>
                   </b-tr>
                 </b-thead>
                 <b-tbody>
-                  <b-tr v-for="item in items" v-bind:key="item">
+                  <b-tr v-for="item in items" v-bind:key="item.order_id">
                     <b-td class="date" v-show="item.date" :rowspan="item.lengthDetail"><b>{{ item.date }}</b></b-td>
                     <b-td class="sale_by" v-show="item.sale_by" :rowspan="item.lengthDetail"><b>{{ item.sale_by }}</b></b-td>
                     <b-td class="customer" v-show="item.customer" :rowspan="item.lengthDetail"><b>{{ item.customer }}</b></b-td>
@@ -51,7 +51,6 @@
                     <b-td class="subtotal" v-show="item.subtotal" :rowspan="item.lengthDetail"><b>{{ item.subtotal + "$"}}</b></b-td>
                     <b-td class="grandtotal" v-show="item.grandtotal" :rowspan="item.lengthDetail"><b>{{ item.grandtotal + "$"}}</b></b-td>
                     <b-td v-show="item.order_id" :rowspan="item.lengthDetail">
-
                       <b-button size="sm" title="Adjust invetory stock" variant="success" @click="UpdateOrder(item)">
                         <i class="fa fa-eye"></i>
                       </b-button>

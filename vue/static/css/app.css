@@ -440,3 +440,9 @@ body {
   max-width: 1200px;
 }
 
+.barcodeStyle {
+  height: 150px;
+  width: 200px;
+  padding-left: 40%;
+  padding-top: 9%;
+}

@@ -9,7 +9,7 @@
         <div v-if="products && products.length > 0">
           <div v-for="p in products" v-bind:key="p.id" class="p-item"
              @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
-             @dblclick="openUpdateUnitSalePrice(p)"
+             @dblclick="openUpdateUnitSalePrice(p)" v-b-tooltip="$t('text_tooltip_update_price')"
         >
           <div style="width:70%;" class="display-inline-block pull-left">
             <div class="p-name">{{ p.name }} </div>
@@ -76,7 +76,7 @@
       </b-modal>
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg" modal-class="payment-form-modal"
                @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitPayment" ok-title="រក្សាទុកនិងព្រីនជាវិក័យប័ត្រ" title="ការលក់" no-close-on-backdrop>
+               @ok="onSubmitPayment" ok-title="រក្សាទុកទិន្នន័យ" title="ការលក់" no-close-on-backdrop>
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-45-percentage float-left">
@@ -90,7 +90,7 @@
               </div>
               <div class="form-row-content-detail">
                 <div class="form-column-label">
-                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom">អត្រាប្តូរប្រាក់រៀល</label>
+                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom">អត្រាប្តូរប្រាក់រៀល (៛)</label>
                 </div>
                 <div class="form-column-input">
                   <b-form-input type="number" class="input-content" v-model="exchange_rate"></b-form-input>
@@ -148,7 +148,8 @@
             <span style="display: block;">{{$t('title_total_in_usd')}} : {{ calculate("USD", items) }} USD</span>
             <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ calculateIncludeTax(calculate("USD", items)) }} USD</span>
             <span style="display: block;margin-top: 10px;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{ calculateToRiel(calculate("USD", items), exchange_rate) }} Riel</span>
-          <span style="display: block;">លុយត្រូវអាប់ : {{(getting_money_usd || getting_money_riel) ? calculateMoneyGiveBack(items) : 0 }} USD </span>
+            <span style="display: block;">លុយត្រូវអាប់ ($) : {{(getting_money_usd || getting_money_riel) ? calculateMoneyGiveBack(items) : 0 }} {{ getting_money_usd ? "USD" : "Riel" }}</span>
+            <span style="display: block;">លុយត្រូវអាប់ (៛) : {{ giveMoneyBackConvert }} </span>
           </div>
         </b-form>
       </b-modal>
@@ -236,7 +237,7 @@ export default {
       warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
       vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
       order: { customer : null, warehouse : null, vat: 0, discount : 0,},
-      exchange_rate: 0,
+      exchange_rate: 4100,
       getting_money_riel: 0,
       getting_money_usd: 0,
       is_getting_money_usd : false,
@@ -263,6 +264,7 @@ export default {
       is_show_content_print: false,
       isInvoicePrint : false,
       productItemSelectToUpdatePrice : {},
+      giveMoneyBackConvert: "0",
     };
   },
   watch:{
@@ -489,6 +491,9 @@ export default {
     onResetPayment(){
       this.getting_money_usd = 0;
       this.getting_money_riel = 0;
+      this.is_getting_money_riel = false;
+      this.is_getting_money_usd = false;
+      this.giveMoneyBackConvert = "0";
     },
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
@@ -566,10 +571,12 @@ export default {
       if(this.is_getting_money_usd){
         totalPay = this.calculateIncludeTax(this.calculate("USD", $items));
         moneyReturn = (parseFloat(this.getting_money_usd) - parseFloat(totalPay));
+        this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn * this.exchange_rate) : 0) + " Riel";
       }
       else if(this.is_getting_money_riel){
         totalPay = this.calculateToRiel(this.calculate("USD", $items), this.exchange_rate);
         moneyReturn = (parseFloat(this.getting_money_riel) - parseFloat(totalPay));
+        this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn / this.exchange_rate).toFixed(2) : 0) + " USD";
       }
       return moneyReturn;
     },
