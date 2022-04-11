@@ -111,6 +111,7 @@ class OrdersController extends Controller
         $orders->vat = $request->vat;
         $orders->discount = $request->discount;   //fetch from member value
         $orders->grandtotal = round($request->grandtotal,$digit);
+        $orders->receive = round($request->receive,$digit);
         $orders->save();
 
         $income = $this->income($orders->grandtotal);
