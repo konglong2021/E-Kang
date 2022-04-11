@@ -132,6 +132,7 @@ class ProductsController extends Controller
 
             'en_name' => $request['en_name'],
             'kh_name' => $request['kh_name'],
+            'tag' => $request['tag'],
             'code' =>$code,
             'description' => $request['description'],
             'category_id' => $request['category_id'],
