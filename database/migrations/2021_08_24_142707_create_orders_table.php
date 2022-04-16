@@ -24,7 +24,7 @@ class CreateOrdersTable extends Migration
             $table->double('discount')->nullable();
             $table->double('grandtotal');
             $table->double('kh_grandtotal')->nullable();
-            $table->double('receive'); //receive money
+            $table->double('receive')->nullable(); //receive money
             $table->timestamps();
             $table->softDeletes();
         });
