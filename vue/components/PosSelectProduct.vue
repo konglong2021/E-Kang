@@ -9,9 +9,8 @@
         <div v-if="products && products.length > 0">
           <div v-for="p in products" v-bind:key="p.id" class="p-item"
              @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
-             @dblclick="openUpdateUnitSalePrice(p)" v-b-tooltip="$t('text_tooltip_update_price')"
         >
-          <div style="width:70%;" class="display-inline-block pull-left">
+          <div style="width:70%;" class="display-inline-block pull-left" @dblclick="openInputQtyProduct(p)">
             <div class="p-name">{{ p.name }} </div>
             <div class="p-qty"> {{ (p.qty) }}  / {{ $t('label_product_sale_item') }}</div>
           </div>
@@ -62,14 +61,14 @@
             <div class="total"> {{ $t('title_total_no_tax_in_riel') }}: {{calculate("Riel", products)}} Riel </div>
           </div>
         </div>
-      <b-modal id="modal-update-selling-price-form" ref="update-selling-price-form-modal" modal-class="payment-form-modal"
+      <b-modal id="modal-input-qty-product" ref="input-qty-product-form-modal" modal-class="payment-form-modal"
                @hidden="onResetUpdateSellingPrice" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitUpdateSellingPrice" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
+               @ok="onSubmitAddMoreQtyProduct" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
-          <b-row class="my-1" v-if="productItemSelectToUpdatePrice">
-            <b-col sm="4"><label :for="'input-sale_price'" class="label-input">តម្លៃលក់ ($)</label></b-col>
-            <b-col sm="8">
-              <b-form-input :id="'input-sale_price'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" required></b-form-input>
+          <b-row class="my-1">
+            <b-col sm="5"><label :for="'input-qty-product'" class="label-input">បន្ថែមចំនួនទំនិញដែលលក់</label></b-col>
+            <b-col sm="7">
+              <b-form-input :id="'input-qty-product'" type="number" class="input-content" v-model="qtyInput" required></b-form-input>
             </b-col>
           </b-row>
         </b-form>
@@ -328,25 +327,25 @@ export default {
       this.showPlusAndMinusIcon = true;
       this.$emit("selectedItem", $item);
     },
-    increaseNumber(){
-      this.isIncreaseNumber = true;
+    openInputQtyProduct($product){
+      this.selectedItemData = $product;
+      this.$refs['input-qty-product-form-modal'].show();
     },
-    disCreaseNumber(){
-      this.isDisCreaseNumber = true;
+    onSubmitAddMoreQtyProduct(){
+      this.submitNumberIncreaseQtyProduct(this.selectedItemData, this.qtyInput);
     },
-    submitQtyProduct(qtyInput){
-      if(this.isIncreaseNumber){
-        this.submitNumberIncrease(qtyInput);
-        this.isIncreaseNumber = false;
-        this.qtyInput = 0;
-        this.showPlusAndMinusIcon = false;
+    submitNumberIncreaseQtyProduct(productItem, QtyProduct) {
+      let itemTemp = null;
+      for(let index=0; index < this.products.length; index++) {
+        if (this.products[index]["id"] === productItem["id"]) {
+          itemTemp = JSON.parse(JSON.stringify(this.products[index]));
+          itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
+          this.$set(this.products, index, itemTemp);
+          //break;
+        }
       }
-      else if(this.isDisCreaseNumber){
-        this.submitNumberDisCrease(qtyInput);
-        this.isDisCreaseNumber = false;
-        this.qtyInput = 0;
-        this.showPlusAndMinusIcon = false;
-      }
+      productItem = itemTemp;
+      this.qtyInput = 0;
     },
     submitNumberIncrease(productItem){
       let itemTemp = null;

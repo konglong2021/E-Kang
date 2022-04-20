@@ -175,9 +175,39 @@ body {
 .margin-bottom-20{
   margin-bottom: 20px;
 }
+.width-15-percentage{
+  width: 15%;
+}
+.width-14-percentage{
+  width: 14%;
+}
+.width-13-percentage{
+  width: 13%;
+}
+.width-12-percentage{
+  width: 12%;
+}
+.width-11-percentage{
+  width: 11%;
+}
 
 .width-10-percentage{
   width: 10%;
+}
+
+.width-9-percentage{
+  width: 9%;
+}
+
+.width-8-percentage{
+  width: 8%;
+}
+
+.width-5-percentage{
+  width: 5%;
+}
+.width-3-percentage{
+  width: 3%
 }
 
 .content-pagination{
