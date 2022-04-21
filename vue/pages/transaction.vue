@@ -7,27 +7,32 @@
             <div class="content-panel-left">
               <h3 class="head-title">{{$t('content_title_order')}}</h3>
             </div>
-            <div class="content-panel-right content-panel-right-full-width">
+            <div class="content-panel-right content-panel-right-full-width" style="vertical-align: text-bottom;">
               <div class="float-right">
-                <b-form-select  class="form-control input-content input-select-warehouse" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
+                <b-form-select  class="form-control input-content input-select-warehouse min-height-43-px" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
               </div>
-              <div class="float-right" style="margin-right: 8px;">
-                <b-form-select  class="form-control input-content input-select-product" v-model="product_select" :options="productOptions" @change="filterOrderByParam(product_select)"></b-form-select>
+              <div class="float-right" style="margin-right: 8px; width: 250px;">
+                <multiselect class="input-content content-multiple-select"
+                             v-model="product_select" :options="productOptions"
+                             track-by="name" label="name" :show-labels="false"
+                             placeholder="បញ្ចូលឈ្មោះទំនិញស្វែងរក"
+                             @select="selectionChange"
+                             @remove="removeElement"></multiselect>
+<!--                <b-form-select  class="form-control input-content input-select-product" v-model="product_select" :options="productOptions" @change="filterOrderByParam(product_select)"></b-form-select>-->
+              </div>
+              <div class="float-right" style="margin-right: 8px; display: inline-block;">
+                <b-button class="min-height-43-px" v-if="product_select" @click="printFilterData()" size="sm" title="Click to print" variant="success">Click to print</b-button>
               </div>
             </div>
           </div>
         </div>
-        <div class="content-product">
+        <div class="content-product content-order-list">
           <div class="content-loading" v-if="isLoading">
             <div class="spinner-grow text-muted"></div>
           </div>
           <div v-if="!isLoading">
             <div v-if="items">
-              <div style="display: inline-block; overflow: hidden; margin-bottom: 5px;">
-                <h4 v-if="product_select">ចំនួនលក់សរុបទាំងអស់ : {{ sumAllSaleProduct(items) }}</h4>
-                <b-button v-if="product_select" @click="printFilterData()" size="sm" title="Click to print" variant="success">Click to print</b-button>
-              </div>
-              <b-table-simple v-if="items.length > 0 && !product_select" class="table-transaction">
+              <b-table-simple v-if="items.length > 0" class="table-transaction">
                 <b-thead class="table-header" style="padding-right: 15px;">
                   <b-tr style="display: inline-block;width: 100%;overflow: hidden;">
                     <b-th class="width-9-percentage" >{{$t('label_date_sale')}}</b-th>
@@ -46,7 +51,7 @@
                     <b-th class="width-3-percentage" v-show="!product_select">{{$t('title_action')}}</b-th>
                   </b-tr>
                 </b-thead>
-                <b-tbody class="table-body">
+                <b-tbody class="table-body" :class="product_select ? 'max-height-50-vh' : 'max-height-57-vh'">
                   <b-tr class="table-body-tr" v-for="item in items" v-bind:key="item.order_id">
                     <b-td class="width-9-percentage date content-td" :rowspan="item.lengthDetail">
                       <b class="content">{{ (item.date !== undefined ? item.date : "") }}</b>
@@ -92,11 +97,13 @@
                     </b-td>
                   </b-tr>
                 </b-tbody>
-                <b-tfoot></b-tfoot>
               </b-table-simple>
               <h3 v-if="items.length === 0">មិនមានទិន្នន័យនៃការលក់ទេ</h3>
-
-              <div id="table-order" v-if="product_select" style="display: inline-block;width: 100%;overflow: hidden;">
+              <div style="display: inline-block; overflow: hidden; margin-top: 10px; font-weight: bold; float: right; margin-right: 15px;">
+                <h5 v-if="product_select">ចំនួនលក់សរុបទាំងអស់ : {{ sumAllSaleProduct(items) }}</h5>
+                <h5 v-if="product_select">សរុបទឹកប្រាក់ទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h5>
+              </div>
+              <div id="table-order" v-if="product_select" style="display: none; width: 100%; overflow: hidden;">
                 <h2 style="margin-bottom: 35px;">អំពី ការលក់ </h2>
                 <h4 v-if="product_select">ចំនួនលក់សរុបទរបស់ទំនិញាំងអស់ : {{ sumAllSaleProduct(items) }}</h4>
                 <h4 v-if="product_select">សរុបទឹកប្រាក់ទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h4>
@@ -314,7 +321,7 @@
           invoice_id: null
         },
         product_select: null,
-        productOptions : [{text:"រើសឈ្មោះទំនិញដើរម្បីទាញយក", value: null}]
+        productOptions : []
       }
     },
     methods: {
@@ -352,7 +359,7 @@
                   productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
                   productItem.code = productList.code;
                   vm.products.push(productItem);
-                  vm.productOptions.push({text: productItem.name, value: productItem.id})
+                  vm.productOptions.push({name: productItem.name, value: productItem.id})
                 }
               }
             }
@@ -361,83 +368,6 @@
           console.log(error);
           vm.$toast.error("getting data error ").goAway(2000);
         });
-        /*if($warehouse){
-          await vm.$axios.get('/api/stockbywarehouse/' + $warehouse).then(function (response) {
-            if(response && response.hasOwnProperty("data")){
-              let dataResponse = response.data;
-              if(dataResponse && dataResponse.length > 0){
-                vm.totalRows = response.data.length;
-                for(let i=0; i < dataResponse.length; i++){
-                  let productList = dataResponse[i].product;
-                  if(productList && productList.length > 0){
-                    for(let index=0; index < productList.length; index++){
-                      let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                      productItem.id = productList[index].id;
-                      productItem.en_name = productList[index].en_name;
-                      productItem.kh_name = productList[index].kh_name;
-                      productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
-                      productItem.price = productList[index].sale_price;
-                      productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
-                      productItem.code = productList[index].code;
-                      vm.products.push(productItem);
-                    }
-                  }
-                  else if(productList && productList.hasOwnProperty("id")){
-                    let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                    productItem.id = productList.id;
-                    productItem.name = productList.en_name + " (" + productList.kh_name + ")";
-                    productItem.en_name = productList.en_name;
-                    productItem.kh_name = productList.kh_name;
-                    productItem.price = productList.sale_price;
-                    productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
-                    productItem.code = productList.code;
-                    vm.products.push(productItem);
-                  }
-                }
-              }
-            }
-          }).catch(function (error) {
-            console.log(error);
-            vm.$toast.error("getting data error ").goAway(2000);
-          });
-        }
-        else {
-          await vm.$axios.get('/api/stocksell').then(function (response) {
-            if(response && response.hasOwnProperty("data")){
-              let dataResponse = response.data;
-              if(dataResponse && dataResponse.length > 0){
-                vm.totalRows = response.data.length;
-                for(let i=0; i < dataResponse.length; i++){
-                  let productList = dataResponse[i].product;
-                  if(productList && productList.length > 0){
-                    for(let index=0; index < productList.length; index++){
-                      let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                      productItem.id = productList[index].id;
-                      productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
-                      productItem.price = productList[index].sale_price;
-                      productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
-                      productItem.code = productList[index].code;
-                      vm.products.push(productItem);
-                    }
-                  }
-                  else if(productList && productList.hasOwnProperty("id")){
-                    let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                    productItem.id = productList.id;
-                    productItem.name = productList.en_name + " (" + productList.kh_name + ")";
-                    productItem.price = productList.sale_price;
-                    productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
-                    productItem.code = productList.code;
-                    vm.products.push(productItem);
-                  }
-                }
-                console.log(vm.products);
-              }
-            }
-          }).catch(function (error) {
-            console.log(error);
-            vm.$toast.error("getting data error ").goAway(2000);
-          });
-        }*/
       },
       async getCustomerList(){
         let self = this;
@@ -684,7 +614,6 @@
         }
 
       },
-
       filterOrderDetailData(orderItem, $paramProductId){
         let orderDetailItemTemp = {};
           if(orderItem.hasOwnProperty("orderdetails") && orderItem["orderdetails"].length > 0){
@@ -702,7 +631,6 @@
 
           return orderDetailItemTemp;
       },
-
       sumAllSaleProduct($data){
           let total = [];
           Object.entries($data).forEach(([key, val]) => {
@@ -720,6 +648,51 @@
       printFilterData(){
         this.$htmlToPaper("table-order", this.optionStyleHtmlToPaper);
       },
+      selectionChange($obj){
+        let orders = [];
+        let user = this.cloneObject(this.$store.$cookies.get('user'));
+
+        if($obj){
+          if(this.orders && this.orders.length > 0){
+            for (let index=0; index < this.orders.length; index++){
+              let orderItem = {};
+              let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $obj["value"]);
+              if(orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")){
+                orderItem["customer"] = this.orders[index]["customers"]["name"];
+                orderItem["invoice_id"] = this.orders[index]["invoice_id"];
+
+                orderItem["discount"] = this.orders[index]["discount"];
+                orderItem["vat"] = this.orders[index]["vat"];
+                orderItem["sale_by"] = user.name;
+
+                let createdDate = new Date(this.orders[index]["created_at"]);
+                let dd = createdDate.getDate();
+                let mm = createdDate.getMonth() + 1;
+                let day = (dd < 10) ? ('0' + dd) : dd;
+                let month = (mm < 10) ? ('0' + mm) : mm;
+                let yyyy = createdDate.getFullYear();
+                orderItem["date"] = (day + "/" + month + "/" + yyyy);
+
+                orderItem["product_id"] = orderItemDetailData["product_id"];
+                orderItem["name"] = orderItemDetailData["name"];
+                orderItem["sale_price"] = orderItemDetailData["sale_price"];
+                orderItem["qty"] = orderItemDetailData["qty"];
+                orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
+                orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
+                orders.push(orderItem);
+              }
+            }
+          }
+          this.items = this.cloneObject(orders);
+        }
+        else {
+          this.getAllOrderData();
+        }
+        this.$forceUpdate();
+      },
+      removeElement($obj){
+        this.$forceUpdate();
+      },
     },
     mounted() {
       this.warehouse = this.$store.$cookies.get('storeItem');
@@ -734,6 +707,9 @@
 </script>
 
 <style scoped>
+  .content-order-list{
+    min-height: calc(100vh - 140px);
+  }
   .table-transaction{
     display: inline-block;
     width: 100%;
@@ -755,7 +731,12 @@
     display: inline-block;
     overflow-y: scroll;
     width: 100%;
-    height: calc(100vh - 290px);
+  }
+  .max-height-50-vh{
+    max-height: 50vh;
+  }
+  .max-height-57-vh{
+    max-height: 57vh;
   }
   .table-transaction .table-body .table-body-tr{
     display: inline-block;
