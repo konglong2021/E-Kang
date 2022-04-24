@@ -79,5 +79,8 @@ export default {
   "label_number_invoice":"វិក័យប័ត្រលេខ",
   "label_title_update":"កែប្រែ",
   "label_update_selling_price_title":"កែប្រែតម្លៃទំនិញសម្រាប់លក់",
-  "text_tooltip_update_price":"ចុចលើនេះ2ដង ដើម្បីកែប្រែតម្លៃលក់របស់ទំនិញ"
+  "text_tooltip_update_price":"ចុចលើនេះ2ដង ដើម្បីកែប្រែតម្លៃលក់របស់ទំនិញ",
+  "label_update_selling_qty_title":"បន្ថែមចំនួនទំនិញ",
+  "label_search_by_product":"ស្វែងរកតាមឈ្មោះទំនិញ",
+  "label_search_by_customer":"ស្វែងរកតាមឈ្មោះអតិថិជន"
 };

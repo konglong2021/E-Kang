@@ -79,5 +79,8 @@ export default {
   "label_number_invoice":"Invoice No",
   "label_title_update":"Update",
   "label_update_selling_price_title":"Updating Product selling price",
-  "text_tooltip_update_price":"Double click to update selling price of product"
+  "text_tooltip_update_price":"Double click to update selling price of product",
+  "label_update_selling_qty_title":"Add more product quantity",
+  "label_search_by_product":"Search by product",
+  "label_search_by_customer":"Search by customer"
 };

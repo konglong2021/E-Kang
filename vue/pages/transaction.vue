@@ -11,17 +11,34 @@
               <div class="float-right">
                 <b-form-select  class="form-control input-content input-select-warehouse min-height-43-px" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
               </div>
-              <div class="float-right" style="margin-right: 8px; width: 250px;">
-                <multiselect class="input-content content-multiple-select"
-                             v-model="product_select" :options="productOptions"
-                             track-by="name" label="name" :show-labels="false"
-                             placeholder="បញ្ចូលឈ្មោះទំនិញស្វែងរក"
-                             @select="selectionChange"
-                             @remove="removeElement"></multiselect>
-<!--                <b-form-select  class="form-control input-content input-select-product" v-model="product_select" :options="productOptions" @change="filterOrderByParam(product_select)"></b-form-select>-->
+              <div class="float-right product" style="margin-right: 8px;">
+                <div style="height: 100%; line-height: 2.7;">
+                  <a v-if="!isSearchByProduct" style="margin-right: 5px; color: #28a745; font-weight: 700; cursor: pointer;" @click="searchData('product')">{{ $t('label_search_by_product') }}</a>
+                </div>
+                <div class="content-search" v-if="isSearchByProduct">
+                  <multiselect class="input-content content-multiple-select"
+                               v-model="product_select" :options="productOptions"
+                               track-by="name" label="name" :show-labels="false"
+                               placeholder="ស្វែងរក"
+                               @select="selectionChange"
+                               @remove="removeElement"></multiselect>
+                </div>
+              </div>
+              <div class="float-right" style="margin-right: 8px">
+                <div style="height: 100%; line-height: 2.7;">
+                  <a v-if="!isSearchByCustomer" style="color: #28a745; font-weight: 700;" @click="searchData('customer')">{{ $t('label_search_by_customer') }}</a>
+                </div>
+                <div class="content-search" v-if="isSearchByCustomer">
+                  <multiselect class="input-content content-multiple-select"
+                               v-model="customer_select" :options="customerOptions"
+                               track-by="name" label="name" :show-labels="false"
+                               placeholder="ស្វែងរក"
+                               @select="selectionChange"
+                               @remove="removeElement"></multiselect>
+                </div>
               </div>
               <div class="float-right" style="margin-right: 8px; display: inline-block;">
-                <b-button class="min-height-43-px" v-if="product_select" @click="printFilterData()" size="sm" title="Click to print" variant="success">Click to print</b-button>
+                <b-button class="min-height-43-px" v-if="product_select || customer_select" @click="printFilterData()" size="sm" title="Click to print" variant="success">Click to print</b-button>
               </div>
             </div>
           </div>
@@ -35,20 +52,24 @@
               <b-table-simple v-if="items.length > 0" class="table-transaction">
                 <b-thead class="table-header" style="padding-right: 15px;">
                   <b-tr style="display: inline-block;width: 100%;overflow: hidden;">
-                    <b-th class="width-9-percentage" >{{$t('label_date_sale')}}</b-th>
-                    <b-th class="width-8-percentage" >{{$t('label_sale_by')}}</b-th>
-                    <b-th class="width-10-percentage" >{{$t('label_customer_name')}}</b-th>
-                    <b-th class="width-10-percentage" >{{$t('label_number_invoice')}}</b-th>
+                    <b-th class="width-9-percentage" >{{ $t('label_date_sale') }}</b-th>
+                    <b-th class="width-8-percentage" >{{ $t('label_sale_by') }}</b-th>
+                    <b-th class="width-10-percentage" >
+                      {{ $t('label_customer_name') }}
+                    </b-th>
+                    <b-th class="width-10-percentage" >
+                      {{ $t('label_number_invoice') }}
+                    </b-th>
 
-                    <b-th class="width-10-percentage" >{{$t('label_product_name')}}</b-th>
-                    <b-th class="width-5-percentage" >{{$t('label_quantity')}}</b-th>
-                    <b-th class="width-9-percentage" >{{$t('label_sale_price')}} ($)</b-th>
+                    <b-th class="width-10-percentage" >{{ $t('label_product_name') }}</b-th>
+                    <b-th class="width-5-percentage" >{{ $t('label_quantity') }}</b-th>
+                    <b-th class="width-9-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
 
-                    <b-th class="width-5-percentage" >{{$t('label_discount')}}</b-th>
-                    <b-th class="width-5-percentage" >{{$t('label_vat')}}</b-th>
-                    <b-th class="width-11-percentage" >{{$t('label_sub_total')}} ($)</b-th>
-                    <b-th :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'" >{{$t('label_grand_total')}} ($)</b-th>
-                    <b-th class="width-3-percentage" v-show="!product_select">{{$t('title_action')}}</b-th>
+                    <b-th class="width-5-percentage" >{{ $t('label_discount') }}</b-th>
+                    <b-th class="width-5-percentage" >{{ $t('label_vat') }}</b-th>
+                    <b-th class="width-11-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
+                    <b-th :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'" >{{ $t('label_grand_total') }} ($)</b-th>
+                    <b-th class="width-3-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
                   </b-tr>
                 </b-thead>
                 <b-tbody class="table-body" :class="product_select ? 'max-height-50-vh' : 'max-height-57-vh'">
@@ -99,14 +120,15 @@
                 </b-tbody>
               </b-table-simple>
               <h3 v-if="items.length === 0">មិនមានទិន្នន័យនៃការលក់ទេ</h3>
-              <div style="display: inline-block; overflow: hidden; margin-top: 10px; font-weight: bold; float: right; margin-right: 15px;">
+              <div class="content-detail">
                 <h5 v-if="product_select">ចំនួនលក់សរុបទាំងអស់ : {{ sumAllSaleProduct(items) }}</h5>
                 <h5 v-if="product_select">សរុបទឹកប្រាក់ទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h5>
               </div>
+
               <div id="table-order" v-if="product_select" style="display: none; width: 100%; overflow: hidden;">
                 <h2 style="margin-bottom: 35px;">អំពី ការលក់ </h2>
-                <h4 v-if="product_select">ចំនួនលក់សរុបទរបស់ទំនិញាំងអស់ : {{ sumAllSaleProduct(items) }}</h4>
-                <h4 v-if="product_select">សរុបទឹកប្រាក់ទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h4>
+                <h4 v-if="product_select">ចំនួនលក់សរុបទំនិញទាំងអស់ : {{ sumAllSaleProduct(items) }}</h4>
+                <h4 v-if="product_select">ទឹកប្រាក់សរុបទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h4>
                 <table style="display: inline-block;width: 100%;overflow: hidden;">
                   <thead style="display: inline-block;width: 100%;overflow: hidden; ">
                     <tr style="display: inline-block;width: 100%;overflow: hidden;">
@@ -321,13 +343,19 @@
           invoice_id: null
         },
         product_select: null,
-        productOptions : []
+        productOptions : [],
+        isSearchByProduct: false,
+        isSearchByCustomer: false,
+
+        customer_select: null,
+        customerOptions : [],
       }
     },
     methods: {
       async getListProduct($warehouse){
         let vm = this;
         vm.products = [];
+        vm.productOptions= [];
 
         await vm.$axios.get('/api/stock').then(function (response) {
           if(response && response.hasOwnProperty("data")){
@@ -347,6 +375,7 @@
                     productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
                     productItem.code = productList[index].code;
                     vm.products.push(productItem);
+                    vm.productOptions.push({name: productItem.name, value: productItem.id})
                   }
                 }
                 else if(productList && productList.hasOwnProperty("id")){
@@ -376,6 +405,7 @@
             self.customersList = self.cloneObject(response.data.customer);
             for(let index=0; index < response.data.customer.length; index++){
               self.customers.push({text : response.data.customer[index]["name"], value : response.data.customer[index]["id"]});
+              self.customerOptions.push({name: response.data.customer[index]["name"], value: response.data.customer[index]["id"]})
             }
           }
         })
@@ -572,38 +602,44 @@
       onSubmitPayment(){
         this.$htmlToPaper("invoice-print-again", this.optionStyleHtmlToPaper);
       },
-      filterOrderByParam($paramProductId){
+
+      filterOrderByParam($filteName, $paramFilter){
         let orders = [];
         let user = this.cloneObject(this.$store.$cookies.get('user'));
 
-        if($paramProductId){
+        if($paramFilter){
           if(this.orders && this.orders.length > 0){
             for (let index=0; index < this.orders.length; index++){
               let orderItem = {};
-              let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $paramProductId);
-              if(orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")){
-                orderItem["customer"] = this.orders[index]["customers"]["name"];
-                orderItem["invoice_id"] = this.orders[index]["invoice_id"];
+              if($filteName === "product"){
+                let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $paramFilter);
+                if(orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")){
+                  orderItem["customer"] = this.orders[index]["customers"]["name"];
+                  orderItem["invoice_id"] = this.orders[index]["invoice_id"];
 
-                orderItem["discount"] = this.orders[index]["discount"];
-                orderItem["vat"] = this.orders[index]["vat"];
-                orderItem["sale_by"] = user.name;
+                  orderItem["discount"] = this.orders[index]["discount"];
+                  orderItem["vat"] = this.orders[index]["vat"];
+                  orderItem["sale_by"] = user.name;
 
-                let createdDate = new Date(this.orders[index]["created_at"]);
-                let dd = createdDate.getDate();
-                let mm = createdDate.getMonth() + 1;
-                let day = (dd < 10) ? ('0' + dd) : dd;
-                let month = (mm < 10) ? ('0' + mm) : mm;
-                let yyyy = createdDate.getFullYear();
-                orderItem["date"] = (day + "/" + month + "/" + yyyy);
+                  let createdDate = new Date(this.orders[index]["created_at"]);
+                  let dd = createdDate.getDate();
+                  let mm = createdDate.getMonth() + 1;
+                  let day = (dd < 10) ? ('0' + dd) : dd;
+                  let month = (mm < 10) ? ('0' + mm) : mm;
+                  let yyyy = createdDate.getFullYear();
+                  orderItem["date"] = (day + "/" + month + "/" + yyyy);
 
-                orderItem["product_id"] = orderItemDetailData["product_id"];
-                orderItem["name"] = orderItemDetailData["name"];
-                orderItem["sale_price"] = orderItemDetailData["sale_price"];
-                orderItem["qty"] = orderItemDetailData["qty"];
-                orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
-                orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
-                orders.push(orderItem);
+                  orderItem["product_id"] = orderItemDetailData["product_id"];
+                  orderItem["name"] = orderItemDetailData["name"];
+                  orderItem["sale_price"] = orderItemDetailData["sale_price"];
+                  orderItem["qty"] = orderItemDetailData["qty"];
+                  orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
+                  orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
+                  orders.push(orderItem);
+                }
+              }
+              else if($filteName === "customer") {
+
               }
             }
           }
@@ -631,6 +667,7 @@
 
           return orderDetailItemTemp;
       },
+
       sumAllSaleProduct($data){
           let total = [];
           Object.entries($data).forEach(([key, val]) => {
@@ -641,7 +678,7 @@
       sumAllPriceSaleProduct($data){
         let total = [];
         Object.entries($data).forEach(([key, val]) => {
-          total.push(parseFloat(val.grandtotal));
+          total.push(val.grandtotal !== undefined ? parseFloat(val.grandtotal) : 0);
         });
         return total.reduce(function(total, num){ return total + num }, 0);
       },
@@ -649,37 +686,107 @@
         this.$htmlToPaper("table-order", this.optionStyleHtmlToPaper);
       },
       selectionChange($obj){
-        let orders = [];
-        let user = this.cloneObject(this.$store.$cookies.get('user'));
-
         if($obj){
-          if(this.orders && this.orders.length > 0){
-            for (let index=0; index < this.orders.length; index++){
-              let orderItem = {};
-              let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $obj["value"]);
-              if(orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")){
-                orderItem["customer"] = this.orders[index]["customers"]["name"];
-                orderItem["invoice_id"] = this.orders[index]["invoice_id"];
+          let orders = [];
+          let user = this.cloneObject(this.$store.$cookies.get('user'));
+          if(this.isSearchByProduct){
+            if(this.orders && this.orders.length > 0) {
+              for (let index = 0; index < this.orders.length; index++) {
+                let orderItem = {};
+                let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $obj["value"]);
+                if (orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")) {
+                  orderItem["customer"] = this.orders[index]["customers"]["name"];
+                  orderItem["invoice_id"] = this.orders[index]["invoice_id"];
 
-                orderItem["discount"] = this.orders[index]["discount"];
-                orderItem["vat"] = this.orders[index]["vat"];
-                orderItem["sale_by"] = user.name;
+                  orderItem["discount"] = this.orders[index]["discount"];
+                  orderItem["vat"] = this.orders[index]["vat"];
+                  orderItem["sale_by"] = user.name;
 
-                let createdDate = new Date(this.orders[index]["created_at"]);
-                let dd = createdDate.getDate();
-                let mm = createdDate.getMonth() + 1;
-                let day = (dd < 10) ? ('0' + dd) : dd;
-                let month = (mm < 10) ? ('0' + mm) : mm;
-                let yyyy = createdDate.getFullYear();
-                orderItem["date"] = (day + "/" + month + "/" + yyyy);
+                  let createdDate = new Date(this.orders[index]["created_at"]);
+                  let dd = createdDate.getDate();
+                  let mm = createdDate.getMonth() + 1;
+                  let day = (dd < 10) ? ('0' + dd) : dd;
+                  let month = (mm < 10) ? ('0' + mm) : mm;
+                  let yyyy = createdDate.getFullYear();
+                  orderItem["date"] = (day + "/" + month + "/" + yyyy);
 
-                orderItem["product_id"] = orderItemDetailData["product_id"];
-                orderItem["name"] = orderItemDetailData["name"];
-                orderItem["sale_price"] = orderItemDetailData["sale_price"];
-                orderItem["qty"] = orderItemDetailData["qty"];
-                orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
-                orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
-                orders.push(orderItem);
+                  orderItem["product_id"] = orderItemDetailData["product_id"];
+                  orderItem["name"] = orderItemDetailData["name"];
+                  orderItem["sale_price"] = orderItemDetailData["sale_price"];
+                  orderItem["qty"] = orderItemDetailData["qty"];
+                  orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
+                  orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
+                  orders.push(orderItem);
+                }
+              }
+            }
+          }
+          else if(this.isSearchByCustomer){
+            if(this.orders && this.orders.length > 0) {
+              let itemOrder = [];
+              for (let index = 0; index < this.orders.length; index++) {
+                let orderItem = this.orders[index];
+                let customer = this.orders[index]["customers"];
+
+                if (customer && customer["id"] === $obj["value"]) {
+                  let customerItem = this.filterDataCustomerList($obj["value"]);
+                  let user = this.cloneObject(this.$store.$cookies.get('user'));
+                  itemOrder[orderItem.id] = [];
+
+                  if (orderItem.hasOwnProperty("orderdetails") && orderItem.orderdetails.length > 0) {
+                    for (let indexOrderDetail = 0; indexOrderDetail < orderItem.orderdetails.length; indexOrderDetail++) {
+                      let itemOrderDetail = [];
+                      let orderDetailItem = orderItem.orderdetails[indexOrderDetail];
+                      let productData = this.filterProduct(orderDetailItem.product_id);
+                      if (productData !== null && productData !== undefined) {
+                        let createdDate = new Date(orderDetailItem.created_at);
+                        let dd = createdDate.getDate();
+                        let mm = createdDate.getMonth() + 1;
+                        let day = (dd < 10) ? ('0' + dd) : dd;
+                        let month = (mm < 10) ? ('0' + mm) : mm;
+                        let yyyy = createdDate.getFullYear();
+                        itemOrderDetail["date"] = (day + "/" + month + "/" + yyyy);
+                        itemOrderDetail["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
+                        itemOrderDetail["en_name"] = productData["en_name"];
+                        itemOrderDetail["kh_name"] = productData["kh_name"];
+                        itemOrderDetail["product_id"] = productData["id"];
+                        itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
+                        itemOrderDetail["sale_price"] = productData["price"];
+                        itemOrderDetail["order_id"] = orderDetailItem.order_id;
+                        itemOrder[orderItem.id].push(itemOrderDetail);
+                      }
+                    }
+                  }
+                  for (let index = 0; index < itemOrder[orderItem.id].length; index++) {
+                    let itemData = {};
+                    if (index === 0) {
+                      itemData["order_id"] = orderItem.id;
+                      itemData["sale_by"] = user.name;
+                      if (customerItem) {
+                        itemData["customer"] = customerItem["name"];
+                      }
+                      itemData["invoice_id"] = orderItem["invoice_id"];
+                      itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
+                      itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
+                      itemData["lengthDetail"] = itemOrder[orderItem.id].length;
+                      itemData["subtotal"] = orderItem["subtotal"];
+                      itemData["grandtotal"] = orderItem["grandtotal"];
+
+                      itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
+                      itemData["name"] = itemOrder[orderItem.id][index].name;
+                      itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
+                      itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
+                      itemData["date"] = itemOrder[orderItem.id][index]["date"];
+                    }
+                    else {
+                      itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
+                      itemData["name"] = itemOrder[orderItem.id][index].name;
+                      itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
+                      itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
+                    }
+                    orders.push(itemData);
+                  }
+                }
               }
             }
           }
@@ -692,6 +799,24 @@
       },
       removeElement($obj){
         this.$forceUpdate();
+      },
+      searchData($filterName){
+        if($filterName === "product"){
+          this.isSearchByProduct = !this.isSearchByProduct;
+          this.isSearchByCustomer = false;
+          this.customer_select = {};
+        }
+        else if($filterName === "customer"){
+          this.isSearchByCustomer = !this.isSearchByCustomer;
+          this.isSearchByProduct = false;
+          this.product_select = {};
+        }
+      },
+      onChangerEvent($event, $classNameToShow, $classNameToHide) {
+          $event.stopPropagation();
+          jQuery($classNameToHide).hide();
+          jQuery($classNameToShow).show();
+          this.displaySelectedFilter = true;
       },
     },
     mounted() {
@@ -763,4 +888,16 @@
     overflow:hidden;
     width: 100%;
   }
+  .content-search{
+    width: 250px;
+  }
+  .content-detail{
+    display: inline-block;
+    overflow: hidden;
+    margin-top: 10px;
+    font-weight: bold;
+    float: right;
+    margin-right: 15px;
+  }
+
 </style>
