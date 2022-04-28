@@ -146,7 +146,7 @@
             vm.loadingFields = false;
             if(response && response.data.hasOwnProperty("warehouse")){
               if(response.data.warehouse){
-                vm.items.push(response.data.warehouse);
+                vm.items.unshift(response.data.warehouse);
               }
             }
           }).catch(function (error) {

@@ -6,7 +6,7 @@
           <div class="control-panel">
             <div class="panel-top">
               <div class="content-panel-left">
-                <h3 class="head-title">Supplier Overview</h3>
+                <h3 class="head-title">{{ $t('content_title_supplier') }}</h3>
               </div>
               <div class="content-panel-right">
                 <b-container class="col-6 mx-auto menu-wrapper">
@@ -20,7 +20,7 @@
                     <div class="btn-wrapper">
                       <b-button href="#"  title="Add new Supplier" size="sm" variant="primary"
                                 @click="showModal()">
-                        New Supplier
+                        {{ $t('label_add_new_supplier') }}
                         <i class="fa fa-plus" aria-hidden="true"></i>
                       </b-button>
                     </div>
@@ -56,32 +56,32 @@
           </div>
         </div>
         <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
-                 @hidden="onResetSupplier" cancel-title="Cancel" no-close-on-backdrop
-                 @ok="onSubmitSupplier" ok-title="Save" title="New Supplier">
+                 @hidden="onResetSupplier" :cancel-title="$t('label_cancel_button')" no-close-on-backdrop
+                 @ok="onSubmitSupplier" :ok-title="$t('label_save_button')" :title="$t('title_new_supplier')">
           <b-form enctype="multipart/form-data">
             <div class="full-content">
             </div>
             <div class="full-content">
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-name'" class="label-input">Name</label></b-col>
+                <b-col sm="4"><label :for="'input-name'" class="label-input">{{ $t('label_name') }}</label></b-col>
                 <b-col sm="8">
                   <b-form-input :id="'input-name'" type="text" v-model="supplier.name" class="input-content"></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-address'" class="label-input">Address</label></b-col>
+                <b-col sm="4"><label :for="'input-address'" class="label-input">{{ $t('label_address') }}</label></b-col>
                 <b-col sm="8">
                   <b-form-input :id="'input-address'" type="text" v-model="supplier.address" class="input-content"></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-email'" class="label-input">Email</label></b-col>
+                <b-col sm="4"><label :for="'input-email'" class="label-input">{{ $t('label_email') }}</label></b-col>
                 <b-col sm="8">
                   <b-form-input :id="'input-email'" type="email" v-model="supplier.email" class="input-content"></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-phone'" class="label-input">Phone number</label></b-col>
+                <b-col sm="4"><label :for="'input-phone'" class="label-input">{{ $t('label_phone') }}</label></b-col>
                 <b-col sm="8">
                   <b-form-input :id="'input-phone'" class="input-content" v-model="supplier.phone"></b-form-input>
                 </b-col>
@@ -101,11 +101,11 @@
       return {
         items:[],
         fields: [
-          { key: 'name', label: 'Name' },
-          { key: 'address', label: 'Address' },
-          { key: 'email', label: 'Email' },
-          { key: 'phone', label: 'Phone' },
-          { key: 'actions', label: 'Actions' }
+          { key: 'name', label: this.$t('label_name') },
+          { key: 'address', label: this.$t('label_address') },
+          { key: 'email', label: this.$t('label_email') },
+          { key: 'phone', label: this.$t('label_phone') },
+          { key: 'actions', label: this.$t('title_action') }
         ],
         supplier: {},
         perPage: 8,
@@ -156,7 +156,7 @@
              vm.$toast.success("Submit data is successful").goAway(2000);
              if(response.data.hasOwnProperty("supplier")){
                let data = response.data.supplier;
-               vm.items.push(data);
+               vm.items.unshift(data);
                vm.supplier = {};
              }
            }).catch(function (error) {

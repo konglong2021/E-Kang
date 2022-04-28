@@ -5,7 +5,7 @@
           <div class="control-panel">
             <div class="panel-top">
               <div class="content-panel-left">
-                <h3 class="head-title">Brands Overview</h3>
+                <h3 class="head-title">{{ $t('content_title_brands') }}</h3>
               </div>
               <div class="content-panel-right">
                 <b-container class="col-6 mx-auto menu-wrapper">
@@ -19,7 +19,7 @@
                     <div class="btn-wrapper">
                       <b-button href="#"  title="Add new Category" size="sm" variant="primary"
                                 @click="showModal()">
-                        New Brand
+                        {{ $t('label_add_brand') }}
                         <i class="fa fa-plus" aria-hidden="true"></i>
                       </b-button>
                     </div>
@@ -53,18 +53,18 @@
           </div>
       </div>
       <b-modal id="modal-create-brand" ref="brand-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cannel"
-               @ok="onSubmit" ok-title="Save" title="New Brand" no-close-on-backdrop>
+               @hidden="onReset" :cancel-title="$t('label_cancel_button')"
+               @ok="onSubmit" :ok-title="$t('label_save_button')" :title="$t('title_new_brand')" no-close-on-backdrop>
         <b-form enctype="multipart/form-data">
           <div class="full-content">
           </div>
           <div class="full-content">
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-enname'" class="label-input">Name</label></b-col>
+              <b-col sm="4"><label :for="'input-enname'" class="label-input">{{ $t('label_name_english') }}</label></b-col>
               <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="brand.en_name" class="input-content"></b-form-input></b-col>
             </b-row>
             <b-row class="my-1" >
-              <b-col sm="4"><label :for="'input-category'" class="label-input">Category</label></b-col>
+              <b-col sm="4"><label :for="'input-category'" class="label-input">{{ $t('title_category') }}</label></b-col>
               <b-col sm="8">
                 <multiselect class="input-content"
                              v-model="brand.category"
@@ -76,7 +76,7 @@
             </b-row>
 
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-description'" class="label-input">Description</label></b-col>
+              <b-col sm="4"><label :for="'input-description'" class="label-input">{{ $t('label_description') }}</label></b-col>
               <b-col sm="8"><b-form-textarea :id="'input-description'" class="input-content" v-model="brand.description"></b-form-textarea></b-col>
             </b-row>
           </div>
@@ -96,11 +96,11 @@
         currentPage: 1,
         items: [],
         fields: [
-          { key: 'name', label: 'Name' },
-          { key: 'parent', label: 'Parent' },
-          { key: 'total_product', label: 'Total Product' },
-          { key: 'categories', label: 'Categories' },
-          { key: 'actions', label: 'Actions' }
+          { key: 'name', label: this.$t('label_name') },
+          { key: 'parent', label: this.$t('label_parent') },
+          { key: 'total_product', label: this.$t('label_total_product') },
+          { key: 'categories', label: this.$t('title_categories') },
+          { key: 'actions', label: this.$t('title_action') }
         ],
         brand: {},
         isLoading: false,
@@ -226,7 +226,8 @@
         else {
           self.$axios.post('/api/brand', dataSubmit)
             .then(function (response) {
-              if(response.data.hasOwnProperty("data")){
+              if(response.data.hasOwnProperty("brand")){
+                self.items.unshift(response.data.brand);
                 self.$toasted.success("Data successfully added..!").goAway(1500);
                 self.hideBrandModal();
               }

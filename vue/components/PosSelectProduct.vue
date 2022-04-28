@@ -2,9 +2,9 @@
     <div class="display-inline-block full-with" v-show="cashBalance">
       <div  class="calculator-product-content">
         <div class="p-item" v-if="products && products.length > 0">
-          <div style="width:69%;" class="display-inline-block"><span></span></div>
-          <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_unit_price') + " ($)"}} </div>
-          <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_sub_total') + " ($)"}} </div>
+          <div style="width:42%;" class="display-inline-block"><span></span></div>
+          <div style="width:15%; text-align:left" class="display-inline-block p-price">{{ $t('label_unit_price') + " ($)"}} </div>
+          <div style="width:15%; text-align:left" class="display-inline-block p-price">{{ $t('label_sub_total') + " ($)"}} </div>
         </div>
         <div v-if="products && products.length > 0" class="content-product-item">
             <div v-for="p in products" v-bind:key="p.id"
@@ -15,13 +15,15 @@
                 <div class="p-name">{{ p.name }} </div>
                 <div class="p-qty"> {{ (p.qty) }}  / {{ $t('label_product_sale_item') }}</div>
               </div>
-              <div class="content-price" @dblclick="openInputQtyProduct(p)" v-b-tooltip="'ចុចពីរដងដើម្បីបញ្ចូលចំនួនំនិញលក់'">
+              <div class="content-price">
                 <div class="container-row-form">{{p.price}} {{p.currency}}</div>
               </div>
-              <div class="content-price" v-b-tooltip="'ចុចពីរដងដើម្បីកែប្រែតម្លៃលក់'" @dblclick="openUpdateUnitSalePrice(p)">
+              <div class="content-price">
                 {{calculateSubTotal(p)}} {{p.currency}}
               </div>
-              <div v-if="selected && selected === p.id && showPlusAndMinusIcon" style="float: right; margin-right: 7px; display: inline-block;" class="p-price" >
+              <div style="float: right; margin-right: 7px; display: inline-block;" class="p-price" >
+                <b-button size="sm" @click="openInputQtyProduct(p)">បន្ថែមចំនួន</b-button>
+                <b-button size="sm" @click="openUpdateUnitSalePrice(p)">កែប្រែតម្លៃ</b-button>
                 <b-button size="sm" @click="submitNumberIncrease(p)"><i class="fa fa-plus"></i></b-button>
                 <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true"><i class="fa fa-minus"></i> </b-button>
               </div>
@@ -78,7 +80,7 @@
             <b-row class="my-1">
                 <b-col sm="5"><label :for="'input-selling-product'" class="label-input">តម្លៃលក់ថ្មី</label></b-col>
                 <b-col sm="7">
-                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="qtyInput" required></b-form-input>
+                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" required></b-form-input>
                 </b-col>
             </b-row>
         </b-form>
@@ -350,8 +352,8 @@ export default {
           for(let index=0; index < this.products.length; index++) {
             if (this.products[index]["id"] === productItem["id"]) {
               itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-              itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
-              //itemTemp["qty"] = parseInt(QtyProduct);
+              //itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
+              itemTemp["qty"] = parseInt(QtyProduct);
               this.$set(this.products, index, itemTemp);
             }
           }
@@ -633,7 +635,7 @@ export default {
         overflow: hidden;
     }
     .content-product-name{
-        width:68%;
+        width:42%;
         display: inline-block;
         overflow: hidden;
         min-height: 45px;

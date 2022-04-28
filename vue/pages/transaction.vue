@@ -4,36 +4,30 @@
       <div class="main-page-content">
         <div class="control-panel">
           <div class="panel-top">
-            <div class="content-panel-left">
+            <div class="content-panel-left" style="width: 20%;">
               <h3 class="head-title">{{$t('content_title_order')}}</h3>
             </div>
-            <div class="content-panel-right content-panel-right-full-width" style="vertical-align: text-bottom;">
+            <div class="content-panel-right content-panel-right-full-width" style="vertical-align: text-bottom; width: 80%;">
               <div class="float-right">
                 <b-form-select  class="form-control input-content input-select-warehouse min-height-43-px" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
               </div>
               <div class="float-right product" style="margin-right: 8px;">
-                <div style="height: 100%; line-height: 2.7;">
-                  <a v-if="!isSearchByProduct" style="margin-right: 5px; color: #28a745; font-weight: 700; cursor: pointer;" @click="searchData('product')">{{ $t('label_search_by_product') }}</a>
-                </div>
-                <div class="content-search" v-if="isSearchByProduct">
+                <div class="content-search" >
                   <multiselect class="input-content content-multiple-select"
                                v-model="product_select" :options="productOptions"
                                track-by="name" label="name" :show-labels="false"
-                               placeholder="ស្វែងរក"
-                               @select="selectionChange"
+                               :placeholder="$t('label_search_by_product')"
+                               @select="selectionChangeProduct"
                                @remove="removeElement"></multiselect>
                 </div>
               </div>
               <div class="float-right" style="margin-right: 8px">
-                <div style="height: 100%; line-height: 2.7;">
-                  <a v-if="!isSearchByCustomer" style="color: #28a745; font-weight: 700;" @click="searchData('customer')">{{ $t('label_search_by_customer') }}</a>
-                </div>
-                <div class="content-search" v-if="isSearchByCustomer">
+                <div class="content-search" >
                   <multiselect class="input-content content-multiple-select"
                                v-model="customer_select" :options="customerOptions"
                                track-by="name" label="name" :show-labels="false"
-                               placeholder="ស្វែងរក"
-                               @select="selectionChange"
+                               :placeholder="$t('label_search_by_customer')"
+                               @select="selectionChangeCustomer"
                                @remove="removeElement"></multiselect>
                 </div>
               </div>
@@ -293,6 +287,8 @@
   </div>
 </template>
 <script>
+
+  import {empty} from "../.nuxt/utils";
 
   export default {
     middleware: "local-auth",
@@ -685,107 +681,112 @@
       printFilterData(){
         this.$htmlToPaper("table-order", this.optionStyleHtmlToPaper);
       },
-      selectionChange($obj){
+      selectionChangeProduct($obj){
         if($obj){
           let orders = [];
           let user = this.cloneObject(this.$store.$cookies.get('user'));
-          if(this.isSearchByProduct){
-            if(this.orders && this.orders.length > 0) {
-              for (let index = 0; index < this.orders.length; index++) {
-                let orderItem = {};
-                let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $obj["value"]);
-                if (orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")) {
-                  orderItem["customer"] = this.orders[index]["customers"]["name"];
-                  orderItem["invoice_id"] = this.orders[index]["invoice_id"];
+          if(this.orders && this.orders.length > 0) {
+            for (let index = 0; index < this.orders.length; index++) {
+              let orderItem = {};
+              let orderItemDetailData = this.filterOrderDetailData(this.orders[index], $obj["value"]);
+              if (orderItemDetailData && orderItemDetailData.hasOwnProperty("product_id")) {
+                orderItem["customer"] = this.orders[index]["customers"]["name"];
+                orderItem["invoice_id"] = this.orders[index]["invoice_id"];
 
-                  orderItem["discount"] = this.orders[index]["discount"];
-                  orderItem["vat"] = this.orders[index]["vat"];
-                  orderItem["sale_by"] = user.name;
+                orderItem["discount"] = this.orders[index]["discount"];
+                orderItem["vat"] = this.orders[index]["vat"];
+                orderItem["sale_by"] = user.name;
 
-                  let createdDate = new Date(this.orders[index]["created_at"]);
-                  let dd = createdDate.getDate();
-                  let mm = createdDate.getMonth() + 1;
-                  let day = (dd < 10) ? ('0' + dd) : dd;
-                  let month = (mm < 10) ? ('0' + mm) : mm;
-                  let yyyy = createdDate.getFullYear();
-                  orderItem["date"] = (day + "/" + month + "/" + yyyy);
+                let createdDate = new Date(this.orders[index]["created_at"]);
+                let dd = createdDate.getDate();
+                let mm = createdDate.getMonth() + 1;
+                let day = (dd < 10) ? ('0' + dd) : dd;
+                let month = (mm < 10) ? ('0' + mm) : mm;
+                let yyyy = createdDate.getFullYear();
+                orderItem["date"] = (day + "/" + month + "/" + yyyy);
 
-                  orderItem["product_id"] = orderItemDetailData["product_id"];
-                  orderItem["name"] = orderItemDetailData["name"];
-                  orderItem["sale_price"] = orderItemDetailData["sale_price"];
-                  orderItem["qty"] = orderItemDetailData["qty"];
-                  orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
-                  orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
-                  orders.push(orderItem);
-                }
+                orderItem["product_id"] = orderItemDetailData["product_id"];
+                orderItem["name"] = orderItemDetailData["name"];
+                orderItem["sale_price"] = orderItemDetailData["sale_price"];
+                orderItem["qty"] = orderItemDetailData["qty"];
+                orderItem["subtotal"] = (parseFloat(orderItemDetailData["sale_price"]) * orderItemDetailData["qty"]);
+                orderItem["grandtotal"] = (parseFloat(orderItem["subtotal"]) - (parseFloat(orderItem["subtotal"]) * (parseInt(orderItem["discount"]) / 100)));
+                orders.push(orderItem);
               }
             }
           }
-          else if(this.isSearchByCustomer){
-            if(this.orders && this.orders.length > 0) {
-              let itemOrder = [];
-              for (let index = 0; index < this.orders.length; index++) {
-                let orderItem = this.orders[index];
-                let customer = this.orders[index]["customers"];
+        }
+        else {
+          this.getAllOrderData();
+        }
+        this.$forceUpdate();
+      },
+      selectionChangeCustomer($obj){
+        if($obj){
+          let orders = [];
+          if(this.orders && this.orders.length > 0) {
+            let itemOrder = [];
+            for (let index = 0; index < this.orders.length; index++) {
+              let orderItem = this.orders[index];
+              let customer = this.orders[index]["customers"];
 
-                if (customer && customer["id"] === $obj["value"]) {
-                  let customerItem = this.filterDataCustomerList($obj["value"]);
-                  let user = this.cloneObject(this.$store.$cookies.get('user'));
-                  itemOrder[orderItem.id] = [];
+              if (customer && customer["id"] === $obj["value"]) {
+                let customerItem = this.filterDataCustomerList($obj["value"]);
+                let user = this.cloneObject(this.$store.$cookies.get('user'));
+                itemOrder[orderItem.id] = [];
 
-                  if (orderItem.hasOwnProperty("orderdetails") && orderItem.orderdetails.length > 0) {
-                    for (let indexOrderDetail = 0; indexOrderDetail < orderItem.orderdetails.length; indexOrderDetail++) {
-                      let itemOrderDetail = [];
-                      let orderDetailItem = orderItem.orderdetails[indexOrderDetail];
-                      let productData = this.filterProduct(orderDetailItem.product_id);
-                      if (productData !== null && productData !== undefined) {
-                        let createdDate = new Date(orderDetailItem.created_at);
-                        let dd = createdDate.getDate();
-                        let mm = createdDate.getMonth() + 1;
-                        let day = (dd < 10) ? ('0' + dd) : dd;
-                        let month = (mm < 10) ? ('0' + mm) : mm;
-                        let yyyy = createdDate.getFullYear();
-                        itemOrderDetail["date"] = (day + "/" + month + "/" + yyyy);
-                        itemOrderDetail["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
-                        itemOrderDetail["en_name"] = productData["en_name"];
-                        itemOrderDetail["kh_name"] = productData["kh_name"];
-                        itemOrderDetail["product_id"] = productData["id"];
-                        itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
-                        itemOrderDetail["sale_price"] = productData["price"];
-                        itemOrderDetail["order_id"] = orderDetailItem.order_id;
-                        itemOrder[orderItem.id].push(itemOrderDetail);
-                      }
+                if (orderItem.hasOwnProperty("orderdetails") && orderItem.orderdetails.length > 0) {
+                  for (let indexOrderDetail = 0; indexOrderDetail < orderItem.orderdetails.length; indexOrderDetail++) {
+                    let itemOrderDetail = [];
+                    let orderDetailItem = orderItem.orderdetails[indexOrderDetail];
+                    let productData = this.filterProduct(orderDetailItem.product_id);
+                    if (productData !== null && productData !== undefined) {
+                      let createdDate = new Date(orderDetailItem.created_at);
+                      let dd = createdDate.getDate();
+                      let mm = createdDate.getMonth() + 1;
+                      let day = (dd < 10) ? ('0' + dd) : dd;
+                      let month = (mm < 10) ? ('0' + mm) : mm;
+                      let yyyy = createdDate.getFullYear();
+                      itemOrderDetail["date"] = (day + "/" + month + "/" + yyyy);
+                      itemOrderDetail["name"] = productData["en_name"] + " (" + productData["kh_name"] + ")";
+                      itemOrderDetail["en_name"] = productData["en_name"];
+                      itemOrderDetail["kh_name"] = productData["kh_name"];
+                      itemOrderDetail["product_id"] = productData["id"];
+                      itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
+                      itemOrderDetail["sale_price"] = productData["price"];
+                      itemOrderDetail["order_id"] = orderDetailItem.order_id;
+                      itemOrder[orderItem.id].push(itemOrderDetail);
                     }
                   }
-                  for (let index = 0; index < itemOrder[orderItem.id].length; index++) {
-                    let itemData = {};
-                    if (index === 0) {
-                      itemData["order_id"] = orderItem.id;
-                      itemData["sale_by"] = user.name;
-                      if (customerItem) {
-                        itemData["customer"] = customerItem["name"];
-                      }
-                      itemData["invoice_id"] = orderItem["invoice_id"];
-                      itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
-                      itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
-                      itemData["lengthDetail"] = itemOrder[orderItem.id].length;
-                      itemData["subtotal"] = orderItem["subtotal"];
-                      itemData["grandtotal"] = orderItem["grandtotal"];
+                }
+                for (let index = 0; index < itemOrder[orderItem.id].length; index++) {
+                  let itemData = {};
+                  if (index === 0) {
+                    itemData["order_id"] = orderItem.id;
+                    itemData["sale_by"] = user.name;
+                    if (customerItem) {
+                      itemData["customer"] = customerItem["name"];
+                    }
+                    itemData["invoice_id"] = orderItem["invoice_id"];
+                    itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
+                    itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
+                    itemData["lengthDetail"] = itemOrder[orderItem.id].length;
+                    itemData["subtotal"] = orderItem["subtotal"];
+                    itemData["grandtotal"] = orderItem["grandtotal"];
 
-                      itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
-                      itemData["name"] = itemOrder[orderItem.id][index].name;
-                      itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
-                      itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
-                      itemData["date"] = itemOrder[orderItem.id][index]["date"];
-                    }
-                    else {
-                      itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
-                      itemData["name"] = itemOrder[orderItem.id][index].name;
-                      itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
-                      itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
-                    }
-                    orders.push(itemData);
+                    itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
+                    itemData["name"] = itemOrder[orderItem.id][index].name;
+                    itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
+                    itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
+                    itemData["date"] = itemOrder[orderItem.id][index]["date"];
                   }
+                  else {
+                    itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
+                    itemData["name"] = itemOrder[orderItem.id][index].name;
+                    itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
+                    itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
+                  }
+                  orders.push(itemData);
                 }
               }
             }

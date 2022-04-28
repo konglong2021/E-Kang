@@ -369,7 +369,8 @@
                   vm.stock.code = product["code"];
                   vm.stock.image = product["image"];
                   vm.stock.sale_price = product["sale_price"].toString();
-                  vm.stockItems.push(vm.stock);
+                  //vm.stockItems.push(vm.stock);
+                  vm.stockItems.unshift(vm.stock);
                 }
               }
             }
@@ -412,11 +413,13 @@
             }
           }
           else {
-            items.push($product);
+            //items.push($product);
+            items.unshift($product);
           }
         }
         else {
-          items.push($product);
+          //items.push($product);
+          items.unshift($product);
         }
 
         this.items = this.cloneObject(items);
@@ -499,26 +502,6 @@
         vm.productList = [];
 
         vm.loadingFields.productListLoading = true;
-        /*await vm.$axios.get('/api/product').then(function (response) {
-          vm.loadingFields.productListLoading = false;
-          if(response && response.hasOwnProperty("data")){
-            let dataResponse = response.data;
-            if(dataResponse){
-              for(let index=0; index < dataResponse.length; index++){
-                let itemProduct = vm.cloneObject(dataResponse[index]);
-                let productItem =  { text: '', value: null};
-                productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
-                productItem.value = dataResponse[index].id;
-                //itemProduct =
-                vm.products.push(productItem);
-                vm.productList.push(dataResponse[index]);
-              }
-            }
-          }
-        }).catch(function (error) {
-          console.log(error);
-          vm.$toast.error("getting data error ").goAway(2000);
-        });*/
         const response = await this.$axios.get('/api/product');
         if(response){
           vm.loadingFields.productListLoading = false;
@@ -531,7 +514,8 @@
                 let productItem =  { text: '', value: null};
                 productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
                 productItem.value = dataResponse[index].id;
-                vm.products.push(productItem);
+                //vm.products.push(productItem);
+                vm.products.unshift(productItem);
                 if(itemProduct.hasOwnProperty("id")){
                   await vm.$axios.get('/api/showlastunitprice/' + itemProduct["id"]).then(function (responsePrice) {
                     if(responsePrice.data){
@@ -546,7 +530,8 @@
                     console.log(error);
                     vm.$toast.success("Submit data getting error").goAway(3000);
                   });
-                  vm.productList.push(itemProduct);
+                  //vm.productList.push(itemProduct);
+                  vm.productList.unshift(itemProduct);
                 }
               }
             }
@@ -568,8 +553,10 @@
                 let warehouseItem =  { text: '', value: null};
                 warehouseItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                 warehouseItem.value = data[index]["id"];
-                vm.warehouses.push(warehouseItem);
-                vm.warehouseList.push(data[index]);
+                //vm.warehouses.push(warehouseItem);
+                vm.warehouses.unshift(warehouseItem);
+                //vm.warehouseList.push(data[index]);
+                vm.warehouseList.unshift(data[index]);
               }
             }
           }
@@ -592,7 +579,8 @@
                   let supplierItem =  { text: '', value: null};
                   supplierItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                   supplierItem.value = data[index]["id"];
-                  vm.suppliers.push(supplierItem);
+                  //vm.suppliers.push(supplierItem);
+                  vm.suppliers.unshift(supplierItem);
                 }
               }
             }
@@ -631,7 +619,8 @@
               let supplierItem =  { text: '', value: null};
               supplierItem.text = data["name"] + "(" + data["address"] + ")";
               supplierItem.value = data["id"];
-              vm.suppliers.push(supplierItem);
+              // vm.suppliers.push(supplierItem);
+              vm.suppliers.unshift(supplierItem);
             }
             vm.hideSupplierModal();
           })
@@ -663,7 +652,8 @@
               let warehouseItem =  { text: '', value: null };
               warehouseItem.text = data["name"] + "(" + data["address"] + ")";
               warehouseItem.value = data["id"];
-              vm.warehouses.push(warehouseItem);
+              //vm.warehouses.push(warehouseItem);
+              vm.warehouses.unshift(warehouseItem);
               vm.hideModalWareHouse();
             }
           })
@@ -708,7 +698,8 @@
           purchaseDetailItem['quantity'] = vm.items[index]['qty'];
           productTotalPrice = parseInt(vm.items[index]['qty']) * parseFloat(this.items[index]['import_price']);
           subtotal += productTotalPrice;
-          purchaseDetail.push(purchaseDetailItem);
+          //purchaseDetail.push(purchaseDetailItem);
+          purchaseDetail.unshift(purchaseDetailItem);
         }
         let vat = vm.purchase.vat !== null ? vm.purchase.vat : 0;
         dataSubmit["purchases"] = purchaseDetail;
@@ -743,7 +734,8 @@
                           vm.stock.code = product["code"];
                           vm.stock.image = product["image"];
                           vm.stock.sale_price = product["sale_price"].toString();
-                          vm.stockItems.push(vm.stock);
+                         // vm.stockItems.push(vm.stock);
+                          vm.stockItems.unshift(vm.stock);
                         }
                       }
                     }
@@ -784,8 +776,10 @@
       },
       async checkingProductAdd($event){
         if($event){
-          await this.products.push(this.renderProductOptionData($event["itemProduct"]));
-          await this.productList.push($event["itemProduct"]);
+          // await this.products.push(this.renderProductOptionData($event["itemProduct"]));
+          // await this.productList.push($event["itemProduct"]);
+          await this.products.unshift(this.renderProductOptionData($event["itemProduct"]));
+          await this.productList.unshift($event["itemProduct"]);
         }
       },
       handleClick(e) {
@@ -815,7 +809,8 @@
                 self.stock.code = product["code"];
                 self.stock.image = product["image"];
                 self.stock.sale_price = product["sale_price"].toString();
-                self.stockItems.push(self.stock);
+                //self.stockItems.push(self.stock);
+                self.stockItems.unshift(self.stock);
               }
             }
           }

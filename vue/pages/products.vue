@@ -283,7 +283,7 @@
             }
           }
           if (foundItem === false) {
-            self.items.push(itemProduct);
+            self.items.unshift(itemProduct);
           }
         }
       },

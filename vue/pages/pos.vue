@@ -106,7 +106,8 @@ export default {
             }
             if(foundItem === false){
               $data["qty"] = 1;
-              this.productSelectList.push($data);
+              //this.productSelectList.push($data);
+              this.productSelectList.unshift($data);
             }
           }
         }

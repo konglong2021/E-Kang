@@ -5,7 +5,7 @@
           <div class="control-panel">
             <div class="panel-top">
               <div class="content-panel-left">
-                <h3 class="head-title">Categories Overview</h3>
+                <h3 class="head-title">{{ $t('content_title_categories') }}</h3>
               </div>
               <div class="content-panel-right">
                  <b-container class="col-6 mx-auto menu-wrapper">
@@ -18,7 +18,7 @@
                      </b-col>
                      <div class="btn-wrapper">
                        <b-button href="#"  title="Add new Category" size="sm" variant="primary" @click="showModal()">
-                         New Category
+                         {{ $t('label_add_new_category') }}
                          <i class="fa fa-plus" aria-hidden="true"></i>
                        </b-button>
                      </div>
@@ -55,22 +55,22 @@
           </div>
       </div>
       <b-modal id="modal-create-category" ref="category-form-modal" size="lg"
-                 @hidden="onReset" cancel-title="Cacnel" no-close-on-backdrop
-                 @ok="onSubmit" ok-title="Save" title="New Category">
+                 @hidden="onReset" :cancel-title="$t('label_cancel_button')" no-close-on-backdrop
+                 @ok="onSubmit" :ok-title="$t('label_save_button')" :title="$t('title_new_category')">
           <b-form enctype="multipart/form-data">
             <div class="full-content">
             </div>
             <div class="full-content">
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-enname'" class="label-input">Name</label></b-col>
+                <b-col sm="4"><label :for="'input-enname'" class="label-input">{{ $t('label_name_english') }}</label></b-col>
                 <b-col sm="8"><b-form-input :id="'input-enname'" type="text" v-model="category.name" class="input-content"></b-form-input></b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-khname'" class="label-input">Name(KH)</label></b-col>
+                <b-col sm="4"><label :for="'input-khname'" class="label-input">{{ $t('label_name_khmer') }}</label></b-col>
                 <b-col sm="8"><b-form-input :id="'input-khname'" type="text" v-model="category.kh_name" class="input-content"></b-form-input></b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-category-brand'" class="label-input">Brands</label></b-col>
+                <b-col sm="4"><label :for="'input-category-brand'" class="label-input">{{ $t('title_brands') }}</label></b-col>
                 <b-col sm="8">
                   <multiselect
                     class="input-category-brand"
@@ -83,7 +83,7 @@
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label :for="'input-description'" class="label-input">Description</label></b-col>
+                <b-col sm="4"><label :for="'input-description'" class="label-input">{{ $t('label_description') }}</label></b-col>
                 <b-col sm="8"><b-form-textarea :id="'input-description'" class="input-content" v-model="category.description"></b-form-textarea></b-col>
               </b-row>
             </div>
@@ -130,11 +130,11 @@
         currentPage: 1,
         items:[],
         fields: [
-          { key: 'name', label: 'Name' },
-          { key: 'parent', label: 'Parent' },
-          { key: 'brand', label: 'Brand' },
-          { key: 'total_product', label: 'Total Product' },
-          { key: 'actions', label: 'Actions' }
+          { key: 'name', label: this.$t('label_name') },
+          { key: 'parent', label: this.$t('label_parent') },
+          { key: 'brand', label: this.$t('title_brand') },
+          { key: 'total_product', label: this.$t('label_total_product') },
+          { key: 'actions', label: this.$t('label_action_title') }
         ],
         category: {}, //new item for category
         brands: [],
@@ -230,7 +230,7 @@
             .then(function (response) {
               if(response){
                 let brands = self.cloneObject(response.data.brands);
-                self.updatedCategoryData(self.items, response.data.category.id, brands);
+                self.updatedCategoryData(self.items, response.data.data.id, brands);
                 self.$toast.success("Submit data successfully").goAway(2000);
                 self.category = {};
               }
@@ -260,7 +260,8 @@
                 item['name'] = categoryItem["name"];
                 item['parent'] = "--ROOT--";
                 item['products_count'] = categoryItem["products_count"];
-                self.items.push(item);
+                //self.items.push(item);
+                self.items.unshift(item);
                 self.$toast.success("submit data is successfully").goAway(1500);
                 self.hideModal();
                 self.category = {};

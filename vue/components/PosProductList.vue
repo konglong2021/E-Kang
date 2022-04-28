@@ -86,7 +86,8 @@
                       productItem.price = productList[index].sale_price;
                       productItem.img = (productList[index].image !== "no image" && productList[index].image !== "no image created" ) ? vm.generateImageUrlDisplay(productList[index].image) : "images/no_icon.png";
                       productItem.code = productList[index].code;
-                      vm.products.push(productItem);
+                      //vm.products.push(productItem);
+                      vm.products.unshift(productItem);
                     }
                   }
                   else if(productList && productList.hasOwnProperty("id")){
@@ -96,7 +97,8 @@
                     productItem.price = productList.sale_price;
                     productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : "images/no_icon.png";
                     productItem.code = productList.code;
-                    vm.products.push(productItem);
+                    //vm.products.push(productItem);
+                    vm.products.unshift(productItem);
                   }
                 }
               }
@@ -123,7 +125,8 @@
                       productItem.price = productList[index].sale_price;
                       productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
                       productItem.code = productList[index].code;
-                      vm.products.push(productItem);
+                      //vm.products.push(productItem);
+                      vm.products.unshift(productItem);
                     }
                   }
                   else if(productList && productList.hasOwnProperty("id")){
@@ -133,7 +136,8 @@
                     productItem.price = productList.sale_price;
                     productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
                     productItem.code = productList.code;
-                    vm.products.push(productItem);
+                    //vm.products.push(productItem);
+                    vm.products.unshift(productItem);
                   }
                 }
               }
@@ -163,7 +167,7 @@
       async searchProduct(){
         const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
         if(response){
-          if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
+          if(response.data && response.hasOwnProperty("data") && response.data.length > 0){
             let items = [];
             this.responseProductList = response.data;
             for(let index=0; index < response.data.length; index++){
@@ -175,15 +179,16 @@
                   brands.push(productItem["brands"][i]["name"]);
                 }
               }
+              console.log(productItem["image"]);
               newItem['id'] = productItem["id"];
               newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
               newItem['brand'] = brands.join(", ");
               newItem['loyalty'] = "N/A";
-              newItem['image'] = productItem["image"];
+              newItem["img"] = (productItem["image"] !== "no image" && productItem["image"] !== "no image created" ) ? this.generateImageUrlDisplay(productItem["image"]) : "images/no_icon.png";
               newItem['brands'] = productItem["brands"];
               newItem['categories'] = productItem["categories"];
               newItem['description'] = productItem["description"];
-              newItem['sale_price'] = productItem["sale_price"];
+              newItem['price'] = productItem["sale_price"];
               newItem['code'] = productItem["code"];
               newItem["en_name"] = productItem["en_name"];
               newItem["kh_name"] = productItem["kh_name"];
@@ -292,14 +297,16 @@
     background-size: contain;
   }
   .pro-price{
-      color :#fff;
-      background-color: #000;
-      border-radius: 5px;
-      position: absolute;
-      margin-top: -53px;
-      margin-left: -10px;
+    color :#fff;
+    background-color: #000;
+    border-radius: 5px;
+    position: absolute;
+    margin-top: -53px;
+    margin-left: -22px;
+    padding: 3px 5px;
   }
   .pro-name{
+    text-align: center;
     font-size: 14px;
     margin-top: 5px;
     font-weight: 600;

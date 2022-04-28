@@ -247,10 +247,9 @@
           await vm.$axios.post('/api/product/' + vm.product.id, formData)
             .then(function (response) {
               if(response){
-                console.log(response.data);
                 vm.$toast.success("Submit data successfully").goAway(2000);
                if(response.hasOwnProperty("data") && response.data){
-                 let Brands = self.cloneObject(response.data.Brands);
+                 let Brands = vm.cloneObject(response.data.Brands);
                  let itemProduct = vm.cloneObject(response.data.product);
                  vm.$emit("checkingProductAdd", {itemProduct: vm.cloneObject(itemProduct), brands: Brands});
                }
@@ -280,7 +279,6 @@
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
                 let brandList = response.data.hasOwnProperty("Brands") ? response.data.Brands : [];
-                console.log(response.data.product);
                 let itemProduct = vm.cloneObject(response.data.product);
                 let newDataBrand = [];
                 if(response.data.hasOwnProperty("Brands")){
@@ -296,14 +294,15 @@
                     }
                     itemProduct["brands"] = vm.cloneObject(responseBrand);
                     itemProduct["brand"] = responseBrandName.join(", ");
-                    if(!itemProduct.hasOwnProperty("category_name")){
-                      itemProduct["category_name"]= vm.filterCategoriesData(itemProduct["category_id"]);
-                    }
-                    if(!itemProduct.hasOwnProperty("name")){
-                      itemProduct['name'] = itemProduct["en_name"] + " (" + itemProduct["kh_name"] + ")";
-                    }
                   }
                 }
+                if(!itemProduct.hasOwnProperty("category_name")){
+                  itemProduct["category_name"]= vm.filterCategoriesData(itemProduct["category_id"]);
+                }
+                if(!itemProduct.hasOwnProperty("name")){
+                  itemProduct['name'] = itemProduct["en_name"] + " (" + itemProduct["kh_name"] + ")";
+                }
+                console.log(itemProduct);
                 vm.$emit("checkingProductAdd", {itemProduct: itemProduct, brands: brandList});
                 vm.hideModal();
               }
@@ -343,8 +342,8 @@
       filterCategoriesData(category_id){
         if(this.categories.length > 0){
           for (let k=0; k < this.categories.length; k++){
-            if(category_id === this.categories[k]["value"]){
-              return this.categories[k]["value"];
+            if(category_id === this.categories[k]["id"]){
+              return this.categories[k]["name"];
             }
           }
         }

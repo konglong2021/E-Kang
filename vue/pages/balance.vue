@@ -139,7 +139,8 @@ export default {
             itemData["income"] = parseFloat(dataReturn["income"]);
             itemData["withdraw"] = parseFloat(dataReturn["withdraw"]);
             itemData["balance"] = parseFloat(dataReturn["balance"]);
-            vm.items.push(itemData);
+            //vm.items.push(itemData);
+            vm.items.unshift(itemData);
           }
           else if(Array.isArray(dataReturn)){
             let itemList =[];
@@ -150,7 +151,8 @@ export default {
               itemData["income"] = parseFloat(dataReturn[k]["income"]);
               itemData["withdraw"] = parseFloat(dataReturn[k]["withdraw"]);
               itemData["balance"] = parseFloat(dataReturn[k]["balance"]);
-              itemList.push(itemData);
+              //itemList.push(itemData);
+              itemList.unshift(itemData);
             }
             vm.items = vm.cloneObject(itemList);
           }
