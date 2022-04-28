@@ -6,28 +6,26 @@
           <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_unit_price') + " ($)"}} </div>
           <div style="width:14%; text-align:left" class="display-inline-block p-price">{{ $t('label_sub_total') + " ($)"}} </div>
         </div>
-        <div v-if="products && products.length > 0">
-          <div v-for="p in products" v-bind:key="p.id" class="p-item"
-             @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
-        >
-          <div style="width:70%;" class="display-inline-block pull-left" @dblclick="openInputQtyProduct(p)">
-            <div class="p-name">{{ p.name }} </div>
-            <div class="p-qty"> {{ (p.qty) }}  / {{ $t('label_product_sale_item') }}</div>
-          </div>
-          <div style="width:15%; text-align:left; hieght: 100% !important; user-select: none;" class="display-inline-block pull-left" >
-            <div class="p-price">{{p.price}} {{p.currency}}</div>
-          </div>
-          <div style="width:15%; text-align:left" class="pull-left p-price" >
-            {{calculateSubTotal(p)}} {{p.currency}}
-          </div>
-          <div v-if="selected && selected === p.id" style="width:15%; text-align:right" class="pull-right p-price" >
-            <b-button size="sm" @click="submitNumberIncrease(p)"><i class="fa fa-plus"></i></b-button>
-            <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true">
-              <i class="fa fa-minus"></i>
-            </b-button>
-          </div>
-          <div class="clearboth"></div>
-        </div>
+        <div v-if="products && products.length > 0" class="content-product-item">
+            <div v-for="p in products" v-bind:key="p.id"
+                 class="item-product"
+                 @click="selectedItem(p)" :class="{'active-item-product' : selected == p.id}"
+            >
+              <div class="content-product-name">
+                <div class="p-name">{{ p.name }} </div>
+                <div class="p-qty"> {{ (p.qty) }}  / {{ $t('label_product_sale_item') }}</div>
+              </div>
+              <div class="content-price" @dblclick="openInputQtyProduct(p)" v-b-tooltip="'ចុចពីរដងដើម្បីបញ្ចូលចំនួនំនិញលក់'">
+                <div class="container-row-form">{{p.price}} {{p.currency}}</div>
+              </div>
+              <div class="content-price" v-b-tooltip="'ចុចពីរដងដើម្បីកែប្រែតម្លៃលក់'" @dblclick="openUpdateUnitSalePrice(p)">
+                {{calculateSubTotal(p)}} {{p.currency}}
+              </div>
+              <div v-if="selected && selected === p.id && showPlusAndMinusIcon" style="float: right; margin-right: 7px; display: inline-block;" class="p-price" >
+                <b-button size="sm" @click="submitNumberIncrease(p)"><i class="fa fa-plus"></i></b-button>
+                <b-button size="sm" @click="submitNumberDisCrease(p)" :disabled="disableButtonRemove === true"><i class="fa fa-minus"></i> </b-button>
+              </div>
+            </div>
         </div>
       </div>
       <div class="content-calculator">
@@ -62,8 +60,8 @@
           </div>
         </div>
       <b-modal id="modal-input-qty-product" ref="input-qty-product-form-modal" modal-class="payment-form-modal"
-               @hidden="onResetUpdateSellingPrice" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitAddMoreQtyProduct" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
+               @hidden="onResetAddMoreQtyProduct" ok-only ok-variant="secondary" footer-class="justify-content-center"
+               @ok="onSubmitAddMoreQtyProduct" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_qty_title')" no-close-on-backdrop>
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
           <b-row class="my-1">
             <b-col sm="5"><label :for="'input-qty-product'" class="label-input">បន្ថែមចំនួនទំនិញដែលលក់</label></b-col>
@@ -73,6 +71,19 @@
           </b-row>
         </b-form>
       </b-modal>
+      <b-modal id="modal-update-selling-product" ref="update-selling-product-form-modal" modal-class="payment-form-modal"
+             @hidden="onResetUpdateSellingPrice" ok-only ok-variant="secondary" footer-class="justify-content-center"
+             @ok="onSubmitUpdateSellingPrice" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+            <b-row class="my-1">
+                <b-col sm="5"><label :for="'input-selling-product'" class="label-input">តម្លៃលក់ថ្មី</label></b-col>
+                <b-col sm="7">
+                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="qtyInput" required></b-form-input>
+                </b-col>
+            </b-row>
+        </b-form>
+      </b-modal>
+
       <b-modal id="modal-submit-payment" ref="payment-form-modal" size="lg" modal-class="payment-form-modal"
                @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
                @ok="onSubmitPayment" ok-title="រក្សាទុកទិន្នន័យ" title="ការលក់" no-close-on-backdrop>
@@ -284,313 +295,317 @@ export default {
     },
   },
   methods: {
-    async onInitData(){
-      try {
-        const response = await this.$axios.get('/api/product');
-        if(response.data.data){
-          for (let index =0; index < response.data.data.length; index++){
-            this.productList.push(response.data.data[index]);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    onSubmit(event) {
-        event.preventDefault();
-        alert(JSON.stringify(this.form));
-      },
-    calculate($currency, $products){
-        let total = [];
-        Object.entries($products).forEach(([key, val]) => {
-          if(val.currency === $currency){
-            this.order.discount === 0 ? total.push(val.price * val.qty) : total.push((val.price * val.qty) - ((val.price * val.qty) * (this.order.discount / 100))) ;
-          }
-        });
-        return total.reduce(function(total, num){ return total + num }, 0);
-      },
-    calculateSubTotal($product){
-      return (parseFloat($product.price) * parseInt($product.qty));
-    },
-    calculateToRiel($totalPriceAsUSD, $exchangeRate){
-      return ($totalPriceAsUSD * parseFloat($exchangeRate));
-    },
-    calculateIncludeTax($total){
-      return $total + ($total * this.order.vat);
-    },
-    calculateAfterDis($total){
-      return ($total - ($total * (this.order.discount / 100)));
-    },
-    selectedItem($item, $event){
-      this.selected = $item.id;
-      this.selectedItemData = $item;
-      this.showPlusAndMinusIcon = true;
-      this.$emit("selectedItem", $item);
-    },
-    openInputQtyProduct($product){
-      this.selectedItemData = $product;
-      this.$refs['input-qty-product-form-modal'].show();
-    },
-    onSubmitAddMoreQtyProduct(){
-      this.submitNumberIncreaseQtyProduct(this.selectedItemData, this.qtyInput);
-    },
-    submitNumberIncreaseQtyProduct(productItem, QtyProduct) {
-      let itemTemp = null;
-      for(let index=0; index < this.products.length; index++) {
-        if (this.products[index]["id"] === productItem["id"]) {
-          itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-          itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
-          this.$set(this.products, index, itemTemp);
-          //break;
-        }
-      }
-      productItem = itemTemp;
-      this.qtyInput = 0;
-    },
-    submitNumberIncrease(productItem){
-      let itemTemp = null;
-      for(let index=0; index < this.products.length; index++) {
-        if (this.products[index]["id"] === productItem["id"]) {
-          itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-          itemTemp["qty"] = (parseInt(productItem["qty"]) + 1);
-          this.$set(this.products, index, itemTemp);
-          //break;
-        }
-      }
-      productItem = itemTemp;
-    },
-    submitNumberDisCrease(productItem){
-      for(let index=0; index < this.products.length; index++) {
-        if (this.products[index]["id"] === productItem["id"]) {
-          let itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-          if(productItem["qty"] > 1){
-            itemTemp["qty"] = (Number(productItem["qty"]) - 1);
-            this.$set(this.products, index, itemTemp);
-            productItem = itemTemp;
-          }
-          else if(productItem["qty"] === 1){
-            this.products.splice(index, 1);
-          }
-          else {
-            this.disableButtonRemove = true;
-          }
-        }
-      }
-    },
-    closeDropdown($event){
-      this.selected = undefined;
-    },
-    openSubmitPaymentModal(){
-      this.$refs['payment-form-modal'].show();
-      if(this.products && this.products.length > 0){
-        for(let index =0; index < this.products.length; index++){
-          let productItem = this.products[index];
-          productItem["total"] = (parseInt(productItem["qty"]) * parseFloat(productItem["price"]));
-          productItem["discount"] = this.order.discount;
-          productItem["total_after_discount"] = (this.order.discount === 0) ? productItem["total"] : (productItem["total"] * (this.order.discount/100));
-          this.products[index] = productItem;
-        }
-        this.items = this.cloneObject(this.products);
-      }
-    },
-    updatedPriceInListDetailOrder($discount){
-      if(this.products && this.products.length > 0){
-        for(let index =0; index < this.products.length; index++){
-          let productItem = this.products[index];
-          productItem["discount"] = $discount;
-          productItem["total_after_discount"] = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
-          this.products[index] = productItem;
-        }
-        this.items = this.cloneObject(this.products);
-      }
-    },
-    async getCustomerList(){
-      let self = this;
-      await self.$axios.get('/api/customer').then(function (response) {
-          if(response.hasOwnProperty("data") && response.data.hasOwnProperty("customer")){
-            self.customersList = self.cloneObject(response.data.customer);
-            for(let index=0; index < response.data.customer.length; index++){
-              self.customers.push({text : response.data.customer[index]["name"], value : response.data.customer[index]["id"]});
+      async onInitData(){
+          try {
+            const response = await this.$axios.get('/api/product');
+            if(response.data.data){
+              for (let index =0; index < response.data.data.length; index++){
+                this.productList.push(response.data.data[index]);
+              }
             }
-            for(let k=0; k < response.data.customer.length; k++){
-              if(response.data.customer[k]["title"] === "Normal Member"){
-                self.order.customer = response.data.customer[k]["id"];
-                break;
+          } catch (error) {
+            console.log(error);
+          }
+      },
+      onSubmit(event) {
+          event.preventDefault();
+          alert(JSON.stringify(this.form));
+      },
+      calculate($currency, $products){
+            let total = [];
+            Object.entries($products).forEach(([key, val]) => {
+              if(val.currency === $currency){
+                this.order.discount === 0 ? total.push(val.price * val.qty) : total.push((val.price * val.qty) - ((val.price * val.qty) * (this.order.discount / 100))) ;
+              }
+            });
+            return total.reduce(function(total, num){ return total + num }, 0);
+      },
+      calculateSubTotal($product){
+          return (parseFloat($product.price) * parseInt($product.qty));
+      },
+      calculateToRiel($totalPriceAsUSD, $exchangeRate){
+          return ($totalPriceAsUSD * parseFloat($exchangeRate));
+      },
+      calculateIncludeTax($total){
+          return $total + ($total * this.order.vat);
+      },
+      calculateAfterDis($total){
+          return ($total - ($total * (this.order.discount / 100)));
+      },
+      selectedItem($item, $event){
+          this.selected = $item.id;
+          this.selectedItemData = $item;
+          this.showPlusAndMinusIcon = true;
+          this.$emit("selectedItem", $item);
+      },
+      openInputQtyProduct($product){
+          this.selectedItemData = $product;
+          this.$refs['input-qty-product-form-modal'].show();
+      },
+      onSubmitAddMoreQtyProduct(){
+          this.submitNumberIncreaseQtyProduct(this.selectedItemData, this.qtyInput);
+      },
+      submitNumberIncreaseQtyProduct(productItem, QtyProduct) {
+          let itemTemp = null;
+          for(let index=0; index < this.products.length; index++) {
+            if (this.products[index]["id"] === productItem["id"]) {
+              itemTemp = JSON.parse(JSON.stringify(this.products[index]));
+              itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
+              //itemTemp["qty"] = parseInt(QtyProduct);
+              this.$set(this.products, index, itemTemp);
+            }
+          }
+          productItem = itemTemp;
+          this.qtyInput = 0;
+      },
+      submitNumberIncrease(productItem){
+          let itemTemp = null;
+          for(let index=0; index < this.products.length; index++) {
+            if (this.products[index]["id"] === productItem["id"]) {
+              itemTemp = JSON.parse(JSON.stringify(this.products[index]));
+              itemTemp["qty"] = (parseInt(productItem["qty"]) + 1);
+              this.$set(this.products, index, itemTemp);
+              //break;
+            }
+          }
+          productItem = itemTemp;
+      },
+      submitNumberDisCrease(productItem){
+          for(let index=0; index < this.products.length; index++) {
+            if (this.products[index]["id"] === productItem["id"]) {
+              let itemTemp = JSON.parse(JSON.stringify(this.products[index]));
+              if(productItem["qty"] > 1){
+                itemTemp["qty"] = (Number(productItem["qty"]) - 1);
+                this.$set(this.products, index, itemTemp);
+                productItem = itemTemp;
+              }
+              else if(productItem["qty"] === 1){
+                this.products.splice(index, 1);
+              }
+              else {
+                this.disableButtonRemove = true;
               }
             }
           }
-        })
-        .catch(function (error) {
-          self.$toast.error("getting data error ").goAway(2000);
-          console.log(error);
-        });
-    },
-    async getWareHouseList(){
-      let self = this;
-      await self.$axios.get('/api/warehouse').then(function (response) {
-        if(response.data.hasOwnProperty("data")){
-          for(let index=0; index < response.data.data.length; index++){
-            self.warehouses.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+      },
+      onResetAddMoreQtyProduct(){},
+
+      openUpdateUnitSalePrice(productItem){
+          this.productItemSelectToUpdatePrice = productItem;
+          this.$refs['update-selling-product-form-modal'].show();
+      },
+      onResetUpdateSellingPrice(){},
+      onSubmitUpdateSellingPrice(){
+          for(let indexProduct = 0;indexProduct < this.items.length; indexProduct++){
+              if(this.items[indexProduct]["id"] === this.productItemSelectToUpdatePrice["id"]){
+                  this.items[indexProduct]["price"] = this.productItemSelectToUpdatePrice["price"];
+              }
           }
-        }
-      }).catch(function (error) {
-          self.$toast.error("getting data error ").goAway(2000);
-          console.log(error);
-        });
-    },
-    async onSubmitPayment(){
-      let self = this;
-      let dataSubmit = {};
-      dataSubmit.warehouse_id = this.$store.$cookies.get('storeItem');
-      dataSubmit.customer_id = self.order.customer;
-      dataSubmit.vat = self.order.vat;
-      dataSubmit.discount = self.order.discount;
-      dataSubmit.items = [];
-      let subTotal = 0;
-      let grandTotal =0;
-      let totalVat = 0;
-      let priceAfterDiscount = 0;
+      },
 
-      for (let index=0; index < self.items.length ; index++){
-        let item = self.items[index];
-        subTotal = subTotal + self.items[index]["total"];
-        dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
-      }
-      dataSubmit.subtotal = subTotal;
-      totalVat = (self.order.vat * subTotal);
-      priceAfterDiscount = subTotal - (subTotal * ((this.order.discount / 100)));
-      dataSubmit.grandtotal = (priceAfterDiscount + totalVat);
+      closeDropdown($event){
+          this.selected = undefined;
+      },
+        openSubmitPaymentModal(){
+          this.$refs['payment-form-modal'].show();
+          if(this.products && this.products.length > 0){
+            for(let index =0; index < this.products.length; index++){
+              let productItem = this.products[index];
+              productItem["total"] = (parseInt(productItem["qty"]) * parseFloat(productItem["price"]));
+              productItem["discount"] = this.order.discount;
+              productItem["total_after_discount"] = (this.order.discount === 0) ? productItem["total"] : (productItem["total"] * (this.order.discount/100));
+              this.products[index] = productItem;
+            }
+            this.items = this.cloneObject(this.products);
+          }
+        },
+        updatedPriceInListDetailOrder($discount){
+          if(this.products && this.products.length > 0){
+            for(let index =0; index < this.products.length; index++){
+              let productItem = this.products[index];
+              productItem["discount"] = $discount;
+              productItem["total_after_discount"] = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
+              this.products[index] = productItem;
+            }
+            this.items = this.cloneObject(this.products);
+          }
+        },
+        async getCustomerList(){
+          let self = this;
+          await self.$axios.get('/api/customer').then(function (response) {
+              if(response.hasOwnProperty("data") && response.data.hasOwnProperty("customer")){
+                self.customersList = self.cloneObject(response.data.customer);
+                for(let index=0; index < response.data.customer.length; index++){
+                  self.customers.push({text : response.data.customer[index]["name"], value : response.data.customer[index]["id"]});
+                }
+                for(let k=0; k < response.data.customer.length; k++){
+                  if(response.data.customer[k]["title"] === "Normal Member"){
+                    self.order.customer = response.data.customer[k]["id"];
+                    break;
+                  }
+                }
+              }
+            })
+            .catch(function (error) {
+              self.$toast.error("getting data error ").goAway(2000);
+              console.log(error);
+            });
+        },
+        async getWareHouseList(){
+          let self = this;
+          await self.$axios.get('/api/warehouse').then(function (response) {
+            if(response.data.hasOwnProperty("data")){
+              for(let index=0; index < response.data.data.length; index++){
+                self.warehouses.push({text : response.data.data[index]["name"], value : response.data.data[index]["id"]});
+              }
+            }
+          }).catch(function (error) {
+              self.$toast.error("getting data error ").goAway(2000);
+              console.log(error);
+            });
+        },
+        async onSubmitPayment(){
+          let self = this;
+          let dataSubmit = {};
+          dataSubmit.warehouse_id = this.$store.$cookies.get('storeItem');
+          dataSubmit.customer_id = self.order.customer;
+          dataSubmit.vat = self.order.vat;
+          dataSubmit.discount = self.order.discount;
+          dataSubmit.items = [];
+          let subTotal = 0;
+          let grandTotal =0;
+          let totalVat = 0;
+          let priceAfterDiscount = 0;
 
-      self.$toast.info("Data starting submit").goAway(1500);
-      await this.$axios.post('/api/sale', dataSubmit).then(function (response) {
-        if(response.data.success === true){
-          self.$toast.success("Submit data successfully").goAway(2000);
-          self.invoiceNumber = response.data.order["invoice_id"];
-          self.is_show_content_print = true;
-          self.$emit("updateListProduct", []);
-        }
-      })
-      .catch(function (error) {
-          self.$toast.error("getting data error ").goAway(2000);
-          console.log(error);
-      });
-    },
+          for (let index=0; index < self.items.length ; index++){
+            let item = self.items[index];
+            subTotal = subTotal + self.items[index]["total"];
+            dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
+          }
+          dataSubmit.subtotal = subTotal;
+          totalVat = (self.order.vat * subTotal);
+          priceAfterDiscount = subTotal - (subTotal * ((this.order.discount / 100)));
+          dataSubmit.grandtotal = (priceAfterDiscount + totalVat);
 
-    async printInvoice(){
-      this.$htmlToPaper("invoice-print", this.optionStyleHtmlToPaper);
-      setTimeout(() => {
-        this.isInvoicePrint = true;
-        this.is_show_content_print = false;
-        this.invoiceNumber = null;
-          this.items = [];
-          this.order["vat"] =0;
-          this.order["discount"] = 0;
-      }, 700);
-    },
-    onResetPayment(){
-      this.getting_money_usd = 0;
-      this.getting_money_riel = 0;
-      this.is_getting_money_riel = false;
-      this.is_getting_money_usd = false;
-      this.giveMoneyBackConvert = "0";
-    },
-    cloneObject(obj) {
-      return JSON.parse(JSON.stringify(obj));
-    },
-    addToCard($data){
-      let self = this;
-      let dataSubmit = {};
-      dataSubmit.warehouse_id = this.warehouseSelectedId;
-      dataSubmit.customer_id = self.order.customer;
-      dataSubmit.vat = self.order.vat;
-      dataSubmit.discount = self.order.discount;
-      dataSubmit.items = [];
+          self.$toast.info("Data starting submit").goAway(1500);
+          await this.$axios.post('/api/sale', dataSubmit).then(function (response) {
+            if(response.data.success === true){
+              self.$toast.success("Submit data successfully").goAway(2000);
+              self.invoiceNumber = response.data.order["invoice_id"];
+              self.is_show_content_print = true;
+              self.$emit("updateListProduct", []);
+            }
+          })
+          .catch(function (error) {
+              self.$toast.error("getting data error ").goAway(2000);
+              console.log(error);
+          });
+        },
 
-      for (let index=0; index < self.items.length ; index++){
-        let item = self.items[index];
-        dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
-      }
-      let subTotal = self.calculate("USD", dataSubmit.items);
-      dataSubmit.subtotal = subTotal;
+        async printInvoice(){
+          this.$htmlToPaper("invoice-print", this.optionStyleHtmlToPaper);
+          setTimeout(() => {
+            this.isInvoicePrint = true;
+            this.is_show_content_print = false;
+            this.invoiceNumber = null;
+              this.items = [];
+              this.order["vat"] =0;
+              this.order["discount"] = 0;
+          }, 700);
+        },
+        onResetPayment(){
+          this.getting_money_usd = 0;
+          this.getting_money_riel = 0;
+          this.is_getting_money_riel = false;
+          this.is_getting_money_usd = false;
+          this.giveMoneyBackConvert = "0";
+        },
+        cloneObject(obj) {
+          return JSON.parse(JSON.stringify(obj));
+        },
+        addToCard($data){
+          let self = this;
+          let dataSubmit = {};
+          dataSubmit.warehouse_id = this.warehouseSelectedId;
+          dataSubmit.customer_id = self.order.customer;
+          dataSubmit.vat = self.order.vat;
+          dataSubmit.discount = self.order.discount;
+          dataSubmit.items = [];
 
-      let discount = subTotal * (this.order.discount / 100);
-      let priceAfterDiscount = subTotal - discount;
-      let totalVat = priceAfterDiscount * this.order.vat;
-      let grandTotal = priceAfterDiscount + totalVat;
-      dataSubmit.grandtotal = grandTotal;
-    },
-    handleKeydown (e) {
-      switch (e.keyCode) {
-        case 38:
-          this.submitNumberIncrease(this.selectedItemData);
-          break;
-        case 40:
-          this.submitNumberDisCrease(this.selectedItemData);
-          break;
-      }
-    },
-    updateCustomerSelected(customer){
-      for(let k=0; k < this.customersList.length; k++){
-        if(customer === this.customersList[k]["id"]){
-          this.order.discount = (this.customersList[k]["discount"] * 100);
-          this.updatedPriceInListDetailOrder(this.order.discount);
-          break;
-        }
-      }
-    },
-    displayCustomerName($customerId){
-      for (let index =0; index < this.customersList.length; index++){
-        if($customerId === this.customersList[index]["id"]){
-          return this.customersList[index]["name"];
-        }
-      }
-    },
-    getFullDate(){
-      let today = new Date();
-      let dd = today.getDate();
-      let mm = (today.getMonth() + 1); //January is 0!
-      let day = (dd < 10) ? ("0" + dd) : dd;
-      let month = (mm < 10) ? ("0" + mm) : mm;
-      let yyyy = today.getFullYear();
+          for (let index=0; index < self.items.length ; index++){
+            let item = self.items[index];
+            dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
+          }
+          let subTotal = self.calculate("USD", dataSubmit.items);
+          dataSubmit.subtotal = subTotal;
 
-      return (day + "/" + month + "/" + yyyy);
-    },
-    checkGettingMoney($moneyType){
-      if($moneyType === "USD"){
-        this.is_getting_money_usd = true;
-        this.is_getting_money_riel = false;
-      }
-      else{
-        this.is_getting_money_riel = true;
-        this.is_getting_money_usd = false;
-      }
-    },
-    calculateMoneyGiveBack($items){
-      let moneyReturn = 0, totalPay =0;
-      if(this.is_getting_money_usd){
-        totalPay = this.calculateIncludeTax(this.calculate("USD", $items));
-        moneyReturn = (parseFloat(this.getting_money_usd) - parseFloat(totalPay));
-        this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn * this.exchange_rate) : 0) + " Riel";
-      }
-      else if(this.is_getting_money_riel){
-        totalPay = this.calculateToRiel(this.calculate("USD", $items), this.exchange_rate);
-        moneyReturn = (parseFloat(this.getting_money_riel) - parseFloat(totalPay));
-        this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn / this.exchange_rate).toFixed(2) : 0) + " USD";
-      }
-      return moneyReturn;
-    },
-    openUpdateUnitSalePrice(productItem){
-      this.productItemSelectToUpdatePrice = productItem;
-      this.$refs['update-selling-price-form-modal'].show();
-    },
-    onResetUpdateSellingPrice(){},
-    onSubmitUpdateSellingPrice(){
-      for(let indexProduct = 0;indexProduct < this.items.length; indexProduct++){
-        if(this.items[indexProduct]["id"] === this.productItemSelectToUpdatePrice["id"]){
-          this.items[indexProduct]["price"] = this.productItemSelectToUpdatePrice["price"];
-        }
-      }
-    }
+          let discount = subTotal * (this.order.discount / 100);
+          let priceAfterDiscount = subTotal - discount;
+          let totalVat = priceAfterDiscount * this.order.vat;
+          let grandTotal = priceAfterDiscount + totalVat;
+          dataSubmit.grandtotal = grandTotal;
+        },
+        handleKeydown (e) {
+          switch (e.keyCode) {
+            case 38:
+              this.submitNumberIncrease(this.selectedItemData);
+              break;
+            case 40:
+              this.submitNumberDisCrease(this.selectedItemData);
+              break;
+          }
+        },
+        updateCustomerSelected(customer){
+          for(let k=0; k < this.customersList.length; k++){
+            if(customer === this.customersList[k]["id"]){
+              this.order.discount = (this.customersList[k]["discount"] * 100);
+              this.updatedPriceInListDetailOrder(this.order.discount);
+              break;
+            }
+          }
+        },
+        displayCustomerName($customerId){
+          for (let index =0; index < this.customersList.length; index++){
+            if($customerId === this.customersList[index]["id"]){
+              return this.customersList[index]["name"];
+            }
+          }
+        },
+        getFullDate(){
+          let today = new Date();
+          let dd = today.getDate();
+          let mm = (today.getMonth() + 1); //January is 0!
+          let day = (dd < 10) ? ("0" + dd) : dd;
+          let month = (mm < 10) ? ("0" + mm) : mm;
+          let yyyy = today.getFullYear();
+
+          return (day + "/" + month + "/" + yyyy);
+        },
+        checkGettingMoney($moneyType){
+          if($moneyType === "USD"){
+            this.is_getting_money_usd = true;
+            this.is_getting_money_riel = false;
+          }
+          else{
+            this.is_getting_money_riel = true;
+            this.is_getting_money_usd = false;
+          }
+        },
+        calculateMoneyGiveBack($items){
+          let moneyReturn = 0, totalPay =0;
+          if(this.is_getting_money_usd){
+            totalPay = this.calculateIncludeTax(this.calculate("USD", $items));
+            moneyReturn = (parseFloat(this.getting_money_usd) - parseFloat(totalPay));
+            this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn * this.exchange_rate) : 0) + " Riel";
+          }
+          else if(this.is_getting_money_riel){
+            totalPay = this.calculateToRiel(this.calculate("USD", $items), this.exchange_rate);
+            moneyReturn = (parseFloat(this.getting_money_riel) - parseFloat(totalPay));
+            this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn / this.exchange_rate).toFixed(2) : 0) + " USD";
+          }
+          return moneyReturn;
+        },
+
   },
   mounted() {
     let self = this;
@@ -606,9 +621,36 @@ export default {
 }
 </script>
 <style scoped>
-    .p-name {
-        font-weight: bold;
+    .content-product-item{
+        display: inline-block;
+        width:100%;
+        overflow: hidden;
+        position: relative;
+    }
+    .item-product{
+        width:100%;
+        display: inline-block;
+        overflow: hidden;
+    }
+    .content-product-name{
+        width:68%;
+        display: inline-block;
+        overflow: hidden;
+        min-height: 45px;
+        user-select: none;
+    }
+    .content-price{
+        width:15%;
+        display: inline-block;
+        user-select: none;
+        overflow: hidden;
+        min-height: 45px;
         font-size: 15px;
+        font-weight: 900;
+    }
+    .p-name {
+        font-weight: 900;
+        font-size: 17px;
     }
     .p-qty {
       margin-right: 10px;
@@ -620,10 +662,14 @@ export default {
         font-size: 10px;
     }
     .p-item {
+      width: 100%;
+      display: inline-block;
       border-bottom: solid 1px #ccc;
       cursor: pointer;
       position: relative;
       overflow: hidden;
+      margin: 0;
+      padding: 0;
     }
     .p-item:hover{
         background-color: #ccc;
