@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Settings;
 use App\Models\Profile;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -100,7 +101,7 @@ class OrdersController extends Controller
         //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
         $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
-
+        $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
 
         $orders = new Order();
         $orders->invoice_id = $invoice;
@@ -112,6 +113,7 @@ class OrdersController extends Controller
         $orders->discount = $request->discount;   //fetch from member value
         $orders->grandtotal = round($request->grandtotal,$digit);
         $orders->receive = round($request->receive,$digit);
+        $orders->status = $status;
         $orders->save();
 
         $income = $this->income($orders->grandtotal);
@@ -207,9 +209,21 @@ class OrdersController extends Controller
 
     }
 
+    //show Unpaid Invoice
     public function show($id)
     {
-        //
+//        $unpaid = DB::table('orders')
+//                ->select()
+        $order = Order::where('status','=',0)
+                        ->where('customer_id','=',$id)
+                        ->get();
+        $unpaid = $order->sum('grandtotal')- $order->sum('receive');
+
+        return response()->json([
+            "success" => false,
+            "order" => $order,
+            "unpaid" => $unpaid
+        ]);
     }
 
     /**
