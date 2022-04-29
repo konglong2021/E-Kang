@@ -25,6 +25,7 @@ class CreateOrdersTable extends Migration
             $table->double('grandtotal');
             $table->double('kh_grandtotal')->nullable();
             $table->double('receive')->nullable(); //receive money
+            $table->tinyInteger('status')->nullable(); // 0 is default for pending , 1 is mean money has been clear
             $table->timestamps();
             $table->softDeletes();
         });
