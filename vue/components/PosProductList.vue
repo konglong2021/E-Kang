@@ -8,7 +8,10 @@
                 <b-col sm="6">
                   <div class="input-group input-group-sm search-content">
                     <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                    <input class="form-control input-search-box" type="search" placeholder="Search..."  v-model="searchInput" @keyup.enter="searchProduct()" />
+                    <input
+                      class="form-control input-search-box" type="search" placeholder="Search..."  v-model="searchInput"
+                      @keyup.enter="searchProduct()"
+                    />
                   </div>
                 </b-col>
                 <b-col sm="6">
@@ -61,8 +64,14 @@
         scanningInput: null,
         productLoading: false,
         warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
-        warehouse: null
+        warehouse: null,
+        searchInputData: null,
       };
+    },
+    watch:{
+      searchInput(val) {
+        this.searchInputData = val;
+      }
     },
     methods: {
       async getListProduct($warehouse){
@@ -165,7 +174,7 @@
         }
       },
       async searchProduct(){
-        const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
+        const response = await this.$axios.post('/api/product/search', {search : this.searchInputData});
         if(response){
           if(response.data && response.hasOwnProperty("data") && response.data.length > 0){
             let items = [];
@@ -179,7 +188,6 @@
                   brands.push(productItem["brands"][i]["name"]);
                 }
               }
-              console.log(productItem["image"]);
               newItem['id'] = productItem["id"];
               newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
               newItem['brand'] = brands.join(", ");
@@ -246,6 +254,9 @@
           this.getListProduct(warehouse);
         }
       },
+      checkingToClearData(searchInput){
+        console.log(searchInput);
+      }
     },
     mounted() {
       this.warehouse = this.$store.$cookies.get('storeItem');

@@ -234,6 +234,7 @@
       cancel-title="No" @ok="removeProductAdd(product_select)" :ok-title="$t('label_yes_button')" no-close-on-backdrop>
       <h3 class="center">{{ $t('question_remove_existing_product') }}</h3>
     </b-modal>
+
   </div>
 </template>
 
@@ -684,7 +685,7 @@
         let vm = this;
         dataSubmit["warehouse_id"] = vm.purchase.warehouse;
         dataSubmit["supplier_id"] = vm.purchase.supplier;
-        dataSubmit["batch"] = vm.purchase.batch;
+        dataSubmit["batch"] = vm.purchase.batch ? vm.purchase.batch : this.generateBatch();
         dataSubmit["vat"] = vm.purchase.vat;
 
         let purchaseDetail = [];

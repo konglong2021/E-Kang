@@ -48,7 +48,7 @@
         </div>
           <div class="content-btn pull-right" style="right: 50%;">
             <b-button size="lg"
-                      v-bind:disabled = "calculate('USD', products) === 0 && calculate('Riel', products) === 0"
+                      v-bind:disabled = "products.length === 0"
                       @click="openSubmitPaymentModal()"
             >
               <i class="fa fa-money margin-span-btn font-size-28"></i>
@@ -282,7 +282,6 @@ export default {
   watch:{
     products: {
       handler: function(value){
-
       }
     },
     isInvoicePrint: {
