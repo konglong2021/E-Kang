@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Categorie;
+use App\Models\PurchaseDetail;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,11 +19,25 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function ShowLastUnitPrice($product_id)
+    {
+        $price = PurchaseDetail::where('product_id',$product_id)->get()->last();
+        if(!$price){
+            return response()->json([
+                "success" => false,
+                "price" => "New Item"
+            ], 200);
+        }
+        return $price;
+    }
+
     public function index(Request $request)
     {
         if (empty($request->all())) {
             $products = Product::with('brands')
             ->with('categories')
+            ->with('purchasedetails')
             ->orderBy('id', 'desc')->get();
         }
         else {
@@ -44,7 +59,7 @@ class ProductsController extends Controller
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
 //        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-
+        
        return response()->json($products);
     }
 
