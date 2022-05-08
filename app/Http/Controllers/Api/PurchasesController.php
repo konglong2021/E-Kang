@@ -267,36 +267,21 @@ class PurchasesController extends Controller
             }
         }
         //end of stock roll back
-
-        // $user->roles()->sync($request->input('roles', []));
-
         $purchase_details= $request->purchases; // purchase is the array of purchase details
         $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
         
 
         foreach($purchase_details as $item)
         {
-
             $pdetail = PurchaseDetail::Create([
-
                 'purchase_id' => $purchase->id,
                 'product_id' => $item['product_id'],
                 'unitprice' => $item['unitprice'],
                 'quantity' => $item['quantity'],
-    
-    
             ] );
-            
-
-
-           
-
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)
             ->first();
-
-
-
             if ($stock !== null) {
                 $stock->total = $stock->total + $item['quantity'];
                 $stock->update();
@@ -310,12 +295,10 @@ class PurchasesController extends Controller
                 ]);
             }
         }
-
-
             });
             return response()->json([
                 "success" => true,
-                "message" => "Successfully Created",
+                "message" => "Successfully updated",
     
             ]);
          } catch (\Exception $th) {

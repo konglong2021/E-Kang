@@ -78,6 +78,23 @@ class StockController extends Controller
         return response()->json($stocks);
     }
 
+    public function searchstockbywarehouse($warehouse,$search)
+    {
+       
+            $stocks= Stock::
+            WhereHas('product', function($q) use ($search) {
+                return $q->where('en_name', 'LIKE', '%' . $search . '%')
+                         ->orwhere('kh_name', 'LIKE', '%' . $search . '%')
+                         ->orwhere('code', 'LIKE', '%' . $search . '%');
+            })
+            ->with('warehouse')
+            ->where('warehouse_id',$warehouse)
+            ->with('product')
+            ->get();
+
+        return response()->json($stocks);
+    }
+
 
     public function stockbyproduct($product)
     {
