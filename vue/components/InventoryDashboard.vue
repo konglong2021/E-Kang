@@ -209,8 +209,16 @@
           <div class="display-inline-block full-with">
             <div class="col-md-12 float-right">
               <div class="form-group form-content-detail">
-                <label class="label-with">{{ $t('title_product') }}</label>
-                <b-form-select class="form-control select-content-inline" v-model="product_select.product" :options="products" @change="selectedProduct(productList, product_select.product)"></b-form-select>
+                <label class="label-with" style="float: left; margin-top: 3px;">{{ $t('title_product') }}</label>
+                <div class="select-content-inline display-inline-block multiple-select" style="width: 68% !important; float: left;">
+                  <multiselect
+                          v-model="product_select.product" :options="products"
+                          track-by="name" label="name" :show-labels="false"
+                          :placeholder="$t('label_search_by_product')"
+                          @select="selectedProduct"
+                          @remove="removeElement"></multiselect>
+                </div>
+<!--                <b-form-select class="form-control select-content-inline" v-model="product_select.product" :options="products" @change="selectedProduct(productList, product_select.product)"></b-form-select>-->
               </div>
               <div class="form-group form-content-detail">
                 <label class="label-with">{{$t('import_price')}} ($)</label>
@@ -370,7 +378,6 @@
                   vm.stock.code = product["code"];
                   vm.stock.image = product["image"];
                   vm.stock.sale_price = product["sale_price"].toString();
-                  //vm.stockItems.push(vm.stock);
                   vm.stockItems.unshift(vm.stock);
                 }
               }
@@ -414,12 +421,10 @@
             }
           }
           else {
-            //items.push($product);
             items.unshift($product);
           }
         }
         else {
-          //items.push($product);
           items.unshift($product);
         }
 
@@ -440,41 +445,66 @@
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
       },
-      selectedProduct(productList, productId){
+      async selectedProduct($obj){
         this.isAddMoreProduct = true;
-        let isFoundAlreadyAdd = false;
-        if(this.items.length > 0){
-          for(let k = 0; k < this.items.length; k++) {
-            if(this.items[k]["id"] === productId){
-              this.isDisabledImportPrice = this.items[k]["id"] === productId;
-              isFoundAlreadyAdd = true;
-              this.product_select.id = this.items[k].id;
-              this.product_select.en_name = this.items[k].en_name;
-              this.product_select.kh_name = this.items[k].kh_name;
-              this.product_select.code = this.items[k].code;
-              this.product_select.sale_price = parseFloat(this.items[k].sale_price);
-              this.product_select.import_price = parseFloat(this.items[k].import_price);
-              break;
-            }
-          }
+        let self = this;
+        let itemProductAlreadyAdd = null;
+        if(self.items.length > 0){
+          itemProductAlreadyAdd = self.items.find(item => {return item.id === $obj["value"]});
         }
-        if(!isFoundAlreadyAdd){
-          if(productList &&  productList.length > 0){
-            for(let index = 0; index < productList.length; index++) {
-              if(productId === productList[index]["id"]){
-                console.log(productList[index]);
-                this.product_select.id = productList[index].id;
-                this.product_select.en_name = productList[index].en_name;
-                this.product_select.kh_name = productList[index].kh_name;
-                this.product_select.code = productList[index].code;
-                this.product_select.sale_price = parseFloat(productList[index].sale_price);
-                this.product_select.import_price = parseFloat(productList[index].import_price) ;
-                this.isDisabledImportPrice = false;
+        if(!itemProductAlreadyAdd){
+          if(self.productList &&  self.productList.length > 0){
+            for(let index = 0; index < self.productList.length; index++) {
+              if($obj["value"] === self.productList[index]["id"]){
+                self.product_select.id = self.productList[index].id;
+                self.product_select.en_name = self.productList[index].en_name;
+                self.product_select.kh_name = self.productList[index].kh_name;
+                self.product_select.code = self.productList[index].code;
+                self.product_select.sale_price = parseFloat(self.productList[index].sale_price);
+                if($obj.hasOwnProperty("value")){
+                  await self.$axios.get('/api/showlastunitprice/' + $obj["value"]).then(function (responsePrice) {
+                    if(responsePrice.data){
+                      if(responsePrice.data.price.constructor === Object){
+                        self.product_select.import_price = self.cloneObject(responsePrice.data.price.unitprice);
+                      }
+                      else {
+                        self.product_select.import_price = 0;
+                      }
+                    }
+                  }).catch(function (error) {
+                    console.log(error);
+                    self.$toast.success("Submit data getting error").goAway(3000);
+                  });
+                  self.productList.unshift(self.productList[index]);
+                }
+                self.isDisabledImportPrice = false;
                 break;
               }
             }
           }
         }
+        else if(itemProductAlreadyAdd && !itemProductAlreadyAdd.hasOwnProperty("import_price")){
+          if(itemProductAlreadyAdd.hasOwnProperty("id")){
+            await self.$axios.get('/api/showlastunitprice/' + itemProductAlreadyAdd["id"]).then(function (responsePrice) {
+              if(responsePrice.data){
+                if(responsePrice.data.price.constructor === Object){
+                  itemProductAlreadyAdd.import_price = self.cloneObject(responsePrice.data.price.unitprice);
+                }
+                else {
+                  itemProductAlreadyAdd.import_price = 0;
+                }
+              }
+            }).catch(function (error) {
+              console.log(error);
+              self.$toast.success("Submit data getting error").goAway(3000);
+            });
+            //self.productList.unshift(self.productList[index]);
+          }
+        }
+        this.$forceUpdate();
+      },
+      removeElement(){
+        this.$forceUpdate();
       },
       adjustProductAdd(item, index, target){
         this.product_select = item;
@@ -501,39 +531,21 @@
         let vm = this;
         vm.products = [];
         vm.productList = [];
-
         vm.loadingFields.productListLoading = true;
+
         const response = await this.$axios.get('/api/product');
         if(response){
-          vm.loadingFields.productListLoading = false;
           if(response && response.hasOwnProperty("data")){
             let dataResponse = response.data;
             if(dataResponse){
               for(let index=0; index < dataResponse.length; index++){
                 let itemProduct = vm.cloneObject(dataResponse[index]);
-                itemProduct["import_price"] = 0;
-                let productItem =  { text: '', value: null};
-                productItem.text = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
-                productItem.value = dataResponse[index].id;
-                //vm.products.push(productItem);
-                vm.products.unshift(productItem);
-                if(itemProduct.hasOwnProperty("id")){
-                  await vm.$axios.get('/api/showlastunitprice/' + itemProduct["id"]).then(function (responsePrice) {
-                    if(responsePrice.data){
-                      if(responsePrice.data.price.constructor === Object){
-                        itemProduct["import_price"] = vm.cloneObject(responsePrice.data.price.unitprice);
-                      }
-                      else {
-                        itemProduct["import_price"] = 0;
-                      }
-                    }
-                  }).catch(function (error) {
-                    console.log(error);
-                    vm.$toast.success("Submit data getting error").goAway(3000);
-                  });
-                  //vm.productList.push(itemProduct);
-                  vm.productList.unshift(itemProduct);
-                }
+                vm.productList.unshift(itemProduct);
+                vm.loadingFields.productListLoading = false;
+                let productOptionItem =  { name: '', value: null};
+                productOptionItem.name = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
+                productOptionItem.value = dataResponse[index].id;
+                vm.products.unshift(productOptionItem);
               }
             }
           }
@@ -770,8 +782,8 @@
           });
       },
       renderProductOptionData(product){
-        let productItem =  { text: '', value: null};
-        productItem.text = product["en_name"] + " (" + product["kh_name"] + ")";
+        let productItem =  { name: '', value: null};
+        productItem.name = product["en_name"] + " (" + product["kh_name"] + ")";
         productItem.value = product["id"];
         return productItem;
       },
@@ -826,7 +838,6 @@
       generateBatch(){
         return this.getFullDate() + "_v" + this.getFullDateAndTime();
       },
-
       getFullDateAndTime(){
         let today = new Date();
         let dd = today.getDate();

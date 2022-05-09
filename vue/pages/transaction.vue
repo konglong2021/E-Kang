@@ -798,8 +798,8 @@
         }
         this.$forceUpdate();
       },
-      removeElement($obj){
-        this.$forceUpdate();
+      removeElement($obj){this.$forceUpdate();
+
       },
       searchData($filterName){
         if($filterName === "product"){
