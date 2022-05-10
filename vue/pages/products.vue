@@ -232,12 +232,20 @@
             items.push(newItem);
           }
           self.items = self.cloneObject(items);
+          self.items.sort(self.sortByName);
         }
         })
           .catch(function (error) {
             console.log(error);
             self.$toast.error("Submit data getting error").goAway(3000);
           });
+      },
+      sortByName(a, b) {
+        if (a.name < b.name)
+          return -1;
+        if (a.name > b.name)
+          return 1;
+        return 0;
       },
       showModal() {
         this.newProductModal.showModal = true;

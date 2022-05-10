@@ -378,7 +378,8 @@
                   vm.stock.code = product["code"];
                   vm.stock.image = product["image"];
                   vm.stock.sale_price = product["sale_price"].toString();
-                  vm.stockItems.unshift(vm.stock);
+                  vm.stockItems.push(vm.stock);
+                  vm.stockItems.sort(vm.sortByName);
                 }
               }
             }
@@ -387,6 +388,13 @@
             vm.$toast.error("getting data error ").goAway(2000);
             console.log(error);
           });
+      },
+      sortByName(a, b) {
+        if (a.en_name < b.en_name)
+          return -1;
+        if (a.en_name > b.en_name)
+          return 1;
+        return 0;
       },
       async onResetExistingProduct(){
         this.product_select = {
@@ -427,7 +435,6 @@
         else {
           items.unshift($product);
         }
-
         this.items = this.cloneObject(items);
         this.product_select = {
           en_name: '',
@@ -538,12 +545,13 @@
           if(response && response.hasOwnProperty("data")){
             let dataResponse = response.data;
             if(dataResponse){
+              dataResponse.sort(vm.sortByName);
               for(let index=0; index < dataResponse.length; index++){
                 let itemProduct = vm.cloneObject(dataResponse[index]);
                 vm.productList.unshift(itemProduct);
                 vm.loadingFields.productListLoading = false;
                 let productOptionItem =  { name: '', value: null};
-                productOptionItem.name = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
+                productOptionItem.name = (dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")");
                 productOptionItem.value = dataResponse[index].id;
                 vm.products.unshift(productOptionItem);
               }
@@ -551,6 +559,7 @@
           }
         }
       },
+
       async getAllWarehouse(){
         let vm = this;
         vm.loadingFields.warehouseListLoading = true;
@@ -665,7 +674,6 @@
               let warehouseItem =  { text: '', value: null };
               warehouseItem.text = data["name"] + "(" + data["address"] + ")";
               warehouseItem.value = data["id"];
-              //vm.warehouses.push(warehouseItem);
               vm.warehouses.unshift(warehouseItem);
               vm.hideModalWareHouse();
             }

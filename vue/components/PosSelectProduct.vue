@@ -127,22 +127,33 @@
                 </div>
               </div>
               <div class="form-row-content-detail">
-                <div class="form-column-label">
-                  <label :for="'input-getting-money'" class="label-input no-margin-bottom">
-                    ទទួលទឹកប្រាក់
-                    <span v-if="is_getting_money_usd"> ($)</span>
-                    <span v-if="is_getting_money_riel"> (៛)</span>
+                <div class="form-column-label" v-if="!is_getting_money_usd && !is_getting_money_riel">
+                  <label >ទទួលទឹកប្រាក់ </label>
+                </div>
+                <div style="display: inline-block;">
+                  <b-button size="sm" v-if="!is_getting_money_usd" @click="checkGettingMoney('USD')">ដុល្លា</b-button>
+                  <b-button size="sm" v-if="!is_getting_money_riel" @click="checkGettingMoney('Riel')">ប្រាក់រៀល</b-button>
+                </div>
+
+                <div class="form-column-label" v-if="is_getting_money_usd">
+                  <label :for="'input-getting-money-usd'" class="label-input no-margin-bottom">
+                    ទទួលទឹកប្រាក់ ($)
                   </label>
                 </div>
-                <div class="form-column-input" v-if="!is_getting_money_usd && !is_getting_money_riel">
-                  <b-button size="sm" @click="checkGettingMoney('USD')">ដុល្លា</b-button>
-                  <b-button size="sm" @click="checkGettingMoney('Riel')">ប្រាក់រៀល</b-button>
+                <div class="form-column-input">
+                  <div style="margin-bottom: 5px; display: inline-block;">
+                    <b-form-input v-if="is_getting_money_usd" :id="'input-getting-money-usd'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
+                  </div>
                 </div>
-                <div class="form-column-input" v-if="is_getting_money_usd">
-                  <b-form-input v-if="is_getting_money_usd" :id="'input-getting-money'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
+              </div>
+              <div class="form-row-content-detail">
+                <div class="form-column-label" v-if="is_getting_money_riel">
+                  <label :for="'input-getting-money-riel'" class="label-input no-margin-bottom">
+                    ទទួលទឹកប្រាក់ (៛)
+                  </label>
                 </div>
-                <div class="form-column-input" v-if="is_getting_money_riel">
-                  <b-form-input v-if="is_getting_money_riel" :id="'input-getting-money'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
+                <div class="form-column-input">
+                    <b-form-input v-if="is_getting_money_riel" :id="'input-getting-money-riel'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
                 </div>
               </div>
             </div>
@@ -585,11 +596,13 @@ export default {
         checkGettingMoney($moneyType){
           if($moneyType === "USD"){
             this.is_getting_money_usd = true;
-            this.is_getting_money_riel = false;
           }
-          else{
+          else if($moneyType === "Riel"){
             this.is_getting_money_riel = true;
+          }
+          else {
             this.is_getting_money_usd = false;
+            this.is_getting_money_riel = false;
           }
         },
         calculateMoneyGiveBack($items){
