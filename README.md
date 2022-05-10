@@ -8,6 +8,7 @@
 -npm install <br />
 -npm run dev <br />
 -php artisan key:generate <br />
+-php artisan storage:link <br />
 -php artisan migrate:fresh --seed <br />
 -php artisan serve
 

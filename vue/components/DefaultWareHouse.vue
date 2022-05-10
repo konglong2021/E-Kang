@@ -11,13 +11,13 @@
       <div class="full-content" v-show="!loadingField && storeList && storeList.length === 0">
         <p class="text-center text-danger font-size-22">
           Not has ware house in database!! please input ware house from inventory
-          <a href="/"> Go to home page</a>
+          <a href="/ware-house"> Go to create warehouse</a>
         </p>
       </div>
       <div class="display-inline-block" v-show="!loadingField && storeList && storeList.length > 0">
         <ul class="ul-no-style">
-          <li class="content-li-menu-store" v-for="store in storeList">
-            <b-button variant="dark" class="content-button btn-store-item" @click="selectStore(store)">
+          <li class="content-li-menu-store" v-for="store in storeList" v-bind:key="store.id">
+            <b-button variant="dark" class="content-button" style="min-height: 135px;" @click="selectStore(store)">
               <i class="fa fa-home fa-3x" ></i> <div>
               <span>{{ store.name }}</span>
             </div>
@@ -56,15 +56,24 @@
       async selectStore(store){
         let self = this, dataSubmit = {};
         dataSubmit["warehouse_id"] =  store.id;
+        dataSubmit["user_id"] = self.$store.$cookies.get('user').id;
 
-        if(!self.$store.$cookies.get('storeItem')){
-          await self.$axios.post('/user/warehouse', dataSubmit).then(function (response) {
+        if(
+          self.$store.$cookies.get('storeItem') === null
+          ||
+          self.$store.$cookies.get('storeItem') === undefined
+          ||
+          self.$store.$cookies.get('storeItem') === 'undefined'
+        ){
+          await self.$axios.post('api/user/warehouse', dataSubmit).then(function (response) {
             if(response && response.hasOwnProperty("data")){
-              if(!store.$cookies.get("user").hasOwnProperty("warehouse_id")
-                ||
-                (store.$cookies.get("user").hasOwnProperty("warehouse_id") && !store.$cookies.get("user").warehouse_id)
-              ){
-                self.$store.commit('auth/setUser', response.data);
+              if(response.data.success === false){
+              }
+              else {
+                if(response.data && response.data.profile){
+                  self.$store.commit('auth/setStoreItem', response.data.profile.warehouse_id);
+                  self.$emit("checkingWarehouseData", response.data.profile.warehouse_id);
+                }
               }
             }
             else {

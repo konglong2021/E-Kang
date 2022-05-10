@@ -11,8 +11,8 @@
             <div class="content-file-upload">
               <b-form-file id="file" name="file" class="input-file" v-on:change="onFileChange" plain></b-form-file>
               <div id="output" v-if="uploadFile" class="img"></div>
-              <div v-if="!uploadFile && (!product.image || product.image === 'no image')" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
-              <div v-if="!uploadFile && (product.image || product.image !== 'no image')" class="img" :style="{ backgroundImage: `url('${generateImageUrlDisplay(product.image)}')` }"></div>
+              <div v-if="!uploadFile && (!product.image || product.image === 'no image' || product.image === 'no image created')" class="img" :style="{ backgroundImage: `url('images/image.png')` }"></div>
+              <div v-if="!uploadFile && (product.image || product.image !== 'no image' || product.image !== 'no image created')" class="img" :style="{ backgroundImage: `url('${generateImageUrlDisplay(product.image)}')` }"></div>
             </div>
           </div>
           <div class="full-content">
@@ -33,6 +33,12 @@
               <b-col sm="4"><label :for="'input-khname'" class="label-input">ឈ្មោះទំនិញជាខ្មែរ</label></b-col>
               <b-col sm="8">
                 <b-form-input :id="'input-khname'" type="text" v-model="product.kh_name" class="input-content" required></b-form-input>
+              </b-col>
+            </b-row>
+            <b-row class="my-1">
+              <b-col sm="4"><label :for="'input-code'" class="label-input">លេខកូដទំនិញ</label></b-col>
+              <b-col sm="8">
+                <b-form-input :id="'input-code'" type="text" v-model="product.code" class="input-content" required></b-form-input>
               </b-col>
             </b-row>
             <b-row class="my-1">
@@ -229,6 +235,9 @@
         formData.append("description", vm.product.description);
         formData.append("image", vm.uploadFile);
         formData.append("sale_price", vm.product.sale_price);
+        if(vm.product.code){
+          formData.append("code", vm.product.code);
+        }
         formData.append("brands" , JSON.stringify(brands));
 
         if(vm.product.hasOwnProperty("id") && vm.product.id){
@@ -238,10 +247,9 @@
           await vm.$axios.post('/api/product/' + vm.product.id, formData)
             .then(function (response) {
               if(response){
-                console.log(response.data);
                 vm.$toast.success("Submit data successfully").goAway(2000);
                if(response.hasOwnProperty("data") && response.data){
-                 let Brands = response.data.Brands;
+                 let Brands = vm.cloneObject(response.data.Brands);
                  let itemProduct = vm.cloneObject(response.data.product);
                  vm.$emit("checkingProductAdd", {itemProduct: vm.cloneObject(itemProduct), brands: Brands});
                }
@@ -271,25 +279,31 @@
               if(response){
                 vm.$toast.success("Submit data successfully").goAway(2000);
                 let brandList = response.data.hasOwnProperty("Brands") ? response.data.Brands : [];
-                let itemProduct = response.data.product;
+                let itemProduct = vm.cloneObject(response.data.product);
                 let newDataBrand = [];
-                if(vm.brands.length > 0){
-                  for (let index =0; index < vm.brands.length; index++){
-                    for(let k=0; k< brandList.length; k++){
-                      if(brandList[k] === vm.brands[index].id){
-                        newDataBrand.push(vm.brands[index]);
-                        break;
-                      }
-                    }
-                  }
-                }
                 if(response.data.hasOwnProperty("Brands")){
-                  let brandList = response.data.Brands;
+                  let brandList = vm.cloneObject(response.data.Brands);
                   if(brandList.length > 0){
-                    itemProduct.brands = brandList;
+                    let responseBrandName = [];
+                    let responseBrand = [];
+                    for(let k=0; k < brands.length; k++){
+                      let itemResponseBrand = vm.cloneObject(vm.selectedBrandList(brands[k]));
+                      let itemData = {"name": itemResponseBrand["name"], "id": itemResponseBrand["value"]};
+                      responseBrandName.push(itemResponseBrand["name"]);
+                      responseBrand.push(itemData);
+                    }
+                    itemProduct["brands"] = vm.cloneObject(responseBrand);
+                    itemProduct["brand"] = responseBrandName.join(", ");
                   }
                 }
-                vm.$emit("checkingProductAdd", itemProduct);
+                if(!itemProduct.hasOwnProperty("category_name")){
+                  itemProduct["category_name"]= vm.filterCategoriesData(itemProduct["category_id"]);
+                }
+                if(!itemProduct.hasOwnProperty("name")){
+                  itemProduct['name'] = itemProduct["en_name"] + " (" + itemProduct["kh_name"] + ")";
+                }
+                console.log(itemProduct);
+                vm.$emit("checkingProductAdd", {itemProduct: itemProduct, brands: brandList});
                 vm.hideModal();
               }
             })
@@ -298,6 +312,18 @@
               vm.$toast.error("Submit data getting error").goAway(3000);
             });
         }
+      },
+      selectedBrandList(item){
+        let itemData;
+        if(this.brands && this.brands.length > 0){
+          for (let index=0; this.brands.length; index++){
+            if(this.brands[index] && this.brands[index]["value"] && item === this.brands[index]["value"]){
+              itemData = this.brands[index];
+              break;
+            }
+          }
+        }
+        return itemData;
       },
       hideModal() {
         this.$refs['product-form-modal'].hide();
@@ -316,8 +342,8 @@
       filterCategoriesData(category_id){
         if(this.categories.length > 0){
           for (let k=0; k < this.categories.length; k++){
-            if(category_id === this.categories[k]["value"]){
-              return this.categories[k]["value"];
+            if(category_id === this.categories[k]["id"]){
+              return this.categories[k]["name"];
             }
           }
         }

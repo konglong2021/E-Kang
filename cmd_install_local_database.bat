@@ -1,0 +1,1 @@
+mysql -uroot -p --default-character-set=utf8 laravel < pos_update.sql

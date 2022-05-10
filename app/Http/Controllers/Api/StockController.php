@@ -7,10 +7,16 @@ use Illuminate\Http\Request;
 use App\Models\Stock;
 use App\Models\StockOut;
 use App\Models\Warehouse;
+use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\Purchase;
+use App\Models\PurchaseDetail;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
+
 
 class StockController extends Controller
 {
@@ -41,7 +47,8 @@ class StockController extends Controller
             })
             ->orWhereHas('warehouse', function($q) use ($input) {
                 return $q->where('name', 'LIKE', '%'. $input . '%');
-            })->get();
+            })->with('product')
+            ->with('warehouse')->get();
         }        
 
         return response()->json($stocks);
@@ -64,9 +71,26 @@ class StockController extends Controller
     {
         $stocks = Stock::with('product')
                 ->with('warehouse')
-                ->where('total','>','0')
+                //->where('total','>','0')
                 ->where('warehouse_id',$warehouse)
                 ->get();
+
+        return response()->json($stocks);
+    }
+
+    public function searchstockbywarehouse($warehouse,$search)
+    {
+       
+            $stocks= Stock::
+            WhereHas('product', function($q) use ($search) {
+                return $q->where('en_name', 'LIKE', '%' . $search . '%')
+                         ->orwhere('kh_name', 'LIKE', '%' . $search . '%')
+                         ->orwhere('code', 'LIKE', '%' . $search . '%');
+            })
+            ->with('warehouse')
+            ->where('warehouse_id',$warehouse)
+            ->with('product')
+            ->get();
 
         return response()->json($stocks);
     }
@@ -76,7 +100,7 @@ class StockController extends Controller
     {
         $stocks = Stock::with('product')
                 ->with('warehouse')
-                ->where('total','>','0')
+                //->where('total','>','0')
                 ->where('product_id',$product)
                 ->get();
 
@@ -230,5 +254,66 @@ class StockController extends Controller
         //
     }
 
-   
+    public function stockdetail(Request $request)
+    {
+        $from = $request['from'];
+        $to = $request['to'];
+        $warehouse_id = $request['warehouse_id'];
+        $product_id = $request['product_id'];
+
+        // Order query Total of all products order
+        $order = DB::table('order_details')
+        ->join('orders','order_details.order_id','=','orders.id')
+        ->select('order_details.product_id', DB::raw('SUM(order_details.quantity) AS o_qty'))
+        ->whereDate('orders.created_at','>=',$from)
+        ->whereDate('orders.created_at','<=',$to)
+        ->WhereNull('orders.deleted_at')
+        ->groupBy('order_details.product_id')
+        ->get();
+
+        // Purchase query Total all products
+        $purchase = DB::table('purchase_details')
+                    ->join('purchases','purchase_details.purchase_id','=','purchases.id')
+                    ->select('purchase_details.product_id',DB::raw('SUM(purchase_details.quantity) AS p_qty'))
+                    ->whereDate('purchases.created_at','>=',$from)
+                    ->whereDate('purchases.created_at','<=',$to)
+                    ->WhereNull('purchases.deleted_at')
+                    ->groupBy('purchase_details.product_id')
+                    ->get();
+
+
+       
+        // $total= array();
+        // foreach ($purchase as $key=>$purchase_val) {
+
+        //     if(in_array($purchase_val->product_id,$order->product_id)){
+        //         $total_product[]= [
+        //             "product_id" => $purchase_val->product_id,
+        //             "qty"       => $purchase_val->p_qty
+        //             ];
+        //     }
+        //     foreach($order as $key =>$order_val){
+        //         if($order_val->product_id == $purchase_val->product_id){
+        //             $total_product[]= [
+        //             "product_id" => $purchase_val->product_id,
+        //             "qty"       => $purchase_val->p_qty - $order_val->o_qty
+        //             ];
+        //         }
+        //         //nodraws[] = $order.filter(item => !wons.includes(item));
+
+        //     } 
+
+        // $total = $total_product;
+        // }
+
+        return response()->json([
+            "success" => true,
+            "purchase" => $purchase,
+            "order" => $order,
+            // "total" =>$total
+           
+            
+            ], 200);
+        
+    }
 }

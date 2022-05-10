@@ -19,6 +19,7 @@ class CreateCustomersTable extends Migration
             $table->string('name');
             $table->string('phone');
             $table->string('address');
+            $table->double('owe')->nullable();  
             $table->timestamps();
             $table->softDeletes();
         });

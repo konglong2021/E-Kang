@@ -11,22 +11,32 @@
       <ul class="list-menu-text">
         <li class="menu-text-item">
           <a href="/report-daily">
-            <span><i class="fa fa-calendar-plus-o" aria-hidden="true"></i>Sales Daily</span>
+            <span><i class="fa fa-calendar-plus-o" aria-hidden="true"></i>  {{ $t('title_report_menu_daily') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/report-monthly">
-            <span> <i class="fa fa-calendar" aria-hidden="true"></i>Sale Monthly</span>
+            <span> <i class="fa fa-calendar" aria-hidden="true"></i>  {{ $t('title_report_menu_monthly') }}</span>
+          </a>
+        </li>
+        <li class="menu-text-item">
+          <a href="/balance">
+            <span> <i class="fa fa-money" aria-hidden="true"></i>  {{ $t('title_balance_balance') }}</span>
           </a>
         </li>
       </ul>
     </div>
     <div class="content-logout">
       <ul class="ul-style">
-        <li class="li-style">
-          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        <li class="li-style" style="overflow: hidden;">
+          <a class="cursor-default no-cursor content-user-profile">
+            <span class="content-user-img">
+              <img :src="getUrlDisplayImgUser()" alt="" />
+            </span>
+            <span>{{ $store.$cookies.get('user').name }}</span>
+          </a>
         </li>
-        <li class="li-style">
+        <li class="li-style" style="overflow: hidden;">
           <b-button class="button-no-background" @click="logOut()">
             <span>Logout</span>
           </b-button>
@@ -48,6 +58,9 @@
         if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
           await this.$router.push('/login');
         }
+      },
+      getUrlDisplayImgUser(){
+        return this.$store.$cookies.get('user').image ? this.$store.$cookies.get('user').image : "images/no_icon.png";
       },
     },
     mounted() {

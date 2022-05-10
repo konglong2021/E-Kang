@@ -37,9 +37,15 @@ class ProfileController extends Controller
     {
         $profile= Profile::where('user_id',$request["user_id"])->get()->last();
         if(!$profile){
+            $profile_create = Profile::create([
+                'user_id' => auth()->user()->id,
+                'warehouse_id' => $request['warehouse_id']
+            ]);
+
             return response()->json([
-                "success" =>false,
-                "message" => "No user data Found! Please Create One!"
+                "success" =>true,
+                "message" => "User data Created",
+                "profile" => $profile_create
             ], 200);
         }
         // User::find(auth()->user()->id);
@@ -114,9 +120,35 @@ class ProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Profile $profile)
+    public function update(Request $request, $id)
     {
-        $profile->update($request->all());
+        $input = $request->all();
+        $profile= Profile::where('user_id',$id)->get()->last();
+        if(!$profile){
+            $input['user_id']= $id;
+            $input['warehouse_id']= $request['warehouse_id'];
+            $profile = Profile::create($input);
+
+            return response()->json([
+                "success" => true,
+                "message" => "create profile successfully!",
+                "profile" => $profile
+            ], 200);
+        }
+        
+        if ($image = $request->file('image')) {
+            $destination_path = 'public/img';
+
+
+            $image_name = time().'.'.$request->image->extension();
+            $path = $request->file('image')->storeAs($destination_path,$image_name);
+            $input['image'] = $image_name;
+        }
+        else{
+            unset($input['image']);
+        }
+
+        $profile->update($input);
         return response()->json([
             "success" => true,
             "profile" => $profile

@@ -15,6 +15,7 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice_id')->unique();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('warehouse_id')->constrained();
             $table->foreignId('user_id')->constrained()->onUpdate('cascade');
@@ -23,6 +24,8 @@ class CreateOrdersTable extends Migration
             $table->double('discount')->nullable();
             $table->double('grandtotal');
             $table->double('kh_grandtotal')->nullable();
+            $table->double('receive')->nullable(); //receive money
+            $table->tinyInteger('status')->nullable(); // 0 is default for pending , 1 is mean money has been clear
             $table->timestamps();
             $table->softDeletes();
         });

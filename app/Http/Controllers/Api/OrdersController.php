@@ -8,6 +8,8 @@ use App\Models\Stock;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Settings;
+use App\Models\Profile;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Balance;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 
 class OrdersController extends Controller
@@ -27,7 +30,10 @@ class OrdersController extends Controller
     public function index(Request $request)
     {
         if (empty($request->all())) {
-        $orders = Order::with('orderdetails')
+        $orders = Order::with('customers')
+                        ->with('warehouse')
+                        ->with('user')
+                        ->with('orderdetails')
                   ->orderBy('id', 'desc')->get();
         }
         else {
@@ -76,12 +82,9 @@ class OrdersController extends Controller
                 'required',
             ],
         ]);
-       
+
 
         // Exaple of transaction
-
-        
-    
 
         // try{
         try {
@@ -94,7 +97,14 @@ class OrdersController extends Controller
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
 
+         $prefix = date("ymd");
+        //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+        // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
+        $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
+        $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
+
         $orders = new Order();
+        $orders->invoice_id = $invoice;
         $orders->warehouse_id = $request->warehouse_id;
         $orders->customer_id = $request->customer_id;
         $orders->user_id = auth()->user()->id;
@@ -102,10 +112,15 @@ class OrdersController extends Controller
         $orders->vat = $request->vat;
         $orders->discount = $request->discount;   //fetch from member value
         $orders->grandtotal = round($request->grandtotal,$digit);
+        $orders->receive = round($request->receive,$digit);
+        $orders->status = $status;
         $orders->save();
-        
-        $this->income($orders->grandtotal);
-        
+
+        $income = $this->income($orders->grandtotal);
+
+        if(!$income){
+            throw new \Exception('Please update Today Balance');
+        }
         $orders_items= $request->items; // purchase is the array of purchase details
 
         foreach($orders_items as $item)
@@ -123,7 +138,7 @@ class OrdersController extends Controller
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
             ->first();
-            
+
 
                 // setting negative 1 is allow to update
             if ($stock !== null) {
@@ -143,6 +158,8 @@ class OrdersController extends Controller
             return response()->json([
                 "success" => true,
                 "message" => "Successfully Added",
+                "order"   =>$orders,
+                "items"   =>$orders_items
 
             ]);
      });
@@ -150,7 +167,7 @@ class OrdersController extends Controller
         DB::rollback();
         return response()->json([
             "success" => false,
-            "message" => "Insufficient Please Check again"
+            "message" => "Insufficient Please Check again1"
         ]);
     }
 
@@ -163,32 +180,50 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-
+    public function CheckProfileWarehouse($user_id)
+    {
+       $profile= Profile::where('user_id',$user_id)->get()->last();
+       return $profile->warehouse_id;
+    }
 
     public function income($income)
     {
-        if(!auth()->user()->warehouse_id){
-            return response()->json("No default warehouse found!", 200);
-           }
 
-           $balance = Balance::where("warehouse_id",auth()->user()->warehouse_id)->get()->last();
-           
+           $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+           $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
+           if(!$balance)
+           {
+            return false;
+           }
 
            $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
             $input['income'] = $income + $balance->income;
-            $input['balance']= $balance->remain +  $input['income'] - $balance->income;
+            $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
-           
+
         }
+            return false;
 
     }
 
+    //show Unpaid Invoice
     public function show($id)
     {
-        //
+//        $unpaid = DB::table('orders')
+//                ->select()
+        $order = Order::where('status','=',0)
+                        ->where('customer_id','=',$id)
+                        ->get();
+        $unpaid = $order->sum('grandtotal')- $order->sum('receive');
+
+        return response()->json([
+            "success" => false,
+            "order" => $order,
+            "unpaid" => $unpaid
+        ]);
     }
 
     /**
@@ -200,7 +235,104 @@ class OrdersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'subtotal'     => [
+                'required',
+            ],
+            'grandtotal'    => [
+                'required',
+            ],
+            'customer_id'    => [
+                'required',
+            ],
+            'warehouse_id'    => [
+                'required',
+            ],
+            'items'    => [
+                'required',
+            ],
+        ]);
+
+        try {
+
+        return DB::transaction(function () use ($request,$id){
+            //query setting
+        $setting = Settings::find(1);
+        $digit = (int)$setting->digit;
+        $negative = (int)$setting->negative;
+
+         $prefix = date("ymd");
+
+        $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
+        $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
+
+        $orders = Order::find($id);
+        $orders->invoice_id = $request->invoice_id;
+        $orders->warehouse_id = $request->warehouse_id;
+        $orders->customer_id = $request->customer_id;
+        $orders->user_id = auth()->user()->id;
+        $orders->subtotal = round($request->subtotal,$digit);
+        $orders->vat = $request->vat;
+        $orders->discount = $request->discount;   //fetch from member value
+        $orders->grandtotal = round($request->grandtotal,$digit);
+        $orders->receive = round($request->receive,$digit);
+        $orders->status = $status;
+        $orders->update();
+
+        $income = $this->income($orders->grandtotal);
+
+        if(!$income){
+            throw new \Exception('Please update Today Balance');
+        }
+        $orders_items= $request->items; // purchase is the array of purchase details
+
+        foreach($orders_items as $item)
+        {
+
+            $pdetail = OrderDetail::create([
+
+            'order_id' => $orders->id,
+            'product_id' => $item['product_id'],
+            'sellprice' => $item['sellprice'],
+            'quantity' => $item['quantity'],
+
+           ] );
+
+            $stock = Stock::where('product_id',$item['product_id'])
+            ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
+            ->first();
+
+
+                // setting negative 1 is allow to update
+            if ($stock !== null) {
+                $stock->total = $stock->total - $item['quantity'];
+                if($stock->total > 0 ||  $negative > 0 ){
+                    $stock->update();
+                }else{
+                    throw new \Exception('Insufficient Please Check again');
+                    // DB::rollBack();
+                    // return response()->json("Insufficient Please Check again");
+                }
+
+            }else {
+                throw new \Exception('No item in Stock');
+            }
+        }
+            return response()->json([
+                "success" => true,
+                "message" => "Successfully Added",
+                "order"   =>$orders,
+                "items"   =>$orders_items
+
+            ]);
+     });
+    } catch (\Exception $th) {
+        DB::rollback();
+        return response()->json([
+            "success" => false,
+            "message" => "Insufficient Please Check again1"
+        ]);
+    }
     }
 
     /**

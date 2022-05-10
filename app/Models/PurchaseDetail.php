@@ -32,4 +32,8 @@ class PurchaseDetail extends Model
     {
         return $this->belongsToMany(Purchase::class);
     }
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
 }

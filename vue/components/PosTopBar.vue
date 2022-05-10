@@ -1,5 +1,5 @@
 <template>
-    <div class="pos-bar">
+  <b-navbar toggleable="lg" class="pos-bar">
         <div class="content-menu-icon">
           <ul class="list-menu">
             <li class="list-menu-item line-height">
@@ -7,45 +7,47 @@
             </li>
           </ul>
         </div>
-        <div class="content-logout">
-          <ul class="ul-style">
-            <li class="li-style" v-if="routePath !== '/pos'">
-              <a class="content-link" href="/pos">
-                <span>Point of Sale</span>
-              </a>
-            </li>
-            <li class="li-style">
-              <a class="content-link" href="/transection">
-                <span>Transection</span>
-              </a>
-            </li>
-            <li class="li-style">
-              <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
-            </li>
-            <li class="li-style">
-              <b-button class="button-no-background" @click="logOut()">
-                <span>Logout</span>
-              </b-button>
-            </li>
-          </ul>
-        </div>
-        <div class="shopping-cart">
-          <ul>
-            <li>
-              <b-button class="button-no-background btn-card">
+        <div style="display: inline-block; overflow: hidden; float: right; width: 100%;">
+          <div class="content-logout" style="float: right;">
+            <ul class="ul-style">
+              <li class="li-style" style="overflow: hidden;" v-if="routePath !== '/pos'">
+                <a class="content-link" href="/pos">
+                  <span>{{ $t('title_pos') }}</span>
+                </a>
+              </li>
+              <li class="li-style" style="overflow: hidden;">
+                <a class="content-link" href="/transaction">
+                  <span>{{ $t('title_transaction') }}</span>
+                </a>
+              </li>
+              <li class="li-style" style="overflow: hidden;">
+                <a class="cursor-default no-cursor content-user-profile">
+            <span class="content-user-img">
+              <img :src="getUrlDisplayImgUser()" alt="" />
+            </span>
+                  <span>{{ $store.$cookies.get('user').name }}</span>
+                </a>
+              </li>
+              <li class="li-style" style="overflow: hidden;">
+                <b-button class="button-no-background" @click="logOut()">
+                  <span>Logout</span>
+                </b-button>
+              </li>
+            </ul>
+          </div>
+          <div class="shopping-cart" style="float: right;">
+            <ul>
+              <li>
+                <b-button class="button-no-background btn-card">
               <span>
                 <i class="fa fa-shopping-cart font-size-28 color-white"></i>
               </span>
-              </b-button>
-            </li>
-          </ul>
+                </b-button>
+              </li>
+            </ul>
+          </div>
         </div>
-      <div>
-        <ul>
-
-        </ul>
-      </div>
-    </div>
+  </b-navbar>
 </template>
 
 <script>
@@ -62,6 +64,9 @@
         if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
           await this.$router.push('/login');
         }
+      },
+      getUrlDisplayImgUser(){
+        return this.$store.$cookies.get('user').image ? this.$store.$cookies.get('user').image : "images/no_icon.png";
       },
     },
     mounted() {

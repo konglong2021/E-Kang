@@ -17,6 +17,7 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->foreignId('category_id')->references('id')->on('categories')->cascadeOnDelete();
             $table->string('code')->unique();
+            $table->string('tag')->nullable();
             $table->string('en_name');
             $table->string('kh_name');
             $table->string('description')->nullable();

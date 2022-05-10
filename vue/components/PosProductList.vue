@@ -1,5 +1,5 @@
 <template>
-    <div id="pos-product-list">
+    <div id="pos-product-list" v-show="cashBalance">
       <div class="control-panel">
         <div class="panel-top">
           <div class="content-panel-right content-panel-right-full-width">
@@ -8,7 +8,10 @@
                 <b-col sm="6">
                   <div class="input-group input-group-sm search-content">
                     <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                    <input class="form-control input-search-box" type="search" placeholder="Search..."  v-model="searchInput" @keyup.enter="searchProduct()" />
+                    <input
+                      class="form-control input-search-box" type="search" placeholder="Search..."  v-model="searchInput"
+                      @keyup.enter="searchProduct()"
+                    />
                   </div>
                 </b-col>
                 <b-col sm="6">
@@ -22,12 +25,12 @@
       </div>
       <div class="product-list-body">
         <div class="scanning-input" style="display:none;">
-          <b-input v-model="scanningInput" autofocus class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
+          <b-input v-model="scanningInput" :autofocus="true" class="input-scanning" @keyup.enter="searchAndSelectedProduct(scanningInput)"></b-input>
         </div>
         <div v-if="!productLoading && warehouse" >
           <div class="content-product" v-if="products && products.length > 0">
-            <div  v-for="p in products" class="pro-item">
-              <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }" @click="selectProductItem(p)">
+            <div  v-for="p in products" class="pro-item" v-bind:key="p.id" @click="selectProductItem(p)">
+              <div class="pro-img" :style="{ backgroundImage: `url('${p.img}')` }">
                 <div class="pro-price">{{ p.price }} {{ p.currency }}</div>
               </div>
               <div class="pro-name">
@@ -47,8 +50,12 @@
       </div>
     </div>
 </template>
+
 <script>
   export default {
+    props: {
+    cashBalance : 0
+  },
     data() {
       return {
         categories : [],
@@ -57,8 +64,14 @@
         scanningInput: null,
         productLoading: false,
         warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
-        warehouse: null
+        warehouse: null,
+        searchInputData: null,
       };
+    },
+    watch:{
+      searchInput(val) {
+        this.searchInputData = val;
+      }
     },
     methods: {
       async getListProduct($warehouse){
@@ -82,7 +95,8 @@
                       productItem.price = productList[index].sale_price;
                       productItem.img = (productList[index].image !== "no image" && productList[index].image !== "no image created" ) ? vm.generateImageUrlDisplay(productList[index].image) : "images/no_icon.png";
                       productItem.code = productList[index].code;
-                      vm.products.push(productItem);
+                      //vm.products.push(productItem);
+                      vm.products.unshift(productItem);
                     }
                   }
                   else if(productList && productList.hasOwnProperty("id")){
@@ -92,7 +106,8 @@
                     productItem.price = productList.sale_price;
                     productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : "images/no_icon.png";
                     productItem.code = productList.code;
-                    vm.products.push(productItem);
+                    //vm.products.push(productItem);
+                    vm.products.unshift(productItem);
                   }
                 }
               }
@@ -119,7 +134,8 @@
                       productItem.price = productList[index].sale_price;
                       productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
                       productItem.code = productList[index].code;
-                      vm.products.push(productItem);
+                      //vm.products.push(productItem);
+                      vm.products.unshift(productItem);
                     }
                   }
                   else if(productList && productList.hasOwnProperty("id")){
@@ -129,7 +145,8 @@
                     productItem.price = productList.sale_price;
                     productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
                     productItem.code = productList.code;
-                    vm.products.push(productItem);
+                    //vm.products.push(productItem);
+                    vm.products.unshift(productItem);
                   }
                 }
               }
@@ -157,40 +174,45 @@
         }
       },
       async searchProduct(){
-        const response = await this.$axios.post('/api/product/search', {search : this.searchInput});
-        if(response){
-          if(response.data && response.data.hasOwnProperty("data") && response.data.data.length > 0){
-            let items = [];
-            this.responseProductList = response.data;
-            for(let index=0; index < response.data.length; index++){
-              let productItem = response.data[index];
-              let newItem = {};
-              let brands = [];
-              if(productItem["brands"] && productItem["brands"].length > 0){
-                for(let i =0; i < productItem["brands"].length; i++){
-                  brands.push(productItem["brands"][i]["name"]);
-                }
+          let $warehouse = this.$store.$cookies.get('storeItem');
+          let self = this;
+          await self.$axios.get('/api/stockbywarehouse/' + $warehouse + "/" + self.searchInputData).then(function (response) {
+              if(response.data && response.hasOwnProperty("data") && response.data.length > 0){
+                  let items = [];
+                  self.responseProductList = response.data;
+                  let datas =  response.data;
+                  for(let i=0; i < datas.length; i++){
+                      let productList = datas[i].product;
+                      if(productList && productList.length > 0){
+                          for(let index=0; index < productList.length; index++){
+                              let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
+                              productItem.id = productList[index].id;
+                              productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
+                              productItem.price = productList[index].sale_price;
+                              productItem.img = (productList[index].image !== "no image" && productList[index].image !== "no image created" ) ? self.generateImageUrlDisplay(productList[index].image) : "images/no_icon.png";
+                              productItem.code = productList[index].code;
+                              items.unshift(productItem);
+                          }
+                      }
+                      else if(productList && productList.hasOwnProperty("id")){
+                          let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
+                          productItem.id = productList.id;
+                          productItem.name = productList.en_name + " (" + productList.kh_name + ")";
+                          productItem.price = productList.sale_price;
+                          productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? self.generateImageUrlDisplay(productList.image) : "images/no_icon.png";
+                          productItem.code = productList.code;
+                          items.unshift(productItem);
+                      }
+                  }
+                  self.products = self.cloneObject(items);
               }
-              newItem['id'] = productItem["id"];
-              newItem['name'] = productItem["en_name"] + " (" + productItem["kh_name"] + ")";
-              newItem['brand'] = brands.join(", ");
-              newItem['loyalty'] = "N/A";
-              newItem['image'] = productItem["image"];
-              newItem['brands'] = productItem["brands"];
-              newItem['categories'] = productItem["categories"];
-              newItem['description'] = productItem["description"];
-              newItem['sale_price'] = productItem["sale_price"];
-              newItem['code'] = productItem["code"];
-              newItem["en_name"] = productItem["en_name"];
-              newItem["kh_name"] = productItem["kh_name"];
-              items.push(newItem);
-            }
-            this.products = this.cloneObject(items);
-          }
-          else{
-            this.products = [];
-          }
-        }
+              else{
+                  self.products = [];
+              }
+          }).catch(function (error) {
+              console.log(error);
+              self.$toast.error("getting data error ").goAway(2000);
+          });
       },
       handleClick(e) {
         if(e.target.value === '' || e.target.value === null || e.target.value === undefined){
@@ -206,12 +228,14 @@
             if(productItem["code"] === scanningInput || productItem["name"] === scanningInput){
               foundItem = true;
               this.$emit('selectProduct', productItem);
+              this.scanningInput = null;
               break;
             }
           }
 
           if(!foundItem){
             alert("មិនមាន ទំនិញប្រភេទនេះទេ !!!");
+            this.scanningInput = null;
           }
         }
       },
@@ -235,6 +259,9 @@
           this.getListProduct(warehouse);
         }
       },
+      checkingToClearData(searchInput){
+        console.log(searchInput);
+      }
     },
     mounted() {
       this.warehouse = this.$store.$cookies.get('storeItem');
@@ -245,6 +272,7 @@
     }
   }
 </script>
+
 <style scoped>
   .content-panel-right-full-width{
     width: 100%;
@@ -281,17 +309,20 @@
   }
   .pro-img {
       background-repeat: no-repeat;
-      padding: 55px;
+      padding: 58px;
+    background-size: contain;
   }
   .pro-price{
-      color :#fff;
-      background-color: #000;
-      border-radius: 5px;
-      position: absolute;
-      margin-top: -53px;
-      margin-left: -10px;
+    color :#fff;
+    background-color: #000;
+    border-radius: 5px;
+    position: absolute;
+    margin-top: -53px;
+    margin-left: -22px;
+    padding: 3px 5px;
   }
   .pro-name{
+    text-align: center;
     font-size: 14px;
     margin-top: 5px;
     font-weight: 600;

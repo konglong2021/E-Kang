@@ -7,7 +7,7 @@
             <b-col>
               <b-button href="/users"  variant="dark">
                 <i class="fa fa-users fa-3x" > </i> <div>
-                User Management
+                {{ $t('index_menu_user') }}
               </div>
               </b-button>
             </b-col>
@@ -15,26 +15,31 @@
               <b-button href="/pos" variant="primary" >
                 <i class="fa fa-desktop fa-3x" > </i>
                 <div>
-                  Point of Sale
+                  {{ $t('index_menu_pos') }}
                 </div>
               </b-button>
             </b-col>
             <b-col>
               <b-button href="/inventory"  variant="success">
                 <i class="fa fa-bar-chart fa-4x" > </i> <div>
-                Inventory Management
+                {{ $t('index_menu_inventory') }}
               </div>
               </b-button>
             </b-col>
             <b-col>
               <b-button href="/report-daily"  variant="warning">
                 <i class="fa fa-area-chart fa-4x" > </i> <div>
-                Reporting
+                {{ $t('index_menu_report') }}
               </div>
               </b-button>
             </b-col>
           </b-row>
         </b-container>
+      </div>
+      <div style="text-align: center; font-size: 12px;">
+        <div class="footer-rights">
+          Copyright © 2022 Fireart Studio. All rights reserved.
+        </div>
       </div>
     </div>
   </div>
@@ -89,6 +94,7 @@ export default {
 <style  scoped>
   .main-menu {
     padding-top :100px;
+    height: calc(100vh - 20px);
   }
   .main-menu .btn {
     padding-top: 10px;

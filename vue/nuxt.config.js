@@ -57,6 +57,7 @@ export default {
     '~/plugins/vue-barcode',
     '~/plugins/moment',
     '~/plugins/i18n',
+    '~/plugins/input-text-uppercase',
   ],
 
   axios: {

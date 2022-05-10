@@ -11,22 +11,22 @@
       <ul class="list-menu-text">
         <li class="menu-text-item">
           <a href="/inventory">
-            <span><i class="fa fa-balance-scale" aria-hidden="true"></i> Inventory</span>
+            <span><i class="fa fa-balance-scale" aria-hidden="true"></i> {{ $t('title_inventory') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/categories">
-            <span> <i class="fa fa-cogs" aria-hidden="true"></i> Categories </span>
+            <span> <i class="fa fa-cogs" aria-hidden="true"></i> {{ $t('title_categories') }} </span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/brands">
-            <span> <i class="fa fa-asterisk" aria-hidden="true"></i> Brands</span>
+            <span> <i class="fa fa-asterisk" aria-hidden="true"></i> {{ $t('title_brands') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/products">
-            <span><i class="fa fa-gift" aria-hidden="true"></i> Products</span>
+            <span><i class="fa fa-gift" aria-hidden="true"></i> {{ $t('title_products') }}</span>
           </a>
         </li>
         <li class="menu-text-item" style="display:none;">
@@ -36,22 +36,27 @@
         </li>
         <li class="menu-text-item">
           <a href="/supplier">
-            <span> <i class="fa fa-truck" aria-hidden="true"></i> Supplier </span>
+            <span> <i class="fa fa-truck" aria-hidden="true"></i> {{ $t('title_supplier') }} </span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/ware-house">
-            <span> <i class="fa fa-home" aria-hidden="true"></i> WareHouse </span>
+            <span> <i class="fa fa-home" aria-hidden="true"></i> {{ $t('title_warehouse') }} </span>
           </a>
         </li>
       </ul>
     </div>
     <div class="content-logout">
       <ul class="ul-style">
-        <li class="li-style">
-          <a class="cursor-default no-cursor">{{ $store.$cookies.get('user').name }}</a>
+        <li class="li-style" style="overflow: hidden;">
+          <a class="cursor-default no-cursor content-user-profile">
+            <span class="content-user-img">
+              <img :src="getUrlDisplayImgUser()" alt="" />
+            </span>
+            <span>{{ $store.$cookies.get('user').name }}</span>
+          </a>
         </li>
-        <li class="li-style">
+        <li class="li-style" style="overflow: hidden;">
           <b-button class="button-no-background" @click="logOut()">
             <span>Logout</span>
           </b-button>
@@ -74,6 +79,9 @@
         if(response && response.data.hasOwnProperty("message") && response.data.message.toLocaleLowerCase() === "logged out"){
           await this.$router.push('/login');
         }
+      },
+      getUrlDisplayImgUser(){
+        return this.$store.$cookies.get('user').image ? this.$store.$cookies.get('user').image : "images/no_icon.png";
       },
     },
     mounted() {

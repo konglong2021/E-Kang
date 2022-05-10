@@ -5,22 +5,21 @@
         <div class="control-panel">
           <div class="panel-top">
             <div class="content-panel-left">
-              <h3 class="head-title">Products Overview</h3>
+              <h3 class="head-title">{{ $t('content_title_product')}}</h3>
             </div>
             <div class="content-panel-right">
                <b-container class="col-6 mx-auto menu-wrapper">
                 <b-row>
                   <b-col>
-
-              <div class="input-group input-group-sm search-content">
-                 <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchProduct()" @change="handleClick" />
-              </div>
+                    <div class="input-group input-group-sm search-content">
+                       <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
+                      <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchInput" @keyup.enter="searchProduct()" @change="handleClick" />
+                    </div>
                   </b-col>
                   <div class="btn-wrapper">
                        <b-button href="#"  title="Add new Category" size="sm" variant="primary"
                        @click="showModal()">
-                        New Product
+                        {{ $t('title_new_product') }}
                         <i class="fa fa-plus" aria-hidden="true"></i>
                       </b-button>
                   </div>
@@ -48,7 +47,7 @@
               >
                 <template #cell(code)="row">
                   <div style="display: inline-block; overflow : hidden;">
-                    <barcode :value="row.item.code" height ='15' marginTop="0" marginBottom="0" fontSize="12" textMargin="1"></barcode>
+                    <barcode :value="row.item.code" height ='30' width = '1.9' marginTop="0" marginBottom="0" fontSize="12" textMargin="1"></barcode>
                   </div>
                 </template>
                 <template #cell(actions)="row">
@@ -66,13 +65,20 @@
               </b-table>
             </div>
           </div>
-          <div style="display: none;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code" class="display-inline-block">
-            <div v-for="item in barcodeListToPrint" class="display-inline-block">
-              <barcode :value="item"></barcode>
+          <div style="width: 60mm; height: 35mm; display:inline-block;" v-if="numberPrint > 0" :id="'barcode-' + barcodeItem.code">
+            <div v-if="barcodeItem.code.length > 12">
+              <div v-for="item in barcodeListToPrint">
+                <span style="text-align: center !important;">{{ barcodeItem.name }}</span>
+                <barcode :value="item" height ='75' width="2" paddingTop="0" marginTop="0" marginBottom="0" fontSize="12" paddingBottom="0" marginLeft="0"></barcode>
+              </div>
+            </div>
+            <div style="width: 60mm; height: 35mm; display:inline-block;" v-if="barcodeItem.code.length === 12">
+              <div v-for="item in barcodeListToPrint">
+                <span style="margin-left:12px; text-align: center !important; display: block;">{{ barcodeItem.name }}</span>
+                <barcode :value="item" height ='80' width="2" marginTop="0" marginBottom="0" fontSize="12"></barcode>
+              </div>
             </div>
           </div>
-        </div>
-        <div>
         </div>
         <add-new-product-modal v-model="newProductModal" :productItemSelected="productItemSelected" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
         <b-modal
@@ -151,17 +157,17 @@
         currentPage: 1,
         items: [],
         fields: [
-          {key: 'name', label: 'Name'},
+          {key: 'name', label: this.$t('label_name')},
           {
-            key: 'code', label: 'BarCode',
+            key: 'code', label: this.$t('title_barcode'),
             tdAttr: (_, __, {name, code}) => ({
               id: `${code}`
             }), tdClass: 'td-code'
           },
-          {key: 'category_name', label: 'Category'},
-          {key: 'brand', label: 'Brand'},
+          {key: 'category_name', label: this.$t('title_category')},
+          {key: 'brand', label: this.$t('title_brand')},
           {key: 'loyalty', label: 'Loyalty'},
-          {key: 'actions', label: 'Actions'}
+          {key: 'actions', label: this.$t('title_action')}
         ],
         category: {}, //new item for category
         isLoading: false,
@@ -226,6 +232,7 @@
             items.push(newItem);
           }
           self.items = self.cloneObject(items);
+          self.items.sort(self.sortByName);
         }
         })
           .catch(function (error) {
@@ -233,8 +240,14 @@
             self.$toast.error("Submit data getting error").goAway(3000);
           });
       },
+      sortByName(a, b) {
+        if (a.name < b.name)
+          return -1;
+        if (a.name > b.name)
+          return 1;
+        return 0;
+      },
       showModal() {
-        //just put v-b-modal.modal-create-product this in button also work but we do this to understand about concept of component
         this.newProductModal.showModal = true;
         this.productItemSelected = {};
       },
@@ -264,24 +277,21 @@
         this.productItemSelected.code = item["code"];
       },
       async checkingProductAdd($event) {
-        let foundItem = false, indexItem = null;
+        let foundItem = false, indexItem = null, self = this;
         if ($event && $event.hasOwnProperty("brands") && $event.hasOwnProperty("itemProduct")) {
           let brands = $event.brands;
-          let itemProduct = $event.itemProduct;
-          if (this.items.length > 0) {
-            for (let i = 0; i < this.items.length; i++) {
-              if (itemProduct.id === this.items[i].id) {
+          let itemProduct = this.cloneObject($event.itemProduct);
+          if (self.items.length > 0) {
+            for (let i = 0; i < self.items.length; i++) {
+              if (itemProduct.id === self.items[i].id) {
                 foundItem = true;
-                this.items[indexItem] = itemProduct;
-                if (brands && brands.length > 0) {
-                  this.items[indexItem]["brands"] = brands;
-                }
+                self.items[indexItem] = itemProduct;
+                break;
               }
-              break;
             }
           }
-          if (!foundItem) {
-            await this.items.push(itemProduct);
+          if (foundItem === false) {
+            self.items.unshift(itemProduct);
           }
         }
       },
@@ -345,12 +355,15 @@
       },
       barcodePrint() {
         this.$htmlToPaper(("barcode-" + this.barcodeItem.code));
+        this.barcodeItem = {};
+        this.numberPrint = 0;
       },
       barcodeInputNumberPrint(item) {
         this.barcodeItem = item;
         this.$refs['input-number-barcode-modal'].show();
       },
       updateNumberBarcodePrint(input) {
+        this.barcodeListToPrint = [];
         if (input > 0) {
           for (let i = 1; i <= input; i++) {
             this.barcodeListToPrint.push(this.barcodeItem.code);

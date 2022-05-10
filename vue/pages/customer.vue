@@ -17,7 +17,7 @@
                     </div>
                   </b-col>
                   <div class="btn-wrapper">
-                    <b-button href="#"  title="Add new Category" size="sm" variant="primary"
+                    <b-button href="#"  title="Add new Customer" size="sm" variant="primary"
                               @click="showModal()">
                       New Customer
                       <i class="fa fa-plus" aria-hidden="true"></i>
@@ -41,10 +41,10 @@
               show-empty
               small>
               <template #cell(actions)="row">
-                <b-button size="sm" variant="primary" title="View Inventory History Detail"  @click="viewDetailCustomer(row.item, row.index, $event.target)" class="mr-1">
+                <b-button size="sm" variant="primary" title="View Customer Detail"  @click="viewDetailCustomer(row.item, row.index, $event.target)" class="mr-1">
                   <i class="fa fa-eye"></i>
                 </b-button>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="editCuatomer(row.item, row.index, $event.target)">
+                <b-button size="sm" title="Adjust Customer" variant="success" @click="editCustomer(row.item, row.index, $event.target)">
                   <i class="fa fa-edit"></i>
                 </b-button>
               </template>
@@ -113,7 +113,6 @@
           if (response && response.hasOwnProperty("data")) {
             if(response.data.length > 0){
               self.members = [];
-
               for (let index=0; index < response.data.length; index++){
                 self.members.push({text: response.data[index]["title"], value: response.data[index]["id"]});
               }
@@ -130,7 +129,6 @@
 
         await self.$axios.get('/api/customer').then(function (response) {
           self.isLoading = false;
-          console.log(response);
           if (response && response.hasOwnProperty("data") && response.data.hasOwnProperty("customer")) {
             self.items = [];
             let customer = response.data.customer;
@@ -143,6 +141,15 @@
                 item["address"] = customer[index]["address"];
                 item["title"] = customer[index]["title"];
                 item["discount"] = customer[index]["discount"];
+                if(self.members.length > 0){
+                  for(let i=0; i < self.members.length; i++){
+                    if(self.members[i]["text"].toLocaleLowerCase() === customer[index]["title"].toLocaleLowerCase()){
+                      item["member"] = self.members[i]["value"];
+                      break;
+                    }
+                  }
+                }
+                // item["member"] = customer[index]["title"];
                 self.items.push(item);
               }
             }
@@ -170,7 +177,7 @@
           self.$axios.put('/api/customer/' + self.customer.id, dataSubmit)
             .then(function (response) {
               self.isLoading = false;
-              let dataReturn = response.data;
+              let dataReturn = response.data.customer;
               self.items.forEach((value, index ) => {
                 if(value.id === dataReturn.id){
                   value = dataReturn;
@@ -187,7 +194,7 @@
           await self.$axios.post('/api/customer', dataSubmit).then(function (response) {
             if(response){
               self.isLoading = false;
-              self.items.push(response.customer);
+              self.items.push(response.data.customer);
               self.customer = {};
             }
           }).catch(function (error) {
@@ -198,7 +205,10 @@
       },
       viewDetailCustomer(item, index, target) {
       },
-      editCuatomer(item, index, target) {
+      editCustomer(item, index, target) {
+        this.$refs['create-customer-form-modal'].show();
+        this.customer = item;
+        console.log(item);
       },
     },
     mounted() {

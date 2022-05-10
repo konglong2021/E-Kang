@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PurchasesResource;
 use Carbon\Carbon;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
+
 class PurchasesController extends Controller
 {
     /**
@@ -76,10 +78,14 @@ class PurchasesController extends Controller
             ],
         ]);
 
-        // try{
+        
+        try{
 
-        DB::transaction(function () use ($request){
+        return DB::transaction(function () use ($request){
+        $prefix = date("ymd");
+        $invoice = IdGenerator::generate(['table' => 'purchases', 'field'=>'invoice_id','length' => 12, 'prefix' =>'P-'.$prefix]);
         $purchase = new Purchase();
+        $purchase->invoice_id = $invoice;
         $purchase->warehouse_id = $request->warehouse_id;
         $purchase->supplier_id = $request->supplier_id;
         $purchase->user_id = auth()->user()->id;
@@ -89,7 +95,7 @@ class PurchasesController extends Controller
         $purchase->grandtotal = $request->grandtotal;
         $purchase->save();
 
-
+        
         $purchase_details= $request->purchases; // purchase is the array of purchase details
 
         foreach($purchase_details as $item)
@@ -124,16 +130,23 @@ class PurchasesController extends Controller
                 ]);
             }
         }
-
-
-            });
-//End of transaction
-
+       
         return response()->json([
-
             "message" => "Successfully Created",
+            "purchase" => $purchase,
+            "items"     =>$purchase_details
+            ]);
 
-        ]);
+        });
+        //End of transaction
+        }catch (\Exception $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Please Check again1"
+            ]);
+        }
+        
 
 
 
@@ -165,6 +178,23 @@ class PurchasesController extends Controller
     {
         $pdetail=Purchase::with('purchasedetails')->find($id);
         return response()->json($pdetail);
+    }
+
+
+    public function ShowLastUnitPrice($product_id)
+    {
+        $price = PurchaseDetail::where('product_id',$product_id)->get()->last();
+        if(!$price){
+            return response()->json([
+                "success" => true,
+                "price" => "New Item"
+            ], 200);
+        }
+        
+        return response()->json([
+            "success" => true,
+            "price" => $price
+        ], 200);
     }
 
     /**
@@ -237,36 +267,21 @@ class PurchasesController extends Controller
             }
         }
         //end of stock roll back
-
-        // $user->roles()->sync($request->input('roles', []));
-
         $purchase_details= $request->purchases; // purchase is the array of purchase details
         $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
         
 
         foreach($purchase_details as $item)
         {
-
             $pdetail = PurchaseDetail::Create([
-
                 'purchase_id' => $purchase->id,
                 'product_id' => $item['product_id'],
                 'unitprice' => $item['unitprice'],
                 'quantity' => $item['quantity'],
-    
-    
             ] );
-            
-
-
-           
-
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)
             ->first();
-
-
-
             if ($stock !== null) {
                 $stock->total = $stock->total + $item['quantity'];
                 $stock->update();
@@ -280,12 +295,10 @@ class PurchasesController extends Controller
                 ]);
             }
         }
-
-
             });
             return response()->json([
                 "success" => true,
-                "message" => "Successfully Created",
+                "message" => "Successfully updated",
     
             ]);
          } catch (\Exception $th) {
@@ -342,4 +355,7 @@ class PurchasesController extends Controller
     {
         
     }
+
+
+
 }

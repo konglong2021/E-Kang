@@ -69,8 +69,17 @@ export default {
           let user = self.cloneObject(response.data.user);
           self.$store.commit('auth/setToken', token);
           self.$store.commit('auth/setUser', user);
-          self.$store.commit('auth/setStoreItem', user.warehouse_id);
+          if(user && user.hasOwnProperty("profile") && user.profile && user.profile.warehouse_id){
+            self.$store.commit('auth/setStoreItem', user.profile.warehouse_id);
+          }
           self.$router.push('/');
+        }
+        else {
+            console.log(error);
+            self.form.email = null;
+            self.form.password = null;
+            self.form.isFieldError = true;
+            self.$toast.error("getting data error ").goAway(2000);
         }
       }).catch(function (error) {
         console.log(error);
