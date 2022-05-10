@@ -551,7 +551,7 @@
                 vm.productList.unshift(itemProduct);
                 vm.loadingFields.productListLoading = false;
                 let productOptionItem =  { name: '', value: null};
-                productOptionItem.name = (dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")");
+                productOptionItem.name = (dataResponse[index].en_name + " - " + dataResponse[index].kh_name + " (" + dataResponse[index].code + ")");
                 productOptionItem.value = dataResponse[index].id;
                 vm.products.unshift(productOptionItem);
               }

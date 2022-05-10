@@ -108,16 +108,16 @@
                   <b-form-input type="number" class="input-content" v-model="exchange_rate"></b-form-input>
                 </div>
               </div>
+              <div class="form-row-content-detail">
+                  <div class="form-column-label">
+                    <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
+                  </div>
+                  <div class="form-column-input">
+                    <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
+                  </div>
+              </div>
             </div>
             <div class="container-row-form width-45-percentage float-right">
-              <div class="form-row-content-detail">
-                <div class="form-column-label">
-                  <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
-                </div>
-                <div class="form-column-input">
-                  <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
-                </div>
-              </div>
               <div class="form-row-content-detail">
                 <div class="form-column-label">
                   <label :for="'input-discount'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
@@ -127,35 +127,21 @@
                 </div>
               </div>
               <div class="form-row-content-detail">
-                <div class="form-column-label" v-if="!is_getting_money_usd && !is_getting_money_riel">
-                  <label >ទទួលទឹកប្រាក់ </label>
-                </div>
-                <div style="display: inline-block;">
-                  <b-button size="sm" v-if="!is_getting_money_usd" @click="checkGettingMoney('USD')">ដុល្លា</b-button>
-                  <b-button size="sm" v-if="!is_getting_money_riel" @click="checkGettingMoney('Riel')">ប្រាក់រៀល</b-button>
-                </div>
-
-                <div class="form-column-label" v-if="is_getting_money_usd">
-                  <label :for="'input-getting-money-usd'" class="label-input no-margin-bottom">
-                    ទទួលទឹកប្រាក់ ($)
-                  </label>
+                <div class="form-column-label">
+                  <label :for="'input-getting-money-usd'" class="label-input no-margin-bottom">ទទួលទឹកប្រាក់ ($)</label>
                 </div>
                 <div class="form-column-input">
-                  <div style="margin-bottom: 5px; display: inline-block;">
-                    <b-form-input v-if="is_getting_money_usd" :id="'input-getting-money-usd'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
-                  </div>
+                    <b-form-input :id="'input-getting-money-usd'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
                 </div>
               </div>
-              <div class="form-row-content-detail">
-                <div class="form-column-label" v-if="is_getting_money_riel">
-                  <label :for="'input-getting-money-riel'" class="label-input no-margin-bottom">
-                    ទទួលទឹកប្រាក់ (៛)
-                  </label>
+                <div class="form-row-content-detail">
+                    <div class="form-column-label">
+                        <label :for="'input-getting-money-riel'" class="label-input no-margin-bottom">ទទួលទឹកប្រាក់ (៛)</label>
+                    </div>
+                    <div class="form-column-input">
+                        <b-form-input :id="'input-getting-money-riel'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
+                    </div>
                 </div>
-                <div class="form-column-input">
-                    <b-form-input v-if="is_getting_money_riel" :id="'input-getting-money-riel'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
-                </div>
-              </div>
             </div>
           </div>
           <b-table table-class="table-payment"
@@ -171,8 +157,8 @@
             <span style="display: block;">{{$t('title_total_in_usd')}} : {{ calculate("USD", items) }} USD</span>
             <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ calculateIncludeTax(calculate("USD", items)) }} USD</span>
             <span style="display: block;margin-top: 10px;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{ calculateToRiel(calculate("USD", items), exchange_rate) }} Riel</span>
-            <span style="display: block;">លុយត្រូវអាប់ ($) : {{(getting_money_usd || getting_money_riel) ? calculateMoneyGiveBack(items) : 0 }} {{ getting_money_usd ? "USD" : "Riel" }}</span>
-            <span style="display: block;">លុយត្រូវអាប់ (៛) : {{ giveMoneyBackConvert }} </span>
+            <span style="display: block;">លុយត្រូវអាប់ ($) : {{ calculateMoneyGiveBack(items, "USD") + " USD" }}</span>
+            <span style="display: block;">លុយត្រូវអាប់ (៛) : {{ calculateMoneyGiveBack(items, "Riel") + " Riel" }} </span>
           </div>
         </b-form>
       </b-modal>
@@ -605,19 +591,20 @@ export default {
             this.is_getting_money_riel = false;
           }
         },
-        calculateMoneyGiveBack($items){
-          let moneyReturn = 0, totalPay =0;
-          if(this.is_getting_money_usd){
-            totalPay = this.calculateIncludeTax(this.calculate("USD", $items));
-            moneyReturn = (parseFloat(this.getting_money_usd) - parseFloat(totalPay));
-            this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn * this.exchange_rate) : 0) + " Riel";
-          }
-          else if(this.is_getting_money_riel){
-            totalPay = this.calculateToRiel(this.calculate("USD", $items), this.exchange_rate);
-            moneyReturn = (parseFloat(this.getting_money_riel) - parseFloat(totalPay));
-            this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn / this.exchange_rate).toFixed(2) : 0) + " USD";
-          }
-          return moneyReturn;
+        calculateMoneyGiveBack($items, $typeOfMoney){
+          let totalPaymentAsUsd = 0;
+            totalPaymentAsUsd = this.calculateIncludeTax(this.calculate("USD", $items));
+            let totalGettingMoneyRiel = this.getting_money_riel ? (this.getting_money_riel / this.exchange_rate) : 0;
+            let totalGettingMoneyAsUsd = totalGettingMoneyRiel > 0 ? (parseFloat(totalGettingMoneyRiel.toFixed(2)) + parseFloat(this.getting_money_usd)) : parseFloat(this.getting_money_usd);
+           let totalGiveMoneyAsUsd = totalGettingMoneyAsUsd ? (totalGettingMoneyAsUsd - totalPaymentAsUsd) : 0 ;
+            let totalGiveMoneyAsRiel = totalGiveMoneyAsUsd ? (totalGiveMoneyAsUsd * this.exchange_rate) : 0;
+
+            if($typeOfMoney === "USD"){
+               return totalGiveMoneyAsUsd.toFixed(2);
+            }
+            else if($typeOfMoney === "Riel"){
+                return totalGiveMoneyAsRiel.toFixed(2);
+            }
         },
 
   },

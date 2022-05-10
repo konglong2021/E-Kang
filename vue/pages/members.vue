@@ -5,7 +5,7 @@
         <div class="control-panel">
           <div class="panel-top">
             <div class="content-panel-left">
-              <h3 class="head-title">Members Overview</h3>
+              <h3 class="head-title">{{ $t('content_title_member') }}</h3>
             </div>
             <div class="content-panel-right">
               <b-container class="col-6 mx-auto menu-wrapper">
@@ -13,13 +13,13 @@
                   <b-col>
                     <div class="input-group input-group-sm search-content">
                       <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                      <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                      <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchMemberInput" @keyup.enter="searchMember()" @change="handleClick"/>
                     </div>
                   </b-col>
                   <div class="btn-wrapper">
                     <b-button href="#"  title="Add new Category" size="sm" variant="primary"
                               @click="showModal()">
-                      New User
+                      {{ $t('title_new_member') }}
                       <i class="fa fa-plus" aria-hidden="true"></i>
                     </b-button>
                   </div>
@@ -54,19 +54,19 @@
         </div>
       </div>
       <b-modal id="modal-member" ref="member-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cancel" no-close-on-backdrop
-               @ok="onSubmit" ok-title="Save" title="New User">
+               @hidden="onReset" cancel-title="បោះបង់" no-close-on-backdrop
+               @ok="onSubmit" ok-title="រក្សាទុក" :title="member && member.id ? 'Updated Member' : 'New Member'">
         <b-form enctype="multipart/form-data">
           <div class="full-content">
           </div>
           <div class="full-content">
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-title'" class="label-input">Member Title</label></b-col>
+              <b-col sm="4"><label :for="'input-title'" class="label-input">{{ $t('label_member_title') }}</label></b-col>
               <b-col sm="8"><b-form-input :id="'input-title'" type="text" v-model="member.title" class="input-content"></b-form-input></b-col>
             </b-row>
 
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-discount'" class="label-input">Discount</label></b-col>
+              <b-col sm="4"><label :for="'input-discount'" class="label-input">{{ $t('label_discount') + " %"}}</label></b-col>
               <b-col sm="8">
                 <b-form-select :id="'input-discount'" class="form-control input-content" v-model="member.discount" :options="discountList"></b-form-select>
               </b-col>
@@ -81,13 +81,13 @@
         <b-form enctype="multipart/form-data" v-if="memberView !== null && memberView !== undefined">
           <div class="product-data data">
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-title'" class="label-input label-margin-top">Member Title</label></b-col>
+              <b-col sm="4"><label :for="'input-title'" class="label-input label-margin-top">{{ $t('label_member_title') }}</label></b-col>
               <b-col sm="4">
                 <b-form-input :id="'input-title'" type="text" v-model="memberView.title" class="input-content input-no-background" disabled></b-form-input>
               </b-col>
             </b-row>
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-khname'" class="label-input label-margin-top">Discount (%)</label></b-col>
+              <b-col sm="4"><label :for="'input-khname'" class="label-input label-margin-top">{{ $t('label_discount') }} (%)</label></b-col>
               <b-col sm="4">
                 <b-form-input :id="'input-khname'" type="text" v-model="memberView.discount" class="input-content input-no-background" disabled></b-form-input>
               </b-col>
@@ -106,15 +106,17 @@
       return {
        items:[],
         fields: [
-           { key: 'title', label: 'Title' },
-           { key: 'discount_percentage', label: 'Discount (%)' },
-           { key: 'actions', label: 'Actions' },
+           { key: 'title', label: this.$t('label_member_title') },
+           { key: 'discount_percentage', label: this.$t('label_discount') + ' (%)' },
+           { key: 'actions', label: this.$t('title_action') },
         ],
         member:{},
         isLoading: false,
         discountList : [
           {text: '0%', value: 0},
+          {text: '3%', value: 0.03},
           {text: '5%', value: 0.05},
+          {text: '8%', value: 0.08},
           {text: '10%', value: 0.1},
           {text: '15%', value: 0.15},
           {text: '20%', value: 0.2},
@@ -126,6 +128,7 @@
           {text: '50%', value: 0.50}
         ],
         memberView : {},
+        searchMemberInput: null,
     }
     },
 
@@ -180,6 +183,15 @@
         this.member = item;
         this.member.discount = (item.discount / 100);
         this.$refs['member-form-modal'].show();
+      },
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = '';
+          this.getListMembers();
+        }
+      },
+      searchMember(){
+
       },
     },
     mounted() {

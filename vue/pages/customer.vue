@@ -5,7 +5,7 @@
         <div class="control-panel">
           <div class="panel-top">
             <div class="content-panel-left">
-              <h3 class="head-title">Customers Overview</h3>
+              <h3 class="head-title">{{ $t('content_title_customer') }}</h3>
             </div>
             <div class="content-panel-right">
               <b-container class="col-6 mx-auto menu-wrapper">
@@ -13,13 +13,13 @@
                   <b-col>
                     <div class="input-group input-group-sm search-content">
                       <span class="input-group-addon button-search-box"><i class="fa fa-search"></i></span>
-                      <input class="form-control input-search-box" type="search" placeholder="Search..."/>
+                      <input class="form-control input-search-box" type="search" placeholder="Search..." v-model="searchCustomerInput" @keyup.enter="searchFunction()" @change="handleClick" />
                     </div>
                   </b-col>
                   <div class="btn-wrapper">
                     <b-button href="#"  title="Add new Customer" size="sm" variant="primary"
                               @click="showModal()">
-                      New Customer
+                      {{$t('title_new_customer') }}
                       <i class="fa fa-plus" aria-hidden="true"></i>
                     </b-button>
                   </div>
@@ -55,25 +55,25 @@
         <div></div>
       </div>
       <b-modal id="modal-create-customer" ref="create-customer-form-modal" size="lg"
-               @hidden="onReset" cancel-title="Cacnel" no-close-on-backdrop
-               @ok="onSubmit" ok-title="Save" title="New User">
+               @hidden="onReset" cancel-title="បោះបង់" no-close-on-backdrop
+               @ok="onSubmit" ok-title="រក្សាទុក" title="New User">
         <b-form enctype="multipart/form-data">
           <div class="full-content">
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-first-name'" class="label-input">Name</label></b-col>
+              <b-col sm="4"><label :for="'input-first-name'" class="label-input">{{ $t('label_customer_name') }}</label></b-col>
               <b-col sm="8"><b-form-input :id="'input-first-name'" type="text" v-model="customer.name" class="input-content"></b-form-input></b-col>
             </b-row>
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-user-name'" class="label-input">Phone number</label></b-col>
+              <b-col sm="4"><label :for="'input-user-name'" class="label-input">{{ $t('label_phone') }}</label></b-col>
               <b-col sm="8"><b-form-input :id="'input-user-name'" type="text" v-model="customer.phone" class="input-content"></b-form-input></b-col>
             </b-row>
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-user'" class="label-input">Address</label></b-col>
+              <b-col sm="4"><label :for="'input-user'" class="label-input">{{ $t('label_address') }}</label></b-col>
               <b-col sm="8"><b-form-input :id="'input-user'" class="form-control input-content" v-model="customer.address"></b-form-input></b-col>
             </b-row>
 
             <b-row class="my-1">
-              <b-col sm="4"><label :for="'input-member'" class="label-input">Member type</label></b-col>
+              <b-col sm="4"><label :for="'input-member'" class="label-input">{{ $t('label_member_type') }}</label></b-col>
               <b-col sm="8">
                 <b-form-select :id="'input-member'" class="input-content" v-model="customer.member" :options="members"></b-form-select>
               </b-col>
@@ -93,17 +93,18 @@
       return {
         items:[],
         fields: [
-          { key: 'name', label: 'Name' },
-          { key: 'phone', label: 'Phone number' },
-          { key:'address',label:'Address'} ,
-          { key:'title',label:'Member type'},
-          { key:'discount',label:'Discount'},
-          { key: 'actions', label: 'Actions' },
+          { key: 'name', label: this.$t('label_customer_name') },
+          { key: 'phone', label: this.$t('label_phone') },
+          { key:'address',label: this.$t('label_address')} ,
+          { key:'title',label: this.$t('label_member_type')},
+          { key:'discount',label: this.$t('label_discount')},
+          { key: 'actions', label: this.$t('title_action') },
         ],
         customer:{}, //new item for user
         roles: [],
         isLoading: false,
         members : [],
+        searchCustomerInput: null,
       }
     },
     methods:{
@@ -208,7 +209,13 @@
       editCustomer(item, index, target) {
         this.$refs['create-customer-form-modal'].show();
         this.customer = item;
-        console.log(item);
+      },
+      searchFunction(){},
+      handleClick(e) {
+        if (e.target.value === '' || e.target.value === null || e.target.value === undefined) {
+          this.searchInput = '';
+          this.getListCustomer();
+        }
       },
     },
     mounted() {

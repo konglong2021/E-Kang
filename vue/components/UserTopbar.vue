@@ -11,22 +11,22 @@
       <ul class="list-menu-text">
         <li class="menu-text-item">
           <a href="/users">
-            <span><i class="fa fa-users" aria-hidden="true"></i> Users</span>
+            <span><i class="fa fa-users" aria-hidden="true"></i>{{ $t('label_menu_title_user') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/roles">
-            <span> <i class="fa fa-cogs" aria-hidden="true"></i> Roles</span>
+            <span> <i class="fa fa-cogs" aria-hidden="true"></i>{{ $t('label_menu_title_role') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/members">
-            <span> <i class="fa fa-user" aria-hidden="true"></i> Members</span>
+            <span> <i class="fa fa-user" aria-hidden="true"></i> {{ $t('label_menu_title_member') }}</span>
           </a>
         </li>
         <li class="menu-text-item">
           <a href="/customer">
-            <span> <i class="fa fa-user" aria-hidden="true"></i> Customer</span>
+            <span> <i class="fa fa-user" aria-hidden="true"></i>{{ $t('label_menu_title_customer') }}</span>
           </a>
         </li>
       </ul>
