@@ -63,8 +63,12 @@
         </div>
       <b-modal id="modal-input-qty-product" ref="input-qty-product-form-modal" modal-class="payment-form-modal"
                @hidden="onResetAddMoreQtyProduct" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitAddMoreQtyProduct" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_qty_title')" no-close-on-backdrop>
-        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+               @ok="handleAddMoreQtyProductOk" :ok-title="$t('label_title_update')"
+               :title="$t('label_update_selling_qty_title')" no-close-on-backdrop
+      >
+        <b-form enctype="multipart/form-data"
+                style="display: inline-block; width: 100%; height: 100%; overflow: hidden;"
+                ref="form" @submit.stop.prevent="onSubmitAddMoreQtyProduct">
           <b-row class="my-1">
             <b-col sm="5"><label :for="'input-qty-product'" class="label-input">បន្ថែមចំនួនទំនិញដែលលក់</label></b-col>
             <b-col sm="7">
@@ -75,12 +79,15 @@
       </b-modal>
       <b-modal id="modal-update-selling-product" ref="update-selling-product-form-modal" modal-class="payment-form-modal"
              @hidden="onResetUpdateSellingPrice" ok-only ok-variant="secondary" footer-class="justify-content-center"
-             @ok="onSubmitUpdateSellingPrice" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
-        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+             @ok="handleUpdateSellingPriceOk" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data"
+                style="display: inline-block; width: 100%; height: 100%; overflow: hidden;"
+                @submit.stop.prevent="onSubmitUpdateSellingPrice"
+        >
             <b-row class="my-1">
                 <b-col sm="5"><label :for="'input-selling-product'" class="label-input">តម្លៃលក់ថ្មី</label></b-col>
                 <b-col sm="7">
-                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" required></b-form-input>
+                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" @keyup.enter="onSubmitUpdateSellingPrice()" required></b-form-input>
                 </b-col>
             </b-row>
         </b-form>
@@ -340,15 +347,22 @@ export default {
           this.selectedItemData = $product;
           this.$refs['input-qty-product-form-modal'].show();
       },
+
+      handleAddMoreQtyProductOk(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitAddMoreQtyProduct();
+      },
       onSubmitAddMoreQtyProduct(){
           this.submitNumberIncreaseQtyProduct(this.selectedItemData, this.qtyInput);
+          this.$nextTick(() => {
+            this.$refs['input-qty-product-form-modal'].hide();
+          })
       },
       submitNumberIncreaseQtyProduct(productItem, QtyProduct) {
           let itemTemp = null;
           for(let index=0; index < this.products.length; index++) {
             if (this.products[index]["id"] === productItem["id"]) {
               itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-              //itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
               itemTemp["qty"] = parseInt(QtyProduct);
               this.$set(this.products, index, itemTemp);
             }
@@ -393,12 +407,19 @@ export default {
           this.$refs['update-selling-product-form-modal'].show();
       },
       onResetUpdateSellingPrice(){},
+      handleUpdateSellingPriceOk(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitUpdateSellingPrice();
+      },
       onSubmitUpdateSellingPrice(){
           for(let indexProduct = 0;indexProduct < this.items.length; indexProduct++){
               if(this.items[indexProduct]["id"] === this.productItemSelectToUpdatePrice["id"]){
                   this.items[indexProduct]["price"] = this.productItemSelectToUpdatePrice["price"];
               }
           }
+        this.$nextTick(() => {
+          this.$refs['update-selling-product-form-modal'].hide();
+        })
       },
 
       closeDropdown($event){
@@ -613,12 +634,6 @@ export default {
     self.onInitData();
     self.getCustomerList();
   },
-  created: function() {
-    window.addEventListener('keydown', this.handleKeydown, null);
-  },
-  destroyed: function() {
-    window.removeEventListener('keydown', this.handleKeydown, null);
-  }
 }
 </script>
 <style scoped>

@@ -232,7 +232,8 @@
             items.push(newItem);
           }
           self.items = self.cloneObject(items);
-          self.items.sort(self.sortByName);
+          self.items.sort(self.sortByKhName);
+          self.items.sort(self.sortByEnName);
         }
         })
           .catch(function (error) {
@@ -240,10 +241,17 @@
             self.$toast.error("Submit data getting error").goAway(3000);
           });
       },
-      sortByName(a, b) {
-        if (a.name < b.name)
+      sortByKhName(a, b) {
+        if (a.kh_name < b.kh_name)
           return -1;
-        if (a.name > b.name)
+        if (a.kh_name > b.kh_name)
+          return 1;
+        return 0;
+      },
+      sortByEnName(a, b) {
+        if (a.en_name < b.en_name)
+          return -1;
+        if (a.en_name > b.en_name)
           return 1;
         return 0;
       },
