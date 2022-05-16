@@ -32,7 +32,7 @@
                 </div>
               </div>
               <div class="float-right" style="margin-right: 8px; display: inline-block;">
-                <b-button class="min-height-43-px" v-if="product_select || customer_select" @click="printFilterData()" size="sm" title="Click to print" variant="success">Click to print</b-button>
+                <b-button class="min-height-43-px" v-if="product_select || customer_select" @click="printFilterData()" size="sm" title="ចុច ដើម្បី ព្រីនតារាង" variant="success">ចុចព្រីនតារាង</b-button>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@
                         {{ (item.vat === 0 || item.vat === undefined) ? 0 : item.vat + "%" }}
                       </b>
                     </b-td>
-                    <b-td class="width-11-percentage subtotal content-td" :rowspan="item.lengthDetail">
+                    <b-td class="width-11-percentage subtotal content-td">
                       <b class="content">{{ item.subtotal !== undefined ? (item.subtotal + "$") : "" }}</b>
                     </b-td>
                     <b-td class="grandtotal content-td" :rowspan="item.lengthDetail" :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'">
@@ -371,7 +371,7 @@
                     productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
                     productItem.code = productList[index].code;
                     vm.products.push(productItem);
-                    vm.productOptions.push({name: productItem.name, value: productItem.id})
+                    vm.productOptions.push({name: (productList[index].en_name + " - " + productList[index].kh_name + " (" + productList[index].code + ")"), value: productItem.id})
                   }
                 }
                 else if(productList && productList.hasOwnProperty("id")){
@@ -384,7 +384,7 @@
                   productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
                   productItem.code = productList.code;
                   vm.products.push(productItem);
-                  vm.productOptions.push({name: productItem.name, value: productItem.id})
+                  vm.productOptions.push({name: (productItem.en_name + " - " +productItem.kh_name + " (" + productItem.code + ")"), value: productItem.id})
                 }
               }
             }
@@ -461,7 +461,8 @@
                       itemOrderDetail["product_id"] = productData["id"] ;
                       itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
                       itemOrderDetail["sale_price"] = productData["price"] ;
-                      itemOrderDetail["order_id"] =orderDetailItem.order_id;
+                      itemOrderDetail["order_id"] = orderDetailItem.order_id;
+                      itemOrderDetail["subtotal"] = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
                       itemOrder[orderItem.id].push(itemOrderDetail);
                     }
                   }
@@ -478,7 +479,6 @@
                     itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
                     itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
                     itemData["lengthDetail"] = itemOrder[orderItem.id].length;
-                    itemData["subtotal"] = orderItem["subtotal"];
                     itemData["grandtotal"] = orderItem["grandtotal"];
 
                     itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
@@ -486,17 +486,20 @@
                     itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
                     itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
                     itemData["date"] = itemOrder[orderItem.id][index]["date"];
+                    itemData["subtotal"] = itemOrder[orderItem.id][index]["subtotal"];
                   }
                   else {
                     itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
                     itemData["name"] = itemOrder[orderItem.id][index].name;
                     itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
                     itemData["sale_price"] = itemOrder[orderItem.id][index]["sale_price"];
+                    itemData["subtotal"] = itemOrder[orderItem.id][index]["subtotal"];
                   }
                   self.items.push(itemData);
                 }
               }
             }
+            console.log(self.items);
           }
         }).catch(function (error) {
           console.log(error);

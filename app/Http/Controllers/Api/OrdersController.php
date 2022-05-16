@@ -116,7 +116,7 @@ class OrdersController extends Controller
         $orders->status = $status;
         $orders->save();
 
-        $income = $this->income($orders->grandtotal);
+        $income = $this->income($orders->grandtotal,$orders->warehouse_id);
 
         if(!$income){
             throw new \Exception('Please update Today Balance');
@@ -186,20 +186,41 @@ class OrdersController extends Controller
        return $profile->warehouse_id;
     }
 
-    public function income($income)
+    public function income($income,$warehouse_id)
     {
-
-           $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
-           $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
-           if(!$balance)
-           {
+      //$warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+      $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
+        if(!$balance)
+        {
             return false;
-           }
+        }
 
-           $balance_date = date('Y-m-d');
+        $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
             $input['income'] = $income + $balance->income;
+            $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
+            $balance->update($input);
+            return  $balance;
+
+        }
+            return false;
+
+    }
+
+    public function ReturnBalance($return,$warehouse_id)
+    {
+      //$warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
+      $balance = Balance::where("warehouse_id",$warehouse_id)->get()->last();
+        if(!$balance)
+        {
+            return false;
+        }
+
+        $balance_date = date('Y-m-d');
+        if($balance->balance_date >= $balance_date)
+        {
+            $input['income'] = $return - $balance->income;
             $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
@@ -252,21 +273,21 @@ class OrdersController extends Controller
                 'required',
             ],
         ]);
+        
 
         try {
-
         return DB::transaction(function () use ($request,$id){
             //query setting
+            
         $setting = Settings::find(1);
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
-
-         $prefix = date("ymd");
-
-        $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
+        $prefix = date("ymd");
+        //$invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
         $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
-
+        
         $orders = Order::find($id);
+        $PreviuosBalance = $orders->grandtotal;  // Store Old Balance
         $orders->invoice_id = $request->invoice_id;
         $orders->warehouse_id = $request->warehouse_id;
         $orders->customer_id = $request->customer_id;
@@ -278,19 +299,37 @@ class OrdersController extends Controller
         $orders->receive = round($request->receive,$digit);
         $orders->status = $status;
         $orders->update();
+        
+            
 
-        $income = $this->income($orders->grandtotal);
-
+        //* Roll Back Stock
+        $odetail = OrderDetail::where('order_id',$id)->get();
+        foreach($odetail as $detail)
+        {
+            $stock = Stock::where('product_id',$detail->product_id)
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+            $stock->total = $stock->total + $detail->quantity;
+                $stock->update();
+        }
+        //* End Roll Back
+        
+        //* Balance Roll Back
+       $this->ReturnBalance($PreviuosBalance,$orders->warehouse_id);
+        //* End Balance RollBack
+        
+        $income = $this->income($orders->grandtotal,$orders->warehouse_id);  //Update New Balance
+        
         if(!$income){
             throw new \Exception('Please update Today Balance');
         }
+        
         $orders_items= $request->items; // purchase is the array of purchase details
-
+        $odetail = OrderDetail::where('order_id',$id)->delete();
+       
         foreach($orders_items as $item)
         {
-
             $pdetail = OrderDetail::create([
-
             'order_id' => $orders->id,
             'product_id' => $item['product_id'],
             'sellprice' => $item['sellprice'],
@@ -301,19 +340,10 @@ class OrdersController extends Controller
             $stock = Stock::where('product_id',$item['product_id'])
             ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
             ->first();
-
-
                 // setting negative 1 is allow to update
             if ($stock !== null) {
                 $stock->total = $stock->total - $item['quantity'];
-                if($stock->total > 0 ||  $negative > 0 ){
                     $stock->update();
-                }else{
-                    throw new \Exception('Insufficient Please Check again');
-                    // DB::rollBack();
-                    // return response()->json("Insufficient Please Check again");
-                }
-
             }else {
                 throw new \Exception('No item in Stock');
             }
@@ -323,7 +353,6 @@ class OrdersController extends Controller
                 "message" => "Successfully Added",
                 "order"   =>$orders,
                 "items"   =>$orders_items
-
             ]);
      });
     } catch (\Exception $th) {
@@ -335,12 +364,39 @@ class OrdersController extends Controller
     }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+    public function delete(Request $request ,$id)
+    {
+        $setting = Settings::find(1);
+        $digit = (int)$setting->digit;
+        $negative = (int)$setting->negative;
+        $order = Order::find($id);
+        $odetail = OrderDetail::where('order_id',$id)->get();
+         //* Balance Roll Back
+       $this->ReturnBalance($order->grandtotal,$order->warehouse_id);
+       //* End Balance RollBack
+        foreach($odetail as $detail)
+        {
+            $stock = Stock::where('product_id',$detail->product_id)
+            ->where('warehouse_id',$request->warehouse_id)
+            ->first();
+            $stock->total = $stock->total + $detail->quantity;
+            $stock->update();
+            
+        }
+       
+        $pdetail = OrderDetail::where('order_id',$id)->delete();
+        
+
+        $order->destroy($id);
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully Deleted",
+            "Order" =>  $order
+        ]);
+      
+    }
+
     public function destroy($id)
     {
         //

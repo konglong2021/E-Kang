@@ -13,7 +13,10 @@ export default {
   "content_title_categories":"Categories Overview",
   "content_title_supplier":"Supplier Overview",
   "content_title_brands":"Brands Overview",
+  "content_title_member":"Members Overview",
+  "content_title_customer":"Customers Overview",
   "label_menu_title_inventory":"Inventory",
+  "label_menu_title_member":"Members",
   "title_total_in_usd":"Total ($)",
   "title_total_after_vat_in_usd":"Total After Tax ($)",
   "title_total_in_riel":"Total (៛)",
@@ -30,6 +33,8 @@ export default {
   "title_new_product":"New Product",
   "title_new_category":"New Category",
   "title_new_brand":"New Brand",
+  "title_new_member":"New Member",
+  "title_new_customer":"New Customer",
   "title_add_product":"Add Product",
   "product_list":"Product list",
   "title_new_warehouse":"New WareHouse",
@@ -95,5 +100,10 @@ export default {
   "label_add_new_category":"Add new Category",
   "label_add_brand":"Add new Brand",
   "label_description":"Description",
-    "label_add_new_supplier":"Add new Supplier"
+  "label_add_new_supplier":"Add new Supplier",
+  "label_member_type":"Member type",
+  "label_member_title":"Member Title",
+  "label_menu_title_customer":"Customer",
+  "label_menu_title_user":"Users",
+  "label_menu_title_role":"Roles"
 };

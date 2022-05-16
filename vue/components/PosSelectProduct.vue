@@ -63,8 +63,12 @@
         </div>
       <b-modal id="modal-input-qty-product" ref="input-qty-product-form-modal" modal-class="payment-form-modal"
                @hidden="onResetAddMoreQtyProduct" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitAddMoreQtyProduct" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_qty_title')" no-close-on-backdrop>
-        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+               @ok="handleAddMoreQtyProductOk" :ok-title="$t('label_title_update')"
+               :title="$t('label_update_selling_qty_title')" no-close-on-backdrop
+      >
+        <b-form enctype="multipart/form-data"
+                style="display: inline-block; width: 100%; height: 100%; overflow: hidden;"
+                ref="form" @submit.stop.prevent="onSubmitAddMoreQtyProduct">
           <b-row class="my-1">
             <b-col sm="5"><label :for="'input-qty-product'" class="label-input">បន្ថែមចំនួនទំនិញដែលលក់</label></b-col>
             <b-col sm="7">
@@ -75,12 +79,15 @@
       </b-modal>
       <b-modal id="modal-update-selling-product" ref="update-selling-product-form-modal" modal-class="payment-form-modal"
              @hidden="onResetUpdateSellingPrice" ok-only ok-variant="secondary" footer-class="justify-content-center"
-             @ok="onSubmitUpdateSellingPrice" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
-        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+             @ok="handleUpdateSellingPriceOk" :ok-title="$t('label_title_update')" :title="$t('label_update_selling_price_title')" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data"
+                style="display: inline-block; width: 100%; height: 100%; overflow: hidden;"
+                @submit.stop.prevent="onSubmitUpdateSellingPrice"
+        >
             <b-row class="my-1">
                 <b-col sm="5"><label :for="'input-selling-product'" class="label-input">តម្លៃលក់ថ្មី</label></b-col>
                 <b-col sm="7">
-                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" required></b-form-input>
+                    <b-form-input :id="'input-selling-product'" type="number" class="input-content" v-model="productItemSelectToUpdatePrice.price" @keyup.enter="onSubmitUpdateSellingPrice()" required></b-form-input>
                 </b-col>
             </b-row>
         </b-form>
@@ -108,16 +115,16 @@
                   <b-form-input type="number" class="input-content" v-model="exchange_rate"></b-form-input>
                 </div>
               </div>
+              <div class="form-row-content-detail">
+                  <div class="form-column-label">
+                    <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
+                  </div>
+                  <div class="form-column-input">
+                    <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
+                  </div>
+              </div>
             </div>
             <div class="container-row-form width-45-percentage float-right">
-              <div class="form-row-content-detail">
-                <div class="form-column-label">
-                  <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
-                </div>
-                <div class="form-column-input">
-                  <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
-                </div>
-              </div>
               <div class="form-row-content-detail">
                 <div class="form-column-label">
                   <label :for="'input-discount'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
@@ -127,35 +134,21 @@
                 </div>
               </div>
               <div class="form-row-content-detail">
-                <div class="form-column-label" v-if="!is_getting_money_usd && !is_getting_money_riel">
-                  <label >ទទួលទឹកប្រាក់ </label>
-                </div>
-                <div style="display: inline-block;">
-                  <b-button size="sm" v-if="!is_getting_money_usd" @click="checkGettingMoney('USD')">ដុល្លា</b-button>
-                  <b-button size="sm" v-if="!is_getting_money_riel" @click="checkGettingMoney('Riel')">ប្រាក់រៀល</b-button>
-                </div>
-
-                <div class="form-column-label" v-if="is_getting_money_usd">
-                  <label :for="'input-getting-money-usd'" class="label-input no-margin-bottom">
-                    ទទួលទឹកប្រាក់ ($)
-                  </label>
+                <div class="form-column-label">
+                  <label :for="'input-getting-money-usd'" class="label-input no-margin-bottom">ទទួលទឹកប្រាក់ ($)</label>
                 </div>
                 <div class="form-column-input">
-                  <div style="margin-bottom: 5px; display: inline-block;">
-                    <b-form-input v-if="is_getting_money_usd" :id="'input-getting-money-usd'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
-                  </div>
+                    <b-form-input :id="'input-getting-money-usd'" type="number" class="input-content" v-model="getting_money_usd"></b-form-input>
                 </div>
               </div>
-              <div class="form-row-content-detail">
-                <div class="form-column-label" v-if="is_getting_money_riel">
-                  <label :for="'input-getting-money-riel'" class="label-input no-margin-bottom">
-                    ទទួលទឹកប្រាក់ (៛)
-                  </label>
+                <div class="form-row-content-detail">
+                    <div class="form-column-label">
+                        <label :for="'input-getting-money-riel'" class="label-input no-margin-bottom">ទទួលទឹកប្រាក់ (៛)</label>
+                    </div>
+                    <div class="form-column-input">
+                        <b-form-input :id="'input-getting-money-riel'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
+                    </div>
                 </div>
-                <div class="form-column-input">
-                    <b-form-input v-if="is_getting_money_riel" :id="'input-getting-money-riel'" type="number" class="input-content" v-model="getting_money_riel"></b-form-input>
-                </div>
-              </div>
             </div>
           </div>
           <b-table table-class="table-payment"
@@ -171,8 +164,8 @@
             <span style="display: block;">{{$t('title_total_in_usd')}} : {{ calculate("USD", items) }} USD</span>
             <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ calculateIncludeTax(calculate("USD", items)) }} USD</span>
             <span style="display: block;margin-top: 10px;" v-if="exchange_rate">{{$t('title_total_in_riel')}} : {{ calculateToRiel(calculate("USD", items), exchange_rate) }} Riel</span>
-            <span style="display: block;">លុយត្រូវអាប់ ($) : {{(getting_money_usd || getting_money_riel) ? calculateMoneyGiveBack(items) : 0 }} {{ getting_money_usd ? "USD" : "Riel" }}</span>
-            <span style="display: block;">លុយត្រូវអាប់ (៛) : {{ giveMoneyBackConvert }} </span>
+            <span style="display: block;">លុយត្រូវអាប់ ($) : {{ calculateMoneyGiveBack(items, "USD") + " USD" }}</span>
+            <span style="display: block;">លុយត្រូវអាប់ (៛) : {{ calculateMoneyGiveBack(items, "Riel") + " Riel" }} </span>
           </div>
         </b-form>
       </b-modal>
@@ -354,15 +347,22 @@ export default {
           this.selectedItemData = $product;
           this.$refs['input-qty-product-form-modal'].show();
       },
+
+      handleAddMoreQtyProductOk(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitAddMoreQtyProduct();
+      },
       onSubmitAddMoreQtyProduct(){
           this.submitNumberIncreaseQtyProduct(this.selectedItemData, this.qtyInput);
+          this.$nextTick(() => {
+            this.$refs['input-qty-product-form-modal'].hide();
+          })
       },
       submitNumberIncreaseQtyProduct(productItem, QtyProduct) {
           let itemTemp = null;
           for(let index=0; index < this.products.length; index++) {
             if (this.products[index]["id"] === productItem["id"]) {
               itemTemp = JSON.parse(JSON.stringify(this.products[index]));
-              //itemTemp["qty"] = (parseInt(productItem["qty"]) + parseInt(QtyProduct));
               itemTemp["qty"] = parseInt(QtyProduct);
               this.$set(this.products, index, itemTemp);
             }
@@ -407,12 +407,19 @@ export default {
           this.$refs['update-selling-product-form-modal'].show();
       },
       onResetUpdateSellingPrice(){},
+      handleUpdateSellingPriceOk(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitUpdateSellingPrice();
+      },
       onSubmitUpdateSellingPrice(){
           for(let indexProduct = 0;indexProduct < this.items.length; indexProduct++){
               if(this.items[indexProduct]["id"] === this.productItemSelectToUpdatePrice["id"]){
                   this.items[indexProduct]["price"] = this.productItemSelectToUpdatePrice["price"];
               }
           }
+        this.$nextTick(() => {
+          this.$refs['update-selling-product-form-modal'].hide();
+        })
       },
 
       closeDropdown($event){
@@ -605,19 +612,20 @@ export default {
             this.is_getting_money_riel = false;
           }
         },
-        calculateMoneyGiveBack($items){
-          let moneyReturn = 0, totalPay =0;
-          if(this.is_getting_money_usd){
-            totalPay = this.calculateIncludeTax(this.calculate("USD", $items));
-            moneyReturn = (parseFloat(this.getting_money_usd) - parseFloat(totalPay));
-            this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn * this.exchange_rate) : 0) + " Riel";
-          }
-          else if(this.is_getting_money_riel){
-            totalPay = this.calculateToRiel(this.calculate("USD", $items), this.exchange_rate);
-            moneyReturn = (parseFloat(this.getting_money_riel) - parseFloat(totalPay));
-            this.giveMoneyBackConvert = (moneyReturn > 0 ? (moneyReturn / this.exchange_rate).toFixed(2) : 0) + " USD";
-          }
-          return moneyReturn;
+        calculateMoneyGiveBack($items, $typeOfMoney){
+          let totalPaymentAsUsd = 0;
+            totalPaymentAsUsd = this.calculateIncludeTax(this.calculate("USD", $items));
+            let totalGettingMoneyRiel = this.getting_money_riel ? (this.getting_money_riel / this.exchange_rate) : 0;
+            let totalGettingMoneyAsUsd = totalGettingMoneyRiel > 0 ? (parseFloat(totalGettingMoneyRiel.toFixed(2)) + parseFloat(this.getting_money_usd)) : parseFloat(this.getting_money_usd);
+           let totalGiveMoneyAsUsd = totalGettingMoneyAsUsd ? (totalGettingMoneyAsUsd - totalPaymentAsUsd) : 0 ;
+            let totalGiveMoneyAsRiel = totalGiveMoneyAsUsd ? (totalGiveMoneyAsUsd * this.exchange_rate) : 0;
+
+            if($typeOfMoney === "USD"){
+               return totalGiveMoneyAsUsd.toFixed(2);
+            }
+            else if($typeOfMoney === "Riel"){
+                return totalGiveMoneyAsRiel.toFixed(2);
+            }
         },
 
   },
@@ -626,12 +634,6 @@ export default {
     self.onInitData();
     self.getCustomerList();
   },
-  created: function() {
-    window.addEventListener('keydown', this.handleKeydown, null);
-  },
-  destroyed: function() {
-    window.removeEventListener('keydown', this.handleKeydown, null);
-  }
 }
 </script>
 <style scoped>

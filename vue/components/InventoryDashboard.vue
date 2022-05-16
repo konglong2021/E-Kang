@@ -379,7 +379,8 @@
                   vm.stock.image = product["image"];
                   vm.stock.sale_price = product["sale_price"].toString();
                   vm.stockItems.push(vm.stock);
-                  vm.stockItems.sort(vm.sortByName);
+                  vm.stockItems.sort(vm.sortByKhName);
+                  vm.stockItems.sort(vm.sortByEnName);
                 }
               }
             }
@@ -389,7 +390,14 @@
             console.log(error);
           });
       },
-      sortByName(a, b) {
+      sortByKhName(a, b) {
+        if (a.kh_name < b.kh_name)
+          return -1;
+        if (a.kh_name > b.kh_name)
+          return 1;
+        return 0;
+      },
+      sortByEnName(a, b) {
         if (a.en_name < b.en_name)
           return -1;
         if (a.en_name > b.en_name)
@@ -551,7 +559,7 @@
                 vm.productList.unshift(itemProduct);
                 vm.loadingFields.productListLoading = false;
                 let productOptionItem =  { name: '', value: null};
-                productOptionItem.name = (dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")");
+                productOptionItem.name = (dataResponse[index].en_name + " - " + dataResponse[index].kh_name + " (" + dataResponse[index].code + ")");
                 productOptionItem.value = dataResponse[index].id;
                 vm.products.unshift(productOptionItem);
               }
