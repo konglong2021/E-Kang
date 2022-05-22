@@ -1,5 +1,5 @@
 export default ({ $axios, store , redirect }) => {
-  $axios.setBaseURL('http://localhost:8000');
+  $axios.setBaseURL('http://167.71.11.135');
   $axios.setHeader('Access-Control-Allow-Origin', '*');
   $axios.setToken(store.$cookies.get("token"), 'Bearer');
 
