@@ -10,6 +10,7 @@ use App\Models\OrderDetail;
 use App\Models\Settings;
 use App\Models\Profile;
 use App\Models\Customer;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -116,6 +117,11 @@ class OrdersController extends Controller
         $orders->status = $status;
         $orders->save();
 
+        if($orders->receive > 0)
+        {
+            $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
+        }
+
         $income = $this->income($orders->grandtotal,$orders->warehouse_id);
 
         if(!$income){
@@ -220,7 +226,7 @@ class OrdersController extends Controller
         $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
-            $input['income'] = $return - $balance->income;
+            $input['income'] = $return - $balance->income;    
             $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
@@ -228,6 +234,21 @@ class OrdersController extends Controller
         }
             return false;
 
+    }
+
+    public function pay($grandtotal,$recieve,$order_id,$method)
+    {
+        $balance = $grandtotal - $recieve;
+        $payment = Transaction::create([
+            //'product_id' => $item['product_id'],
+            'user_id'       =>  auth()->user()->id,
+            'order_id'      =>  $order_id,
+            'paid'          =>  $recieve,
+            'pay_method'    =>  $method, //default
+            'amount'        =>  $grandtotal,
+            'balance'       =>  $balance
+        ]);
+        return $payment;
     }
 
     //show Unpaid Invoice
