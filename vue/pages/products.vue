@@ -232,8 +232,7 @@
             items.push(newItem);
           }
           self.items = self.cloneObject(items);
-          self.items.sort(self.sortByKhName);
-          self.items.sort(self.sortByEnName);
+          self.items.sort(self.sortByName);
         }
         })
           .catch(function (error) {
@@ -241,19 +240,11 @@
             self.$toast.error("Submit data getting error").goAway(3000);
           });
       },
-      sortByKhName(a, b) {
-        if (a.kh_name < b.kh_name)
-          return -1;
-        if (a.kh_name > b.kh_name)
-          return 1;
-        return 0;
-      },
-      sortByEnName(a, b) {
-        if (a.en_name < b.en_name)
-          return -1;
-        if (a.en_name > b.en_name)
-          return 1;
-        return 0;
+      sortByName(a, b) {
+        if (a.kh_name === b.kh_name){
+          return a.en_name > b.en_name ? 1 : -1;
+        }
+        return a.kh_name > b.kh_name ? 1 : -1;
       },
       showModal() {
         this.newProductModal.showModal = true;

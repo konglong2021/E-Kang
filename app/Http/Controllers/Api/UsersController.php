@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Cookie;
 
 class UsersController extends Controller
 {
@@ -73,6 +74,8 @@ class UsersController extends Controller
         $token =  $user->createToken('Apptoken')->plainTextToken;
 
         $user->roles()->sync(($request->roles));
+
+       
 
         return response()->json([
             "success" => true,
@@ -155,9 +158,10 @@ class UsersController extends Controller
     public function logout(Request $request)
     {
         auth()->user()->tokens()->delete();
-        return [
-            'message' => 'Logged Out'
-        ];
+        $cookie = Cookie::forget('token');
+        return response()->json([
+            "message" => "Logout"
+        ])->withCookie($cookie);
     }
 
     public function login(Request $request)
@@ -174,7 +178,6 @@ class UsersController extends Controller
         ]);
 
         $user = User::where('email',$request['email'])->with('profile')->first();
-
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
@@ -183,12 +186,14 @@ class UsersController extends Controller
 
 
         $token =  $user->createToken('Apptoken')->plainTextToken;
+        $cookie =cookie('token',$token,60*24);
         return response()->json([
             "success" => true,
             "message" => "Loging in Successfully",
             "user" =>  $user,
             "Token" => $token
-        ]);
+            
+        ])->withCookie($cookie);
 
     }
 
