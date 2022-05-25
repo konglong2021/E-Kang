@@ -34,6 +34,11 @@ class Transaction extends Model
 
     public function order()
     {
-        return $this->belongsToMany(Order::class);
+        return $this->belongsTo(Order::class);
+    }
+
+    public function customers()
+    {
+        return $this->hasOneThrough(Customer::class,Order::class,'customer_id','id','id','customer_id');
     }
 }

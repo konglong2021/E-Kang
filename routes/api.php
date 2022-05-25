@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -48,6 +50,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
     Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
     Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
+    Route::ApiResource('/transaction','App\Http\Controllers\Api\TransactionController'); 
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
@@ -76,6 +79,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
     Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
+    
 
 
     //setting

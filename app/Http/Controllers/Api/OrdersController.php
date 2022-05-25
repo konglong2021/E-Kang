@@ -117,10 +117,9 @@ class OrdersController extends Controller
         $orders->status = $status;
         $orders->save();
 
-        if($orders->receive > 0)
-        {
-            $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
-        }
+       
+        $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
+       
 
         $income = $this->income($orders->grandtotal,$orders->warehouse_id);
 
