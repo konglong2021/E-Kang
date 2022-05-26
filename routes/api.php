@@ -50,7 +50,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
     Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
     Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
-    Route::ApiResource('/transaction','App\Http\Controllers\Api\TransactionController'); 
+    
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
@@ -61,8 +61,11 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
 
 
-    Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
-
+   
+    Route::get('/transaction/customer/{customer_id}','App\Http\Controllers\Api\TransactionController@show'); //check transaction by customer id
+    Route::get('/transaction/customer/','App\Http\Controllers\Api\TransactionController@index'); //check transaction by customer id
+    Route::put('/transaction/customer/{transaction_id}','App\Http\Controllers\Api\TransactionController@update'); //update transaction by id
+    Route::post('/transaction/customer','App\Http\Controllers\Api\TransactionController@updateAll'); //update transaction by id
 
     //Delete Purchase and Order Items
     Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
@@ -79,6 +82,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
     Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
+    Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
     
 
 
