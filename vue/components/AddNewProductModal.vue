@@ -2,11 +2,11 @@
     <div>
       <b-modal id="modal-create-product" ref="product-form-modal" size="lg"
                @hidden="onReset" cancel-title="បោះបង់"
-               @ok="onSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី"
+               @ok="handleSubmit" ok-title="រក្សាទុក" title="បង្កើតទំនិញថ្មី"
                :ok-disabled="!product.brand || !product.category || !product.sale_price"
                no-close-on-backdrop
       >
-        <b-form enctype="multipart/form-data">
+        <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmit">
           <div class="full-content">
             <div class="content-file-upload">
               <b-form-file id="file" name="file" class="input-file" v-on:change="onFileChange" plain></b-form-file>
@@ -218,6 +218,10 @@
           document.getElementById("output").setAttribute("style","background-image: url(" + e.target.result + ')');
         };
         reader.readAsDataURL($event.target.files[0]);
+      },
+      handleSubmit(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmit();
       },
       async onSubmit(event) {
         let vm = this;

@@ -132,6 +132,9 @@
               <template #cell(image)="row">
                 <div class="pro-img">
                 </div>
+                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="updatedDataStock(row.item, row.index, $event.target)">
+                  <i class="fa fa-edit"></i>
+                </b-button>
               </template>
             </b-table>
           </div>
@@ -142,10 +145,10 @@
     <add-new-product-modal v-model="newProductModal" @checkingProductAdd="checkingProductAdd($event)" /> <!--no need to import it will automatically rendering it -->
     <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
              @hidden="onResetSupplier" :cancel-title="$t('label_cancel_button')"
-             @ok="onSubmitSupplier" :ok-title="$t('label_save_button')" :title="$t('title_supplier')"
+             @ok="handleOnSubmitSupplier" :ok-title="$t('label_save_button')" :title="$t('title_supplier')"
              no-close-on-backdrop
     >
-      <b-form enctype="multipart/form-data">
+      <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitSupplier">
         <div class="full-content">
         </div>
         <div class="full-content">
@@ -178,10 +181,10 @@
     </b-modal>
     <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
              @hidden="onResetWareHouse" :cancel-title="$t('label_cancel_button')"
-             @ok="onSubmitWareHouse" :ok-title="$t('label_save_button')" :title="$t('title_new_warehouse')"
+             @ok="handleOnSubmitWareHouse" :ok-title="$t('label_save_button')" :title="$t('title_new_warehouse')"
              no-close-on-backdrop
     >
-      <b-form enctype="multipart/form-data">
+      <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitWareHouse">
         <div class="full-content">
         </div>
         <div class="full-content">
@@ -202,9 +205,9 @@
     </b-modal>
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
       @hidden="onResetExistingProduct" :cancel-title="$t('label_cancel_button')"
-      @ok="onSubmitExistingProduct(product_select)" :ok-title="$t('label_save_button')"
+      @ok="handleOnSubmitExistingProduct" :ok-title="$t('label_save_button')"
              :title="$t('title_add_product')" no-close-on-backdrop>
-      <b-form enctype="multipart/form-data">
+      <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitExistingProduct(product_select)">
         <div class="full-content" v-if="products && products.length > 0">
           <div class="display-inline-block full-with">
             <div class="col-md-12 float-right">
@@ -242,7 +245,43 @@
       cancel-title="No" @ok="removeProductAdd(product_select)" :ok-title="$t('label_yes_button')" no-close-on-backdrop>
       <h3 class="center">{{ $t('question_remove_existing_product') }}</h3>
     </b-modal>
-
+    <b-modal
+      id="modal-update-stock" ref="remove-update-stock-modal" size="lg"
+      cancel-title="No" @ok="handleOnSubmitPurchase" :ok-title="$t('label_yes_button')" no-close-on-backdrop
+    >
+      <b-form enctype="multipart/form-data" @submit.stop.prevent="submitPurchase">
+        <div class="full-content" v-if="purchase">
+          <div class="display-inline-block full-with">
+            <div class="col-md-12 float-right">
+              <div class="form-group form-content-detail">
+                <label class="label-with" style="float: left; margin-top: 3px;">{{ $t('title_product') }}</label>
+                <div class="select-content-inline display-inline-block multiple-select" style="width: 68% !important; float: left;">
+                  <multiselect
+                          v-model="product_select.product" :options="products"
+                          track-by="name" label="name" :show-labels="false"
+                          :placeholder="$t('label_search_by_product')"
+                          @select="selectedProduct"
+                          @remove="removeElement"></multiselect>
+                </div>
+                <!--                <b-form-select class="form-control select-content-inline" v-model="product_select.product" :options="products" @change="selectedProduct(productList, product_select.product)"></b-form-select>-->
+              </div>
+              <div class="form-group form-content-detail">
+                <label class="label-with">{{$t('import_price')}} ($)</label>
+                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.import_price" :disabled="isDisabledImportPrice === true"></b-form-input>
+              </div>
+              <div class="form-group form-content-detail">
+                <label class="label-with">{{$t('label_sale_price')}} ($)</label>
+                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.sale_price" :disabled="true"></b-form-input>
+              </div>
+              <div class="form-group form-content-detail">
+                <label class="label-with">{{$t('label_quantity')}}</label>
+                <b-form-input class="select-content-inline display-inline-block" v-model="product_select.qty"></b-form-input>
+              </div>
+            </div>
+          </div>
+        </div>
+      </b-form>
+    </b-modal>
   </div>
 </template>
 
@@ -410,6 +449,10 @@
           isDisableField: false,
         };
         this.product_select_last_unit_price = {};
+      },
+      handleOnSubmitExistingProduct(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitExistingProduct();
       },
       onSubmitExistingProduct($product){
         let items = [];
@@ -628,6 +671,10 @@
         this.$refs['supplier-form-modal'].hide();
       },
       onResetSupplier(){},
+      handleOnSubmitSupplier(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitSupplier();
+      },
       onSubmitSupplier(){
         let vm = this;
 
@@ -642,7 +689,6 @@
               let supplierItem =  { text: '', value: null};
               supplierItem.text = data["name"] + "(" + data["address"] + ")";
               supplierItem.value = data["id"];
-              // vm.suppliers.push(supplierItem);
               vm.suppliers.unshift(supplierItem);
             }
             vm.hideSupplierModal();
@@ -660,6 +706,10 @@
         this.$refs['warehouse-form-modal'].hide();
       },
       onResetWareHouse(){},
+      handleOnSubmitWareHouse(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitWareHouse();
+      },
       async onSubmitWareHouse(){
         let vm = this;
 
@@ -700,6 +750,10 @@
         this.purchase.warehouse = null;
         this.purchase.vat = null;
         this.isShowStockTable = true;
+      },
+      handleOnSubmitPurchase(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.submitPurchase();
       },
       async submitPurchase(){
         let dataSubmit = {};
@@ -869,6 +923,9 @@
 
         return (yyyy + "" + month + "" + day);
       },
+      updatedDataStock(item, index, target){
+        this.purchase = item;
+      }
     },
     mounted() {
       this.getProductList();

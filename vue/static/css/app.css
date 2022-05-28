@@ -210,6 +210,11 @@ body {
   width: 3%
 }
 
+.width-4-percentage{
+  width: 4%
+}
+
+
 .content-pagination{
   display: inline-block;
   margin-right: 10px;
@@ -493,4 +498,22 @@ body {
 }
 .content-multiple-select .multiselect__placeholder{
   color: #000000;
+}
+.btn-no-background{
+  padding: 0;
+  background: none;
+  border: none;
+  color: #28a745;
+  font-size: 23px;
+  display: inline-block;
+  overflow: hidden;
+  margin-right: 5px;
+}
+
+.btn-no-background:hover, .btn-no-background:active, .btn-no-background:focus, .btn-no-background:focus-visible{
+  background: none !important;
+  border: none !important;
+  color: #28a745 !important;
+  outline: none !important;
+  box-shadow: none !important;
 }

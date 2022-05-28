@@ -57,8 +57,8 @@
         </div>
         <b-modal id="modal-create-supplier" ref="supplier-form-modal" size="lg"
                  @hidden="onResetSupplier" :cancel-title="$t('label_cancel_button')" no-close-on-backdrop
-                 @ok="onSubmitSupplier" :ok-title="$t('label_save_button')" :title="$t('title_new_supplier')">
-          <b-form enctype="multipart/form-data">
+                 @ok="handleOnSubmitSupplier" :ok-title="$t('label_save_button')" :title="$t('title_new_supplier')">
+          <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitSupplier">
             <div class="full-content">
             </div>
             <div class="full-content">
@@ -144,6 +144,10 @@
             console.log(error);
             vm.$toast.error("Getting data error").goAway(3000);
           });
+      },
+      handleOnSubmitSupplier(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitSupplier();
       },
       onSubmitSupplier(){
         let vm = this;

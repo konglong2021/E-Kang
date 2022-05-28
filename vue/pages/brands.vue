@@ -54,8 +54,8 @@
       </div>
       <b-modal id="modal-create-brand" ref="brand-form-modal" size="lg"
                @hidden="onReset" :cancel-title="$t('label_cancel_button')"
-               @ok="onSubmit" :ok-title="$t('label_save_button')" :title="$t('title_new_brand')" no-close-on-backdrop>
-        <b-form enctype="multipart/form-data">
+               @ok="handleOnSubmit" :ok-title="$t('label_save_button')" :title="$t('title_new_brand')" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmit">
           <div class="full-content">
           </div>
           <div class="full-content">
@@ -165,6 +165,10 @@
           });
       },
       onReset(){},
+      handleOnSubmit(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmit();
+      },
       onSubmit(){
         let dataSubmit = {};
         let categories = [];

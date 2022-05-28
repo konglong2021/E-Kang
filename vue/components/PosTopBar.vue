@@ -21,10 +21,15 @@
                 </a>
               </li>
               <li class="li-style" style="overflow: hidden;">
+                <a class="content-link" href="/debt">
+                  <span> បំណុល </span>
+                </a>
+              </li>
+              <li class="li-style" style="overflow: hidden;">
                 <a class="cursor-default no-cursor content-user-profile">
-            <span class="content-user-img">
-              <img :src="getUrlDisplayImgUser()" alt="" />
-            </span>
+                  <span class="content-user-img">
+                    <img :src="getUrlDisplayImgUser()" alt="" />
+                  </span>
                   <span>{{ $store.$cookies.get('user').name }}</span>
                 </a>
               </li>

@@ -104,7 +104,7 @@
                   <label :for="'input-customer'" class="label-input no-margin-bottom">ឈ្មោះអតិថិជន</label>
                 </div>
                 <div class="form-column-input">
-                  <b-form-select  class="form-control input-content" v-model="order.customer" :options="customers" @change="updateCustomerSelected(order.customer)"></b-form-select>
+                  <b-form-select class="form-control input-content" v-model="order.customer" :options="customers" @change="updateCustomerSelected(order.customer)"></b-form-select>
                 </div>
               </div>
               <div class="form-row-content-detail">

@@ -61,7 +61,8 @@ export default {
   ],
 
   axios: {
-    baseURL: 'http://167.71.11.135/',
+    //baseURL: 'http://167.71.11.135/',
+    baseURL: 'http://localhost:8000',
     headers: {
       common: {
         'Access-Control-Allow-Origin': '*',
@@ -74,7 +75,8 @@ export default {
   },
  //https://radiant-tor-18088.herokuapp.com/
   proxy: {
-    '/api/': { target: 'http://167.71.11.135/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
+    '/api/': { target: 'http://localhost:8000', pathRewrite: {'^/api/': ''}, changeOrigin: true }
+    //'/api/': { target: 'http://167.71.11.135/', pathRewrite: {'^/api/': ''}, changeOrigin: true }
   },
   ssr: true,
   target: 'server',

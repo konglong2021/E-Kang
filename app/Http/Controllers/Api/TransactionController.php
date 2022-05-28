@@ -26,15 +26,6 @@ class TransactionController extends Controller
 
         $total_balance = DB::table('transactions')       
                             ->sum('transactions.balance');
-                                
-        
-        if($customerpayment->isEmpty())
-        {
-            return response()->json([
-                "success" => false,
-                "message" => "Not Found"
-            ], 404);
-        }
 
         //$total_balance = $customerpayment->sum('transactions.balance');
 
@@ -84,14 +75,6 @@ class TransactionController extends Controller
                             ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.balance','transactions.pay_method','transactions.amount','customers.name')  
                             ->where('customers.id','=',$id)
                             ->get();
-
-        if($customerpayment->isEmpty())
-        {
-            return response()->json([
-                "success" => false,
-                "message" => "Not Found"
-            ], 404);
-        }
 
         return response()->json($customerpayment);
 

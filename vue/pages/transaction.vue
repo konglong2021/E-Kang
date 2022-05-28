@@ -56,14 +56,15 @@
                     </b-th>
 
                     <b-th class="width-10-percentage" >{{ $t('label_product_name') }}</b-th>
-                    <b-th class="width-5-percentage" >{{ $t('label_quantity') }}</b-th>
-                    <b-th class="width-9-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
+                    <b-th class="width-4-percentage" >{{ $t('label_quantity') }}</b-th>
+                    <b-th class="width-8-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
 
                     <b-th class="width-5-percentage" >{{ $t('label_discount') }}</b-th>
-                    <b-th class="width-5-percentage" >{{ $t('label_vat') }}</b-th>
-                    <b-th class="width-11-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
+                    <b-th class="width-3-percentage" >{{ $t('label_vat') }}</b-th>
+                    <b-th class="width-9-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
                     <b-th :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'" >{{ $t('label_grand_total') }} ($)</b-th>
-                    <b-th class="width-3-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
+                    <b-th class="width-4-percentage" v-show="!product_select">{{ $t('label_receive_money') }}</b-th>
+                    <b-th class="width-5-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
                   </b-tr>
                 </b-thead>
                 <b-tbody class="table-body" :class="product_select ? 'max-height-50-vh' : 'max-height-57-vh'">
@@ -84,30 +85,36 @@
                     <b-td class="width-10-percentage name content-td">
                       <span class="content">{{ item.name !== undefined ? item.name : "" }}</span>
                     </b-td>
-                    <b-td class="width-5-percentage qty content-td">
+                    <b-td class="width-4-percentage qty content-td">
                       <span class="content">{{ item.qty !== undefined ? item.qty : "" }}</span>
                     </b-td>
-                    <b-td class="width-9-percentage sale_price content-td">
+                    <b-td class="width-8-percentage sale_price content-td">
                       <span class="content">{{ item.sale_price !== undefined ? item.sale_price + "$" : ""}}</span>
                     </b-td>
 
                     <b-td class="width-5-percentage discount content-td" :rowspan="item.lengthDetail">
                       <b class="content">{{ (item.discount === 0 || item.discount === undefined) ? "0" : item.discount + "%" }}</b>
                     </b-td>
-                    <b-td class="width-5-percentage vat content-td" :rowspan="item.lengthDetail">
+                    <b-td class="width-3-percentage vat content-td" :rowspan="item.lengthDetail">
                       <b class="content">
                         {{ (item.vat === 0 || item.vat === undefined) ? 0 : item.vat + "%" }}
                       </b>
                     </b-td>
-                    <b-td class="width-11-percentage subtotal content-td">
+                    <b-td class="width-9-percentage subtotal content-td">
                       <b class="content">{{ item.subtotal !== undefined ? (item.subtotal + "$") : "" }}</b>
                     </b-td>
                     <b-td class="grandtotal content-td" :rowspan="item.lengthDetail" :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'">
                       <b class="content">{{ item.grandtotal !== undefined ? (item.grandtotal + "$") : "" }}</b>
                     </b-td>
                     <b-td class="width-4-percentage content-td" v-show="!product_select" :rowspan="item.lengthDetail">
-                      <b-button size="sm" title="Adjust invetory stock" variant="success" @click="UpdateOrder(item)">
+                      <b class="content">{{ item.receive !== undefined ? (item.receive + "$") : "" }}</b>
+                    </b-td>
+                    <b-td class="width-6-percentage content-td" v-show="!product_select" :rowspan="item.lengthDetail">
+                      <b-button size="sm" title="View data" class="btn-no-background" @click="viewOrderData(item)">
                         <i class="fa fa-eye"></i>
+                      </b-button>
+                      <b-button size="sm" title="Edit order data" class="btn-no-background" @click="UpdateOrderData(item,  $event.target)">
+                        <i class="fa fa-edit"></i>
                       </b-button>
                     </b-td>
                   </b-tr>
@@ -118,7 +125,6 @@
                 <h5 v-if="product_select">ចំនួនលក់សរុបទាំងអស់ : {{ sumAllSaleProduct(items) }}</h5>
                 <h5 v-if="product_select">សរុបទឹកប្រាក់ទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h5>
               </div>
-
               <div id="table-order" v-if="product_select" style="display: none; width: 100%; overflow: hidden;">
                 <h2 style="margin-bottom: 35px;">អំពី ការលក់ </h2>
                 <h4 v-if="product_select">ចំនួនលក់សរុបទំនិញទាំងអស់ : {{ sumAllSaleProduct(items) }}</h4>
@@ -195,29 +201,31 @@
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-60-percentage float-left">
               <div class="form-row-content-detail row-content-view">
-                <label class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
+                <label class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.invoice_id}}</strong>
               </div>
-              <div class="form-row-content-detail row-content-view">
-                <label :for="'input-customer'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
+              <div class="form-row-content-detail row-content-view" >
+                <label :for="'input-customer'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.customer}}</strong>
               </div>
+
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">លក់ដោយ : </label>
+                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">លក់ដោយ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ $store.$cookies.get('user').name }}</strong>
               </div>
             </div>
             <div class="container-row-form width-29-percentage float-right">
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-vat'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ពន្ធ : </label>
+                <label :for="'input-vat'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ពន្ធ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.vat !== 0 ? order.vat + "%": 0 }}</strong>
               </div>
+
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-discount'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចុះតម្លៃ : </label>
+                <label :for="'input-discount'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចុះតម្លៃ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.discount + "%" }}</strong>
               </div>
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ថ្ងៃខែឆ្នាំលក់ : </label>
+                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ថ្ងៃខែឆ្នាំលក់ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ getFullDate() }}</strong>
               </div>
             </div>
@@ -228,14 +236,13 @@
                    stacked="md"
                    show-empty
                    small
-          ></b-table>
+          >
+          </b-table>
           <div style="display: inline-block;float: right;margin-top: 25px;">
               <span style="display: block;">{{$t('title_total_in_usd')}} : {{order.subtotal}} USD</span>
               <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ order.grandtotal}} USD</span>
           </div>
         </b-form>
-
-
         <div id="invoice-print-again" style="display: none; width: 100%; height: 100%; overflow: hidden; padding: 30px 30px !important; font-family: 'Arial', 'Khmer OS Bokor', sans-serif !important;">
           <div style="margin-bottom: 30px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif; display:inline-block; width: 100%;">
             <h1 style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif; text-align: center;">{{ $t('title') }}</h1>
@@ -283,18 +290,61 @@
           </div>
         </div>
       </b-modal>
+      <b-modal
+              id="modal-edit-payment" ref="edit-payment-form-modal" size="lg" modal-class="payment-form-modal"
+              @hidden="onResetEditPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
+              @ok="handleSubmit" ok-title="ព្រីនចេញ" title="ការលក់" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
+          <div class="full-content margin-bottom-20">
+            <div class="container-row-form width-50-percentage float-left">
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-customer'" class="label-input no-margin-bottom">ឈ្មោះអតិថិជន</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-select class="form-control input-content" v-model="order.customer" :options="customers" @change="updateCustomerSelected(order.customer)"></b-form-select>
+                </div>
+              </div>
+              <div class="form-row-content-detail" style="width:100%">
+                <div class="form-column-label">
+                  <label :for="'input-exchange-rate'" class="label-input no-margin-bottom">អត្រាប្តូរប្រាក់រៀល (៛)</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-input type="number" class="input-content" v-model="exchange_rate"></b-form-input>
+                </div>
+              </div>
+              <div class="form-row-content-detail" style="width:100%">
+                <div class="form-column-label">
+                  <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
+                </div>
+              </div>
+            </div>
+            <div class="container-row-form width-50-percentage float-right">
+              <div class="form-row-content-detail float-right" style="width:100%">
+                <div class="form-column-label">
+                  <label :for="'input-discount'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-input type="number" class="input-content" v-model="order.discount" @change="updatedPriceInListDetailOrder(order.discount)"></b-form-input>
+                </div>
+              </div>
+            </div>
+          </div>
+        </b-form>
+      </b-modal>
     </b-container>
   </div>
 </template>
 <script>
-
-  import {empty} from "../.nuxt/utils";
-
   export default {
     middleware: "local-auth",
     layout:'posui',
     data(){
       return {
+        vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
         items: [],
         fields: [
           { key: 'sale_by', label: this.$t('label_sale_by')},
@@ -302,6 +352,7 @@
           { key: 'discount', label: this.$t('label_discount')},
           { key: 'vat', label: this.$t('label_vat')},
           { key: 'name', label: this.$t('label_product_name')},
+          { key: 'receive', label: this.$t('label_receive_money')},
         ],
         itemsProductDetail: [],
         fieldsProductDetail: [
@@ -311,6 +362,7 @@
           { key: 'total', label: 'តម្លៃសរុប ($)', thClass: "header-th" , thStyle : "font-size: 17px;"},
           { key: 'discount', label: 'បញ្ចុះតម្លៃ (%)', thClass: "header-th", thStyle : "font-size: 17px;"},
           { key: 'total_after_discount', label: 'តម្លៃសរុប បន្ទាប់ពី បញ្ចុះតម្លៃ ($)', thClass: "header-th", thStyle : "font-size: 17px;"},
+          { key: 'actions', label: this.$t('title_action'), thClass: "header-th", thStyle : "font-size: 17px;"}
         ],
         warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
         warehouse: null,
@@ -342,9 +394,9 @@
         productOptions : [],
         isSearchByProduct: false,
         isSearchByCustomer: false,
-
         customer_select: null,
         customerOptions : [],
+        isUpdatedOrderData: false,
       }
     },
     methods: {
@@ -462,7 +514,15 @@
                       itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
                       itemOrderDetail["sale_price"] = productData["price"] ;
                       itemOrderDetail["order_id"] = orderDetailItem.order_id;
-                      itemOrderDetail["subtotal"] = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
+                      let subtotal = 0;
+                      if(orderItem["discount"] > 0){
+                        let totalItem = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
+                        subtotal = totalItem - ((parseFloat(orderItem["discount"]) / 100) * totalItem);
+                      }
+                      else {
+                        subtotal = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
+                      }
+                      itemOrderDetail["subtotal"] = subtotal;
                       itemOrder[orderItem.id].push(itemOrderDetail);
                     }
                   }
@@ -480,6 +540,7 @@
                     itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
                     itemData["lengthDetail"] = itemOrder[orderItem.id].length;
                     itemData["grandtotal"] = orderItem["grandtotal"];
+                    itemData["receive"] = orderItem["receive"];
 
                     itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
                     itemData["name"] = itemOrder[orderItem.id][index].name;
@@ -489,6 +550,7 @@
                     itemData["subtotal"] = itemOrder[orderItem.id][index]["subtotal"];
                   }
                   else {
+                    itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
                     itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
                     itemData["name"] = itemOrder[orderItem.id][index].name;
                     itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
@@ -499,7 +561,6 @@
                 }
               }
             }
-            console.log(self.items);
           }
         }).catch(function (error) {
           console.log(error);
@@ -532,9 +593,8 @@
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
       },
-      UpdateOrder(item){
+      viewOrderData(item){
         this.order = item;
-        console.log(item);
         this.itemsProductDetail = [];
         let discount = 0;
         let orderDetailList = [];
@@ -577,6 +637,81 @@
           this.itemsProductDetail = this.cloneObject(orderDetailArray);
         }
         this.$refs["detail-payment-form-modal"].show();
+      },
+      UpdateOrderData(row, $event){
+        this.itemsProductDetail = [];
+        let discount = 0;
+        let orderDetailList = [];
+        let orderDetailArray = [];
+        this.isUpdatedOrderData = true;
+
+        if(this.orderList.length > 0){
+          for(let index =0; index < this.orderList.length; index++){
+            if(this.orderList[index]["id"] === row.order_id){
+              this.order.customer = this.orderList[index]["customer_id"];
+              this.order.invoice_id = this.orderList[index]["invoice_id"];
+              this.order.discount = this.orderList[index]["discount"];
+              this.order.vat = this.orderList[index]["vat"];
+              discount = this.orderList[index]["discount"];
+              orderDetailList = this.cloneObject(this.orderList[index]["orderdetails"]);
+              break;
+            }
+          }
+          if(orderDetailList && orderDetailList.length > 0){
+            for(let indexOrder = 0; indexOrder < orderDetailList.length; indexOrder++){
+              let productIdSelected = orderDetailList[indexOrder]["product_id"];
+              let data = {};
+              let productItem = null;
+
+              if(this.products && this.products.length > 0){
+                for(let k=0; k < this.products.length; k++){
+                  if(productIdSelected === this.products[k].id){
+                    productItem = this.cloneObject(this.products[k]);
+                    break;
+                  }
+                }
+              }
+              if(productItem){
+                data["name"] = productItem["name"];
+                data["qty"] = parseInt(orderDetailList[indexOrder]["quantity"]);
+                data["price"] = orderDetailList[indexOrder]["sellprice"];
+                let total = (parseFloat(orderDetailList[indexOrder]["sellprice"]) * parseInt(orderDetailList[indexOrder]["quantity"]));
+                data["total"] = total;
+                data["discount"] = discount > 0 ? (discount) : 0;
+                data["total_after_discount"] = total - (total * (discount / 100));
+                orderDetailArray.push(data);
+              }
+            }
+          }
+          this.itemsProductDetail = this.cloneObject(orderDetailArray);
+        }
+        this.$refs["edit-payment-form-modal"].show();
+      },
+      handleSubmit(){},
+      onSubmitEditPayment(){},
+      onResetEditPayment(){},
+      viewDetail(row, index, $event){
+
+      },
+      updateCustomerSelected(customer){
+        for(let k=0; k < this.customersList.length; k++){
+          if(customer === this.customersList[k]["id"]){
+            this.order.discount = (this.customersList[k]["discount"] * 100);
+            this.updatedPriceInListDetailOrder(this.order.discount);
+            break;
+          }
+        }
+      },
+      updatedPriceInListDetailOrder($discount){
+        if(this.products && this.products.length > 0){
+          for(let index =0; index < this.products.length; index++){
+            let productItem = this.products[index];
+            productItem["discount"] = $discount;
+            productItem["total_after_discount"] = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
+            this.products[index] = productItem;
+          }
+          this.items = this.cloneObject(this.products);
+        }
       },
       filterProduct(product_id){
         if(this.products && this.products.length > 0){

@@ -105,5 +105,6 @@ export default {
   "label_member_title":"ឈ្មោះប្រភេទសមាជិក",
   "label_menu_title_customer":"អតិថិជន",
   "label_menu_title_user":"អ្នកប្រើប្រាស់",
-  "label_menu_title_role":"តួនាទី"
+  "label_menu_title_role":"តួនាទី",
+  "label_receive_money":"ទទួលប្រាក់",
 };

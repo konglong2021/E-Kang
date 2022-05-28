@@ -56,8 +56,8 @@
       </div>
       <b-modal id="modal-create-customer" ref="create-customer-form-modal" size="lg"
                @hidden="onReset" cancel-title="បោះបង់" no-close-on-backdrop
-               @ok="onSubmit" ok-title="រក្សាទុក" title="New User">
-        <b-form enctype="multipart/form-data">
+               @ok="handleOnSubmit" ok-title="រក្សាទុក" title="New User">
+        <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmit">
           <div class="full-content">
             <b-row class="my-1">
               <b-col sm="4"><label :for="'input-first-name'" class="label-input">{{ $t('label_customer_name') }}</label></b-col>
@@ -166,6 +166,10 @@
       onReset($event){
         $event.preventDefault();
         this.customer = {};
+      },
+      handleOnSubmit(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmit();
       },
       async onSubmit(){
         let self = this, dataSubmit = {};
