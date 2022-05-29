@@ -50,7 +50,10 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
     Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
     Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
-    
+
+
+
+    Route::post('/sales','App\Http\Controllers\Api\OrdersController@sale'); //update transaction by id
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
@@ -61,7 +64,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
 
 
-   
+   //transaction
     Route::get('/transaction/customer/{customer_id}','App\Http\Controllers\Api\TransactionController@show'); //check transaction by customer id
     Route::get('/transaction/customer/','App\Http\Controllers\Api\TransactionController@index'); //check transaction by customer id
     Route::put('/transaction/customer/{transaction_id}','App\Http\Controllers\Api\TransactionController@update'); //update transaction by id

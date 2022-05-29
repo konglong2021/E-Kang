@@ -64,6 +64,87 @@ class OrdersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    public function sale(Request $request)
+    {
+        $request->validate([
+            'subtotal'     => [
+                'required',
+            ],
+            'grandtotal'    => [
+                'required',
+            ],
+            'customer_id'    => [
+                'required',
+            ],
+            'warehouse_id'    => [
+                'required',
+            ],
+            'items'    => [
+                'required',
+            ],
+        ]);
+
+        try {
+            return DB::transaction(function () use($request) {
+            $setting = Settings::find(1);
+            $digit = (int)$setting->digit;
+            $negative = (int)$setting->negative;
+
+            $prefix = date("ymd");
+            //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
+            // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
+            $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
+            $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
+            $orders = new Order();
+            $orders->invoice_id = $invoice;
+            $orders->warehouse_id = $request->warehouse_id;
+            $orders->customer_id = $request->customer_id;
+            $orders->user_id = auth()->user()->id;
+            $orders->subtotal = round($request->subtotal,$digit);
+            $orders->vat = $request->vat;
+            $orders->discount = $request->discount;   //fetch from member value
+            $orders->grandtotal = round($request->grandtotal,$digit);
+            $orders->receive = round($request->receive,$digit);
+            $orders->status = $status;
+            $orders->save();
+            
+            
+            $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
+       
+
+            $income = $this->income($orders->grandtotal,$orders->warehouse_id);
+
+            if(!$income){
+                throw new \Exception('Please update Today Balance');
+            }
+            $orders_items= $request->items; // purchase is the array of purchase details
+            $orders->products()->sync($orders_items);
+
+            return response()->json([
+                "success" => true,
+                "message" => "Successfully Added",
+                "order"   =>$orders,
+                "items"   =>$orders_items
+
+            ]);
+            
+            // $categories = ($request->categories);
+    
+            // $brand->categories()->sync(($categories));
+
+            });
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Insufficient Please Check again1"
+            ]);
+            //throw $th;
+        }
+    }
+
+
     public function store(Request $request)
     {
         $request->validate([
