@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\TransactionResource;
 use DB;
 
 class TransactionController extends Controller
@@ -18,23 +19,28 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $customerpayment = DB::table('transactions')
-                            ->join('orders','orders.id','=','transactions.order_id')
-                            ->join('customers','customers.id','=','orders.customer_id')
-                            ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.balance','transactions.pay_method','transactions.amount','customers.name')  
-                            ->get();
+        // $customerpayment = DB::table('transactions')
+        //                     ->join('orders','orders.id','=','transactions.order_id')
+        //                     ->join('customers','customers.id','=','orders.customer_id')
+        //                     ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.pay_method','customers.name')  
+        //                     ->get();
 
-        $total_balance = DB::table('transactions')       
-                            ->sum('transactions.balance');
+        // $total_balance = DB::table('transactions')       
+        //                     ->sum('transactions.balance');
 
-        //$total_balance = $customerpayment->sum('transactions.balance');
+        $customerpayment = Transaction::with('order')
+                                        ->with('customers')
+                                        ->get();
+        
+        return TransactionResource::collection($customerpayment);                                 
 
-        return response()->json([
-            "message"=>true,
-            "transaction" =>$customerpayment,
-            "total" => $total_balance
-        ]);
+    //     return response()->json([
+    //         "message"=>true,
+    //         "transaction" =>$customerpayment,
+    //        // "total" => $total_balance
+    //     ]);
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -56,6 +62,8 @@ class TransactionController extends Controller
         foreach($transactions as $transaction)
         {
             $input = Transaction::find($transaction['id']);
+
+
             $input->order_id = $transaction['order_id'];
             $input->paid = $transaction['paid'];
             $input->pay_method = $transaction['pay_method'];
@@ -69,15 +77,16 @@ class TransactionController extends Controller
 
     public function show($id)
     {
-        $customerpayment = DB::table('transactions')
-                            ->join('orders','orders.id','=','transactions.order_id')
-                            ->join('customers','customers.id','=','orders.customer_id')
-                            ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.balance','transactions.pay_method','transactions.amount','customers.name')  
-                            ->where('customers.id','=',$id)
-                            ->get();
+        // $transaction = DB::table('transactions')
+        //                     ->join('orders','orders.id','=','transactions.order_id')
+        //                     ->join('customers','customers.id','=','orders.customer_id')
+        //                     ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.balance','transactions.pay_method','transactions.amount','customers.name')  
+        //                     ->where('customers.id','=',$id)
+        //                     ->get();
 
-        return response()->json($customerpayment);
-
+        // return response()->json($transaction);
+        $transaction = Transaction::find($id);
+        return (new TransactionResource($transaction->loadMissing(['order','customers'])))->response();
         //127.0.0.1:8000/api/transaction/4 number 4 is customer id
     }
 

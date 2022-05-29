@@ -57,11 +57,11 @@ class Order extends Model
     }
     public function transaction()
     {
-        return $this.hasMany(Transaction::class);
+        return $this->hasMany(Transaction::class);
     }
 
     public function products()
     {   
-        return $this.belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class)->withPivot(['quanity','sellprice']);
     }
 }

@@ -92,8 +92,6 @@ class OrdersController extends Controller
             $negative = (int)$setting->negative;
 
             $prefix = date("ymd");
-            //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
-            // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
             $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
             $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
             $orders = new Order();
@@ -109,16 +107,20 @@ class OrdersController extends Controller
             $orders->status = $status;
             $orders->save();
             
-            
             $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
-       
-
+    
             $income = $this->income($orders->grandtotal,$orders->warehouse_id);
-
             if(!$income){
                 throw new \Exception('Please update Today Balance');
             }
-            $orders_items= $request->items; // purchase is the array of purchase details
+            $orders_items= collect($request->input('items',[]))
+                            ->map(function($item){
+                                return ['quantity' => $item['quantity'],
+                                        'product_id'   => $item['product_id'],
+                                        'sellprice' => $item['sellprice']
+                                        ];
+                            });
+        //    return response()->json($orders_items);
             $orders->products()->sync($orders_items);
 
             return response()->json([
@@ -129,16 +131,13 @@ class OrdersController extends Controller
 
             ]);
             
-            // $categories = ($request->categories);
-    
-            // $brand->categories()->sync(($categories));
 
             });
         } catch (\Throwable $th) {
             DB::rollback();
             return response()->json([
                 "success" => false,
-                "message" => "Insufficient Please Check again1"
+                "message" => "Input Data Error"
             ]);
             //throw $th;
         }
@@ -199,7 +198,7 @@ class OrdersController extends Controller
         $orders->save();
 
        
-        $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
+        $paid = $this->pay($orders->receive,$orders->id,"Cash"); //Create Transaction Record
        
 
         $income = $this->income($orders->grandtotal,$orders->warehouse_id);
@@ -249,13 +248,13 @@ class OrdersController extends Controller
 
             ]);
      });
-    } catch (\Exception $th) {
-        DB::rollback();
-        return response()->json([
-            "success" => false,
-            "message" => "Insufficient Please Check again1"
-        ]);
-    }
+        } catch (\Exception $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Insufficient Please Check again1"
+            ]);
+        }
 
 
     }
@@ -316,17 +315,13 @@ class OrdersController extends Controller
 
     }
 
-    public function pay($grandtotal,$recieve,$order_id,$method)
+    public function pay($recieve,$order_id,$method)
     {
-        $balance = $grandtotal - $recieve;
         $payment = Transaction::create([
             //'product_id' => $item['product_id'],
-            'user_id'       =>  auth()->user()->id,
             'order_id'      =>  $order_id,
             'paid'          =>  $recieve,
             'pay_method'    =>  $method, //default
-            'amount'        =>  $grandtotal,
-            'balance'       =>  $balance
         ]);
         return $payment;
     }
@@ -334,8 +329,6 @@ class OrdersController extends Controller
     //show Unpaid Invoice
     public function show($id)
     {
-//        $unpaid = DB::table('orders')
-//                ->select()
         $order = Order::where('status','=',0)
                         ->where('customer_id','=',$id)
                         ->get();
@@ -355,6 +348,7 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    
     public function update(Request $request, $id)
     {
         $request->validate([
