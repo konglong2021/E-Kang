@@ -19,6 +19,7 @@ class TransactionController extends Controller
      */
     public function index()
     {
+        
         // $customerpayment = DB::table('transactions')
         //                     ->join('orders','orders.id','=','transactions.order_id')
         //                     ->join('customers','customers.id','=','orders.customer_id')
@@ -34,20 +35,10 @@ class TransactionController extends Controller
         
         return TransactionResource::collection($customerpayment);                                 
 
-    //     return response()->json([
-    //         "message"=>true,
-    //         "transaction" =>$customerpayment,
-    //        // "total" => $total_balance
-    //     ]);
     }
     
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
        
@@ -56,22 +47,22 @@ class TransactionController extends Controller
     }
 
 
-    public function updateAll(Request $request)
+    public function InvoicePaid(Request $request)
     {   
         $transactions = $request->transactions;
+        $result =collect([]);
         foreach($transactions as $transaction)
         {
-            $input = Transaction::find($transaction['id']);
-
-
+            $input = new Transaction();
             $input->order_id = $transaction['order_id'];
-            $input->paid = $transaction['paid'];
+            $input->paid    = $transaction['paid'];
             $input->pay_method = $transaction['pay_method'];
-            $input->balance = $transaction['balance'];
-            $input->amount = $transaction['amount'];
-            $input->update();
+            $input->save();
+            $result->push($input);
+            
         }
-        return response()->json("Sucessfully paid", 200);
+        return TransactionResource::collection($result);
+        // return response()->json($result, 200);
 
     }
 
@@ -86,6 +77,12 @@ class TransactionController extends Controller
 
         // return response()->json($transaction);
         $transaction = Transaction::find($id);
+        
+        if(empty($transaction))
+        {
+            return response()->json("Not Found");
+        }
+        
         return (new TransactionResource($transaction->loadMissing(['order','customers'])))->response();
         //127.0.0.1:8000/api/transaction/4 number 4 is customer id
     }
@@ -103,14 +100,9 @@ class TransactionController extends Controller
         $input->order_id = $request->order_id;
         $input->paid = $request->paid;
         $input->pay_method = $request->pay_method;
-        $input->balance = $request->balance;
-        $input->amount = $request->amount;
         $input->update();
-        return response()->json([
-            "message" => "Successfully Updated",
-            "transaction" =>  $input
-        ]);
-           
+
+        return new TransactionResource($input);
         
     }
 

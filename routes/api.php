@@ -65,10 +65,14 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
 
    //transaction
-    Route::get('/transaction/customer/{customer_id}','App\Http\Controllers\Api\TransactionController@show'); //check transaction by customer id
-    Route::get('/transaction/customer/','App\Http\Controllers\Api\TransactionController@index'); //check transaction by customer id
+    Route::get('/transaction/show/{id}','App\Http\Controllers\Api\TransactionController@show'); //check transaction by Transaction id
+    Route::get('/transaction/customer',[App\Http\Controllers\Api\TransactionController::class,'index']); //check transaction by customer id
+
+    
+    
     Route::put('/transaction/customer/{transaction_id}','App\Http\Controllers\Api\TransactionController@update'); //update transaction by id
-    Route::post('/transaction/customer','App\Http\Controllers\Api\TransactionController@updateAll'); //update transaction by id
+    Route::post('/transaction/customer','App\Http\Controllers\Api\TransactionController@InvoicePaid'); //update transaction by id
+   
 
     //Delete Purchase and Order Items
     Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase

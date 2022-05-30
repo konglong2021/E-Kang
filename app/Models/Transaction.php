@@ -15,21 +15,15 @@ class Transaction extends Model
 
 
     protected $fillable = [
-        'user_id',
         'order_id',
         'paid',
-        'balance',
         'pay_method',
-        'amount'
        
     ];
     protected static $logAttributes = [
-        'user_id',
         'order_id',
         'paid',
-        'balance',
         'pay_method',
-        'amount'
     ];
 
     public function order()
@@ -39,6 +33,6 @@ class Transaction extends Model
 
     public function customers()
     {
-        return $this->hasOneThrough(Customer::class,Order::class,'customer_id','id','id','customer_id');
+        return $this->hasOneThrough(Order::class,Customer::class,'id','customer_xyz','id','zyz');
     }
 }
