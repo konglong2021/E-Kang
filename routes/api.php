@@ -50,6 +50,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
     Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
     Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
+    Route::ApiResource('/transaction','App\Http\Controllers\Api\TransactionController');
 
 
 
@@ -64,15 +65,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
 
 
-   //transaction
-    Route::get('/transaction/show/{id}','App\Http\Controllers\Api\TransactionController@show'); //check transaction by Transaction id
-    Route::get('/transaction/customer',[App\Http\Controllers\Api\TransactionController::class,'index']); //check transaction by customer id
-
-    
-    
-    Route::put('/transaction/customer/{transaction_id}','App\Http\Controllers\Api\TransactionController@update'); //update transaction by id
-    Route::post('/transaction/customer','App\Http\Controllers\Api\TransactionController@InvoicePaid'); //update transaction by id
-   
+    Route::post('/pay',[App\Http\Controllers\Api\OrdersController::class,'paid']);  //update status order
 
     //Delete Purchase and Order Items
     Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase

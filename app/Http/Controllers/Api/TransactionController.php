@@ -20,20 +20,24 @@ class TransactionController extends Controller
     public function index()
     {
         
-        // $customerpayment = DB::table('transactions')
-        //                     ->join('orders','orders.id','=','transactions.order_id')
-        //                     ->join('customers','customers.id','=','orders.customer_id')
-        //                     ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.pay_method','customers.name')  
-        //                     ->get();
+        $customerpayment = DB::table('transactions')
+                            ->join('orders','orders.id','=','transactions.order_id')
+                            ->join('customers','customers.id','=','orders.customer_id')
+                            ->where('status','=','0')
+                            ->select('transactions.id','orders.invoice_id','orders.id as order_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
+                            // ->select('transactions.*','orders.*','customers.*')  
+                            ->get();
 
         // $total_balance = DB::table('transactions')       
         //                     ->sum('transactions.balance');
 
-        $customerpayment = Transaction::with('order')
-                                        ->with('customers')
-                                        ->get();
+        // $customerpayment = Transaction::with('order')
+        //                                 ->with('customers')
+        //                                 ->get();
         
-        return TransactionResource::collection($customerpayment);                                 
+        // return TransactionResource::collection($customerpayment);     
+        // return new TransactionResource($customerpayment);      
+        return response()->json($customerpayment);                      
 
     }
     
@@ -41,14 +45,6 @@ class TransactionController extends Controller
 
     public function store(Request $request)
     {
-       
-        
-
-    }
-
-
-    public function InvoicePaid(Request $request)
-    {   
         $transactions = $request->transactions;
         $result =collect([]);
         foreach($transactions as $transaction)
@@ -62,38 +58,49 @@ class TransactionController extends Controller
             
         }
         return TransactionResource::collection($result);
-        // return response()->json($result, 200);
 
     }
+
 
     public function show($id)
     {
-        // $transaction = DB::table('transactions')
-        //                     ->join('orders','orders.id','=','transactions.order_id')
-        //                     ->join('customers','customers.id','=','orders.customer_id')
-        //                     ->select('transactions.id','orders.invoice_id','transactions.paid','transactions.balance','transactions.pay_method','transactions.amount','customers.name')  
-        //                     ->where('customers.id','=',$id)
-        //                     ->get();
+        $transaction = DB::table('transactions')
+                            ->join('orders','orders.id','=','transactions.order_id')
+                            ->join('customers','customers.id','=','orders.customer_id')
+                            ->select('transactions.id','orders.id as order_id','orders.invoice_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
+                            ->where('customers.id','=',$id)
+                            ->get();
+        $order = DB::table('orders')
+                    ->where('status','=',0)
+                    ->where('customer_id',$id)
+                    ->sum('grandtotal');
+                    
 
-        // return response()->json($transaction);
-        $transaction = Transaction::find($id);
+        $tsum  = [
+            'paid'      => $transaction->sum('paid'),
+            'amount'    => $order,
+            'balance'   => $order - $transaction->sum('paid')
+        ];
+
+        return response()->json([
+            "data" => $transaction,
+            "summary"  => $tsum
+        ]);
+
+        // $transaction = Transaction::find($id);
         
-        if(empty($transaction))
-        {
-            return response()->json("Not Found");
-        }
+        // if(empty($transaction))
+        // {
+        //     return response()->json("Not Found");
+        // }
         
-        return (new TransactionResource($transaction->loadMissing(['order','customers'])))->response();
-        //127.0.0.1:8000/api/transaction/4 number 4 is customer id
+        // return (new TransactionResource($transaction->loadMissing(['order','customers'])))->response();
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+     
+
+
     public function update(Request $request ,$id)
     {
         $input = Transaction::find($id);
@@ -114,6 +121,9 @@ class TransactionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $input = Transaction::find($id);
+        $input->destroy($id);
+
+        return response()->json("Delete Successfull");
     }
 }

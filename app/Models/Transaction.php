@@ -28,11 +28,11 @@ class Transaction extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class,'order_id');
     }
 
     public function customers()
     {
-        return $this->hasOneThrough(Order::class,Customer::class,'id','customer_xyz','id','zyz');
+        return $this->hasOneThrough(Customer::class,Order::class,'customer_id','id','id','customer_id');
     }
 }

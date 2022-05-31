@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Balance;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
+use App\Http\Resources\OrderResource;
 
 
 class OrdersController extends Controller
@@ -36,6 +37,7 @@ class OrdersController extends Controller
                         ->with('user')
                         ->with('orderdetails')
                   ->orderBy('id', 'desc')->get();
+        return response()->json($orders);
         }
         else {
             if( $request->input('month')){
@@ -305,7 +307,7 @@ class OrdersController extends Controller
         $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
-            $input['income'] = $return - $balance->income;    
+            $input['income'] = $balance->income - $return;    
             $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
@@ -349,6 +351,21 @@ class OrdersController extends Controller
      * @return \Illuminate\Http\Response
      */
     
+    public function paid(Request $request)
+    {
+        $paids = $request->paids;
+        $result =collect([]);
+        foreach($paids as $paid)
+        {
+            $input = Order::find($paid['id']);
+            $input->status = 1;
+            $input->update();
+            $result->push($input);
+            
+        }
+        return OrderResource::collection($result);
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
