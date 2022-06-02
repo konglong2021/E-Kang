@@ -490,7 +490,7 @@ class OrdersController extends Controller
         foreach($odetail as $detail)
         {
             $stock = Stock::where('product_id',$detail->product_id)
-            ->where('warehouse_id',$request->warehouse_id)
+            ->where('warehouse_id',$order->warehouse_id)
             ->first();
             $stock->total = $stock->total + $detail->quantity;
             $stock->update();

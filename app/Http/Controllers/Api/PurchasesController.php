@@ -322,11 +322,11 @@ class PurchasesController extends Controller
     public function delete(Request $request ,$id)
     {
         $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
-
+        $Purchase = Purchase::find($id);
         foreach($pdetail as $detail)
         {
             $stock = Stock::where('product_id',$detail->product_id)
-            ->where('warehouse_id',$request->warehouse_id)
+            ->where('warehouse_id',$Purchase->warehouse_id)
             ->first();
             $stock->total = $stock->total - $detail->quantity;
             if($stock->total >= 0){
@@ -339,7 +339,7 @@ class PurchasesController extends Controller
        
 
         $pdetail = PurchaseDetail::where('purchase_id',$id)->delete();
-        $Purchase = Purchase::find($id);
+        
 
         $Purchase->destroy($id);
         return response()->json([
