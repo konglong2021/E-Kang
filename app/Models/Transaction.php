@@ -33,6 +33,6 @@ class Transaction extends Model
 
     public function customers()
     {
-        return $this->hasOneThrough(Customer::class,Order::class,'customer_id','id','id','customer_id');
+        return $this->hasOneThrough(Customer::class,Order::class,'id','id','order_id','customer_id');
     }
 }

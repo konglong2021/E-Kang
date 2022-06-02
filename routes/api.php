@@ -63,6 +63,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/sale/search',[App\Http\Controllers\Api\OrdersController::class,'index'])->name('sale.search');
     Route::post('/stock/search',[App\Http\Controllers\Api\StockController::class,'index'])->name('stock.search');
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
+    Route::post('/transaction/search',[App\Http\Controllers\Api\TransactionController::class,'getalltransaction']); // Start From and End
 
 
     Route::post('/pay',[App\Http\Controllers\Api\OrdersController::class,'paid']);  //update status order

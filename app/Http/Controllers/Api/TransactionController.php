@@ -20,24 +20,23 @@ class TransactionController extends Controller
     public function index()
     {
         
-        $customerpayment = DB::table('transactions')
-                            ->join('orders','orders.id','=','transactions.order_id')
-                            ->join('customers','customers.id','=','orders.customer_id')
-                            ->where('status','=','0')
-                            ->select('transactions.id','orders.invoice_id','orders.id as order_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
-                            // ->select('transactions.*','orders.*','customers.*')  
-                            ->get();
+        // $customerpayment = DB::table('transactions')
+        //                     ->join('orders','orders.id','=','transactions.order_id')
+        //                     ->join('customers','customers.id','=','orders.customer_id')
+        //                     ->where('status','=','0')
+        //                     ->select('transactions.id','orders.invoice_id','orders.id as order_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
+        //                     ->get();
 
         // $total_balance = DB::table('transactions')       
         //                     ->sum('transactions.balance');
 
-        // $customerpayment = Transaction::with('order')
-        //                                 ->with('customers')
-        //                                 ->get();
+        $customerpayment = Transaction::with('order')
+                                        ->with('customers')
+                                        ->get();
         
-        // return TransactionResource::collection($customerpayment);     
+        return TransactionResource::collection($customerpayment);     
         // return new TransactionResource($customerpayment);      
-        return response()->json($customerpayment);                      
+        // return response()->json($customerpayment);                      
 
     }
     
@@ -69,11 +68,13 @@ class TransactionController extends Controller
                             ->join('customers','customers.id','=','orders.customer_id')
                             ->select('transactions.id','orders.id as order_id','orders.invoice_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
                             ->where('customers.id','=',$id)
+                            ->where('status','=',0)
                             ->get();
-        $order = DB::table('orders')
-                    ->where('status','=',0)
-                    ->where('customer_id',$id)
-                    ->sum('grandtotal');
+
+                $order = DB::table('orders')
+                            ->where('status','=',0)
+                            ->where('customer_id',$id)
+                            ->sum('grandtotal');
                     
 
         $tsum  = [
@@ -98,7 +99,17 @@ class TransactionController extends Controller
 
     }
 
-     
+     public function getalltransaction(Request $request)
+     {
+        $start = date('Y-m-d 0:00',strtotime($request['start']));
+        $end = date('Y-m-d 23:59',strtotime($request['end']));
+        $getall = Transaction::whereBetween('created_at',[$start,$end])
+                                ->with('order')
+                                ->with('customers')
+                                ->get();
+
+        return TransactionResource::collection($getall);
+     }
 
 
     public function update(Request $request ,$id)
