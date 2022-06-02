@@ -6,6 +6,7 @@ export default {
   "index_menu_inventory":"Inventory Management",
   "index_menu_report":"Reports",
   "content_title_inventory": "Inventory Overview",
+  "content_title_purchase": "Purchase Overview",
   "content_title_product":"Products Overview",
   "content_title_balance":"Balance Overview",
   "content_title_order":"Order Overview",
@@ -106,5 +107,9 @@ export default {
   "label_member_title":"Member Title",
   "label_menu_title_customer":"Customer",
   "label_menu_title_user":"Users",
-  "label_menu_title_role":"Roles"
+  "label_menu_title_role":"Roles",
+  "label_date_purchase":"Purchase Date",
+  "label_purchase_by":"Purchase by",
+  "label_supplier_name":"Supplier Name",
+  "label_import_price":"Import Price"
 };

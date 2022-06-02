@@ -22,7 +22,7 @@
               </li>
               <li class="li-style" style="overflow: hidden;">
                 <a class="content-link" href="/debt">
-                  <span> បំណុល </span>
+                  <span> ការទូរទាត់ទឹកប្រាក់ </span>
                 </a>
               </li>
               <li class="li-style" style="overflow: hidden;">

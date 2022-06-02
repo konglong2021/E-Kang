@@ -46,9 +46,6 @@
               <span class="margin-span-btn">{{$t('stock_in')}}</span>
               <i class="fa fa-plus" aria-hidden="true"></i>
             </b-button>
-            <b-button href="#" size="sm" variant="primary" title="Check stock record" @click="showStockTable()" style="display:none;">
-              <span class="margin-span-btn">{{$t('check_stock')}}</span>
-            </b-button>
           </div>
           <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
@@ -132,9 +129,6 @@
               <template #cell(image)="row">
                 <div class="pro-img">
                 </div>
-                <b-button size="sm" title="Adjust invetory stock" variant="success" @click="updatedDataStock(row.item, row.index, $event.target)">
-                  <i class="fa fa-edit"></i>
-                </b-button>
               </template>
             </b-table>
           </div>
@@ -290,6 +284,7 @@
     data() {
       return {
         newProductModal: {showModal:false},
+        purchaseModal:{show: false},
         loadingFields: {productListLoading: false, supplierListLoading: false, warehouseListLoading: false, stockLoading: true},
         items: [],
         fields: [
@@ -828,22 +823,10 @@
             vm.$toast.success("Submit data getting error").goAway(3000);
           });
       },
-      async getDataPurchase(){
-        let vm = this;
-        await this.$axios.get('/api/purchase')
-          .then(function (response) {
-            if(response.data.data){
-              vm.purchases = vm.cloneObject(response.data.data);
-              vm.purchases.sort(function(a, b) {
-                return a.batch.localeCompare(b.batch);
-              });
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
-            vm.$toast.success("Submit data getting error").goAway(3000);
-          });
+      showAllPurchase(){
+        this.purchaseModal.show = true;
       },
+
       renderProductOptionData(product){
         let productItem =  { name: '', value: null};
         productItem.name = product["en_name"] + " (" + product["kh_name"] + ")";

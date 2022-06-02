@@ -15,6 +15,11 @@
           </a>
         </li>
         <li class="menu-text-item">
+          <a href="/purchases">
+            <span><i class="fa fa-balance-scale" aria-hidden="true"></i> ប្រតិបត្តការបញ្ចូលក្នុងស្តុក</span>
+          </a>
+        </li>
+        <li class="menu-text-item">
           <a href="/categories">
             <span> <i class="fa fa-cogs" aria-hidden="true"></i> {{ $t('title_categories') }} </span>
           </a>
