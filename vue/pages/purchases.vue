@@ -169,7 +169,15 @@ export default {
       vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
     }
   },
-  watch: {},
+  watch: {
+    products: {
+      handler: function(products) {
+          if(products.length > 0){
+            this.getDataPurchase();
+          }
+        }
+    }
+  },
   methods:{
     async getListProduct(){
       let vm = this;
@@ -179,36 +187,24 @@ export default {
       await vm.$axios.get('/api/product').then(function (response) {
         if(response && response.hasOwnProperty("data")){
           let dataResponse = response.data;
-          if(dataResponse && dataResponse.length > 0){
+          if(response.data && response.data.length > 0) {
             vm.totalRows = response.data.length;
-            for(let i=0; i < dataResponse.length; i++){
-              let productList = dataResponse[i];
-              if(productList && productList.length > 0){
-                for(let index=0; index < productList.length; index++){
-                  let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                  productItem.id = productList[index].id;
-                  productItem.en_name = productList[index].en_name;
-                  productItem.kh_name = productList[index].kh_name;
-                  productItem.name = productList[index].en_name + " (" + productList[index].kh_name + ")";
-                  productItem.price = productList[index].sale_price;
-                  productItem.img = productList[index].image !== "no image" ? vm.generateImageUrlDisplay(productList[index].image) : productList[index].image;
-                  productItem.code = productList[index].code;
-                  vm.products.push(productItem);
-                  vm.productOptions.push({name: (productList[index].en_name + " - " + productList[index].kh_name + " (" + productList[index].code + ")"), value: productItem.id})
-                }
-              }
-              else if(productList && productList.hasOwnProperty("id")){
-                let productItem =  { id: '', name: null, price : 0, currency:'USD', img :'', code : null};
-                productItem.id = productList.id;
-                productItem.name = productList.en_name + " (" + productList.kh_name + ")";
-                productItem.en_name = productList.en_name;
-                productItem.kh_name = productList.kh_name;
-                productItem.price = productList.sale_price;
-                productItem.img = (productList.image !== "no image" && productList.image !== "no image created") ? vm.generateImageUrlDisplay(productList.image) : productList.image;
-                productItem.code = productList.code;
-                vm.products.push(productItem);
-                vm.productOptions.push({name: (productItem.en_name + " - " +productItem.kh_name + " (" + productItem.code + ")"), value: productItem.id})
-              }
+            vm.products = vm.cloneObject(response.data);
+            for (let index = 0; index < response.data.length; index++) {
+              /*let productItem = {id: '', name: null, price: 0, currency: 'USD', img: '', code: null};
+              productItem.id = dataResponse[index].id;
+              productItem.en_name = dataResponse[index].en_name;
+              productItem.kh_name = dataResponse[index].kh_name;
+              productItem.name = dataResponse[index].en_name + " (" + dataResponse[index].kh_name + ")";
+              productItem.price = dataResponse[index].sale_price;
+              productItem.img = dataResponse[index].image !== "no image" ? vm.generateImageUrlDisplay(dataResponse[index].image) : dataResponse[index].image;
+              productItem.code = dataResponse[index].code;
+
+              vm.products.push(productItem);*/
+              vm.productOptions.push({
+                name: (response.data[index].en_name + " - " + response.data[index].kh_name + " (" + response.data[index].code + ")"),
+                value: response.data[index].id
+              })
             }
           }
         }
@@ -259,7 +255,6 @@ export default {
                 let supplierItem =  { text: '', value: null};
                 supplierItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                 supplierItem.value = data[index]["id"];
-                //vm.suppliers.push(supplierItem);
                 vm.suppliers.unshift(supplierItem);
               }
             }
@@ -422,7 +417,9 @@ export default {
     this.getListProduct();
     this.getAllWarehouse();
     this.getAllSupplier();
-    this.getDataPurchase();
+    // if(this.products && this.products.length > 0){
+    //   this.getDataPurchase();
+    // }
   }
 }
 </script>
