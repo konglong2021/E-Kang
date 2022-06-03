@@ -46,7 +46,7 @@
               <b-table-simple v-if="items.length > 0" class="table-transaction">
                 <b-thead class="table-header" style="padding-right: 15px;">
                   <b-tr style="display: inline-block;width: 99.5%;overflow: hidden;">
-                    <b-th class="width-9-percentage" >{{ $t('label_date_sale') }}</b-th>
+                    <b-th class="width-8-percentage" >{{ $t('label_date_sale') }}</b-th>
                     <b-th class="width-8-percentage" >{{ $t('label_sale_by') }}</b-th>
                     <b-th class="width-10-percentage" >
                       {{ $t('label_customer_name') }}
@@ -57,19 +57,19 @@
 
                     <b-th class="width-10-percentage" >{{ $t('label_product_name') }}</b-th>
                     <b-th class="width-4-percentage" >{{ $t('label_quantity') }}</b-th>
-                    <b-th class="width-8-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
+                    <b-th class="width-7-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
 
-                    <b-th class="width-5-percentage" >{{ $t('label_discount') }}</b-th>
+                    <b-th class="width-4-percentage" >{{ $t('label_discount') }}</b-th>
                     <b-th class="width-5-percentage" >{{ $t('label_vat') }}</b-th>
-                    <b-th class="width-8-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
+                    <b-th class="width-7-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
                     <b-th :class="!product_select ? 'width-8-percentage' : 'width-12-percentage'" >{{ $t('label_grand_total') }} ($)</b-th>
                     <b-th class="width-5-percentage" v-show="!product_select">{{ $t('label_receive_money') }}</b-th>
-                    <b-th class="width-5-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
+                    <b-th class="width-7-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
                   </b-tr>
                 </b-thead>
                 <b-tbody class="table-body" :class="product_select ? 'max-height-50-vh' : 'max-height-57-vh'">
-                  <b-tr class="table-body-tr" v-for="item in items" v-bind:key="item.order_id">
-                    <b-td class="width-9-percentage date content-td" :rowspan="item.lengthDetail">
+                  <b-tr class="table-body-tr" :id="'tr-' + item.tr_id" v-for="item in items" v-bind:key="item.order_id">
+                    <b-td class="width-8-percentage date content-td" :rowspan="item.lengthDetail">
                       <b class="content">{{ (item.date !== undefined ? item.date : "") }}</b>
                     </b-td>
                     <b-td class="width-8-percentage sale_by content-td" :rowspan="item.lengthDetail">
@@ -88,11 +88,11 @@
                     <b-td class="width-4-percentage qty content-td">
                       <span class="content">{{ item.qty !== undefined ? item.qty : "" }}</span>
                     </b-td>
-                    <b-td class="width-8-percentage sale_price content-td">
+                    <b-td class="width-7-percentage sale_price content-td">
                       <span class="content">{{ item.sale_price !== undefined ? item.sale_price + "$" : ""}}</span>
                     </b-td>
 
-                    <b-td class="width-5-percentage discount content-td" :rowspan="item.lengthDetail">
+                    <b-td class="width-4-percentage discount content-td" :rowspan="item.lengthDetail">
                       <b class="content">{{ (item.discount === 0 || item.discount === undefined) ? "0" : item.discount + "%" }}</b>
                     </b-td>
                     <b-td class="width-5-percentage vat content-td" :rowspan="item.lengthDetail">
@@ -100,7 +100,7 @@
                         {{ (item.vat === 0 || item.vat === undefined) ? 0 : item.vat + "%" }}
                       </b>
                     </b-td>
-                    <b-td class="width-9-percentage subtotal content-td">
+                    <b-td class="width-7-percentage subtotal content-td">
                       <b class="content">{{ item.subtotal !== undefined ? (item.subtotal + "$") : "" }}</b>
                     </b-td>
                     <b-td class="grandtotal content-td" :rowspan="item.lengthDetail" :class="!product_select ? 'width-8-percentage' : 'width-12-percentage'">
@@ -109,14 +109,14 @@
                     <b-td class="width-5-percentage content-td" v-show="!product_select" :rowspan="item.lengthDetail">
                       <b class="content">{{ item.receive !== undefined ? (item.receive + "$") : "" }}</b>
                     </b-td>
-                    <b-td class="width-6-percentage content-td" v-show="item.order_id" :rowspan="item.lengthDetail">
+                    <b-td class="width-8-percentage content-td" v-show="item.order_id" :rowspan="item.lengthDetail">
                       <b-button size="sm" title="View data" class="btn-no-background" @click="viewOrderData(item)">
                         <i class="fa fa-eye"></i>
                       </b-button>
                       <b-button size="sm" title="Edit order data" class="btn-no-background" @click="UpdateOrderData(item,  $event.target)">
                         <i class="fa fa-edit"></i>
                       </b-button>
-                      <b-button size="sm" title="Edit order data" class="btn-no-background" @click="openConfirmToRemoveOrder(item)">
+                      <b-button size="sm" title="Remove order data" class="btn-no-background-danger" @click="openConfirmToRemoveOrder(item)">
                         <i class="fa fa-trash"></i>
                       </b-button>
                     </b-td>
@@ -443,6 +443,7 @@
         productItemAdd: null,
         orderItemSelectEdit: {},
         orderItemSelectToRemoveId: null,
+        tr_id_select: null,
       }
     },
     methods: {
@@ -562,6 +563,7 @@
                       itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
                       itemOrderDetail["sale_price"] = productData["price"] ;
                       itemOrderDetail["order_id"] = orderDetailItem.order_id;
+                      itemOrderDetail["tr_id"] = orderDetailItem.order_id;
                       let subtotal = 0;
                       if(orderItem["discount"] > 0){
                         let totalItem = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
@@ -577,6 +579,8 @@
                 }
                 for(let index=0; index < itemOrder[orderItem.id].length; index++){
                   let itemData = [];
+                  itemData["tr_id"] = itemOrder[orderItem.id].hasOwnProperty("tr_id") ? itemOrder[orderItem.id].tr_id : orderItem["id"];
+                  itemData["customer_id"] = orderItem["customer_id"];
                   if(index === 0){
                     itemData["order_id"] = orderItem.id;
                     itemData["sale_by"] = user.name;
@@ -740,7 +744,7 @@
           });
           this.itemsProductDetail = this.cloneObject(orderDetailArray);
         }
-        this.$refs["edit-payment-form-modal"].show();
+        this.$refs['edit-payment-form-modal'].show();
       },
       addProductButtonClick(){
         this.isAddProduct = true;
@@ -751,9 +755,9 @@
           if(!productItemAdd.hasOwnProperty("qty")){
             productItemAdd["qty"] = 1;
             productItemAdd["total"] = (parseInt(productItemAdd["qty"]) * parseFloat(productItemAdd["price"]));
-            if(this.orderItemSelectEdit && this.orderItemSelectEdit.hasOwnProperty("discount")){
-              let $discount = this.orderItemSelectEdit["discount"];
-              productItemAdd["discount"] = this.orderItemSelectEdit["discount"];
+            if(this.order && this.order.hasOwnProperty("discount")){
+              let $discount = this.order["discount"];
+              productItemAdd["discount"] = this.order["discount"];
               productItemAdd["total_after_discount"] = ($discount === 0) ? productItemAdd["total"] : (productItemAdd["total"] - (productItemAdd["total"] * ($discount / 100)));
             }
             productItemAdd["isAdd"] = true;
@@ -766,9 +770,9 @@
             itemTemp["qty"] = Number(itemTemp['qty']) + 1;
             itemTemp["total"] = (parseInt(itemTemp["qty"]) * parseFloat(itemTemp["price"]));
 
-            if(this.orderItemSelectEdit && this.orderItemSelectEdit.hasOwnProperty("discount")){
-              let $discount = this.orderItemSelectEdit["discount"];
-              itemTemp["discount"] = this.orderItemSelectEdit["discount"];
+            if(this.order && this.order.hasOwnProperty("discount")){
+              let $discount = this.order["discount"];
+              itemTemp["discount"] = this.order["discount"];
               itemTemp["total_after_discount"] = ($discount === 0) ? itemTemp["total"] : (itemTemp["total"] - (itemTemp["total"] * ($discount / 100)));
             }
             if(itemTemp.hasOwnProperty("isAdd")){
@@ -791,14 +795,24 @@
       },
       updatedDataOfCurrentProduct(dataItem, item, fieldName){
         let data = this.itemsProductDetail.find(product => product.id === item.id);
-       if(fieldName === 'qty'){
+        let discount = data.discount;
+        console.log(data);
+        if(fieldName === 'qty'){
          let itemTemp = JSON.parse(JSON.stringify(data));
          let index = this.indexWhere(this.itemsProductDetail, (product => product.id  === item.id));
-         data.qty = parseInt(dataItem);
+         itemTemp.qty = parseInt(dataItem);
+         itemTemp.total = (itemTemp.qty * parseFloat(itemTemp.price));
+         itemTemp.total_after_discount = discount > 0 ? (itemTemp.total - ((itemTemp.total) * (discount / 100))) : itemTemp.total;
+
          this.$set(this.itemsProductDetail, index, itemTemp);
        }
        else if(fieldName === 'price'){
-         data.price = parseFloat(dataItem);
+         let itemTemp = JSON.parse(JSON.stringify(data));
+         let index = this.indexWhere(this.itemsProductDetail, (product => product.id  === item.id));
+         itemTemp.price = parseFloat(dataItem);
+         itemTemp.total = (itemTemp.qty * parseFloat(itemTemp.price));
+         itemTemp.total_after_discount = discount > 0 ? (itemTemp.total - ((itemTemp.total) * (discount / 100))) : itemTemp.total;
+         this.$set(this.itemsProductDetail, index, itemTemp);
        }
       },
       indexWhere(array, conditionFn) {
@@ -808,27 +822,72 @@
       hideInput(){
         this.selected = null;
       },
+
+      /*****Edit order records*****/
       handleSubmit(bvModalEvent){
         bvModalEvent.preventDefault();
         this.onSubmitEditPayment();
       },
-      onSubmitEditPayment(){
-        console.log(this.orderItemSelectEdit);
+      async onSubmitEditPayment(){
+        let self = this;
+        let dataSubmit = {};
+        dataSubmit.warehouse_id = self.$store.$cookies.get('storeItem');
+        dataSubmit.customer_id = self.order.customer;
+        dataSubmit.vat = self.order.vat;
+        dataSubmit.discount = self.order.discount;
+        dataSubmit.invoice_id = self.orderItemSelectEdit.invoice_id;
+        dataSubmit.items = [];
+        let subTotal = 0;
+        let totalVat = 0;
+        let priceAfterDiscount = 0;
+
+        for (let index=0; index < self.itemsProductDetail.length ; index++){
+          let item = self.itemsProductDetail[index];
+          subTotal = subTotal + self.itemsProductDetail[index]["total"];
+          dataSubmit.items.push({product_id : item["id"], sellprice : item["price"], quantity: item["qty"]});
+        }
+        dataSubmit.subtotal = subTotal;
+        totalVat = (self.order.vat * subTotal);
+        priceAfterDiscount = subTotal - (subTotal * ((this.order.discount / 100)));
+        dataSubmit.grandtotal = (priceAfterDiscount + totalVat);
+
+        self.$toast.info("Data starting submit").goAway(1500);
+        console.log(self.orderItemSelectEdit);
+        if(self.orderItemSelectEdit.hasOwnProperty("tr_id") && self.orderItemSelectEdit.tr_id){
+          self.$axios.put('/api/sale/' + self.orderItemSelectEdit.tr_id, dataSubmit).then(function (response) {
+            console.log(response);
+           if(response.data.success === true){
+             self.$nextTick(() => {
+               self.$refs['edit-payment-form-modal'].hide();
+             });
+             self.$toast.success("Submit data successfully").goAway(2000);
+             // self.invoiceNumber = response.data.order["invoice_id"];
+             // self.is_show_content_print = true;
+             // self.$emit("updateListProduct", []);
+           }
+         })
+          .catch(function (error) {
+            self.$toast.error("getting data error ").goAway(2000);
+            console.log(error);
+          });
+        }
       },
       onResetEditPayment(){
         this.productItemAdd = null;
       },
+      /*******************End***********************/
 
       /*****Remove order records*****/
       openConfirmToRemoveOrder($item){
         this.orderItemSelectToRemoveId = $item["order_id"];
+        this.tr_id_select = $item["tr_id"];
         this.$refs["confirm-remove-order-form-modal"].show();
       },
       async onSubmitToRemove(){
         let self = this;
         if(self.orderItemSelectToRemoveId){
-          await self.$axios.post('/api/sale/delete/' + self.orderItemSelectToRemoveId).then(function (response) {
-            console.log(response);
+          await self.$axios.delete('/api/sale/delete/' + self.orderItemSelectToRemoveId).then(function (response) {
+            $("#tr-" + self.orderItemSelectToRemoveId).fadeOut(1000);
             self.$refs["confirm-remove-order-form-modal"].hide();
           }).catch(function (error) {
             console.log(error);
@@ -842,7 +901,7 @@
       /*****Remove product item from list product in order records*****/
       removeProductFromListOfOrder(item, $eventTarget){
         let productFound = this.itemsProductDetail.find(productItem => productItem.id === item.id);
-        let index = this.itemsProductDetail.indexOf(productFound)
+        let index = this.itemsProductDetail.indexOf(productFound);
         if(index > -1){
           this.itemsProductDetail.splice(index, 1);
         }
@@ -861,14 +920,14 @@
         }
       },
       updatedPriceInListDetailOrder($discount){
-        if(this.products && this.products.length > 0){
-          for(let index =0; index < this.products.length; index++){
-            let productItem = this.products[index];
+        if(this.itemsProductDetail && this.itemsProductDetail.length > 0){
+          for(let index =0; index < this.itemsProductDetail.length; index++){
+            let productItem = this.itemsProductDetail[index];
             productItem["discount"] = $discount;
             productItem["total_after_discount"] = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
-            this.products[index] = productItem;
+            this.itemsProductDetail[index] = productItem;
           }
-          this.items = this.cloneObject(this.products);
+         // this.items = this.cloneObject(this.itemsProductDetail);
         }
       },
       filterProduct(product_id){
