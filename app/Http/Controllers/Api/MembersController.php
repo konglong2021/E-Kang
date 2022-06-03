@@ -44,7 +44,7 @@ class MembersController extends Controller
         return response()->json([
             "success" => true,
             "message" => "Members successfully Created",
-            "product" =>  $members
+            "member" =>  $members
         ]);
     }
 
@@ -88,7 +88,7 @@ class MembersController extends Controller
             return response()->json([
            
             "message" => "Successfully Updated",
-            "category" =>  $member
+            "member" =>  $member
         ]);
     }
 
@@ -106,7 +106,7 @@ class MembersController extends Controller
         return response()->json([
            
             "message" => "Successfully Deleted",
-            "category" =>  $member
+            "member" =>  $member
         ]);
     }
 }

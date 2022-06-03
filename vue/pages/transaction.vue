@@ -45,7 +45,7 @@
             <div v-if="items">
               <b-table-simple v-if="items.length > 0" class="table-transaction">
                 <b-thead class="table-header" style="padding-right: 15px;">
-                  <b-tr style="display: inline-block;width: 100%;overflow: hidden;">
+                  <b-tr style="display: inline-block;width: 99.5%;overflow: hidden;">
                     <b-th class="width-9-percentage" >{{ $t('label_date_sale') }}</b-th>
                     <b-th class="width-8-percentage" >{{ $t('label_sale_by') }}</b-th>
                     <b-th class="width-10-percentage" >
@@ -56,14 +56,15 @@
                     </b-th>
 
                     <b-th class="width-10-percentage" >{{ $t('label_product_name') }}</b-th>
-                    <b-th class="width-5-percentage" >{{ $t('label_quantity') }}</b-th>
-                    <b-th class="width-9-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
+                    <b-th class="width-4-percentage" >{{ $t('label_quantity') }}</b-th>
+                    <b-th class="width-8-percentage" >{{ $t('label_sale_price') }} ($)</b-th>
 
                     <b-th class="width-5-percentage" >{{ $t('label_discount') }}</b-th>
                     <b-th class="width-5-percentage" >{{ $t('label_vat') }}</b-th>
-                    <b-th class="width-11-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
-                    <b-th :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'" >{{ $t('label_grand_total') }} ($)</b-th>
-                    <b-th class="width-3-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
+                    <b-th class="width-8-percentage" >{{ $t('label_sub_total') }} ($)</b-th>
+                    <b-th :class="!product_select ? 'width-8-percentage' : 'width-12-percentage'" >{{ $t('label_grand_total') }} ($)</b-th>
+                    <b-th class="width-5-percentage" v-show="!product_select">{{ $t('label_receive_money') }}</b-th>
+                    <b-th class="width-5-percentage" v-show="!product_select">{{ $t('title_action') }}</b-th>
                   </b-tr>
                 </b-thead>
                 <b-tbody class="table-body" :class="product_select ? 'max-height-50-vh' : 'max-height-57-vh'">
@@ -84,10 +85,10 @@
                     <b-td class="width-10-percentage name content-td">
                       <span class="content">{{ item.name !== undefined ? item.name : "" }}</span>
                     </b-td>
-                    <b-td class="width-5-percentage qty content-td">
+                    <b-td class="width-4-percentage qty content-td">
                       <span class="content">{{ item.qty !== undefined ? item.qty : "" }}</span>
                     </b-td>
-                    <b-td class="width-9-percentage sale_price content-td">
+                    <b-td class="width-8-percentage sale_price content-td">
                       <span class="content">{{ item.sale_price !== undefined ? item.sale_price + "$" : ""}}</span>
                     </b-td>
 
@@ -99,15 +100,24 @@
                         {{ (item.vat === 0 || item.vat === undefined) ? 0 : item.vat + "%" }}
                       </b>
                     </b-td>
-                    <b-td class="width-11-percentage subtotal content-td">
+                    <b-td class="width-9-percentage subtotal content-td">
                       <b class="content">{{ item.subtotal !== undefined ? (item.subtotal + "$") : "" }}</b>
                     </b-td>
-                    <b-td class="grandtotal content-td" :rowspan="item.lengthDetail" :class="!product_select ? 'width-9-percentage' : 'width-13-percentage'">
+                    <b-td class="grandtotal content-td" :rowspan="item.lengthDetail" :class="!product_select ? 'width-8-percentage' : 'width-12-percentage'">
                       <b class="content">{{ item.grandtotal !== undefined ? (item.grandtotal + "$") : "" }}</b>
                     </b-td>
-                    <b-td class="width-4-percentage content-td" v-show="!product_select" :rowspan="item.lengthDetail">
-                      <b-button size="sm" title="Adjust invetory stock" variant="success" @click="UpdateOrder(item)">
+                    <b-td class="width-5-percentage content-td" v-show="!product_select" :rowspan="item.lengthDetail">
+                      <b class="content">{{ item.receive !== undefined ? (item.receive + "$") : "" }}</b>
+                    </b-td>
+                    <b-td class="width-6-percentage content-td" v-show="item.order_id" :rowspan="item.lengthDetail">
+                      <b-button size="sm" title="View data" class="btn-no-background" @click="viewOrderData(item)">
                         <i class="fa fa-eye"></i>
+                      </b-button>
+                      <b-button size="sm" title="Edit order data" class="btn-no-background" @click="UpdateOrderData(item,  $event.target)">
+                        <i class="fa fa-edit"></i>
+                      </b-button>
+                      <b-button size="sm" title="Edit order data" class="btn-no-background" @click="openConfirmToRemoveOrder(item)">
+                        <i class="fa fa-trash"></i>
                       </b-button>
                     </b-td>
                   </b-tr>
@@ -118,7 +128,6 @@
                 <h5 v-if="product_select">ចំនួនលក់សរុបទាំងអស់ : {{ sumAllSaleProduct(items) }}</h5>
                 <h5 v-if="product_select">សរុបទឹកប្រាក់ទាំងអស់ : {{ sumAllPriceSaleProduct(items) + "$"}}</h5>
               </div>
-
               <div id="table-order" v-if="product_select" style="display: none; width: 100%; overflow: hidden;">
                 <h2 style="margin-bottom: 35px;">អំពី ការលក់ </h2>
                 <h4 v-if="product_select">ចំនួនលក់សរុបទំនិញទាំងអស់ : {{ sumAllSaleProduct(items) }}</h4>
@@ -188,36 +197,39 @@
           </div>
         </div>
       </div>
+
       <b-modal id="modal-detail-payment" ref="detail-payment-form-modal" size="lg" modal-class="payment-form-modal"
-               @hidden="onResetPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
-               @ok="onSubmitPayment" ok-title="ព្រីនចេញ" title="ការលក់" no-close-on-backdrop>
+               @hidden="onResetPrint" ok-only ok-variant="secondary" footer-class="justify-content-center"
+               @ok="onSubmitToPrint" ok-title="ព្រីនចេញ" title="ការលក់" no-close-on-backdrop>
         <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;">
           <div class="full-content margin-bottom-20">
             <div class="container-row-form width-60-percentage float-left">
               <div class="form-row-content-detail row-content-view">
-                <label class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
+                <label class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">វិក័យប័ត្រលេខ</label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.invoice_id}}</strong>
               </div>
-              <div class="form-row-content-detail row-content-view">
-                <label :for="'input-customer'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
+              <div class="form-row-content-detail row-content-view" >
+                <label :for="'input-customer'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ឈ្មោះអតិថិជន : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">{{order.customer}}</strong>
               </div>
+
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">លក់ដោយ : </label>
+                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">លក់ដោយ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ $store.$cookies.get('user').name }}</strong>
               </div>
             </div>
             <div class="container-row-form width-29-percentage float-right">
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-vat'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ពន្ធ : </label>
+                <label :for="'input-vat'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ពន្ធ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.vat !== 0 ? order.vat + "%": 0 }}</strong>
               </div>
+
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-discount'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចុះតម្លៃ : </label>
+                <label :for="'input-discount'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">បញ្ចុះតម្លៃ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ order.discount + "%" }}</strong>
               </div>
               <div class="form-row-content-detail row-content-view">
-                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ថ្ងៃខែឆ្នាំលក់ : </label>
+                <label :for="'input-exchange-rate'" class="label-input no-margin-bottom" style="width: 105px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif;">ថ្ងៃខែឆ្នាំលក់ : </label>
                 <strong class="input-content" style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;"> {{ getFullDate() }}</strong>
               </div>
             </div>
@@ -228,14 +240,13 @@
                    stacked="md"
                    show-empty
                    small
-          ></b-table>
+          >
+          </b-table>
           <div style="display: inline-block;float: right;margin-top: 25px;">
               <span style="display: block;">{{$t('title_total_in_usd')}} : {{order.subtotal}} USD</span>
               <span style="display: block;margin-top: 10px;">{{$t('title_total_after_vat_in_usd')}} : {{ order.grandtotal}} USD</span>
           </div>
         </b-form>
-
-
         <div id="invoice-print-again" style="display: none; width: 100%; height: 100%; overflow: hidden; padding: 30px 30px !important; font-family: 'Arial', 'Khmer OS Bokor', sans-serif !important;">
           <div style="margin-bottom: 30px; font-family: 'Arial', 'Khmer OS Bokor', sans-serif; display:inline-block; width: 100%;">
             <h1 style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif; text-align: center;">{{ $t('title') }}</h1>
@@ -283,18 +294,98 @@
           </div>
         </div>
       </b-modal>
+      <b-modal
+              id="modal-edit-payment" ref="edit-payment-form-modal" size="lg" modal-class="payment-form-modal"
+              @hidden="onResetEditPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
+              @ok="handleSubmit" ok-title="កែប្រែ" title="ការលក់" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data" style="display: inline-block; width: 100%; height: 100%; overflow: hidden;" @submit.stop.prevent="onSubmitEditPayment">
+          <div class="full-content margin-bottom-20">
+            <div class="container-row-form width-30-percentage float-left">
+              <div class="form-row-content-detail">
+                <div class="form-column-label">
+                  <label :for="'input-customer'" class="label-input no-margin-bottom">ឈ្មោះអតិថិជន</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-select class="form-control input-content" v-model="order.customer" :options="customers" @change="updateCustomerSelected(order.customer)"></b-form-select>
+                </div>
+              </div>
+              <div class="form-row-content-detail" style="width:100%">
+                <div class="form-column-label">
+                  <label :for="'input-vat'" class="label-input no-margin-bottom">ពន្ធ</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-select  class="form-control input-content" v-model="order.vat" :options="vats"></b-form-select>
+                </div>
+              </div>
+            </div>
+            <div class="container-row-form width-30-percentage float-right">
+              <div class="form-row-content-detail float-right" style="width:100%">
+                <div class="form-column-label">
+                  <label :for="'input-discount'" class="label-input no-margin-bottom">បញ្ចុះតម្លៃ</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-input type="number" class="input-content" v-model="order.discount" @change="updatedPriceInListDetailOrder(order.discount)"></b-form-input>
+                </div>
+              </div>
+              <div class="form-row-content-detail float-right" style="width:100%; margin-bottom: 7px;">
+                <div class="form-column-label">
+                  <label :for="'input-discount'" class="label-input no-margin-bottom"></label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-button size="md" class="full-with" variant="primary" @click="addProductButtonClick()">បន្ថែមចំនួនទំនិញ</b-button>
+                </div>
+              </div>
+              <div class="form-row-content-detail float-right" style="width:100%" v-show="isAddProduct">
+                <div class="form-column-label">
+                  <label :for="'input-product'" class="label-input no-margin-bottom">ឈ្មោះទំនិញសម្រាប់បន្ថែម</label>
+                </div>
+                <div class="form-column-input width-50-percentage">
+                  <b-form-select class="form-control input-content" v-model="productItemAdd" :options="productSelectOptions" @change="addMoreProductSelectedChange(productItemAdd)"></b-form-select>
+                </div>
+              </div>
+            </div>
+            <b-table style="font-family: 'Arial', 'Khmer OS Bokor', sans-serif;" table-class="table-product-detail"
+                     :items="itemsProductDetail"
+                     :fields="fieldsProductDetail"
+                     :per-page="0"
+                     stacked="md"
+                     show-empty
+                     small
+                      :tbody-tr-class="rowClass"
+            >
+              <template #cell(qty)="row">
+                <div style="display: block; overflow : hidden;" v-bind:class="'content-display-qty-'+ row.item.id" @dblclick="onChangerEvent($event, ('content-input-qty-'+row.item.id), 'content-display-qty-'+row.item.id,'inputQty' )" v-b-tooltip="'ចុចពីរដងដើម្បីកែចំនួន'">{{ row.item.qty }}</div>
+                <b-form-input ref="inputQty" type="number" class="input-content display-none" v-bind:class="'content-input-qty-'+row.item.id" v-model="row.item.qty" @blur="updatedDataOfCurrentProduct(row.item.qty, row.item, 'qty'); onChangerEvent($event, 'content-display-qty-'+row.item.id, ('content-input-qty-'+row.item.id))" :autofocus="true"></b-form-input>
+              </template>
+              <template #cell(price)="row">
+                <div v-bind:class="'content-display-price-'+ row.item.id" @dblclick="onChangerEvent($event, ('content-input-price-'+row.item.id), 'content-display-price-'+row.item.id)" v-b-tooltip="'ចុចពីរដងដើម្បីកែតម្លៃ'">{{ row.item.price }}</div>
+                <b-form-input ref="inputPrice" type="number" class="input-content display-none" v-bind:class="'content-input-price-'+row.item.id" v-model="row.item.price" @blur="updatedDataOfCurrentProduct(row.item.price, row.item, 'price'); onChangerEvent($event, 'content-display-price-'+row.item.id, ('content-input-price-'+row.item.id),'inputPrice')" :autofocus="true"></b-form-input>
+              </template>
+              <template #cell(action)="row">
+                <b-button size="md" class="btn-no-background-danger" @click="removeProductFromListOfOrder(row.item,  $event.target)">
+                  <i class="fa fa-trash"></i>
+                </b-button>
+              </template>
+            </b-table>
+          </div>
+        </b-form>
+      </b-modal>
+      <b-modal id="modal-confirm-remove-order" ref="confirm-remove-order-form-modal" size="md"
+               @hidden="onResetConfirm" ok-variant="secondary" footer-class="justify-content-center"
+               @ok="onSubmitToRemove" ok-title="បាទ/ចាស" cancel-title="បោះបង់" title="ការលក់" no-close-on-backdrop>
+        <h4>ទិន្នន័យការលក់មួយនេះ និងត្រូវលុបចេញ?</h4>
+      </b-modal>
     </b-container>
   </div>
 </template>
 <script>
-
-  import {empty} from "../.nuxt/utils";
-
+  import $ from 'jquery';
   export default {
     middleware: "local-auth",
     layout:'posui',
     data(){
       return {
+        vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
         items: [],
         fields: [
           { key: 'sale_by', label: this.$t('label_sale_by')},
@@ -302,15 +393,17 @@
           { key: 'discount', label: this.$t('label_discount')},
           { key: 'vat', label: this.$t('label_vat')},
           { key: 'name', label: this.$t('label_product_name')},
+          { key: 'receive', label: this.$t('label_receive_money')},
         ],
         itemsProductDetail: [],
         fieldsProductDetail: [
           { key: 'name', label: 'ឈ្មោះទំនិញ', thClass: "header-th", thStyle : "font-size: 17px;"},
-          { key: 'qty', label: 'ចំនួន', thClass: "header-th", thStyle : "font-size: 17px;"},
-          { key: 'price', label: 'តម្លៃឯកតា ($)', thClass: "header-th", thStyle : "font-size: 17px;"},
+          { key: 'qty', label: 'ចំនួន', thClass: "header-th", thStyle : "font-size: 17px; width: 15%;"},
+          { key: 'price', label: 'តម្លៃឯកតា ($)', thClass: "header-th", thStyle : "font-size: 17px;width: 15%;"},
           { key: 'total', label: 'តម្លៃសរុប ($)', thClass: "header-th" , thStyle : "font-size: 17px;"},
           { key: 'discount', label: 'បញ្ចុះតម្លៃ (%)', thClass: "header-th", thStyle : "font-size: 17px;"},
           { key: 'total_after_discount', label: 'តម្លៃសរុប បន្ទាប់ពី បញ្ចុះតម្លៃ ($)', thClass: "header-th", thStyle : "font-size: 17px;"},
+          { key: 'action', label: this.$t('title_action'), thClass: "header-th", thStyle : "font-size: 17px;"},
         ],
         warehouses : [{text : "ជ្រើសរើស ឃ្លាំងទំនិញ", value : null}],
         warehouse: null,
@@ -340,11 +433,16 @@
         },
         product_select: null,
         productOptions : [],
+        productSelectOptions : [],
         isSearchByProduct: false,
         isSearchByCustomer: false,
-
         customer_select: null,
         customerOptions : [],
+        isUpdatedOrderData: false,
+        isAddProduct: false,
+        productItemAdd: null,
+        orderItemSelectEdit: {},
+        orderItemSelectToRemoveId: null,
       }
     },
     methods: {
@@ -372,6 +470,7 @@
                     productItem.code = productList[index].code;
                     vm.products.push(productItem);
                     vm.productOptions.push({name: (productList[index].en_name + " - " + productList[index].kh_name + " (" + productList[index].code + ")"), value: productItem.id})
+                    vm.productSelectOptions.push({text: (productList[index].en_name + " - " + productList[index].kh_name + " (" + productList[index].code + ")"), value: productItem.id});
                   }
                 }
                 else if(productList && productList.hasOwnProperty("id")){
@@ -385,6 +484,7 @@
                   productItem.code = productList.code;
                   vm.products.push(productItem);
                   vm.productOptions.push({name: (productItem.en_name + " - " +productItem.kh_name + " (" + productItem.code + ")"), value: productItem.id})
+                  vm.productSelectOptions.push({text: (productItem.en_name + " - " +productItem.kh_name + " (" + productItem.code + ")"), value: productItem.id});
                 }
               }
             }
@@ -462,7 +562,15 @@
                       itemOrderDetail["qty"] = parseInt(orderDetailItem.quantity);
                       itemOrderDetail["sale_price"] = productData["price"] ;
                       itemOrderDetail["order_id"] = orderDetailItem.order_id;
-                      itemOrderDetail["subtotal"] = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
+                      let subtotal = 0;
+                      if(orderItem["discount"] > 0){
+                        let totalItem = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
+                        subtotal = totalItem - ((parseFloat(orderItem["discount"]) / 100) * totalItem);
+                      }
+                      else {
+                        subtotal = (parseInt(orderDetailItem.quantity) * parseFloat(productData["price"]));
+                      }
+                      itemOrderDetail["subtotal"] = subtotal;
                       itemOrder[orderItem.id].push(itemOrderDetail);
                     }
                   }
@@ -480,6 +588,7 @@
                     itemData["vat"] = ((orderItem.hasOwnProperty("vat") && orderItem["vat"] > 0) ? (orderItem["vat"] * 100) : 0);
                     itemData["lengthDetail"] = itemOrder[orderItem.id].length;
                     itemData["grandtotal"] = orderItem["grandtotal"];
+                    itemData["receive"] = orderItem["receive"];
 
                     itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
                     itemData["name"] = itemOrder[orderItem.id][index].name;
@@ -489,6 +598,7 @@
                     itemData["subtotal"] = itemOrder[orderItem.id][index]["subtotal"];
                   }
                   else {
+                    itemData["discount"] = (orderItem["discount"] > 0 ? orderItem["discount"] : 0);
                     itemData["product_id"] = itemOrder[orderItem.id][index].product_id;
                     itemData["name"] = itemOrder[orderItem.id][index].name;
                     itemData["qty"] = itemOrder[orderItem.id][index]["qty"];
@@ -499,7 +609,6 @@
                 }
               }
             }
-            console.log(self.items);
           }
         }).catch(function (error) {
           console.log(error);
@@ -532,9 +641,8 @@
       cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
       },
-      UpdateOrder(item){
+      viewOrderData(item){
         this.order = item;
-        console.log(item);
         this.itemsProductDetail = [];
         let discount = 0;
         let orderDetailList = [];
@@ -578,6 +686,191 @@
         }
         this.$refs["detail-payment-form-modal"].show();
       },
+      UpdateOrderData(row, $event){
+        this.orderItemSelectEdit = row;
+        this.itemsProductDetail = [];
+        let discount = 0;
+        let orderDetailList = [];
+        let orderDetailArray = [];
+        this.isUpdatedOrderData = true;
+        let listProductAlreadyAdd = [];
+
+        if(this.orderList.length > 0){
+          for(let index =0; index < this.orderList.length; index++){
+            if(this.orderList[index]["id"] === row.order_id){
+              this.order.customer = this.orderList[index]["customer_id"];
+              this.order.invoice_id = this.orderList[index]["invoice_id"];
+              this.order.discount = this.orderList[index]["discount"];
+              this.order.vat = this.orderList[index]["vat"];
+              discount = this.orderList[index]["discount"];
+              orderDetailList = this.cloneObject(this.orderList[index]["orderdetails"]);
+              break;
+            }
+          }
+          if(orderDetailList && orderDetailList.length > 0){
+            for(let indexOrder = 0; indexOrder < orderDetailList.length; indexOrder++){
+              let productIdSelected = orderDetailList[indexOrder]["product_id"];
+              let data = {};
+              let productItem = null;
+
+              if(this.products && this.products.length > 0){
+                for(let k=0; k < this.products.length; k++){
+                  if(productIdSelected === this.products[k].id){
+                    productItem = this.cloneObject(this.products[k]);
+                    break;
+                  }
+                }
+              }
+              if(productItem){
+                data["id"] =  productItem["id"];
+                data["name"] = productItem["name"];
+                data["qty"] = parseInt(orderDetailList[indexOrder]["quantity"]);
+                data["price"] = orderDetailList[indexOrder]["sellprice"];
+                let total = (parseFloat(orderDetailList[indexOrder]["sellprice"]) * parseInt(orderDetailList[indexOrder]["quantity"]));
+                data["total"] = total;
+                data["discount"] = discount > 0 ? (discount) : 0;
+                data["total_after_discount"] = total - (total * (discount / 100));
+                listProductAlreadyAdd.push(productItem["id"]);
+                orderDetailArray.push(data);
+              }
+            }
+          }
+          this.productSelectOptions = this.productSelectOptions.filter(function (element) {
+            return listProductAlreadyAdd.includes(element.value) === false;
+          });
+          this.itemsProductDetail = this.cloneObject(orderDetailArray);
+        }
+        this.$refs["edit-payment-form-modal"].show();
+      },
+      addProductButtonClick(){
+        this.isAddProduct = true;
+      },
+      addMoreProductSelectedChange(productItemAddId){
+        let productItemAdd = this.products.find(item => item.id === productItemAddId);
+        if(productItemAdd){
+          if(!productItemAdd.hasOwnProperty("qty")){
+            productItemAdd["qty"] = 1;
+            productItemAdd["total"] = (parseInt(productItemAdd["qty"]) * parseFloat(productItemAdd["price"]));
+            if(this.orderItemSelectEdit && this.orderItemSelectEdit.hasOwnProperty("discount")){
+              let $discount = this.orderItemSelectEdit["discount"];
+              productItemAdd["discount"] = this.orderItemSelectEdit["discount"];
+              productItemAdd["total_after_discount"] = ($discount === 0) ? productItemAdd["total"] : (productItemAdd["total"] - (productItemAdd["total"] * ($discount / 100)));
+            }
+            productItemAdd["isAdd"] = true;
+            this.itemsProductDetail.unshift(productItemAdd);
+          }
+          else {
+            let productItemAlreadyAdd = this.itemsProductDetail.find(product=>product.id === productItemAddId);
+            let indexItem = this.itemsProductDetail.indexOf(productItemAlreadyAdd);
+            let itemTemp = JSON.parse(JSON.stringify(productItemAlreadyAdd));
+            itemTemp["qty"] = Number(itemTemp['qty']) + 1;
+            itemTemp["total"] = (parseInt(itemTemp["qty"]) * parseFloat(itemTemp["price"]));
+
+            if(this.orderItemSelectEdit && this.orderItemSelectEdit.hasOwnProperty("discount")){
+              let $discount = this.orderItemSelectEdit["discount"];
+              itemTemp["discount"] = this.orderItemSelectEdit["discount"];
+              itemTemp["total_after_discount"] = ($discount === 0) ? itemTemp["total"] : (itemTemp["total"] - (itemTemp["total"] * ($discount / 100)));
+            }
+            if(itemTemp.hasOwnProperty("isAdd")){
+              itemTemp["isAdd"] = true;
+            }
+            this.$set(this.itemsProductDetail, indexItem, itemTemp);
+          }
+        }
+      },
+      rowClass(item, type) {
+        if (item && type === 'row') {
+          if (item.isAdd === true) {
+            return 'active-color'
+          } else {
+            return ''
+          }
+        } else {
+          return ''
+        }
+      },
+      updatedDataOfCurrentProduct(dataItem, item, fieldName){
+        let data = this.itemsProductDetail.find(product => product.id === item.id);
+       if(fieldName === 'qty'){
+         let itemTemp = JSON.parse(JSON.stringify(data));
+         let index = this.indexWhere(this.itemsProductDetail, (product => product.id  === item.id));
+         data.qty = parseInt(dataItem);
+         this.$set(this.itemsProductDetail, index, itemTemp);
+       }
+       else if(fieldName === 'price'){
+         data.price = parseFloat(dataItem);
+       }
+      },
+      indexWhere(array, conditionFn) {
+        const item = array.find(conditionFn)
+        return array.indexOf(item)
+      },
+      hideInput(){
+        this.selected = null;
+      },
+      handleSubmit(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitEditPayment();
+      },
+      onSubmitEditPayment(){
+        console.log(this.orderItemSelectEdit);
+      },
+      onResetEditPayment(){
+        this.productItemAdd = null;
+      },
+
+      /*****Remove order records*****/
+      openConfirmToRemoveOrder($item){
+        this.orderItemSelectToRemoveId = $item["order_id"];
+        this.$refs["confirm-remove-order-form-modal"].show();
+      },
+      async onSubmitToRemove(){
+        let self = this;
+        if(self.orderItemSelectToRemoveId){
+          await self.$axios.post('/api/sale/delete/' + self.orderItemSelectToRemoveId).then(function (response) {
+            console.log(response);
+            self.$refs["confirm-remove-order-form-modal"].hide();
+          }).catch(function (error) {
+            console.log(error);
+            self.$toast.error("getting data error ").goAway(2000);
+          });
+        }
+      },
+      onResetConfirm(){},
+      /*******************End***********************/
+
+      /*****Remove product item from list product in order records*****/
+      removeProductFromListOfOrder(item, $eventTarget){
+        let productFound = this.itemsProductDetail.find(productItem => productItem.id === item.id);
+        let index = this.itemsProductDetail.indexOf(productFound)
+        if(index > -1){
+          this.itemsProductDetail.splice(index, 1);
+        }
+      },
+      /*******************End***********************/
+      viewDetail(row, index, $event){
+
+      },
+      updateCustomerSelected(customer){
+        for(let k=0; k < this.customersList.length; k++){
+          if(customer === this.customersList[k]["id"]){
+            this.order.discount = (this.customersList[k]["discount"] * 100);
+            this.updatedPriceInListDetailOrder(this.order.discount);
+            break;
+          }
+        }
+      },
+      updatedPriceInListDetailOrder($discount){
+        if(this.products && this.products.length > 0){
+          for(let index =0; index < this.products.length; index++){
+            let productItem = this.products[index];
+            productItem["discount"] = $discount;
+            productItem["total_after_discount"] = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
+            this.products[index] = productItem;
+          }
+          this.items = this.cloneObject(this.products);
+        }
+      },
       filterProduct(product_id){
         if(this.products && this.products.length > 0){
           for(let index=0; index < this.products.length; index++){
@@ -597,8 +890,8 @@
 
         return (day + "/" + month + "/" + yyyy);
       },
-      onResetPayment(){},
-      onSubmitPayment(){
+      onResetPrint(){},
+      onSubmitToPrint(){
         this.$htmlToPaper("invoice-print-again", this.optionStyleHtmlToPaper);
       },
 
@@ -816,13 +1109,28 @@
           this.product_select = {};
         }
       },
-      onChangerEvent($event, $classNameToShow, $classNameToHide) {
+      onChangerEvent($event, $classNameToShow, $classNameToHide, $ref = null) {
           $event.stopPropagation();
-          jQuery($classNameToHide).hide();
-          jQuery($classNameToShow).show();
-          this.displaySelectedFilter = true;
+          $("." + $classNameToHide).hide();
+          $("." + $classNameToShow).show();
+          if($ref !== null){
+            if($ref === 'inputQty'){
+              this.$refs.inputQty.focus();
+            }
+            else if($ref === 'inputPrice'){
+              this.$refs.inputPrice.focus();
+            }
+          }
+
       },
-    },
+
+      onBlurEvent($event){
+        $event.stopPropagation();
+        $($event.target).hide();
+        $($event.target).prev().show();
+
+      }
+  },
     mounted() {
       this.warehouse = this.$store.$cookies.get('storeItem');
       if(this.$store.$cookies.get('storeItem')){
@@ -854,6 +1162,7 @@
     border-bottom: 1px solid #dee2e6;
     vertical-align: top;
     text-align: left;
+    padding: 10px 9px;
   }
 
   .table-transaction .table-body{
@@ -878,6 +1187,7 @@
     overflow: hidden;
     border-bottom: none;
     border-top: none;
+    padding: 10px 9px;
   }
 
   .style-content{
@@ -903,5 +1213,6 @@
     float: right;
     margin-right: 15px;
   }
+
 
 </style>

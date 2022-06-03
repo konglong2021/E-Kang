@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -48,6 +50,11 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::ApiResource('/log','App\Http\Controllers\Api\ActivitylogsController');
     Route::ApiResource('/balance','App\Http\Controllers\Api\BanlancesController');
     Route::ApiResource('/profile','App\Http\Controllers\Api\ProfileController');
+    Route::ApiResource('/transaction','App\Http\Controllers\Api\TransactionController');
+
+
+
+    Route::post('/sales','App\Http\Controllers\Api\OrdersController@sale'); //update transaction by id
 
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
@@ -56,14 +63,14 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/sale/search',[App\Http\Controllers\Api\OrdersController::class,'index'])->name('sale.search');
     Route::post('/stock/search',[App\Http\Controllers\Api\StockController::class,'index'])->name('stock.search');
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
+    Route::post('/transaction/search',[App\Http\Controllers\Api\TransactionController::class,'getalltransaction']); // Start From and End
 
 
-    Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
-
+    Route::post('/pay',[App\Http\Controllers\Api\OrdersController::class,'paid']);  //update status order
 
     //Delete Purchase and Order Items
-    Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
-    Route::post('/sale/delete/{order_id}',[App\Http\Controllers\Api\OrdersController::class,'delete']);  //Delete Master and Master detail of table Order
+    Route::delete('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
+    Route::delete('/sale/delete/{order_id}',[App\Http\Controllers\Api\OrdersController::class,'delete']);  //Delete Master and Master detail of table Order
 
 
     //Check Stock
@@ -76,6 +83,8 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
     Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
+    Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
+    
 
 
     //setting

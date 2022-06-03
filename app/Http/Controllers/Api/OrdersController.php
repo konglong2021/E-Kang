@@ -10,6 +10,7 @@ use App\Models\OrderDetail;
 use App\Models\Settings;
 use App\Models\Profile;
 use App\Models\Customer;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Balance;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
+use App\Http\Resources\OrderResource;
 
 
 class OrdersController extends Controller
@@ -35,6 +37,7 @@ class OrdersController extends Controller
                         ->with('user')
                         ->with('orderdetails')
                   ->orderBy('id', 'desc')->get();
+        return response()->json($orders);
         }
         else {
             if( $request->input('month')){
@@ -63,6 +66,86 @@ class OrdersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    public function sale(Request $request)
+    {
+        $request->validate([
+            'subtotal'     => [
+                'required',
+            ],
+            'grandtotal'    => [
+                'required',
+            ],
+            'customer_id'    => [
+                'required',
+            ],
+            'warehouse_id'    => [
+                'required',
+            ],
+            'items'    => [
+                'required',
+            ],
+        ]);
+
+        try {
+            return DB::transaction(function () use($request) {
+            $setting = Settings::find(1);
+            $digit = (int)$setting->digit;
+            $negative = (int)$setting->negative;
+
+            $prefix = date("ymd");
+            $invoice = IdGenerator::generate(['table' => 'orders', 'field'=>'invoice_id','length' => 12, 'prefix' =>'INV'.$prefix]);
+            $status = ($request->receive > 0 && $request->receive >= $request->grandtotal  ) ? 1 : 0;   // Test if client paid or not
+            $orders = new Order();
+            $orders->invoice_id = $invoice;
+            $orders->warehouse_id = $request->warehouse_id;
+            $orders->customer_id = $request->customer_id;
+            $orders->user_id = auth()->user()->id;
+            $orders->subtotal = round($request->subtotal,$digit);
+            $orders->vat = $request->vat;
+            $orders->discount = $request->discount;   //fetch from member value
+            $orders->grandtotal = round($request->grandtotal,$digit);
+            $orders->receive = round($request->receive,$digit);
+            $orders->status = $status;
+            $orders->save();
+            
+            $paid = $this->pay($orders->grandtotal,$orders->receive,$orders->id,"Cash"); //Create Transaction Record
+    
+            $income = $this->income($orders->grandtotal,$orders->warehouse_id);
+            if(!$income){
+                throw new \Exception('Please update Today Balance');
+            }
+            $orders_items= collect($request->input('items',[]))
+                            ->map(function($item){
+                                return ['quantity' => $item['quantity'],
+                                        'product_id'   => $item['product_id'],
+                                        'sellprice' => $item['sellprice']
+                                        ];
+                            });
+        //    return response()->json($orders_items);
+            $orders->products()->sync($orders_items);
+
+            return response()->json([
+                "success" => true,
+                "message" => "Successfully Added",
+                "order"   =>$orders,
+                "items"   =>$orders_items
+
+            ]);
+            
+
+            });
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Input Data Error"
+            ]);
+            //throw $th;
+        }
+    }
+
+
     public function store(Request $request)
     {
         $request->validate([
@@ -116,6 +199,10 @@ class OrdersController extends Controller
         $orders->status = $status;
         $orders->save();
 
+       
+        $paid = $this->pay($orders->receive,$orders->id,"Cash"); //Create Transaction Record
+       
+
         $income = $this->income($orders->grandtotal,$orders->warehouse_id);
 
         if(!$income){
@@ -163,13 +250,13 @@ class OrdersController extends Controller
 
             ]);
      });
-    } catch (\Exception $th) {
-        DB::rollback();
-        return response()->json([
-            "success" => false,
-            "message" => "Insufficient Please Check again1"
-        ]);
-    }
+        } catch (\Exception $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Insufficient Please Check again1"
+            ]);
+        }
 
 
     }
@@ -220,7 +307,7 @@ class OrdersController extends Controller
         $balance_date = date('Y-m-d');
         if($balance->balance_date >= $balance_date)
         {
-            $input['income'] = $return - $balance->income;
+            $input['income'] = $balance->income - $return;    
             $input['balance']= $balance->remain +  $input['income'] - $balance->withdraw;
             $balance->update($input);
             return  $balance;
@@ -230,11 +317,20 @@ class OrdersController extends Controller
 
     }
 
+    public function pay($recieve,$order_id,$method)
+    {
+        $payment = Transaction::create([
+            //'product_id' => $item['product_id'],
+            'order_id'      =>  $order_id,
+            'paid'          =>  $recieve,
+            'pay_method'    =>  $method, //default
+        ]);
+        return $payment;
+    }
+
     //show Unpaid Invoice
     public function show($id)
     {
-//        $unpaid = DB::table('orders')
-//                ->select()
         $order = Order::where('status','=',0)
                         ->where('customer_id','=',$id)
                         ->get();
@@ -254,6 +350,22 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    
+    public function paid(Request $request)
+    {
+        $paids = $request->paids;
+        $result =collect([]);
+        foreach($paids as $paid)
+        {
+            $input = Order::find($paid['id']);
+            $input->status = 1;
+            $input->update();
+            $result->push($input);
+            
+        }
+        return OrderResource::collection($result);
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -365,7 +477,7 @@ class OrdersController extends Controller
     }
 
 
-    public function delete(Request $request ,$id)
+    public function delete($id)
     {
         $setting = Settings::find(1);
         $digit = (int)$setting->digit;
@@ -378,7 +490,7 @@ class OrdersController extends Controller
         foreach($odetail as $detail)
         {
             $stock = Stock::where('product_id',$detail->product_id)
-            ->where('warehouse_id',$request->warehouse_id)
+            ->where('warehouse_id',$order->warehouse_id)
             ->first();
             $stock->total = $stock->total + $detail->quantity;
             $stock->update();

@@ -6,6 +6,7 @@ export default {
   "index_menu_inventory":"គ្រប់គ្រង ស្តុក",
   "index_menu_report":"របាយការណ៏",
   "content_title_inventory": "បញ្ជីសារពើភ័ណ្ឌ",
+  "content_title_purchase": "ប្រតិបត្តិ នាំចូលទំនិញ",
   "content_title_product":"អំពីទំនិញ",
   "content_title_balance":"អំពី ទឹកប្រាក់",
   "content_title_order":"អំពី ការលក់",
@@ -105,5 +106,10 @@ export default {
   "label_member_title":"ឈ្មោះប្រភេទសមាជិក",
   "label_menu_title_customer":"អតិថិជន",
   "label_menu_title_user":"អ្នកប្រើប្រាស់",
-  "label_menu_title_role":"តួនាទី"
+  "label_menu_title_role":"តួនាទី",
+  "label_receive_money":"ទទួលប្រាក់",
+  "label_date_purchase":"ថ្ងៃខែនាំចូល",
+  "label_purchase_by":"នាំចូលដោយ",
+  "label_supplier_name":"ឈ្មោះអ្នកផ្គត់ផ្គង់",
+  "label_import_price":"តម្លៃនាំចូល"
 };

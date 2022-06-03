@@ -62,8 +62,8 @@
         </div>
         <b-modal id="modal-create-warehouse" ref="warehouse-form-modal" size="lg"
                  @hidden="onResetWareHouse" :cancel-title="$t('label_cancel_button')" no-close-on-backdrop
-                 @ok="onSubmitWareHouse" :ok-title="$t('label_save_button')" :title="$t('title_new_warehouse')">
-          <b-form enctype="multipart/form-data">
+                 @ok="handleOnSubmitWareHouse" :ok-title="$t('label_save_button')" :title="$t('title_new_warehouse')">
+          <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitWareHouse">
             <div class="full-content">
             </div>
             <div class="full-content">
@@ -136,6 +136,10 @@
       },
       onResetWareHouse(){
 
+      },
+      handleOnSubmitWareHouse(bvModalEvent){
+        bvModalEvent.preventDefault();
+        this.onSubmitWareHouse();
       },
       async onSubmitWareHouse(){
         let vm = this;
