@@ -452,17 +452,11 @@
       onSubmitExistingProduct($product){
         let items = [];
         if(this.items && this.items.length > 0){
-          let index = 0,isFound = false;
+          let isFound = false;
           items = this.cloneObject(this.items);
-
-          for (let i=0; i < this.items.length; i++){
-            if(this.items[i]["id"] === $product["id"]){
-              index = i;
-              isFound = true;
-              break;
-            }
-          }
-          if(isFound === true){
+          let dataItem = this.items.find(item => item.id === $product["id"]);
+          let index = this.items.indexOf(dataItem);
+          if(dataItem && dataItem.hasOwnProperty("id")){
             if(this.product_select["isUpdateProductAdd"] !== true){
               items[index]["qty"] = parseInt(items[index]["qty"]) + parseInt($product["qty"]);
             }

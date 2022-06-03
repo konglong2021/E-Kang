@@ -38,59 +38,18 @@
           <div class="spinner-grow text-muted"></div>
         </div>
         <div v-if="!isLoading && items && items.length > 0">
-          <b-table-simple style="display: none;">
-            <b-thead class="table-header" style="padding-right: 15px;">
-                  <b-tr class="tr-header">
-                    <b-th class="th-header">{{ $t('label_date_purchase') }}</b-th>
-                    <b-th class="th-header">{{ $t('label_purchase_by') }}</b-th>
-                    <b-th class="th-header">{{ $t('label_supplier_name') }}</b-th>
-                    <b-th class="th-header">{{ $t('label_product_name') }}</b-th>
-                    <b-th class="th-header">{{ $t('label_quantity') }}</b-th>
-                    <b-th class="th-header">{{ $t('label_import_price') }} ($)</b-th>
-                    <b-th class="th-header">{{ $t('label_sub_total') }} ($)</b-th>
-                    <b-th class="th-header">{{ $t('label_grand_total') }} ($)</b-th>
-                  </b-tr>
-                </b-thead>
-            <b-tbody class="table-body max-height-57-vh">
-              <b-tr class="table-body-tr" v-for="item in items" v-bind:key="item.purchase_id">
-                <b-td class=" date content-td" >
-                  <b class="content">{{ (item.date !== undefined ? item.date : "") }}</b>
-                </b-td>
-                <b-td class=" purchase_by content-td" >
-                  <b class="content">{{ (item.purchase_by !== undefined ? item.purchase_by : "") }}</b>
-                </b-td>
-                <b-td class=" supplier content-td">
-                  <b class="content">{{ (item.supplier !== undefined ? item.supplier : "") }}</b>
-                </b-td>
-                <b-td class=" name content-td">
-                  <span class="content">{{ item.name !== undefined ? item.name : "" }}</span>
-                </b-td>
-                <b-td class=" quantity content-td">
-                  <span class="content">{{ item.quantity !== undefined ? item.quantity : "" }}</span>
-                </b-td>
-                <b-td class=" unitprice content-td">
-                  <span class="content">{{ item.unitprice !== undefined ? item.unitprice + "$" : ""}}</span>
-                </b-td>
-                <b-td class=" subtotal content-td">
-                  <b class="content">{{ item.subtotal !== undefined ? (item.subtotal + "$") : "" }}</b>
-                </b-td>
-                <b-td class=" grand_total content-td">
-                  <b class="content">{{ item.grand_total !== undefined ? (item.grand_total + "$") : "" }}</b>
-                </b-td>
-              </b-tr>
-            </b-tbody>
-          </b-table-simple>
           <table class="table table-purchase">
             <thead class="table-header">
               <tr class="tr-header">
                 <th class="th-header" style="width: 10%;">{{ $t('label_date_purchase') }}</th>
                 <th class="th-header" style="width: 10%;">{{ $t('label_purchase_by') }}</th>
                 <th class="th-header" style="width: 10%;">{{ $t('label_supplier_name') }}</th>
-                <th class="th-header" style="width: 17%;">{{ $t('label_product_name') }}</th>
-                <th class="th-header" style="width: 10%;">{{ $t('label_quantity') }}</th>
+                <th class="th-header" style="width: 15%;">{{ $t('label_product_name') }}</th>
+                <th class="th-header" style="width: 7%;">{{ $t('label_quantity') }}</th>
                 <th class="th-header" style="width: 10%;">{{ $t('label_import_price') }} ($)</th>
-                <th class="th-header" style="width: 15%;">{{ $t('label_sub_total') }} ($)</th>
+                <th class="th-header" style="width: 10%;">{{ $t('label_sub_total') }} ($)</th>
                 <th class="th-header" style="width: 15%;">{{ $t('label_grand_total') }} ($)</th>
+                <th class="th-header" style="width: 10%;">{{ $t('title_action') }}</th>
               </tr>
             </thead>
             <tbody class="table-body">
@@ -104,20 +63,31 @@
                 <td class="content-td" style="width: 10%;">
                   <b class="content">{{ (item.supplier !== undefined ? item.supplier : "") }}</b>
                 </td>
-                <td class="content-td" style="width: 17%;">
+                <td class="content-td" style="width: 15%;">
                   <b class="content">{{ (item.name !== undefined ? item.name : "") }}</b>
                 </td>
-                <td class="content-td" style="width: 10%;">
+                <td class="content-td" style="width: 7%;">
                   <b class="content">{{ (item.quantity !== undefined ? item.quantity : "") }}</b>
                 </td>
                 <td class="content-td" style="width: 10%;">
                   <b class="content">{{ (item.unitprice !== undefined ? item.unitprice : "") }}</b>
                 </td>
-                <td class="content-td" style="width: 15%;">
+                <td class="content-td" style="width: 10%;">
                   <b class="content">{{ (item.subtotal !== undefined ? item.subtotal : "") }}</b>
                 </td>
                 <td class="content-td" style="width: 15%;">
                   <b class="content">{{ (item.grand_total !== undefined ? item.grand_total : "") }}</b>
+                </td>
+                <td class="content-td" style="width: 10%;" :rowspan="item.lengthDetail">
+                  <b-button size="sm" title="View data" class="btn-no-background">
+                    <i class="fa fa-eye"></i>
+                  </b-button>
+                  <b-button size="sm" title="Edit order data" class="btn-no-background">
+                    <i class="fa fa-edit"></i>
+                  </b-button>
+                  <b-button size="sm" title="Remove order data" class="btn-no-background-danger">
+                    <i class="fa fa-trash"></i>
+                  </b-button>
                 </td>
               </tr>
             </tbody>
@@ -125,10 +95,49 @@
         </div>
       </div>
     </div>
+    <b-modal
+            id="modal-edit-purchase" ref="edit-purchase-form-modal"
+            size="lg" modal-class="payment-form-modal"
+            @hidden="onResetEditPayment" ok-only ok-variant="secondary" footer-class="justify-content-center"
+            @ok="handleSubmit" ok-title="កែប្រែ" title="ការនាំទំនិញចូល" no-close-on-backdrop>
+        <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitEditPurchase">
+          <div class="float-left width-48-percentage float-left" style="margin-right: 15px;">
+            <b-row>
+              <b-col md="12" style="margin-bottom: 10px;">
+                <label class="label-with">{{$t('title_supplier')}}</label>
+                <b-form-select class="form-control select-content-inline" v-model="purchase.supplier" :options="suppliers"></b-form-select>
+              </b-col>
+              <b-col md="12">
+                <label class="label-with">{{ $t('title_warehouse') }}</label>
+                <b-form-select class="form-control select-content-inline" v-model="purchase.warehouse" :options="warehouses"></b-form-select>
+              </b-col>
+            </b-row>
+          </div>
+          <div class="float-left width-50-percentage float-right">
+            <b-row>
+              <b-col md="12" style="margin-bottom: 10px;">
+                <label class="label-with">ពន្ធ</label>
+                <b-form-select class="form-control select-content-inline" v-model="purchase.vat" :options="vats"></b-form-select>
+              </b-col>
+              <b-col md="12">
+                <label class="label-with">Batch</label>
+                <b-form-input class="form-control select-content-inline display-inline-block" v-model="purchase.batch"></b-form-input>
+              </b-col>
+            </b-row>
+          </div>
+        </b-form>
+    </b-modal>
+    <b-modal id="modal-confirm-remove" ref="confirm-remove-form-modal" size="md"
+             @hidden="onResetConfirm" ok-variant="secondary" footer-class="justify-content-center"
+             @ok="onSubmitToRemove" ok-title="បាទ/ចាស" cancel-title="បោះបង់" title="ការលក់" no-close-on-backdrop>
+      <h4 style="text-align: center;">ទិន្នន័យមួយនេះ និងត្រូវលុបចេញ?</h4>
+    </b-modal>
 
   </b-container>
 </template>
 <script>
+import $ from "jquery";
+
 export default {
   middleware: "local-auth",
   layout:'inventoryui',
@@ -144,12 +153,23 @@ export default {
       suppliers : [],
       supplierList : [],
       products: [],
-      productSelectOptions:[]
+      productSelectOptions:[],
+      purchaseList: [],
+      purchase: {},
+      itemsProductDetail: [],
+      fieldsProductDetail: [
+        { key: 'name', label: 'ឈ្មោះទំនិញ', thClass: "header-th", thStyle : "font-size: 17px;"},
+        { key: 'quantity', label: 'ចំនួន', thClass: "header-th", thStyle : "font-size: 17px; width: 15%;"},
+        { key: 'unitprice', label: 'តម្លៃឯកតា ($)', thClass: "header-th", thStyle : "font-size: 17px;width: 15%;"},
+        { key: 'total', label: 'តម្លៃសរុប ($)', thClass: "header-th" , thStyle : "font-size: 17px;"},
+        { key: 'action', label: this.$t('title_action'), thClass: "header-th", thStyle : "font-size: 17px;"},
+      ],
+      dataSelectToRemove: null,
+      tr_id_select: null,
+      vats: [{text: '0%', value: 0}, {text: '5%', value: 0.05}, {text: '10%', value: 0.1}, {text: '15%', value: 0.15}],
     }
   },
-  watch: {
-
-  },
+  watch: {},
   methods:{
     async getListProduct(){
       let vm = this;
@@ -206,12 +226,10 @@ export default {
     },
     async getAllWarehouse(){
       let vm = this;
-      vm.loadingFields.warehouseListLoading = true;
       vm.warehouseList = [];
       vm.warehouses = [];
 
       await vm.$axios.get('/api/warehouse').then(function (response) {
-        vm.loadingFields.warehouseListLoading = false;
         if(response && response.hasOwnProperty("data")){
           if(response.data.data){
             let data = response.data.data;
@@ -233,9 +251,10 @@ export default {
       let vm = this;
       await this.$axios.get('/api/supplier')
         .then(function (response) {
-          vm.isLoading = false;
           if(response && response.hasOwnProperty("data")){
             vm.suppliers = vm.cloneObject(response.data);
+            console.log(response.data);
+
             for(let index =0; index < response.data.length; index++){
               vm.supplierList.push({text: response.data[index]["name"], value:response.data[index]["id"]})
             }
@@ -254,6 +273,7 @@ export default {
           self.isLoading = false;
           let data = self.cloneObject(response.data.data);
           if(data && data.length > 0){
+            self.purchaseList = self.cloneObject(data);
             let itemPurchase = [];
 
             for(let index=0; index < data.length; index++){
@@ -261,7 +281,6 @@ export default {
               let supplier = self.suppliers.find(item => item.id === purchaseItem["supplier_id"]);
               let user = self.cloneObject(self.$store.$cookies.get('user'));
               itemPurchase[purchaseItem.id] = [];
-              let grandTotal = 0;
 
               if(purchaseItem.hasOwnProperty("purchasedetails") && purchaseItem["purchasedetails"] && purchaseItem["purchasedetails"].length > 0){
                 for(let indexProduct = 0; indexProduct < purchaseItem["purchasedetails"].length; indexProduct++){
@@ -283,11 +302,6 @@ export default {
                     purchaseDetailData["product_id"] = product["id"] ;
                     purchaseDetailData["purchase_id"] = purchaseItem["id"];
                     purchaseDetailData["subtotal"] = (parseFloat(purchaseDetailItem["unitprice"]) * parseInt(purchaseDetailItem["quantity"]));
-                    // grandTotal = (grandTotal + purchaseDetailData["subtotal"]);
-                    // if((indexProduct + 1) === (purchaseItem["purchasedetails"].length)){
-                    //   purchaseDetailData["grand_total"] = grandTotal;
-                    //   console.log(grandTotal);
-                    // }
                     itemPurchase[purchaseItem.id].push(purchaseDetailData);
                   }
                 }
@@ -299,7 +313,7 @@ export default {
                 for(let i=0; i< itemPurchase[purchaseItem.id].length; i++){
                   let itemData = [];
                   if(i === 0){
-                    itemData["purchase_id"] = itemPurchase[purchaseItem.id][i].purchase_id;
+                    itemData["purchase_id"] = itemPurchase[purchaseItem.id][i].purchase_id ? itemPurchase[purchaseItem.id][i].purchase_id : purchaseItem.id;
                     itemData["purchase_by"] = user.name;
                     itemData["supplier"] =  supplier["name"];
                     itemData["batch"] =  purchaseItem["batch"];
@@ -334,9 +348,74 @@ export default {
     cloneObject(obj) {
       return JSON.parse(JSON.stringify(obj));
     },
+    viewOrderData(){
+
+    },
+    UpdateOrderData(item, $target){
+      let purchaseDetailList = [];
+      let purchaseDetailArray = [];
+      let listProductAlreadyAdd = [];
+      if(this.purchaseList.length > 0){
+        let purchaseItem = this.purchaseList.find(row => row.id === item.order_id);
+
+        if(purchaseItem && purchaseItem.hasOwnProperty("id")){
+          this.purchase.warehouse = purchaseItem["warehouse_id"];
+          this.purchase.batch = purchaseItem["batch"];
+          this.purchase.supplier = purchaseItem["supplier_id"];
+          purchaseDetailList = this.cloneObject(purchaseItem["purchasedetails"]);
+        }
+        if(purchaseDetailList && purchaseDetailList.length > 0){
+          for(let indexPurchase = 0; indexPurchase < purchaseDetailList.length; indexPurchase++){
+            let productIdSelected = purchaseDetailList[indexPurchase]["product_id"];
+            let data = {};
+            let productItem = this.products.find(dataProduct=>dataProduct.id === productIdSelected);
+
+            if(productItem){
+              data["id"] =  productItem["id"];
+              data["name"] = productItem["name"];
+              data["quantity"] = parseInt(purchaseDetailList[indexPurchase]["quantity"]);
+              data["unitprice"] = purchaseDetailList[indexPurchase]["sellprice"];
+              let subtotal = (parseFloat(purchaseDetailList[indexPurchase]["unitprice"]) * parseInt(purchaseDetailList[indexPurchase]["quantity"]));
+              data["subtotal"] = subtotal;
+              listProductAlreadyAdd.push(productItem["id"]);
+              purchaseDetailArray.push(data);
+            }
+          }
+        }
+        this.productSelectOptions = this.productSelectOptions.filter(function (element) {
+          return listProductAlreadyAdd.includes(element.value) === false;
+        });
+        this.itemsProductDetail = this.cloneObject(purchaseDetailArray);
+      }
+
+      this.$refs['edit-purchase-form-modal'].show();
+    },
+    onResetEditPayment(){},
+    handleSubmit(){},
+    onSubmitEditPurchase(){},
+
+    openConfirmToRemove(row){
+      this.dataSelectToRemove = row;
+      this.tr_id_select = row["purchase_id"];
+      this.$refs['confirm-remove-form-modal'].show();
+    },
+    onResetConfirm(){},
+    async onSubmitToRemove(){
+      let self = this;
+      if(self.dataSelectToRemove && self.dataSelectToRemove.hasOwnProperty("purchase_id")){
+        await self.$axios.delete('/api/purchase/delete/' + self.dataSelectToRemove.purchase_id).then(function (response) {
+          $("#tr-" + self.dataSelectToRemove.purchase_id).fadeOut(1000);
+          self.$refs["confirm-remove-form-modal"].hide();
+        }).catch(function (error) {
+          console.log(error);
+          self.$toast.error("getting data error ").goAway(2000);
+        });
+      }
+    },
   },
   mounted() {
     this.getListProduct();
+    this.getAllWarehouse();
     this.getAllSupplier();
     this.getDataPurchase();
   }
