@@ -278,7 +278,7 @@ export default {
 
             for(let index=0; index < data.length; index++){
               let purchaseItem = self.cloneObject(data[index]);
-              let supplier = self.suppliers.find(item => item.id === purchaseItem["supplier_id"]);
+              let supplier = self.suppliers.find(item => item.value === purchaseItem["supplier_id"]);
               let user = self.cloneObject(self.$store.$cookies.get('user'));
               itemPurchase[purchaseItem.id] = [];
 
@@ -315,7 +315,7 @@ export default {
                   if(i === 0){
                     itemData["purchase_id"] = itemPurchase[purchaseItem.id][i].purchase_id ? itemPurchase[purchaseItem.id][i].purchase_id : purchaseItem.id;
                     itemData["purchase_by"] = user.name;
-                    itemData["supplier"] =  supplier["name"];
+                    itemData["supplier"] =  supplier["text"];
                     itemData["batch"] =  purchaseItem["batch"];
 
                     itemData["product_id"] = itemPurchase[purchaseItem.id][i].product_id;
