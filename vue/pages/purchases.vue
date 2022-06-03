@@ -249,14 +249,19 @@ export default {
     },
     async getAllSupplier(){
       let vm = this;
-      await this.$axios.get('/api/supplier')
+      vm.suppliers = [];
+      await vm.$axios.get('/api/supplier')
         .then(function (response) {
           if(response && response.hasOwnProperty("data")){
-            vm.suppliers = vm.cloneObject(response.data);
-            console.log(response.data);
-
-            for(let index =0; index < response.data.length; index++){
-              vm.supplierList.push({text: response.data[index]["name"], value:response.data[index]["id"]})
+            if(response.data){
+              let data = response.data;
+              for(let index=0; index < data.length; index++){
+                let supplierItem =  { text: '', value: null};
+                supplierItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
+                supplierItem.value = data[index]["id"];
+                //vm.suppliers.push(supplierItem);
+                vm.suppliers.unshift(supplierItem);
+              }
             }
           }
         }).catch(function (error) {
