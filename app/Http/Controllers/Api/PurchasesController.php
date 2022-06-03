@@ -319,7 +319,7 @@ class PurchasesController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function delete(Request $request ,$id)
+    public function delete($id)
     {
         $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
         $Purchase = Purchase::find($id);

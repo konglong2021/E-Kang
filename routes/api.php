@@ -69,8 +69,8 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/pay',[App\Http\Controllers\Api\OrdersController::class,'paid']);  //update status order
 
     //Delete Purchase and Order Items
-    Route::post('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
-    Route::post('/sale/delete/{order_id}',[App\Http\Controllers\Api\OrdersController::class,'delete']);  //Delete Master and Master detail of table Order
+    Route::delete('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
+    Route::delete('/sale/delete/{order_id}',[App\Http\Controllers\Api\OrdersController::class,'delete']);  //Delete Master and Master detail of table Order
 
 
     //Check Stock

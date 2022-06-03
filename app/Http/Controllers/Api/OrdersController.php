@@ -477,7 +477,7 @@ class OrdersController extends Controller
     }
 
 
-    public function delete(Request $request ,$id)
+    public function delete($id)
     {
         $setting = Settings::find(1);
         $digit = (int)$setting->digit;
