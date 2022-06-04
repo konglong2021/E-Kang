@@ -264,7 +264,7 @@ class StockController extends Controller
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
-        ->select('order_details.product_id', 'order_details.quantity','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS Total'),'products.en_name')
+        ->select('order_details.product_id', 'order_details.quantity','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
         ->whereDate('order_details.created_at','>=',$from)
         ->whereDate('order_details.created_at','<=',$to)
         ->WhereNull('order_details.deleted_at')
@@ -273,7 +273,7 @@ class StockController extends Controller
         // Purchase query Total all products
         $purchase = DB::table('purchase_details')
                     ->join('products','purchase_details.product_id','=','products.id')
-                    ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as Total'),'products.en_name')
+                    ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
                     ->whereDate('purchase_details.created_at','>=',$from)
                     ->whereDate('purchase_details.created_at','<=',$to)
                     ->WhereNull('purchase_details.deleted_at')
