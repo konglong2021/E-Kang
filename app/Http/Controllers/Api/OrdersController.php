@@ -351,23 +351,7 @@ class OrdersController extends Controller
      * @return \Illuminate\Http\Response
      */
     
-    public function paid(Request $request)
-    {
-        $paids = $request->paids;
-        $result =collect([]);
-        foreach($paids as $paid)
-        {
-            $input = Order::find($paid['id']);
-            $input->status = ($paid['receive'] > 0 && $paid['receive'] >= $input->grandtotal) ? 1 : 0;   // Test if client paid or not
-            // return response()->json($input->grandtotal);
-            // $input->status = 1;
-            $input->receive = $paid['receive'];
-            $input->update();
-            $result->push($input);
-            
-        }
-        return OrderResource::collection($result);
-    }
+    
 
     public function update(Request $request, $id)
     {
