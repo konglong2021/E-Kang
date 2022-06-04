@@ -66,7 +66,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/transaction/search',[App\Http\Controllers\Api\TransactionController::class,'getalltransaction']); // Start From and End
 
 
-    Route::post('/pay',[App\Http\Controllers\Api\OrdersController::class,'paid']);  //update status order
+
 
     //Delete Purchase and Order Items
     Route::delete('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase

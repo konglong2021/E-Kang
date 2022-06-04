@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
+use App\Models\Order;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\TransactionResource;
@@ -40,23 +41,44 @@ class TransactionController extends Controller
 
     }
     
-
+    public function paid($id,$receive)
+    {
+        
+            $input = Order::find($id);
+            if($input->grandtotal - $input->receive < $receive){
+                return response()->json("remain balance smaller than paid");
+            }
+            $input->status = ($receive > 0 && $receive >= $input->grandtotal) ? 1 : 0;   // Test if client paid or not
+            $input->receive = $receive;
+            $input->update();
+            
+        return $input;
+    }
 
     public function store(Request $request)
     {
-        $transactions = $request->transactions;
-        $result =collect([]);
-        foreach($transactions as $transaction)
+        try {
+            DB::transaction(function() use($request){
+                $transactions = $request->transactions;
+            $result =collect([]);
+            foreach($transactions as $transaction)
         {
+            $orders = $this->paid($transaction['order_id'],$transaction['paid']);
             $input = new Transaction();
             $input->order_id = $transaction['order_id'];
             $input->paid    = $transaction['paid'];
             $input->pay_method = $transaction['pay_method'];
             $input->save();
+            $input->push($orders);
             $result->push($input);
             
         }
         return TransactionResource::collection($result);
+            });
+        } catch (\Throwable $th) {
+           return response()->json("Something error");
+        }
+        
 
     }
 
