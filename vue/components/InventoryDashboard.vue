@@ -447,18 +447,17 @@
       },
       handleOnSubmitExistingProduct(bvModalEvent){
         bvModalEvent.preventDefault();
-        this.onSubmitExistingProduct();
+        this.onSubmitExistingProduct(this.product_select);
       },
       onSubmitExistingProduct($product){
         let items = [];
         if(this.items && this.items.length > 0){
-          let isFound = false;
           items = this.cloneObject(this.items);
-          let dataItem = this.items.find(item => item.id === $product["id"]);
+          let dataItem = this.items.find(item => item.id === $product["value"]);
           let index = this.items.indexOf(dataItem);
           if(dataItem && dataItem.hasOwnProperty("id")){
             if(this.product_select["isUpdateProductAdd"] !== true){
-              items[index]["qty"] = parseInt(items[index]["qty"]) + parseInt($product["qty"]);
+              items[index]["qty"] = (parseInt(items[index]["qty"]) + parseInt($product["qty"]));
             }
           }
           else {
@@ -481,6 +480,9 @@
           isDisableField: false,
         };
         this.isDisabledImportPrice = false;
+        this.$nextTick(() => {
+          this.$refs['existing-product-form-modal'].hide();
+        });
       },
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
@@ -829,8 +831,6 @@
       },
       async checkingProductAdd($event){
         if($event){
-          // await this.products.push(this.renderProductOptionData($event["itemProduct"]));
-          // await this.productList.push($event["itemProduct"]);
           await this.products.unshift(this.renderProductOptionData($event["itemProduct"]));
           await this.productList.unshift($event["itemProduct"]);
         }

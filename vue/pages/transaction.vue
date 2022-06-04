@@ -327,15 +327,7 @@
                   <b-form-input type="number" class="input-content" v-model="order.discount" @change="updatedPriceInListDetailOrder(order.discount)"></b-form-input>
                 </div>
               </div>
-              <div class="form-row-content-detail float-right" style="width:100%; margin-bottom: 7px;">
-                <div class="form-column-label">
-                  <label :for="'input-discount'" class="label-input no-margin-bottom"></label>
-                </div>
-                <div class="form-column-input width-50-percentage">
-                  <b-button size="md" class="full-with" variant="primary" @click="addProductButtonClick()">បន្ថែមចំនួនទំនិញ</b-button>
-                </div>
-              </div>
-              <div class="form-row-content-detail float-right" style="width:100%" v-show="isAddProduct">
+              <div class="form-row-content-detail float-right" style="width:100%">
                 <div class="form-column-label">
                   <label :for="'input-product'" class="label-input no-margin-bottom">ឈ្មោះទំនិញសម្រាប់បន្ថែម</label>
                 </div>
@@ -354,12 +346,10 @@
                       :tbody-tr-class="rowClass"
             >
               <template #cell(qty)="row">
-                <div style="display: block; overflow : hidden;" v-bind:class="'content-display-qty-'+ row.item.id" @dblclick="onChangerEvent($event, ('content-input-qty-'+row.item.id), 'content-display-qty-'+row.item.id,'inputQty' )" v-b-tooltip="'ចុចពីរដងដើម្បីកែចំនួន'">{{ row.item.qty }}</div>
-                <b-form-input ref="inputQty" type="number" class="input-content display-none" v-bind:class="'content-input-qty-'+row.item.id" v-model="row.item.qty" @blur="updatedDataOfCurrentProduct(row.item.qty, row.item, 'qty'); onChangerEvent($event, 'content-display-qty-'+row.item.id, ('content-input-qty-'+row.item.id))" :autofocus="true"></b-form-input>
+                <b-form-input ref="inputQty" type="number" class="input-content" v-bind:class="'content-input-qty-'+row.item.id" v-model="row.item.qty" v-on:change="updatedDataOfCurrentProduct(row.item.qty, row.item, 'qty')" :autofocus="true"></b-form-input>
               </template>
               <template #cell(price)="row">
-                <div v-bind:class="'content-display-price-'+ row.item.id" @dblclick="onChangerEvent($event, ('content-input-price-'+row.item.id), 'content-display-price-'+row.item.id)" v-b-tooltip="'ចុចពីរដងដើម្បីកែតម្លៃ'">{{ row.item.price }}</div>
-                <b-form-input ref="inputPrice" type="number" class="input-content display-none" v-bind:class="'content-input-price-'+row.item.id" v-model="row.item.price" @blur="updatedDataOfCurrentProduct(row.item.price, row.item, 'price'); onChangerEvent($event, 'content-display-price-'+row.item.id, ('content-input-price-'+row.item.id),'inputPrice')" :autofocus="true"></b-form-input>
+                <b-form-input ref="inputPrice" type="number" class="input-content" v-bind:class="'content-input-price-'+row.item.id" v-model="row.item.price" v-on:change="updatedDataOfCurrentProduct(row.item.price, row.item, 'price')" :autofocus="true"></b-form-input>
               </template>
               <template #cell(action)="row">
                 <b-button size="md" class="btn-no-background-danger" @click="removeProductFromListOfOrder(row.item,  $event.target)">
@@ -1083,10 +1073,9 @@
             let itemOrder = [];
             for (let index = 0; index < this.orders.length; index++) {
               let orderItem = this.orders[index];
-              let customer = this.orders[index]["customers"];
-
+              let customer = this.customersList.find(customer => customer.id === this.orders[index].customer_id);
               if (customer && customer["id"] === $obj["value"]) {
-                let customerItem = this.filterDataCustomerList($obj["value"]);
+                let customerItem = this.customersList.find(customerItem => customerItem.id === $obj["value"]);
                 let user = this.cloneObject(this.$store.$cookies.get('user'));
                 itemOrder[orderItem.id] = [];
 
