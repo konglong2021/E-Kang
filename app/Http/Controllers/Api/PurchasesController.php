@@ -41,6 +41,26 @@ class PurchasesController extends Controller
         return PurchasesResource::collection($purchase)->response();
     }
 
+    public function buytoday($day)
+    {
+        $today = date('Y-m-d',strtotime($day));
+        $purchase = Purchase::with('purchasedetails')
+                    ->whereDate('created_at',$today)
+                  ->orderBy('id', 'desc')->get();
+
+        return PurchasesResource::collection($purchase)->response();
+    }
+
+    public function buymonth($month)
+    {
+       // $today = date('Y-m-d',strtotime($day));
+        $purchase = Purchase::with('purchasedetails')
+                    ->whereMonth('created_at',$month)
+                  ->orderBy('id', 'desc')->get();
+
+        return PurchasesResource::collection($purchase)->response();
+    }
+
 
     /**
      * Show the form for creating a new resource.

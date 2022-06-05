@@ -60,12 +60,7 @@ class OrdersController extends Controller
        return response()->json($orders);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
 
     public function sale(Request $request)
     {
@@ -260,6 +255,31 @@ class OrdersController extends Controller
 
 
     }
+    public function todaysale()
+    {
+        $today = date('Y-m-d');
+        $sale = Order::wheredate('created_at','=',$today)
+                        ->with('orderdetails')
+                        ->get();
+        return response()->json($sale);
+    }
+
+    public function daysale($day)
+    {
+        $today = date('Y-m-d',strtotime($day));
+        $sale = Order::wheredate('created_at','=',$today)
+                        ->with('orderdetails')
+                        ->get();
+        return response()->json($sale);
+    }
+
+    public function monthsale($month)
+    {
+        $sale = Order::whereMonth('created_at','=',$month)
+        ->with('orderdetails')
+        ->get();
+        return response()->json($sale);
+    }
 
     /**
      * Display the specified resource.
@@ -334,12 +354,12 @@ class OrdersController extends Controller
         $order = Order::where('status','=',0)
                         ->where('customer_id','=',$id)
                         ->get();
-        $unpaid = $order->sum('grandtotal')- $order->sum('receive');
+        $due = $order->sum('grandtotal')- $order->sum('receive');
 
         return response()->json([
-            "success" => false,
+            "success" => true,
             "order" => $order,
-            "unpaid" => $unpaid
+            "due" => $due
         ]);
     }
 
