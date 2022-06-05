@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use Illuminate\Http\Request;
+use Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class PermissionsController extends Controller
 {
@@ -16,7 +18,8 @@ class PermissionsController extends Controller
     public function index()
     {
         abort_if(Gate::denies('permission_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $permissions = Permission::orderBy('id', 'desc')->paginate(8);
+        $permissions = Permission::with('roles')
+                                    ->orderBy('id', 'desc')->get();
         return response()->json($permissions);
     }
 
