@@ -26,7 +26,7 @@
           <b-col lg="4">
             <div class="card border-1 border-left-3 border-left-accent text-center mb-lg-0 card-border-class">
               <div class="card-body">
-                <h4 class="h2 mb-0" style="margin-bottom: 10px !important;">{{ calculateSalePrice (items) }} ($)</h4>
+                <h4 class="h2 mb-0" style="margin-bottom: 10px !important;">{{ calculateSalePrice(items) }} ($)</h4>
                 <div>
                   ប្រាក់លក់សរុប សម្រាប់ខែនេះ
                 </div>
@@ -50,10 +50,27 @@
           <div class="spinner-grow text-muted"></div>
         </div>
         <div v-if="!isLoading">
-          <b-table striped hover :items="items" :fields="fields"></b-table>
-
+          <div v-if="items.length > 0">
+            <b-table
+              id="my-table"
+              striped hover
+              :items="items"
+              :fields="fields"
+              :per-page="perPage"
+              :current-page="currentPage"
+            >
+            </b-table>
+            <div class="mt-3">
+              <b-pagination v-if="rows && rows > 9"
+                v-model="currentPage"
+                :total-rows="rows"
+                :per-page="perPage"
+                aria-controls="my-table" pills>
+              </b-pagination>
+            </div>
+          </div>
+          <h3 class="text-center" v-if="items.length === 0">មិនមានទិន្នន័យនៃការលក់ទេ</h3>
           <h4 style="display: none; font-weight: 900;">ទឹកប្រាក់សរុបប្រចាំថ្ងៃ : {{calculate(items) + "($)"}}</h4>
-          <h3 v-if="items.length === 0 && !dateFilter">មិនមានទិន្នន័យនៃការលក់ទេ</h3>
         </div>
       </b-container>
     </div>
@@ -76,6 +93,8 @@ export default {
         {key: 'sale_price', label: 'តម្លៃលក់ចេញ ($)'},
         {key: 'sub_total_sale_price', label: 'តម្លៃលក់ចេញសរុប ($)'},
       ],
+      perPage: 9,
+      currentPage: 1,
       category: {},
       products: [],
       isLoading: false,
@@ -86,6 +105,12 @@ export default {
       warehouse: null,
       optionMonths : [],
       filterMonth: parseInt(this.getCurrentMonth()),
+    }
+  },
+  watch : {},
+  computed:{
+    rows() {
+      return this.items.length;
     }
   },
   methods:{
@@ -136,7 +161,6 @@ export default {
         if(response && response.hasOwnProperty("data")){
           let dataResponse = response.data;
           if(dataResponse && dataResponse.length > 0){
-            vm.totalRows = response.data.length;
             for(let i=0; i < dataResponse.length; i++){
               let productList = dataResponse[i].product;
               if(productList && productList.length > 0){
@@ -174,15 +198,15 @@ export default {
     async getAllOrderData($dateFilter){
       if($dateFilter){
         let self = this;
-        self.items = [];
         self.isLoading = true;
-        self.getFullDate();
         await self.$axios.post('/api/stock/detail' , $dateFilter).then(function (response) {
           self.isLoading = false;
+          self.items = [];
+          let lastArray = [];
           if(response && response.hasOwnProperty("data")){
             let orders = response.data.order;
             let purchases = response.data.purchase;
-            let lastArray = (purchases.length < orders.length) ? orders.map((item, i) => Object.assign({}, item, purchases[i])) : purchases.map((item, i) => Object.assign({}, item, orders[i]));
+            lastArray = (purchases.length < orders.length) ? orders.map((item, i) => Object.assign({}, item, purchases[i])) : purchases.map((item, i) => Object.assign({}, item, orders[i]));
             for(let i=0; i < lastArray.length; i++){
               let reportItem =[];
 
@@ -261,23 +285,24 @@ export default {
     calculatePrice($list){
       let totalSalePrice = [];
       let totalImportPrice = [];
+      let lastPrice = 0;
 
-      Object.entries($list).forEach(([val]) => {
-        totalSalePrice.push(val.sub_total_sale_price);
-      });
-      Object.entries($list).forEach(([val]) => {
-        totalImportPrice.push(val.sub_total_import_price);
-      });
+      if($list && $list.length > 0){
+        Object.entries($list).forEach(([key, val]) => {
+          totalImportPrice.push(val.sub_total_import_price);
+        });
+        const totalImport = totalImportPrice.reduce(function(total, num) {
+            return parseFloat((parseFloat(total) + parseFloat(num)).toFixed(2)) }
+          , 0);
 
-      let totalImport = totalImportPrice.reduce(function(total, num) {
-          return parseFloat((parseFloat(total) + parseFloat(num)).toFixed(2)) }
-        , 0);
-      let totalSale = totalSalePrice.reduce(function(total, num) {
-          return parseFloat((parseFloat(total) + parseFloat(num)).toFixed(2)) }
-        , 0);
-
-      const lastPrice = (totalSale - totalImport);
-      console.log(lastPrice);
+        Object.entries($list).forEach(([key, val]) => {
+          totalSalePrice.push(val.sub_total_sale_price);
+        });
+        const totalSale = totalSalePrice.reduce(function(totalSale, numSale) {
+            return parseFloat((parseFloat(totalSale) + parseFloat(numSale)).toFixed(2)) }
+          , 0);
+        lastPrice = (parseFloat(totalSale) - parseFloat(totalImport));
+      }
       return parseFloat(lastPrice.toFixed(2));
     },
     calculateImportPrice($list){
@@ -304,7 +329,6 @@ export default {
       moment.locale('en'); // sets words language (optional if current locale is to be used)
       moment.months() // returns a list of months in the current locale (January, February, etc.)
       let months = moment.monthsShort();
-      console.log(months);
       for(let index=0; index < months.length; index++){
         this.optionMonths.push({text : months[index], value: (index+1)})
       }
@@ -317,17 +341,16 @@ export default {
       let lastDay = new Date(today.getFullYear(), mm, 0).getDate();
       let yyyy = today.getFullYear();
 
-      let dateFilter = {"from": (startDay + "-" + mm + "-" + yyyy), "to": (lastDay + "-" + mm + "-" + yyyy)};
+      let dateFilter = {"from": (yyyy + "-" + mm + "-" + startDay), "to": ( yyyy + "-" + mm + "-" + lastDay)};
       this.getAllOrderData(dateFilter);
     }
   },
-
   mounted() {
     this.getListMonthName();
     this.getProductList();
     this.getCustomerList();
     this.getWareHouseList();
     this.getAllOrderData({"from": this.getFullDate("01"), "to": this.getFullDate(this.getLastDayOfMonth().getDate())});
-  }
+  },
 }
 </script>

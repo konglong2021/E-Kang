@@ -266,8 +266,10 @@ export default {
         let totalSale = totalSalePrice.reduce(function(total, num) {
             return parseFloat((parseFloat(total) + parseFloat(num)).toFixed(2)) }
           , 0);
-
-        return (totalSale - totalImport);
+        console.log(parseFloat(totalSale) , parseFloat(totalImport));
+        const lastPrice = (parseFloat(totalSale) - parseFloat(totalImport));
+        console.log(lastPrice);
+        return parseFloat(lastPrice.toFixed(2));
       },
       calculateImportPrice($list){
         let totalImportPrice = [];
