@@ -200,6 +200,7 @@
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
       @hidden="onResetExistingProduct" :cancel-title="$t('label_cancel_button')"
       @ok="handleOnSubmitExistingProduct" :ok-title="$t('label_save_button')"
+             :ok-disabled="!product_select.qty"
              :title="$t('title_add_product')" no-close-on-backdrop>
       <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitExistingProduct(product_select)">
         <div class="full-content" v-if="products && products.length > 0">

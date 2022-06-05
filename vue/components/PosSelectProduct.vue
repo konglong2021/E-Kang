@@ -320,19 +320,25 @@ export default {
             let total = [];
             Object.entries($products).forEach(([key, val]) => {
               if(val.currency === $currency){
-                this.order.discount === 0 ? total.push(val.price * val.qty) : total.push((val.price * val.qty) - ((val.price * val.qty) * (this.order.discount / 100))) ;
+                const valueTotal = this.order.discount === 0 ? (val.price * val.qty) : ((val.price * val.qty) - ((val.price * val.qty) * (this.order.discount / 100)));
+                total.push(parseFloat(valueTotal.toFixed(2)));
               }
             });
-            return total.reduce(function(total, num){ return total + num }, 0);
+            return total.reduce(function(total, num) {
+              return parseFloat((parseFloat(total) + parseFloat(num)).toFixed(2)) }
+              , 0);
       },
       calculateSubTotal($product){
-          return (parseFloat($product.price) * parseInt($product.qty));
+        const total = (parseFloat($product.price) * parseInt($product.qty));
+          return (parseFloat(total.toFixed(2)));
       },
       calculateToRiel($totalPriceAsUSD, $exchangeRate){
-          return ($totalPriceAsUSD * parseFloat($exchangeRate));
+        const total = (parseFloat($totalPriceAsUSD) * parseFloat($exchangeRate));
+          return (parseFloat(total.toFixed(2)));
       },
       calculateIncludeTax($total){
-          return $total + ($total * this.order.vat);
+        const totalDisc = ($total * this.order.vat);
+          return parseFloat($total) + (parseFloat(totalDisc.toFixed(2)));
       },
       calculateAfterDis($total){
           return ($total - ($total * (this.order.discount / 100)));
@@ -443,7 +449,8 @@ export default {
             for(let index =0; index < this.products.length; index++){
               let productItem = this.products[index];
               productItem["discount"] = $discount;
-              productItem["total_after_discount"] = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
+              const totalAfterDixc = ($discount === 0) ? productItem["total"] : (productItem["total"] - (productItem["total"] * ($discount / 100)));
+              productItem["total_after_discount"] = parseFloat(totalAfterDixc.toFixed(2));
               this.products[index] = productItem;
             }
             this.items = this.cloneObject(this.products);
