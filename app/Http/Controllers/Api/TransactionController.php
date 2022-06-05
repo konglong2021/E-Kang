@@ -85,30 +85,39 @@ class TransactionController extends Controller
 
     public function show($id)
     {
-        $transaction = DB::table('transactions')
-                            ->join('orders','orders.id','=','transactions.order_id')
-                            ->join('customers','customers.id','=','orders.customer_id')
-                            ->select('transactions.id','orders.id as order_id','orders.invoice_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
-                            ->where('customers.id','=',$id)
-                            ->where('status','=',0)
-                            ->get();
+        // $user = User::with('Profile')->where('status', 1)->whereHas('Profile', function($q){
+        //     $q->where('gender', 'Male');
+        // })->get();
+        $transaction = Transaction::with('order')
+                                   ->with('customers')
+                                   ->whereHas('order',function($q) use($id){
+                                    $q->where('customer_id',$id);
+                                   })
+                                   ->get();
+        // $transaction = DB::table('transactions')
+        //                     ->join('orders','orders.id','=','transactions.order_id')
+        //                     ->join('customers','customers.id','=','orders.customer_id')
+        //                     ->select('transactions.id','orders.id as order_id','orders.invoice_id','orders.grandtotal','transactions.paid','transactions.pay_method','customers.name','customers.id as customer_id')  
+        //                     ->where('customers.id','=',$id)
+        //                     ->where('status','=',0)
+        //                     ->get();
 
-                $order = DB::table('orders')
-                            ->where('status','=',0)
-                            ->where('customer_id',$id)
-                            ->sum('grandtotal');
+        //         $order = DB::table('orders')
+        //                     ->where('status','=',0)
+        //                     ->where('customer_id',$id)
+        //                     ->sum('grandtotal');
                     
 
-        $tsum  = [
-            'paid'      => $transaction->sum('paid'),
-            'amount'    => $order,
-            'balance'   => $order - $transaction->sum('paid')
-        ];
+        // $tsum  = [
+        //     'paid'      => $transaction->sum('paid'),
+        //     'amount'    => $order,
+        //     'balance'   => $order - $transaction->sum('paid')
+        // ];
 
-        return response()->json([
-            "data" => $transaction,
-            "summary"  => $tsum
-        ]);
+        // return response()->json([
+        //     "data" => $transaction,
+        //     "summary"  => $tsum
+        // ]);
 
         // $transaction = Transaction::find($id);
         
@@ -116,7 +125,7 @@ class TransactionController extends Controller
         // {
         //     return response()->json("Not Found");
         // }
-        
+        return TransactionResource::collection($transaction->loadMissing(['order','customers']))->response(); 
         // return (new TransactionResource($transaction->loadMissing(['order','customers'])))->response();
 
     }
