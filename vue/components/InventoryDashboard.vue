@@ -46,6 +46,9 @@
               <span class="margin-span-btn">{{$t('stock_in')}}</span>
               <i class="fa fa-plus" aria-hidden="true"></i>
             </b-button>
+            <div style="display: inline-block; width: 13%; float: right; margin-right: 10px; margin-bottom: 10px">
+              <b-form-select  class="form-control input-content input-select-warehouse" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
+            </div>
           </div>
           <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
@@ -332,7 +335,7 @@
         categories: [{ text: 'Select One', value: null }, {text: 'Screen', value: 1}, {text: 'Headset', value: 2}, {text: 'chargers', value: 3}],
         brands: [{ text: 'Select One', value: null }, {text: 'Samsung', value: 1}, {text: 'PUB G', value: 2}],
         supplier: {},
-        warehouse: {},
+        warehouse: this.$store.$cookies.get('storeItem'),
         purchase: {
           import_price: 0,
           product : null,
@@ -392,12 +395,17 @@
       }
     },
     methods: {
+      selectedWarehouse(warehouse){
+        if(warehouse){
+          this.showStockTable(warehouse);
+        }
+      },
       showStockTable(){
         this.isShowStockTable = true;
         let vm = this;
         vm.stockItems = [];
         vm.loadingFields.stockLoading = true;
-        vm.$axios.get('/api/stock')
+        vm.$axios.get('/api/stockbywarehouse/' + vm.$store.$cookies.get('storeItem'))
           .then(function (response) {
             if(response.data){
               vm.loadingFields.stockLoading = false;
@@ -611,9 +619,7 @@
                 let warehouseItem =  { text: '', value: null};
                 warehouseItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                 warehouseItem.value = data[index]["id"];
-                //vm.warehouses.push(warehouseItem);
                 vm.warehouses.unshift(warehouseItem);
-                //vm.warehouseList.push(data[index]);
                 vm.warehouseList.unshift(data[index]);
               }
             }
