@@ -52,6 +52,10 @@ body {
   width: 60%;
 }
 
+.width-55-percentage{
+  width: 55%;
+}
+
 .width-50-percentage{
   width: 50%;
 }
@@ -576,4 +580,23 @@ body {
 }
 .card-border-class-active{
   border-left-color: #ed0b4c!important
+}
+
+.content-container-no-border-bottom{
+  width: 100%;
+  display: inline-block;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+.content-container-with-border-bottom{
+  width: 100%;
+  display: inline-block;
+  overflow:hidden;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #e9edf2!important;
+}
+
+.font-size-16{
+  font-size: 16px;
 }

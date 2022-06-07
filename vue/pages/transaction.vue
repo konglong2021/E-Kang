@@ -32,7 +32,7 @@
                 </div>
               </div>
               <div class="float-right" style="margin-right: 8px; display: inline-block;">
-                <b-button class="min-height-43-px" v-if="product_select || customer_select" @click="printFilterData()" size="sm" title="ចុច ដើម្បី ព្រីនតារាង" variant="success">ចុចព្រីនតារាង</b-button>
+                <b-button class="min-height-43-px" v-if="product_select || customer_select" @click="printFilterData()" size="sm" title="ព្រីនតារាង" variant="success">ព្រីនតារាង</b-button>
               </div>
             </div>
           </div>
