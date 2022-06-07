@@ -263,26 +263,22 @@ class StockController extends Controller
 
         // Order query Total of all products order
         $order = DB::table('order_details')
-        ->join('orders','order_details.order_id','=','orders.id')
-        ->select('order_details.product_id', DB::raw('SUM(order_details.quantity) AS o_qty'))
-        ->whereDate('orders.created_at','>=',$from)
-        ->whereDate('orders.created_at','<=',$to)
-        ->WhereNull('orders.deleted_at')
-        ->groupBy('order_details.product_id')
+        ->join('products','order_details.product_id','=','products.id')
+        ->select('order_details.product_id', 'order_details.quantity','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->whereDate('order_details.created_at','>=',$from)
+        ->whereDate('order_details.created_at','<=',$to)
+        ->WhereNull('order_details.deleted_at')
         ->get();
 
         // Purchase query Total all products
         $purchase = DB::table('purchase_details')
-                    ->join('purchases','purchase_details.purchase_id','=','purchases.id')
-                    ->select('purchase_details.product_id',DB::raw('SUM(purchase_details.quantity) AS p_qty'))
-                    ->whereDate('purchases.created_at','>=',$from)
-                    ->whereDate('purchases.created_at','<=',$to)
-                    ->WhereNull('purchases.deleted_at')
-                    ->groupBy('purchase_details.product_id')
+                    ->join('products','purchase_details.product_id','=','products.id')
+                    ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
+                    ->whereDate('purchase_details.created_at','>=',$from)
+                    ->whereDate('purchase_details.created_at','<=',$to)
+                    ->WhereNull('purchase_details.deleted_at')
                     ->get();
 
-
-       
         // $total= array();
         // foreach ($purchase as $key=>$purchase_val) {
 

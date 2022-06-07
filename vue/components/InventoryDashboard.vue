@@ -46,6 +46,9 @@
               <span class="margin-span-btn">{{$t('stock_in')}}</span>
               <i class="fa fa-plus" aria-hidden="true"></i>
             </b-button>
+            <div style="display: inline-block; width: 13%; float: right; margin-right: 10px; margin-bottom: 10px">
+              <b-form-select  class="form-control input-content input-select-warehouse" v-model="warehouse" :options="warehouses" @change="selectedWarehouse(warehouse)"></b-form-select>
+            </div>
           </div>
           <div class="display-inline-block full-with" v-if="isShowFormAddProductInPurchase && !loadingFields.productListLoading">
             <div class="display-inline-block content-field-purchase float-left" >
@@ -200,6 +203,7 @@
     <b-modal id="modal-create-existing-product" ref="existing-product-form-modal" size="lg"
       @hidden="onResetExistingProduct" :cancel-title="$t('label_cancel_button')"
       @ok="handleOnSubmitExistingProduct" :ok-title="$t('label_save_button')"
+             :ok-disabled="!product_select.qty"
              :title="$t('title_add_product')" no-close-on-backdrop>
       <b-form enctype="multipart/form-data" @submit.stop.prevent="onSubmitExistingProduct(product_select)">
         <div class="full-content" v-if="products && products.length > 0">
@@ -331,7 +335,7 @@
         categories: [{ text: 'Select One', value: null }, {text: 'Screen', value: 1}, {text: 'Headset', value: 2}, {text: 'chargers', value: 3}],
         brands: [{ text: 'Select One', value: null }, {text: 'Samsung', value: 1}, {text: 'PUB G', value: 2}],
         supplier: {},
-        warehouse: {},
+        warehouse: this.$store.$cookies.get('storeItem'),
         purchase: {
           import_price: 0,
           product : null,
@@ -391,12 +395,17 @@
       }
     },
     methods: {
+      selectedWarehouse(warehouse){
+        if(warehouse){
+          this.showStockTable(warehouse);
+        }
+      },
       showStockTable(){
         this.isShowStockTable = true;
         let vm = this;
         vm.stockItems = [];
         vm.loadingFields.stockLoading = true;
-        vm.$axios.get('/api/stock')
+        vm.$axios.get('/api/stockbywarehouse/' + vm.$store.$cookies.get('storeItem'))
           .then(function (response) {
             if(response.data){
               vm.loadingFields.stockLoading = false;
@@ -447,24 +456,17 @@
       },
       handleOnSubmitExistingProduct(bvModalEvent){
         bvModalEvent.preventDefault();
-        this.onSubmitExistingProduct();
+        this.onSubmitExistingProduct(this.product_select);
       },
       onSubmitExistingProduct($product){
         let items = [];
         if(this.items && this.items.length > 0){
-          let index = 0,isFound = false;
           items = this.cloneObject(this.items);
-
-          for (let i=0; i < this.items.length; i++){
-            if(this.items[i]["id"] === $product["id"]){
-              index = i;
-              isFound = true;
-              break;
-            }
-          }
-          if(isFound === true){
+          let dataItem = this.items.find(item => item.id === $product["value"]);
+          let index = this.items.indexOf(dataItem);
+          if(dataItem && dataItem.hasOwnProperty("id")){
             if(this.product_select["isUpdateProductAdd"] !== true){
-              items[index]["qty"] = parseInt(items[index]["qty"]) + parseInt($product["qty"]);
+              items[index]["qty"] = (parseInt(items[index]["qty"]) + parseInt($product["qty"]));
             }
           }
           else {
@@ -487,6 +489,9 @@
           isDisableField: false,
         };
         this.isDisabledImportPrice = false;
+        this.$nextTick(() => {
+          this.$refs['existing-product-form-modal'].hide();
+        });
       },
       showExistingProductModal(){
         this.$refs['existing-product-form-modal'].show();
@@ -614,9 +619,7 @@
                 let warehouseItem =  { text: '', value: null};
                 warehouseItem.text = data[index]["name"] + "(" + data[index]["address"] + ")";
                 warehouseItem.value = data[index]["id"];
-                //vm.warehouses.push(warehouseItem);
                 vm.warehouses.unshift(warehouseItem);
-                //vm.warehouseList.push(data[index]);
                 vm.warehouseList.unshift(data[index]);
               }
             }
@@ -835,8 +838,6 @@
       },
       async checkingProductAdd($event){
         if($event){
-          // await this.products.push(this.renderProductOptionData($event["itemProduct"]));
-          // await this.productList.push($event["itemProduct"]);
           await this.products.unshift(this.renderProductOptionData($event["itemProduct"]));
           await this.productList.unshift($event["itemProduct"]);
         }

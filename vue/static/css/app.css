@@ -44,6 +44,10 @@ body {
 .width-40-percentage{
   width: 40%;
 }
+
+.width-48-percentage{
+  width: 48%;
+}
 .width-60-percentage{
   width: 60%;
 }
@@ -528,7 +532,7 @@ body {
   background: none;
   border: none;
   color: #28a745;
-  font-size: 23px;
+  font-size: 19px;
   display: inline-block;
   overflow: hidden;
   margin-right: 5px;
@@ -547,7 +551,7 @@ body {
   background: none;
   border: none;
   color: #dc3545;
-  font-size: 23px;
+  font-size: 19px;
   display: inline-block;
   overflow: hidden;
   margin-right: 5px;
@@ -565,4 +569,11 @@ body {
 }
 .active-color{
   background-color: #e7e3e3;
+}
+.card-border-class{
+  border-radius: 8px;
+  box-shadow: 0 3px 3px -2px rgb(39 44 51 / 10%), 0 3px 4px 0 rgb(39 44 51 / 4%), 0 1px 8px 0 rgb(39 44 51 / 2%);
+}
+.card-border-class-active{
+  border-left-color: #ed0b4c!important
 }

@@ -65,8 +65,15 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/supplier/search',[App\Http\Controllers\Api\SuppliersController::class,'index'])->name('supplier.search');
     Route::post('/transaction/search',[App\Http\Controllers\Api\TransactionController::class,'getalltransaction']); // Start From and End
 
+    //Report
+    Route::get('/saletoday',[App\Http\Controllers\Api\OrdersController::class,'todaysale']); //today Sale
+    Route::get('/saletoday/{date}',[App\Http\Controllers\Api\OrdersController::class,'daysale']); //search sale by date
+    Route::get('/salemonth/{month}',[App\Http\Controllers\Api\OrdersController::class,'monthsale']); //search sale by date
+    Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
+    Route::get('/today/{date}',[App\Http\Controllers\Api\PurchasesController::class,'buytoday']); // check record stock in by date
+    Route::get('/monthbuy/{month}',[App\Http\Controllers\Api\PurchasesController::class,'buymonth']); // check record stock in by date
 
-    Route::post('/pay',[App\Http\Controllers\Api\OrdersController::class,'paid']);  //update status order
+
 
     //Delete Purchase and Order Items
     Route::delete('/purchase/delete/{purchase_id}',[App\Http\Controllers\Api\PurchasesController::class,'delete']);  //Delete Master and Master detail of table purchase
@@ -75,7 +82,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
     //Check Stock
     Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
-    Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
+  
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
     Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
     Route::get('/stockbywarehouse/{warehouse_id}/{search}',[App\Http\Controllers\Api\StockController::class,'searchstockbywarehouse']); // /api/stockbywarehouse/1/a3s

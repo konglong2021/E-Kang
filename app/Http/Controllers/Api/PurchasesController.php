@@ -41,6 +41,26 @@ class PurchasesController extends Controller
         return PurchasesResource::collection($purchase)->response();
     }
 
+    public function buytoday($day)
+    {
+        $today = date('Y-m-d',strtotime($day));
+        $purchase = Purchase::with('purchasedetails')
+                    ->whereDate('created_at',$today)
+                  ->orderBy('id', 'desc')->get();
+
+        return PurchasesResource::collection($purchase)->response();
+    }
+
+    public function buymonth($month)
+    {
+       // $today = date('Y-m-d',strtotime($day));
+        $purchase = Purchase::with('purchasedetails')
+                    ->whereMonth('created_at',$month)
+                  ->orderBy('id', 'desc')->get();
+
+        return PurchasesResource::collection($purchase)->response();
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -323,18 +343,19 @@ class PurchasesController extends Controller
     {
         $pdetail = PurchaseDetail::where('purchase_id',$id)->get();
         $Purchase = Purchase::find($id);
+        
         foreach($pdetail as $detail)
         {
             $stock = Stock::where('product_id',$detail->product_id)
             ->where('warehouse_id',$Purchase->warehouse_id)
             ->first();
             $stock->total = $stock->total - $detail->quantity;
-            if($stock->total >= 0){
+            // if($stock->total >= 0){
                 // throw new \Exception($stock);
                 $stock->update();
-            }else{
-                throw new \Exception($stock);
-            }
+            // }else{
+            //     throw new \Exception($stock);
+            // }
         }
        
 
