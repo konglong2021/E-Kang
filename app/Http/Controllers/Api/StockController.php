@@ -264,7 +264,7 @@ class StockController extends Controller
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
-        ->select('order_details.product_id', 'order_details.quantity','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->select('order_details.product_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
         ->whereDate('order_details.created_at','>=',$from)
         ->whereDate('order_details.created_at','<=',$to)
         ->WhereNull('order_details.deleted_at')
