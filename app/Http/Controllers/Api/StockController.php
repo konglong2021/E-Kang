@@ -128,15 +128,13 @@ class StockController extends Controller
         // try{
         if(Warehouse::find($request->to_warehouse)!==null){
 
-            // DB::transaction(function () use ($request){
-
-                $items= $request->items; // purchase is the array of purchase details
+                $items= $request->items; 
 
                 foreach($items as $item)
                 {
 
                     $stock = Stock::where('product_id',$item['product_id'])
-                    ->where('warehouse_id',$item['warehouse_id'])                 //find item and warehouse from main
+                    ->where('warehouse_id',$item['from_warehouse'])                 //find item and warehouse from main
                     ->first();
 
                     $stockin = Stock::where('product_id',$item['product_id'])   //find item and warehouse to transfer
@@ -146,12 +144,6 @@ class StockController extends Controller
 
                     if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total = $stock->total - $item['quantity'];
-                        if($stock->total<0){                                        //check amount items from warehouse to transfter
-                            return response()->json([
-                                "success" => false,
-                                "message" => "Insufficient Please Check again"
-                            ], 403);
-                        }else{
                         $stock->update();
                         }
 
@@ -169,37 +161,23 @@ class StockController extends Controller
                                 ]);
                         }
 
-
-                    } else {
-                        return response()->json([
-                            "success" => false,
-                            "message" => "Please Check Input Stock",
-                        ],403);
-
-                    }
-
-                    $pdetail = StockOut::create([
-
-                        'from_warehouse' => $item['warehouse_id'],
-                        'product_id' => $item['product_id'],
-                        'to_warehouse' => $request['to_warehouse'],
-                        'quantity' => $item['quantity'],
-                        'user_id' => auth()->user()->id
-
-                       ] );
+                        $pdetail = StockOut::create([
+                            'from_warehouse' => $item['from_warehouse'],
+                            'product_id' => $item['product_id'],
+                            'to_warehouse' => $request['to_warehouse'],
+                            'quantity' => $item['quantity'],
+                            'user_id' => auth()->user()->id
+                           ]);
+                    
+                    
                 }
                 return response()->json([
                      "success" => true,
                      "message" => "Successfully Stock Transfer"
                 ]);
 
-            //  });
-        } else{
-            return response()->json([
-                "success" => false,
-                "message" => "Warehouse Id Is not valid"
-           ], 403);
-        }
+            }   //  });
+        
 
     }
 
@@ -211,7 +189,7 @@ class StockController extends Controller
      */
     public function show($id)
     {
-
+        
     }
 
     /**
@@ -235,13 +213,18 @@ class StockController extends Controller
     public function stockout()
     {
         $stocks = StockOut::with('product')
-                ->with('warehouse')
+                ->with('fromWarehouse')
+                ->with('toWarehouse')
                 ->get();
-               
-
+        // $stocks = new StockOut();
         return response()->json($stocks);
-         // return StockResource::collection($stocks)->response();
+        //  return StockResource::collection($stocks)->response();
+        //  return StockResource::collection($stocks->loadMissing(['product','fromWarehouse','toWarehouse']))->response(); 
     }
+
+    
+
+    
 
     /**
      * Remove the specified resource from storage.

@@ -453,7 +453,6 @@ class OrdersController extends Controller
             'product_id' => $item['product_id'],
             'sellprice' => $item['sellprice'],
             'quantity' => $item['quantity'],
-
            ] );
 
             $stock = Stock::where('product_id',$item['product_id'])
@@ -491,7 +490,8 @@ class OrdersController extends Controller
         $negative = (int)$setting->negative;
         $order = Order::find($id);
         $odetail = OrderDetail::where('order_id',$id)->get();
-         //* Balance Roll Back
+       
+        //* Balance Roll Back
        $this->ReturnBalance($order->grandtotal,$order->warehouse_id);
        //* End Balance RollBack
         foreach($odetail as $detail)
@@ -501,7 +501,6 @@ class OrdersController extends Controller
             ->first();
             $stock->total = $stock->total + $detail->quantity;
             $stock->update();
-            
         }
        
         $pdetail = OrderDetail::where('order_id',$id)->delete();
