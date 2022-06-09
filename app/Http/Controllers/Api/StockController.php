@@ -116,17 +116,8 @@ class StockController extends Controller
     public function store(Request $request)
     {
 
-        $request->validate([
-            'items'    => [
-                'required',
-            ],
-            'to_warehouse' => [
-                'required'
-            ],
-        ]);
-
-        // try{
-        if(Warehouse::find($request->to_warehouse)!==null){
+       
+        if($request->items!==null){
 
                 $items= $request->items; 
 
@@ -134,12 +125,13 @@ class StockController extends Controller
                 {
 
                     $stock = Stock::where('product_id',$item['product_id'])
-                    ->where('warehouse_id',$item['from_warehouse'])                 //find item and warehouse from main
-                    ->first();
+                                    ->where('warehouse_id','=',$item['from_warehouse'])                 //find item and warehouse from main
+                                    ->first();
 
                     $stockin = Stock::where('product_id',$item['product_id'])   //find item and warehouse to transfer
-                    ->where('warehouse_id',$request['to_warehouse'])
+                    ->where('warehouse_id',$item['to_warehouse'])
                     ->first();
+
 
 
                     if ($stock !== null) {                                           //check wether there is available items or not
@@ -154,7 +146,7 @@ class StockController extends Controller
                         }else{
                             $stock = Stock::create([
                                 'product_id' => $item['product_id'],
-                                'warehouse_id' => $request['to_warehouse'],
+                                'warehouse_id' => $item['to_warehouse'],
 
                                 'alert' => 0,
                                 'total' => $item['quantity'],
@@ -164,7 +156,7 @@ class StockController extends Controller
                         $pdetail = StockOut::create([
                             'from_warehouse' => $item['from_warehouse'],
                             'product_id' => $item['product_id'],
-                            'to_warehouse' => $request['to_warehouse'],
+                            'to_warehouse' => $item['to_warehouse'],
                             'quantity' => $item['quantity'],
                             'user_id' => auth()->user()->id
                            ]);
@@ -177,7 +169,7 @@ class StockController extends Controller
                 ]);
 
             }   //  });
-        
+            
 
     }
 
