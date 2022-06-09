@@ -84,7 +84,7 @@ class OrdersController extends Controller
 
         try {
             return DB::transaction(function () use($request) {
-            $setting = Settings::find(1);
+            $setting = Settings::where("user_id",auth()->user()->id)->first();
             $digit = (int)$setting->digit;
             $negative = (int)$setting->negative;
 
@@ -167,14 +167,15 @@ class OrdersController extends Controller
         // try{
         try {
                 //code...
-
+                
 
         return DB::transaction(function () use ($request){
             //query setting
-        $setting = Settings::find(1);
+            
+        $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
-
+            
          $prefix = date("ymd");
         //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
@@ -398,7 +399,7 @@ class OrdersController extends Controller
         return DB::transaction(function () use ($request,$id){
             //query setting
             
-        $setting = Settings::find(1);
+        $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
         $prefix = date("ymd");
@@ -485,7 +486,7 @@ class OrdersController extends Controller
 
     public function delete($id)
     {
-        $setting = Settings::find(1);
+        $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
         $order = Order::find($id);
