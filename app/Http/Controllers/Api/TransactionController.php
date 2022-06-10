@@ -45,11 +45,12 @@ class TransactionController extends Controller
     {
         
             $input = Order::find($id);
-            if($input->grandtotal - $input->receive < $receive){
+            $totalReceive = $input->receive + $receive;
+            if($input->grandtotal - $input->receive < $totalReceive){
                 return response()->json("remain balance smaller than paid");
             }
-            $input->status = ($receive > 0 && $receive >= $input->grandtotal) ? 1 : 0;   // Test if client paid or not
-            $input->receive = $receive;
+            $input->status = ($totalReceive > 0 && $totalReceive >= $input->grandtotal) ? 1 : 0;   // Test if client paid or not
+            $input->receive = $totalReceive;
             $input->update();
             
         return $input;
