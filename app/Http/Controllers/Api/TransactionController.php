@@ -135,10 +135,13 @@ class TransactionController extends Controller
      {
         $start = date('Y-m-d 0:00',strtotime($request['start']));
         $end = date('Y-m-d 23:59',strtotime($request['end']));
-        $getall = Transaction::whereBetween('created_at',[$start,$end])
+
+        $getall = Transaction::where('paid','>',0)
+                                ->whereBetween('created_at',[$start,$end])
                                 ->with('order')
                                 ->with('customers')
-                                ->get();
+                                ->get()
+                                ->sortBy('order.customer_id');
 
         return TransactionResource::collection($getall);
      }
