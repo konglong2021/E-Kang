@@ -72,6 +72,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
     Route::get('/today/{date}',[App\Http\Controllers\Api\PurchasesController::class,'buytoday']); // check record stock in by date
     Route::get('/monthbuy/{month}',[App\Http\Controllers\Api\PurchasesController::class,'buymonth']); // check record stock in by date
+    Route::get('/buysell/{today}',[App\Http\Controllers\Api\StockController::class,'buysell']); //check buy and sell by date rang
 
 
 
@@ -82,6 +83,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
     //Check Stock
     Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
+    
   
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
     Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
@@ -91,6 +93,8 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
     Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
     Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
+    
+    
     
 
 

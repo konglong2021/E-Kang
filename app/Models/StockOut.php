@@ -32,8 +32,13 @@ class StockOut extends Model
     {
         return $this->belongsTo(Product::class);
     }
-    public function warehouse()
+    public function fromWarehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Warehouse::class,'from_warehouse');
+    }
+
+    public function toWarehouse()
+    {
+        return $this->belongsTo(Warehouse::class,'to_warehouse');
     }
 }

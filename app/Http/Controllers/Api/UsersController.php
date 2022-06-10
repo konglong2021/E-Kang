@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\Profile;
+use App\Models\Settings;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller
 {
@@ -27,6 +29,8 @@ class UsersController extends Controller
         ->orderBy('id', 'desc')->get();
         return response()->json($users);
     }
+
+   
 
     /**
      * Show the form for creating a new resource.
@@ -62,27 +66,43 @@ class UsersController extends Controller
 
 
         ]);
+        try {
+            return DB::transaction(function() use ($request) {
+                $user = new User();
+                $user->name = $request['name'];
+                $user->email = $request['email'];
+                $user->password = Hash::make($request['password']);
+                $user->save();
+
+                $setting = new Settings();
+                $setting->user_id = $user->id;
+                $setting->digit = 2;
+                $setting->negative = 1;
+                $setting->save();
+
+                $profile = new Profile();
+                $profile->user_id = $user->id;
+                $profile->warehouse_id = $request['warehouse_id'];
+                $profile->save();
+                // INSERT INTO `laravel`.`profiles` (`user_id`, `warehouse_id`) VALUES (2, 1)
+        
+                $token =  $user->createToken('Apptoken')->plainTextToken;
+        
+                $user->roles()->sync(($request->roles)); 
+                return response()->json([
+                    "success" => true,
+                    "message" => "User successfully Created",
+                    "user" =>  $user,
+                    "Token" => $token
+                ]);
+            });
+
+
+        } catch (\Throwable $th) {
+            return response()->json("Data Error");
+        }
         //Hash::make($input['password'])
-        $user = User::create([
-
-            'name' => $request['name'],
-            'email' => $request['email'],
-            'warehouse_id' => $request['warehouse_id'],
-            'password' => Hash::make($request['password']),
-        ]);
-
-        $token =  $user->createToken('Apptoken')->plainTextToken;
-
-        $user->roles()->sync(($request->roles));
-
        
-
-        return response()->json([
-            "success" => true,
-            "message" => "User successfully Created",
-            "user" =>  $user,
-            "Token" => $token
-        ]);
     }
 
     /**

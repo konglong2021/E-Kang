@@ -84,7 +84,7 @@ class OrdersController extends Controller
 
         try {
             return DB::transaction(function () use($request) {
-            $setting = Settings::find(1);
+            $setting = Settings::where("user_id",auth()->user()->id)->first();
             $digit = (int)$setting->digit;
             $negative = (int)$setting->negative;
 
@@ -167,14 +167,15 @@ class OrdersController extends Controller
         // try{
         try {
                 //code...
-
+                
 
         return DB::transaction(function () use ($request){
             //query setting
-        $setting = Settings::find(1);
+            
+        $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
-
+            
          $prefix = date("ymd");
         //  $code = IdGenerator::generate(['table' => 'products', 'field' => 'code','length' => 12, 'prefix' =>$prefix]);
         // $invoice = IdGenerator::generate(['table' => 'orders','field'=>'invoice_id', 'length' => 6, 'prefix' =>date('inv-')]);
@@ -398,7 +399,7 @@ class OrdersController extends Controller
         return DB::transaction(function () use ($request,$id){
             //query setting
             
-        $setting = Settings::find(1);
+        $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
         $prefix = date("ymd");
@@ -453,7 +454,6 @@ class OrdersController extends Controller
             'product_id' => $item['product_id'],
             'sellprice' => $item['sellprice'],
             'quantity' => $item['quantity'],
-
            ] );
 
             $stock = Stock::where('product_id',$item['product_id'])
@@ -486,12 +486,13 @@ class OrdersController extends Controller
 
     public function delete($id)
     {
-        $setting = Settings::find(1);
+        $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
         $order = Order::find($id);
         $odetail = OrderDetail::where('order_id',$id)->get();
-         //* Balance Roll Back
+       
+        //* Balance Roll Back
        $this->ReturnBalance($order->grandtotal,$order->warehouse_id);
        //* End Balance RollBack
         foreach($odetail as $detail)
@@ -501,7 +502,6 @@ class OrdersController extends Controller
             ->first();
             $stock->total = $stock->total + $detail->quantity;
             $stock->update();
-            
         }
        
         $pdetail = OrderDetail::where('order_id',$id)->delete();

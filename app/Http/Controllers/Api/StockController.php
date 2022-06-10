@@ -116,42 +116,26 @@ class StockController extends Controller
     public function store(Request $request)
     {
 
-        $request->validate([
-            'items'    => [
-                'required',
-            ],
-            'to_warehouse' => [
-                'required'
-            ],
-        ]);
+       
+        if($request->items!==null){
 
-        // try{
-        if(Warehouse::find($request->to_warehouse)!==null){
-
-            // DB::transaction(function () use ($request){
-
-                $items= $request->items; // purchase is the array of purchase details
+                $items= $request->items; 
 
                 foreach($items as $item)
                 {
 
                     $stock = Stock::where('product_id',$item['product_id'])
-                    ->where('warehouse_id',$item['warehouse_id'])                 //find item and warehouse from main
-                    ->first();
+                                    ->where('warehouse_id','=',$item['from_warehouse'])                 //find item and warehouse from main
+                                    ->first();
 
                     $stockin = Stock::where('product_id',$item['product_id'])   //find item and warehouse to transfer
-                    ->where('warehouse_id',$request['to_warehouse'])
+                    ->where('warehouse_id',$item['to_warehouse'])
                     ->first();
+
 
 
                     if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total = $stock->total - $item['quantity'];
-                        if($stock->total<0){                                        //check amount items from warehouse to transfter
-                            return response()->json([
-                                "success" => false,
-                                "message" => "Insufficient Please Check again"
-                            ], 403);
-                        }else{
                         $stock->update();
                         }
 
@@ -162,44 +146,30 @@ class StockController extends Controller
                         }else{
                             $stock = Stock::create([
                                 'product_id' => $item['product_id'],
-                                'warehouse_id' => $request['to_warehouse'],
+                                'warehouse_id' => $item['to_warehouse'],
 
                                 'alert' => 0,
                                 'total' => $item['quantity'],
                                 ]);
                         }
 
-
-                    } else {
-                        return response()->json([
-                            "success" => false,
-                            "message" => "Please Check Input Stock",
-                        ],403);
-
-                    }
-
-                    $pdetail = StockOut::create([
-
-                        'from_warehouse' => $item['warehouse_id'],
-                        'product_id' => $item['product_id'],
-                        'to_warehouse' => $request['to_warehouse'],
-                        'quantity' => $item['quantity'],
-                        'user_id' => auth()->user()->id
-
-                       ] );
+                        $pdetail = StockOut::create([
+                            'from_warehouse' => $item['from_warehouse'],
+                            'product_id' => $item['product_id'],
+                            'to_warehouse' => $item['to_warehouse'],
+                            'quantity' => $item['quantity'],
+                            'user_id' => auth()->user()->id
+                           ]);
+                    
+                    
                 }
                 return response()->json([
                      "success" => true,
                      "message" => "Successfully Stock Transfer"
                 ]);
 
-            //  });
-        } else{
-            return response()->json([
-                "success" => false,
-                "message" => "Warehouse Id Is not valid"
-           ], 403);
-        }
+            }   //  });
+            
 
     }
 
@@ -211,7 +181,7 @@ class StockController extends Controller
      */
     public function show($id)
     {
-
+        
     }
 
     /**
@@ -235,13 +205,18 @@ class StockController extends Controller
     public function stockout()
     {
         $stocks = StockOut::with('product')
-                ->with('warehouse')
+                ->with('fromWarehouse')
+                ->with('toWarehouse')
                 ->get();
-               
-
+        // $stocks = new StockOut();
         return response()->json($stocks);
-         // return StockResource::collection($stocks)->response();
+        //  return StockResource::collection($stocks)->response();
+        //  return StockResource::collection($stocks->loadMissing(['product','fromWarehouse','toWarehouse']))->response(); 
     }
+
+    
+
+    
 
     /**
      * Remove the specified resource from storage.
@@ -264,7 +239,7 @@ class StockController extends Controller
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
-        ->select('order_details.product_id', 'order_details.quantity','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->select('order_details.product_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
         ->whereDate('order_details.created_at','>=',$from)
         ->whereDate('order_details.created_at','<=',$to)
         ->WhereNull('order_details.deleted_at')
@@ -301,6 +276,38 @@ class StockController extends Controller
 
         // $total = $total_product;
         // }
+
+        return response()->json([
+            "success" => true,
+            "purchase" => $purchase,
+            "order" => $order,
+            // "total" =>$total
+           
+            
+            ], 200);
+        
+    }
+
+    public function buysell($day)
+    {
+        $today = date('Y-m-d',strtotime($day));
+  
+        // Order query Total of all products order
+        $order = DB::table('order_details')
+        ->join('products','order_details.product_id','=','products.id')
+        ->select('order_details.product_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->whereDate('order_details.created_at','=',$today)
+        ->WhereNull('order_details.deleted_at')
+        ->get();
+
+        // Purchase query Total all products
+        $purchase = DB::table('purchase_details')
+                    ->join('products','purchase_details.product_id','=','products.id')
+                    ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
+                    ->whereDate('purchase_details.created_at','=',$today)
+                    ->WhereNull('purchase_details.deleted_at')
+                    ->get();
+
 
         return response()->json([
             "success" => true,
