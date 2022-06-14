@@ -45,11 +45,9 @@ class TransactionController extends Controller
     {
         
             $input = Order::find($id);
-            if($input->grandtotal - $input->receive < $receive){
-                return response()->json("remain balance smaller than paid");
-            }
-            $input->status = ($receive > 0 && $receive >= $input->grandtotal) ? 1 : 0;   // Test if client paid or not
-            $input->receive = $receive;
+            $totalReceive = $input->receive + $receive;
+            $input->status = ($totalReceive > 0 && $totalReceive >= $input->grandtotal) ? 1 : 0;   // Test if client paid or not
+            $input->receive = $totalReceive;
             $input->update();
             
         return $input;
@@ -58,7 +56,7 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         try {
-            DB::transaction(function() use($request){
+           return DB::transaction(function() use($request){
                 $transactions = $request->transactions;
             $result =collect([]);
             foreach($transactions as $transaction)
@@ -82,6 +80,11 @@ class TransactionController extends Controller
 
     }
 
+    public function verified()
+    {
+        $verified = Transaction::where('');
+    }
+
 
     public function show($id)
     {
@@ -92,6 +95,7 @@ class TransactionController extends Controller
                                    ->with('customers')
                                    ->whereHas('order',function($q) use($id){
                                     $q->where('customer_id',$id);
+                                    $q->where('status',0);
                                    })
                                    ->get();
         // $transaction = DB::table('transactions')
@@ -153,7 +157,6 @@ class TransactionController extends Controller
         $input->paid = $request->paid;
         $input->pay_method = $request->pay_method;
         $input->update();
-
         return new TransactionResource($input);
         
     }
