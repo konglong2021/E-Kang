@@ -18,6 +18,7 @@ class StockOut extends Model
         'to_warehouse',
         'quantity',
         'user_id',
+        'ref',
 
     ];
     protected static $logAttributes = [

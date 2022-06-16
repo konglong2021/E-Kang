@@ -130,19 +130,18 @@ class StockController extends Controller
 
 
                     if ($stock !== null) {                                           //check wether there is available items or not
-                        $stock->total = $stock->total - $item['quantity'];
+                        $stock->total -= $item['quantity'];
                         $stock->update();
                         }
 
 
                         if($stockin !== null){
-                            $stockin->total = $stockin->total + $item['quantity'];
+                            $stockin->total += $item['quantity'];
                             $stockin->update();
                         }else{
                             $stock = Stock::create([
                                 'product_id' => $item['product_id'],
                                 'warehouse_id' => $item['to_warehouse'],
-
                                 'alert' => 0,
                                 'total' => $item['quantity'],
                                 ]);
