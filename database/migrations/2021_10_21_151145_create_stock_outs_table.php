@@ -20,6 +20,7 @@ class CreateStockOutsTable extends Migration
             $table->foreign('from_warehouse')->references('id')->on('warehouses');
             $table->unsignedBigInteger('to_warehouse');
             $table->foreign('to_warehouse')->references('id')->on('warehouses');
+            $table->string('ref')->nullable();
             $table->decimal('quantity');
             $table->foreignId('user_id')->constrained()->onUpdate('cascade');
             $table->timestamps();

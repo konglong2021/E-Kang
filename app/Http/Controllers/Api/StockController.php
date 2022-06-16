@@ -49,7 +49,7 @@ class StockController extends Controller
                 return $q->where('name', 'LIKE', '%'. $input . '%');
             })->with('product')
             ->with('warehouse')->get();
-        }        
+        }
 
         return response()->json($stocks);
         // return StockResource::collection($stocks)->response();
@@ -80,7 +80,7 @@ class StockController extends Controller
 
     public function searchstockbywarehouse($warehouse,$search)
     {
-       
+
             $stocks= Stock::
             WhereHas('product', function($q) use ($search) {
                 return $q->where('en_name', 'LIKE', '%' . $search . '%')
@@ -111,21 +111,16 @@ class StockController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-
-       
         if($request->items!==null){
-
-                $items= $request->items; 
-
+                $items= $request->items;
                 foreach($items as $item)
                 {
-
                     $stock = Stock::where('product_id',$item['product_id'])
-                                    ->where('warehouse_id','=',$item['from_warehouse'])                 //find item and warehouse from main
+                                    ->where('warehouse_id','=',$item['from_warehouse'])   //find item and warehouse from main
                                     ->first();
 
                     $stockin = Stock::where('product_id',$item['product_id'])   //find item and warehouse to transfer
@@ -139,7 +134,7 @@ class StockController extends Controller
                         $stock->update();
                         }
 
-                        
+
                         if($stockin !== null){
                             $stockin->total = $stockin->total + $item['quantity'];
                             $stockin->update();
@@ -158,10 +153,11 @@ class StockController extends Controller
                             'product_id' => $item['product_id'],
                             'to_warehouse' => $item['to_warehouse'],
                             'quantity' => $item['quantity'],
+                            'ref' => $item['ref'],
                             'user_id' => auth()->user()->id
                            ]);
-                    
-                    
+
+
                 }
                 return response()->json([
                      "success" => true,
@@ -169,7 +165,7 @@ class StockController extends Controller
                 ]);
 
             }   //  });
-            
+
 
     }
 
@@ -181,7 +177,7 @@ class StockController extends Controller
      */
     public function show($id)
     {
-        
+
     }
 
     /**
@@ -211,12 +207,12 @@ class StockController extends Controller
         // $stocks = new StockOut();
         return response()->json($stocks);
         //  return StockResource::collection($stocks)->response();
-        //  return StockResource::collection($stocks->loadMissing(['product','fromWarehouse','toWarehouse']))->response(); 
+        //  return StockResource::collection($stocks->loadMissing(['product','fromWarehouse','toWarehouse']))->response();
     }
 
-    
 
-    
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -272,7 +268,7 @@ class StockController extends Controller
         //         }
         //         //nodraws[] = $order.filter(item => !wons.includes(item));
 
-        //     } 
+        //     }
 
         // $total = $total_product;
         // }
@@ -282,16 +278,16 @@ class StockController extends Controller
             "purchase" => $purchase,
             "order" => $order,
             // "total" =>$total
-           
-            
+
+
             ], 200);
-        
+
     }
 
     public function buysell($day)
     {
         $today = date('Y-m-d',strtotime($day));
-  
+
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
@@ -314,9 +310,9 @@ class StockController extends Controller
             "purchase" => $purchase,
             "order" => $order,
             // "total" =>$total
-           
-            
+
+
             ], 200);
-        
+
     }
 }
