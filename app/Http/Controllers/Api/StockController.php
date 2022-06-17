@@ -27,10 +27,6 @@ class StockController extends Controller
      */
     public function index(Request $request)
     {
-        // $stocks = Stock::with('product')
-        //         ->with('warehouse')
-        //         ->get();
-
         if (empty($request->all())) {
             $stocks = Stock::with('product')
                     ->with('warehouse')
@@ -184,7 +180,7 @@ class StockController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Stock $stock)
     {
