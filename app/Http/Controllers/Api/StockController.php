@@ -198,7 +198,7 @@ class StockController extends Controller
         $stocks = StockOut::with('product')
                 ->with('fromWarehouse')
                 ->with('toWarehouse')
-                ->get();
+                ->get()->sortDesc();
         // $stocks = new StockOut();
         return response()->json($stocks);
         //  return StockResource::collection($stocks)->response();

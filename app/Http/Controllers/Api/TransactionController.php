@@ -33,7 +33,11 @@ class TransactionController extends Controller
 
         $customerpayment = Transaction::with('order')
                                         ->with('customers')
-                                        ->get();
+                                        ->whereHas('order',function($q){
+                                            $q->where('status',0);
+                                           })
+                                        ->get()
+                                        ->sortBy('order.customer_id');
         
         return TransactionResource::collection($customerpayment);     
         // return new TransactionResource($customerpayment);      
