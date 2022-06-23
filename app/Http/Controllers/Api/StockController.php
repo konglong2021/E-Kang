@@ -61,6 +61,20 @@ class StockController extends Controller
         return response()->json($stocks);
     }
 
+    //Track Stock in
+    public function stockTrack(Request $request)
+    {
+        $from = $request['from'];
+        $to = $request['to'];
+
+        $purchase = PurchaseDetail::where('product_id',$request->product_id)
+                                    ->wheredate('created_at','>=',$from)
+                                    ->wheredate('created_at','<=',$to)
+                                    ->get();
+        
+
+        return response()->json($purchase);
+    }
 
     //check stock by warehouse
     public function stockbywarehouse($warehouse)
@@ -245,36 +259,13 @@ class StockController extends Controller
                     ->WhereNull('purchase_details.deleted_at')
                     ->get();
 
-        // $total= array();
-        // foreach ($purchase as $key=>$purchase_val) {
-
-        //     if(in_array($purchase_val->product_id,$order->product_id)){
-        //         $total_product[]= [
-        //             "product_id" => $purchase_val->product_id,
-        //             "qty"       => $purchase_val->p_qty
-        //             ];
-        //     }
-        //     foreach($order as $key =>$order_val){
-        //         if($order_val->product_id == $purchase_val->product_id){
-        //             $total_product[]= [
-        //             "product_id" => $purchase_val->product_id,
-        //             "qty"       => $purchase_val->p_qty - $order_val->o_qty
-        //             ];
-        //         }
-        //         //nodraws[] = $order.filter(item => !wons.includes(item));
-
-        //     }
-
-        // $total = $total_product;
-        // }
+       
 
         return response()->json([
             "success" => true,
             "purchase" => $purchase,
             "order" => $order,
             // "total" =>$total
-
-
             ], 200);
 
     }
