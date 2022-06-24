@@ -279,6 +279,7 @@ class OrdersController extends Controller
 
 
     }
+    
     public function todaysale()
     {
         $today = date('Y-m-d');
@@ -497,13 +498,13 @@ class OrdersController extends Controller
                 "items"   =>$orders_items
             ]);
      });
-    } catch (\Exception $th) {
-        DB::rollback();
-        return response()->json([
-            "success" => false,
-            "message" => "Insufficient Please Check again1"
-        ]);
-    }
+        } catch (\Exception $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Insufficient Please Check again1"
+            ]);
+        }
     }
 
 

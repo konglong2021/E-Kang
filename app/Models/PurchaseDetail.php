@@ -30,7 +30,7 @@ class PurchaseDetail extends Model
 
     public function purchases()
     {
-        return $this->belongsToMany(Purchase::class);
+        return $this->hasMany(Purchase::class,'id','purchase_id');
     }
     public function products()
     {

@@ -61,19 +61,25 @@ class StockController extends Controller
         return response()->json($stocks);
     }
 
+ 
+
     //Track Stock in
     public function stockTrack(Request $request)
     {
-        $from = $request['from'];
-        $to = $request['to'];
-
-        $purchase = PurchaseDetail::where('product_id',$request->product_id)
-                                    ->wheredate('created_at','>=',$from)
-                                    ->wheredate('created_at','<=',$to)
+        $month =now()->month;
+        $purchase = PurchaseDetail::with('purchases')
+                                    ->where('product_id',$request->product_id)
+                                    ->whereMonth('created_at',$month)
                                     ->get();
+
+      
         
 
-        return response()->json($purchase);
+        return response()->json([
+            "message" => true,
+            "purchase" => $purchase,
+            "invoice" => $invoice
+        ]);
     }
 
     //check stock by warehouse
@@ -236,28 +242,36 @@ class StockController extends Controller
 
     public function stockdetail(Request $request)
     {
-        $from = $request['from'];
-        $to = $request['to'];
-        $warehouse_id = $request['warehouse_id'];
-        $product_id = $request['product_id'];
+        $month = $request['month'];
 
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
-        ->select('order_details.product_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
-        ->whereDate('order_details.created_at','>=',$from)
-        ->whereDate('order_details.created_at','<=',$to)
+        ->join('orders','order_details.order_id','=','orders.id')
+        ->select('order_details.product_id','orders.warehouse_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->whereMonth('order_details.created_at',$month)
+        // ->whereDate('order_details.created_at','<=',$to)
         ->WhereNull('order_details.deleted_at')
         ->get();
 
         // Purchase query Total all products
         $purchase = DB::table('purchase_details')
                     ->join('products','purchase_details.product_id','=','products.id')
-                    ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
-                    ->whereDate('purchase_details.created_at','>=',$from)
-                    ->whereDate('purchase_details.created_at','<=',$to)
+                    ->join('purchases','purchase_details.purchase_id','=','purchases.id')
+                    ->select('purchase_details.product_id','purchases.warehouse_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
+                    ->whereMonth('purchase_details.created_at',$month)
+                    // ->whereDate('purchase_details.created_at','<=',$to)
                     ->WhereNull('purchase_details.deleted_at')
                     ->get();
+
+        $stockBalance = DB::table('monthly_stock_balances')
+                        ->join('products','monthly_stock_balances.product_id','=','products.id')
+                        ->join('stock_balance_dates','monthly_stock_balances.stock_balance_dates_id','=','stock_balance_dates.id')
+                        ->select('monthly_stock_balances.id','monthly_stock_balances.product_id','products.en_name','monthly_stock_balances.warehouse_id','stock_balance_dates.stockmonth','monthly_stock_balances.total')
+                        ->where('stock_balance_dates.stockmonth','=',($month-1))
+                        ->get();
+
+        $stockTransfer = StockOut::whereMonth('created_at',$month)->get();
 
        
 
@@ -265,6 +279,8 @@ class StockController extends Controller
             "success" => true,
             "purchase" => $purchase,
             "order" => $order,
+            "stockBalance" => $stockBalance,
+            "stockTransfer" => $stockTransfer
             // "total" =>$total
             ], 200);
 
