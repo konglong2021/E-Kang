@@ -61,7 +61,7 @@ class StockController extends Controller
         return response()->json($stocks);
     }
 
- 
+
 
     //Track Stock in
     public function stockTrack(Request $request)
@@ -72,13 +72,22 @@ class StockController extends Controller
                                     ->whereMonth('created_at',$month)
                                     ->get();
 
-      
-        
+        $order = OrderDetail::with('order')
+                             ->where('product_id',$request->product_id)
+                             ->whereMonth('created_at',$month)
+                             ->get();
+
+        //Using Map Flat
+        // $invoice = collect($purchase)->flatMap(function($item)  {
+        //    return $item->purchases;
+        // });
+        $merge = $purchase->merge($order);
 
         return response()->json([
             "message" => true,
-            "purchase" => $purchase,
-            "invoice" => $invoice
+//            "purchase" => $purchase,
+//            "orders" => $order,
+            "merge" => $merge
         ]);
     }
 
@@ -96,9 +105,8 @@ class StockController extends Controller
 
     public function searchstockbywarehouse($warehouse,$search)
     {
-
             $stocks= Stock::
-            WhereHas('product', function($q) use ($search) {
+                WhereHas('product', function($q) use ($search) {
                 return $q->where('en_name', 'LIKE', '%' . $search . '%')
                          ->orwhere('kh_name', 'LIKE', '%' . $search . '%')
                          ->orwhere('code', 'LIKE', '%' . $search . '%');
@@ -119,7 +127,6 @@ class StockController extends Controller
                 //->where('total','>','0')
                 ->where('product_id',$product)
                 ->get();
-
         return response()->json($stocks);
     }
 
@@ -243,7 +250,6 @@ class StockController extends Controller
     public function stockdetail(Request $request)
     {
         $month = $request['month'];
-
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
@@ -273,7 +279,7 @@ class StockController extends Controller
 
         $stockTransfer = StockOut::whereMonth('created_at',$month)->get();
 
-       
+
 
         return response()->json([
             "success" => true,
