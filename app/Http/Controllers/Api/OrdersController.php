@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Stock;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\PurchaseDetail;
 use App\Models\Settings;
 use App\Models\Profile;
 use App\Models\Customer;
@@ -60,7 +61,7 @@ class OrdersController extends Controller
        return response()->json($orders);
     }
 
-
+   
 
     public function sale(Request $request)
     {
@@ -119,6 +120,28 @@ class OrdersController extends Controller
                             });
         //    return response()->json($orders_items);
             $orders->products()->sync($orders_items);
+
+            //$orders_items= $request->items; // purchase is the array of purchase details
+
+            foreach($orders_items as $item)
+            {
+                $stock = Stock::where('product_id',$item['product_id'])
+                                ->where('warehouse_id',$request->warehouse_id)                  //check item and warehouse available or not
+                                ->first();
+                    // setting negative 1 is allow to update
+                if ($stock !== null) {
+                    $stock->total = $stock->total - $item['quantity'];
+                    if($stock->total > 0 ||  $negative > 0 ){
+                        $stock->update();
+                    }else{
+                        throw new \Exception('Insufficient Please Check again');
+                        // DB::rollBack();
+                        // return response()->json("Insufficient Please Check again");
+                    }
+                }else {
+                    throw new \Exception('No item in Stock');
+                }
+            }
 
             return response()->json([
                 "success" => true,
@@ -256,6 +279,7 @@ class OrdersController extends Controller
 
 
     }
+    
     public function todaysale()
     {
         $today = date('Y-m-d');
@@ -474,13 +498,13 @@ class OrdersController extends Controller
                 "items"   =>$orders_items
             ]);
      });
-    } catch (\Exception $th) {
-        DB::rollback();
-        return response()->json([
-            "success" => false,
-            "message" => "Insufficient Please Check again1"
-        ]);
-    }
+        } catch (\Exception $th) {
+            DB::rollback();
+            return response()->json([
+                "success" => false,
+                "message" => "Insufficient Please Check again1"
+            ]);
+        }
     }
 
 

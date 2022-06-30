@@ -19,6 +19,7 @@ class CreateOrderDetailsTable extends Migration
             $table->foreignId('product_id')->constrained()->onUpdate('cascade');
             $table->decimal('quantity');
             $table->double('sellprice'); //pull data from sellprice table and store here
+            $table->string('batch');
             $table->timestamps();
             $table->softDeletes();
         });

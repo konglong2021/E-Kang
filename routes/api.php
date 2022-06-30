@@ -56,6 +56,9 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
     Route::post('/sales','App\Http\Controllers\Api\OrdersController@sale'); //update transaction by id
 
+
+
+
     //Search Route
     Route::post('/product/search',[App\Http\Controllers\Api\ProductsController::class,'index'])->name('product.search');
     Route::post('/category/search',[App\Http\Controllers\Api\CategoriesController::class,'index'])->name('category.search');
@@ -83,6 +86,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
     //Check Stock
     Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
+    Route::get('/track/{id}',[App\Http\Controllers\Api\StockController::class,'stockTrack']); //Track Stock in
     
   
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0

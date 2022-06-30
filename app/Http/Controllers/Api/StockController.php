@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Models\MonthlyStockBalance;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +63,67 @@ class StockController extends Controller
     }
 
 
+
+    //Track Stock in
+    public function stockTrack($product_id)
+    {
+//        $month =now()->month;
+//        $purchase = PurchaseDetail::with('purchases')
+//                                    ->where('product_id',$product_id)
+//                                    ->whereMonth('created_at',$month)
+//                                    ->get();
+//
+//
+//
+//
+//
+//        $order = OrderDetail::
+//                             select(DB::raw('sum(quantity),product_id'))
+//                             ->where('product_id',$product_id)
+//                             ->whereMonth('created_at',$month)
+//                             ->groupBy('product_id')
+//                             ->get();
+//
+//        $stockBalance = MonthlyStockBalance::with('stockBalanceDate')
+//                                            ->get();
+//
+//        $stockTransfer = StockOut::where('product_id',$product_id)
+//                                ->whereMonth('created_at',$month)
+//                                ->get();
+
+        //Using Map Flat
+        // $invoice = collect($purchase)->flatMap(function($item)  {
+        //    return $item->purchases;
+        // });
+        // $merge = $purchase->merge($order);
+        $purchase = DB::table('purchase_details')
+                        ->join('products','products.id','=','product_id')
+                        ->join('purchases','purchases.id','=','purchase_id')
+                        ->select('products.en_name','purchase_details.quantity','purchase_details.unitprice','purchases.batch',
+                                        'purchase_details.product_id','purchase_details.created_at')
+                        ->where('purchase_details.product_id',$product_id)
+                        ->where('purchase_details.deleted_at','=',null)
+                        ->get();
+
+
+
+        $sum = collect($purchase)->reduce(function ($carry,$item){
+            $carry += (int)$item->quantity;
+            return $carry;
+        });
+
+        $stock = Stock::where('product_id',$product_id)->get();
+
+
+        return response()->json([
+           "message" => true,
+           "purchase" => $purchase,
+           "stock" => $stock,
+           "sum" => $sum,
+//           "stockTransfer" => $stockTransfer
+        ]);
+    }
+
     //check stock by warehouse
     public function stockbywarehouse($warehouse)
     {
@@ -76,9 +138,8 @@ class StockController extends Controller
 
     public function searchstockbywarehouse($warehouse,$search)
     {
-
             $stocks= Stock::
-            WhereHas('product', function($q) use ($search) {
+                WhereHas('product', function($q) use ($search) {
                 return $q->where('en_name', 'LIKE', '%' . $search . '%')
                          ->orwhere('kh_name', 'LIKE', '%' . $search . '%')
                          ->orwhere('code', 'LIKE', '%' . $search . '%');
@@ -99,7 +160,6 @@ class StockController extends Controller
                 //->where('total','>','0')
                 ->where('product_id',$product)
                 ->get();
-
         return response()->json($stocks);
     }
 
@@ -123,13 +183,10 @@ class StockController extends Controller
                     ->where('warehouse_id',$item['to_warehouse'])
                     ->first();
 
-
-
                     if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total -= $item['quantity'];
                         $stock->update();
                         }
-
 
                         if($stockin !== null){
                             $stockin->total += $item['quantity'];
@@ -205,10 +262,6 @@ class StockController extends Controller
         //  return StockResource::collection($stocks->loadMissing(['product','fromWarehouse','toWarehouse']))->response();
     }
 
-
-
-
-
     /**
      * Remove the specified resource from storage.
      *
@@ -222,59 +275,45 @@ class StockController extends Controller
 
     public function stockdetail(Request $request)
     {
-        $from = $request['from'];
-        $to = $request['to'];
-        $warehouse_id = $request['warehouse_id'];
-        $product_id = $request['product_id'];
-
+        $month = $request['month'];
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
-        ->select('order_details.product_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
-        ->whereDate('order_details.created_at','>=',$from)
-        ->whereDate('order_details.created_at','<=',$to)
+        ->join('orders','order_details.order_id','=','orders.id')
+        ->select('order_details.product_id','orders.warehouse_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->whereMonth('order_details.created_at',$month)
+        // ->whereDate('order_details.created_at','<=',$to)
         ->WhereNull('order_details.deleted_at')
         ->get();
 
         // Purchase query Total all products
         $purchase = DB::table('purchase_details')
                     ->join('products','purchase_details.product_id','=','products.id')
-                    ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
-                    ->whereDate('purchase_details.created_at','>=',$from)
-                    ->whereDate('purchase_details.created_at','<=',$to)
+                    ->join('purchases','purchase_details.purchase_id','=','purchases.id')
+                    ->select('purchase_details.product_id','purchases.warehouse_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
+                    ->whereMonth('purchase_details.created_at',$month)
+                    // ->whereDate('purchase_details.created_at','<=',$to)
                     ->WhereNull('purchase_details.deleted_at')
                     ->get();
 
-        // $total= array();
-        // foreach ($purchase as $key=>$purchase_val) {
+        $stockBalance = DB::table('monthly_stock_balances')
+                        ->join('products','monthly_stock_balances.product_id','=','products.id')
+                        ->join('stock_balance_dates','monthly_stock_balances.stock_balance_dates_id','=','stock_balance_dates.id')
+                        ->select('monthly_stock_balances.id','monthly_stock_balances.product_id','products.en_name','monthly_stock_balances.warehouse_id','stock_balance_dates.stockmonth','monthly_stock_balances.total')
+                        ->where('stock_balance_dates.stockmonth','=',($month-1))
+                        ->get();
 
-        //     if(in_array($purchase_val->product_id,$order->product_id)){
-        //         $total_product[]= [
-        //             "product_id" => $purchase_val->product_id,
-        //             "qty"       => $purchase_val->p_qty
-        //             ];
-        //     }
-        //     foreach($order as $key =>$order_val){
-        //         if($order_val->product_id == $purchase_val->product_id){
-        //             $total_product[]= [
-        //             "product_id" => $purchase_val->product_id,
-        //             "qty"       => $purchase_val->p_qty - $order_val->o_qty
-        //             ];
-        //         }
-        //         //nodraws[] = $order.filter(item => !wons.includes(item));
+        $stockTransfer = StockOut::whereMonth('created_at',$month)->get();
 
-        //     }
 
-        // $total = $total_product;
-        // }
 
         return response()->json([
             "success" => true,
             "purchase" => $purchase,
             "order" => $order,
+            "stockBalance" => $stockBalance,
+            "stockTransfer" => $stockTransfer
             // "total" =>$total
-
-
             ], 200);
 
     }

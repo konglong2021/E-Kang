@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrderProductPivotTable extends Migration
+class CreateMonthlyStockBalancesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateOrderProductPivotTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_product', function (Blueprint $table) {
+        Schema::create('monthly_stock_balances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->onUpdate('cascade');
+            $table->foreignId('warehouse_id')->constrained()->onUpdate('cascade');
             $table->foreignId('product_id')->constrained()->onUpdate('cascade');
-            $table->decimal('quantity');
-            $table->double('sellprice'); //pull data from sellprice table and store here
+            $table->foreignId('stock_balance_dates_id')->references('id')->on('stock_balance_dates')->cascadeOnUpdate();
+            $table->double('total')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -31,6 +30,6 @@ class CreateOrderProductPivotTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_product');
+        Schema::dropIfExists('monthly_stock_balances');
     }
 }
