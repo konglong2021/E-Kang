@@ -86,7 +86,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
     //Check Stock
     Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
-    Route::Post('/track',[App\Http\Controllers\Api\StockController::class,'stockTrack']); //Track Stock in
+    Route::get('/track/{id}',[App\Http\Controllers\Api\StockController::class,'stockTrack']); //Track Stock in
     
   
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0

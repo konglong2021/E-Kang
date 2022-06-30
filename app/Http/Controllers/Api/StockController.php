@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Models\MonthlyStockBalance;
 use App\Http\Resources\BrandResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -64,30 +65,62 @@ class StockController extends Controller
 
 
     //Track Stock in
-    public function stockTrack(Request $request)
+    public function stockTrack($product_id)
     {
-        $month =now()->month;
-        $purchase = PurchaseDetail::with('purchases')
-                                    ->where('product_id',$request->product_id)
-                                    ->whereMonth('created_at',$month)
-                                    ->get();
-
-        $order = OrderDetail::with('order')
-                             ->where('product_id',$request->product_id)
-                             ->whereMonth('created_at',$month)
-                             ->get();
+//        $month =now()->month;
+//        $purchase = PurchaseDetail::with('purchases')
+//                                    ->where('product_id',$product_id)
+//                                    ->whereMonth('created_at',$month)
+//                                    ->get();
+//
+//
+//
+//
+//
+//        $order = OrderDetail::
+//                             select(DB::raw('sum(quantity),product_id'))
+//                             ->where('product_id',$product_id)
+//                             ->whereMonth('created_at',$month)
+//                             ->groupBy('product_id')
+//                             ->get();
+//
+//        $stockBalance = MonthlyStockBalance::with('stockBalanceDate')
+//                                            ->get();
+//
+//        $stockTransfer = StockOut::where('product_id',$product_id)
+//                                ->whereMonth('created_at',$month)
+//                                ->get();
 
         //Using Map Flat
         // $invoice = collect($purchase)->flatMap(function($item)  {
         //    return $item->purchases;
         // });
-        $merge = $purchase->merge($order);
+        // $merge = $purchase->merge($order);
+        $purchase = DB::table('purchase_details')
+                        ->join('products','products.id','=','product_id')
+                        ->join('purchases','purchases.id','=','purchase_id')
+                        ->select('products.en_name','purchase_details.quantity','purchase_details.unitprice','purchases.batch',
+                                        'purchase_details.product_id','purchase_details.created_at')
+                        ->where('purchase_details.product_id',$product_id)
+                        ->where('purchase_details.deleted_at','=',null)
+                        ->get();
+
+
+
+        $sum = collect($purchase)->reduce(function ($carry,$item){
+            $carry += (int)$item->quantity;
+            return $carry;
+        });
+
+        $stock = Stock::where('product_id',$product_id)->get();
+
 
         return response()->json([
-            "message" => true,
-//            "purchase" => $purchase,
-//            "orders" => $order,
-            "merge" => $merge
+           "message" => true,
+           "purchase" => $purchase,
+           "stock" => $stock,
+           "sum" => $sum,
+//           "stockTransfer" => $stockTransfer
         ]);
     }
 
@@ -150,13 +183,10 @@ class StockController extends Controller
                     ->where('warehouse_id',$item['to_warehouse'])
                     ->first();
 
-
-
                     if ($stock !== null) {                                           //check wether there is available items or not
                         $stock->total -= $item['quantity'];
                         $stock->update();
                         }
-
 
                         if($stockin !== null){
                             $stockin->total += $item['quantity'];
@@ -231,10 +261,6 @@ class StockController extends Controller
         //  return StockResource::collection($stocks)->response();
         //  return StockResource::collection($stocks->loadMissing(['product','fromWarehouse','toWarehouse']))->response();
     }
-
-
-
-
 
     /**
      * Remove the specified resource from storage.

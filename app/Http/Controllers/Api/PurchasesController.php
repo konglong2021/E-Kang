@@ -279,12 +279,12 @@ class PurchasesController extends Controller
             ->where('warehouse_id',$request->warehouse_id)
             ->first();
             $stock->total = $stock->total - $detail->quantity;
-            if($stock->total >= 0){
+            // if($stock->total >= 0){
                 // throw new \Exception($stock);
                 $stock->update();
-            }else{
-                throw new \Exception($stock);
-            }
+            // }else{
+            //     throw new \Exception($stock);
+            // }
         }
         //end of stock roll back
         $purchase_details= $request->purchases; // purchase is the array of purchase details
