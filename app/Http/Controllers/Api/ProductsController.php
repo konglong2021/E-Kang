@@ -59,7 +59,7 @@ class ProductsController extends Controller
          //return view('item.index',compact('items'))->with('i',(request()->input('page',1)-1)*10);
 //        abort_if(Gate::denies('product_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        
+
        return response()->json($products);
     }
 
@@ -168,16 +168,23 @@ class ProductsController extends Controller
 
     }
 
+    public function updateSalePrice(Request $request, $id)
+    {
+        $product = Product::find($id);
+        $product->sale_price = $request['sale_price'];
+        $product->update();
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully Updated"
+        ]);
+
+    }
+
     public function update(Request $request, Product $product)
     {
         $input = $request->all();
-//         return response()->json($input);
-
-
         if ($image = $request->file('image')) {
             $destination_path = 'public/img';
-
-
             $image_name = time().'.'.$request->image->extension();
             $path = $request->file('image')->storeAs($destination_path,$image_name);
             $input['image'] = $image_name;
@@ -185,7 +192,6 @@ class ProductsController extends Controller
         else{
             unset($input['image']);
         }
-
         $product->update($input);
         $brands =($request->brands) ;
         $product->brands()->sync(json_decode($brands));

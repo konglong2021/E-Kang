@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
 
     Route::post('/sales','App\Http\Controllers\Api\OrdersController@sale'); //update transaction by id
+    Route::put('/updatesaleprice/{id}','App\Http\Controllers\Api\ProductsController@updateSalePrice'); //update transaction by id
 
 
 
@@ -87,8 +88,8 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     //Check Stock
     Route::get('/stockout',[App\Http\Controllers\Api\StockController::class,'stockout']); //check stock transfer from warehouse to warehouse
     Route::get('/track/{id}',[App\Http\Controllers\Api\StockController::class,'stockTrack']); //Track Stock in
-    
-  
+
+
     Route::get('/stocksell',[App\Http\Controllers\Api\StockController::class,'stocksell']);     //check stock that total value bigger than 0
     Route::get('/stockbywarehouse/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'stockbywarehouse']);
     Route::get('/stockbywarehouse/{warehouse_id}/{search}',[App\Http\Controllers\Api\StockController::class,'searchstockbywarehouse']); // /api/stockbywarehouse/1/a3s
@@ -97,9 +98,9 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
     Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
     Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
-    
-    
-    
+
+
+
 
 
     //setting
