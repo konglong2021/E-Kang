@@ -197,7 +197,9 @@ class UsersController extends Controller
             ],
         ]);
 
-        $user = User::where('email',$request['email'])->with('profile')->first();
+        $user = User::where('email',$request['email'])
+        ->with('roles')
+        ->with('profile')->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
