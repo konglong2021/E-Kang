@@ -70,8 +70,8 @@ class ProfileController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $input['user_id']= auth()->user()->id;
-
+        $last_id = User::sortBy('id')->get()->last();
+        $input['user_id']= $last_id->id;
         if ($image = $request->file('image')) {
             $destination_path = 'public/img';
             // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();

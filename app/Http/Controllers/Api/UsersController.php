@@ -63,8 +63,6 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
-
-
         ]);
         try {
             return DB::transaction(function() use ($request) {
@@ -96,7 +94,6 @@ class UsersController extends Controller
                     "Token" => $token
                 ]);
             });
-
 
         } catch (\Throwable $th) {
             return response()->json("Data Error");
