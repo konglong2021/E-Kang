@@ -84,7 +84,7 @@ class User extends Authenticatable
 
     public static function getPermission($id)
     {
-        return Role::with('permissions')->find(1);
+        return Role::with('permissions')->find($id);
     }
  
 
