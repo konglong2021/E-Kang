@@ -63,8 +63,6 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
-
-
         ]);
         try {
             return DB::transaction(function() use ($request) {
@@ -96,7 +94,6 @@ class UsersController extends Controller
                     "Token" => $token
                 ]);
             });
-
 
         } catch (\Throwable $th) {
             return response()->json("Data Error");
@@ -197,20 +194,23 @@ class UsersController extends Controller
             ],
         ]);
 
-        $user = User::where('email',$request['email'])->with('profile')->first();
+        $user = User::where('email',$request['email'])
+        ->with('profile')->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-
-
         $token =  $user->createToken('Apptoken')->plainTextToken;
         $cookie =cookie('token',$token,60*24);
+        $permissions = User::getPermission($user->roles[0]->id);
+        
+
         return response()->json([
             "success" => true,
             "message" => "Loging in Successfully",
             "user" =>  $user,
+            "permission" => $permissions,
             "Token" => $token
             
         ])->withCookie($cookie);

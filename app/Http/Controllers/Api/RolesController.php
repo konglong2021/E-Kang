@@ -62,11 +62,15 @@ class RolesController extends Controller
     public function update(Request $request, Role $role)
     {
         $role->update($request->all());
-        $permissions = ($request->permissions);
-        $role->permissions()->sync(json_decode($permissions));
+        if($request->permissions){
+            $permissions = ($request->permissions);
+            $role->permissions()->sync($permissions);
+        }
+       
         return response()->json([
             'message' => 'Update Successfully',
-            'role' => $role
+            'role' => $role,
+            'permissions' => $permissions
         ]);
     }
 

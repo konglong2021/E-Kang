@@ -67,35 +67,11 @@ class StockController extends Controller
     //Track Stock in
     public function stockTrack($product_id)
     {
-//        $month =now()->month;
-//        $purchase = PurchaseDetail::with('purchases')
-//                                    ->where('product_id',$product_id)
-//                                    ->whereMonth('created_at',$month)
-//                                    ->get();
-//
-//
-//
-//
-//
-//        $order = OrderDetail::
-//                             select(DB::raw('sum(quantity),product_id'))
-//                             ->where('product_id',$product_id)
-//                             ->whereMonth('created_at',$month)
-//                             ->groupBy('product_id')
-//                             ->get();
-//
-//        $stockBalance = MonthlyStockBalance::with('stockBalanceDate')
-//                                            ->get();
-//
-//        $stockTransfer = StockOut::where('product_id',$product_id)
-//                                ->whereMonth('created_at',$month)
-//                                ->get();
-
-        //Using Map Flat
-        // $invoice = collect($purchase)->flatMap(function($item)  {
-        //    return $item->purchases;
-        // });
-        // $merge = $purchase->merge($order);
+        $stocks = Stock::all();
+        $products = $stocks->sortBy('product_id')->map(function($item,$key){
+            return ['product_id' => $item->product_id];
+        });   
+        return response()->json($products);
         $purchase = DB::table('purchase_details')
                         ->join('products','products.id','=','product_id')
                         ->join('purchases','purchases.id','=','purchase_id')
@@ -112,15 +88,24 @@ class StockController extends Controller
             return $carry;
         });
 
+
+
         $stock = Stock::where('product_id',$product_id)->get();
 
+//        $checkVersion = collect($purchase)->reverse()->reduce(function ($version,$item) use ($sum,$stock){
+//            if($item->quantity > $stock->total) {
+//                $version->push($sum - $item->quantity);
+//           }else{
+//                $version = $item->quantity;
+//            }
+//        });
 
         return response()->json([
            "message" => true,
            "purchase" => $purchase,
            "stock" => $stock,
            "sum" => $sum,
-//           "stockTransfer" => $stockTransfer
+//           "stockTransfer" => $checkVersion
         ]);
     }
 

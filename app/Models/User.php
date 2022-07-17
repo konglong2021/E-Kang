@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Role;
+
 
 
 class User extends Authenticatable
@@ -79,6 +81,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class);
     }
+
+    public static function getPermission($id)
+    {
+        return Role::with('permissions')->find(1);
+    }
+ 
 
     public function profile()
     {

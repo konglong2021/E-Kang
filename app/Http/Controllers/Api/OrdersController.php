@@ -184,17 +184,10 @@ class OrdersController extends Controller
             ],
         ]);
 
-
-        // Exaple of transaction
-
         // try{
         try {
-                //code...
-                
-
         return DB::transaction(function () use ($request){
             //query setting
-            
         $setting = Settings::where("user_id",auth()->user()->id)->first();
         $digit = (int)$setting->digit;
         $negative = (int)$setting->negative;
