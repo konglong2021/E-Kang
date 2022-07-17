@@ -70,9 +70,10 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/transaction/search',[App\Http\Controllers\Api\TransactionController::class,'getalltransaction']); // Start From and End
 
     //Report
-    Route::get('/saletoday',[App\Http\Controllers\Api\OrdersController::class,'todaysale']); //today Sale
-    Route::get('/saletoday/{date}',[App\Http\Controllers\Api\OrdersController::class,'daysale']); //search sale by date
+    Route::get('/salebywarehouse/{warehouse_id}',[App\Http\Controllers\Api\OrdersController::class,'saleByWarehouse']); 
+    Route::get('/saletoday/{date}/{warehouse_id}',[App\Http\Controllers\Api\OrdersController::class,'daysale']); //search sale by date
     Route::get('/salemonth/{month}',[App\Http\Controllers\Api\OrdersController::class,'monthsale']); //search sale by date
+
     Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
     Route::get('/today/{date}',[App\Http\Controllers\Api\PurchasesController::class,'buytoday']); // check record stock in by date
     Route::get('/monthbuy/{month}',[App\Http\Controllers\Api\PurchasesController::class,'buymonth']); // check record stock in by date
