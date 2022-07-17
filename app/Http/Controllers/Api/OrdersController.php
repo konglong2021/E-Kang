@@ -273,19 +273,19 @@ class OrdersController extends Controller
 
     }
     
-    public function todaysale()
+    public function saleByWarehouse($warehouse_id)
     {
-        $today = date('Y-m-d');
-        $sale = Order::wheredate('created_at','=',$today)
+        $sale = Order::where('warehouse_id',$warehouse_id)
                         ->with('orderdetails')
                         ->get();
         return response()->json($sale);
     }
 
-    public function daysale($day)
+    public function daysale($day,$warehouse_id)
     {
         $today = date('Y-m-d',strtotime($day));
         $sale = Order::wheredate('created_at','=',$today)
+                        ->where('warehouse_id',$warehouse_id)
                         ->with('orderdetails')
                         ->get();
         return response()->json($sale);
