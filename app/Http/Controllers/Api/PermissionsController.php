@@ -17,7 +17,7 @@ class PermissionsController extends Controller
      */
     public function index()
     {
-        abort_if(Gate::denies('permission_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+       
         $permissions = Permission::with('roles')
                                     ->orderBy('id', 'desc')->get();
         return response()->json($permissions);
@@ -31,7 +31,7 @@ class PermissionsController extends Controller
      */
     public function store(Request $request)
     {
-        abort_if(Gate::denies('permission_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        
         $permissions = Permission::create($request->all());
         // $customers = json_encode($request->customers);
         // $members->customers()->sync(json_decode($customers));
@@ -50,7 +50,7 @@ class PermissionsController extends Controller
      */
     public function show(Permission $permission)
     {
-        abort_if(Gate::denies('permission_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        
 
         return response()->json($permission);
     }
@@ -64,7 +64,7 @@ class PermissionsController extends Controller
      */
     public function update(Request $request, Permission $permission)
     {
-        abort_if(Gate::denies('permission_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        
         $input = $request->all();
         $permission->update($input);
         // $customers = json_encode($request->customers);
@@ -85,7 +85,7 @@ class PermissionsController extends Controller
      */
     public function destroy($id)
     {
-        abort_if(Gate::denies('permission_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+       
         $permission = Permission::find($id);
 
         $permission->destroy($id);
