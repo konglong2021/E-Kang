@@ -69,7 +69,8 @@ class RolesController extends Controller
        
         return response()->json([
             'message' => 'Update Successfully',
-            'role' => $role
+            'role' => $role,
+            'permissions' => $permissions
         ]);
     }
 
