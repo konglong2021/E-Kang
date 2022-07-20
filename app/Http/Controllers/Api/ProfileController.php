@@ -69,9 +69,13 @@ class ProfileController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'user_id'     => ['required'],
+            'warehouse_id'    => ['required']
+        ]);
         $input = $request->all();
-        $last_id = User::sortBy('id')->get()->last();
-        $input['user_id']= $last_id->id;
+        // $last_id = User::sortBy('id')->get()->last();
+        // $input['user_id']= $last_id->id;
         if ($image = $request->file('image')) {
             $destination_path = 'public/img';
             // $profileImage = date('YmdHis') . "." . $image->getClientOriginalExtension();
@@ -103,7 +107,7 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
-        abort_if(Gate::denies('profile_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $profile = Profile::where('user_id',$id)->with('user')
                             ->get();
 

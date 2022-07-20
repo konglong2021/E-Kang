@@ -95,7 +95,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/log/{from}/{to}',[App\Http\Controllers\Api\ActivitylogsController::class,'log']);  //search log from date to date
     Route::get('/showbalance',[App\Http\Controllers\Api\BanlancesController::class,'showbalance']);  //check balance
     Route::get('/showlastunitprice/{product_id}',[App\Http\Controllers\Api\PurchasesController::class,'ShowLastUnitPrice']);  //show Last unit price
-    Route::post('/stock/detail',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
+    Route::get('/stock/detail/{id}',[App\Http\Controllers\Api\StockController::class,'stockdetail']); //check stock by date rang
 
 
 

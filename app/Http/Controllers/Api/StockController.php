@@ -258,17 +258,18 @@ class StockController extends Controller
         //
     }
 
-    public function stockdetail(Request $request)
+    public function stockdetail($month)
     {
-        $month = $request['month'];
+       
+        // $month = $request['month'];
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
         ->join('orders','order_details.order_id','=','orders.id')
         ->select('order_details.product_id','orders.warehouse_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
-        ->whereMonth('order_details.created_at',$month)
+        ->whereMonth('orders.created_at',$month)
         // ->whereDate('order_details.created_at','<=',$to)
-        ->WhereNull('order_details.deleted_at')
+        ->WhereNull('orders.deleted_at')
         ->get();
 
         // Purchase query Total all products
@@ -276,9 +277,9 @@ class StockController extends Controller
                     ->join('products','purchase_details.product_id','=','products.id')
                     ->join('purchases','purchase_details.purchase_id','=','purchases.id')
                     ->select('purchase_details.product_id','purchases.warehouse_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
-                    ->whereMonth('purchase_details.created_at',$month)
+                    ->whereMonth('purchases.created_at',$month)
                     // ->whereDate('purchase_details.created_at','<=',$to)
-                    ->WhereNull('purchase_details.deleted_at')
+                    ->WhereNull('purchases.deleted_at')
                     ->get();
 
         $stockBalance = DB::table('monthly_stock_balances')

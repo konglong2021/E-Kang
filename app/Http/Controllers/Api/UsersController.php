@@ -84,14 +84,14 @@ class UsersController extends Controller
                 $profile->save();
                 // INSERT INTO `laravel`.`profiles` (`user_id`, `warehouse_id`) VALUES (2, 1)
         
-                $token =  $user->createToken('Apptoken')->plainTextToken;
+                
         
                 $user->roles()->sync(($request->roles)); 
                 return response()->json([
                     "success" => true,
                     "message" => "User successfully Created",
-                    "user" =>  $user,
-                    "Token" => $token
+                    "user" =>  $user
+                    
                 ]);
             });
 
