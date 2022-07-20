@@ -63,6 +63,9 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
+            'warehouse_id'    => [
+                'required',
+            ],
         ]);
         try {
             return DB::transaction(function() use ($request) {
