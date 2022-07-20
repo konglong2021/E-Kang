@@ -303,24 +303,30 @@ class StockController extends Controller
 
     }
 
-    public function buysell($day)
+    public function buysell($day,$warehouse_id)
     {
         $today = date('Y-m-d',strtotime($day));
 
         // Order query Total of all products order
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
+        ->join('orders','order_details.order_id','=','orders.id')
         ->select('order_details.product_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
-        ->whereDate('order_details.created_at','=',$today)
-        ->WhereNull('order_details.deleted_at')
+        ->whereDate('orders.created_at','=',$today)
+        ->where('orders.warehouse_id',$warehouse_id)
+        ->WhereNull('orders.deleted_at')
+        ->orderByDesc('orders.id')
         ->get();
 
         // Purchase query Total all products
         $purchase = DB::table('purchase_details')
                     ->join('products','purchase_details.product_id','=','products.id')
+                    ->join('purchases','purchase_details.purchase_id','=','purchases.id')
                     ->select('purchase_details.product_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
-                    ->whereDate('purchase_details.created_at','=',$today)
-                    ->WhereNull('purchase_details.deleted_at')
+                    ->whereDate('purchases.created_at','=',$today)
+                    ->where('purchases.warehouse_id',$warehouse_id)
+                    ->WhereNull('purchases.deleted_at')
+                    ->orderByDesc('purchases.id')
                     ->get();
 
 

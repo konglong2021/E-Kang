@@ -18,10 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 //Public Route
 Route::post('/login',[App\Http\Controllers\Api\UsersController::class,'login']);
-//Route::ApiResource('/brand','App\Http\Controllers\Api\BrandsController');
-//Route::ApiResource('/category','App\Http\Controllers\Api\CategoriesController');
-//Route::ApiResource('/product','App\Http\Controllers\Api\ProductsController');
-//Route::ApiResource('/purchase','App\Http\Controllers\Api\PurchasesController');
+
 
 
 // Route::post('/product/upload', ['App\Http\Controllers\Api\ProductsController','upload']);
@@ -77,7 +74,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/today',[App\Http\Controllers\Api\PurchasesController::class,'today']); // check record stock in by current day
     Route::get('/today/{date}',[App\Http\Controllers\Api\PurchasesController::class,'buytoday']); // check record stock in by date
     Route::get('/monthbuy/{month}',[App\Http\Controllers\Api\PurchasesController::class,'buymonth']); // check record stock in by date
-    Route::get('/buysell/{today}',[App\Http\Controllers\Api\StockController::class,'buysell']); //check buy and sell by date rang
+    Route::get('/buysell/{today}/{warehouse_id}',[App\Http\Controllers\Api\StockController::class,'buysell']); //check buy and sell by date rang
 
 
 

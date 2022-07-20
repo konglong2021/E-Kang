@@ -23,6 +23,7 @@ class BanlancesController extends Controller
         }
         return $profile->warehouse_id;
      }
+
     public function index()
     {
         $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
@@ -61,7 +62,6 @@ class BanlancesController extends Controller
      //remain + income - withdraw = balance
     public function store(Request $request)
     {
-
         $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
         if(!$warehouse_id){
             return response()->json("No default warehouse found!", 200);
@@ -105,7 +105,6 @@ class BanlancesController extends Controller
             'warehouse_id' => $warehouse_id,
             'user_id' => auth()->user()->id,
         ]);
-
 
         return response()->json([
             "success" => true,
@@ -204,7 +203,6 @@ class BanlancesController extends Controller
     //insert income
     public function income(Request $request)
     {
-        
         $warehouse_id = $this->CheckProfileWarehouse(auth()->user()->id);
         if(!$warehouse_id){
             return response()->json("No default warehouse found!", 200);
