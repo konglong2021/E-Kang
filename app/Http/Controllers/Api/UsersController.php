@@ -63,6 +63,9 @@ class UsersController extends Controller
                 'string',
                 'required',
             ],
+            'warehouse_id'    => [
+                'required',
+            ],
         ]);
         try {
             return DB::transaction(function() use ($request) {
@@ -81,17 +84,25 @@ class UsersController extends Controller
                 $profile = new Profile();
                 $profile->user_id = $user->id;
                 $profile->warehouse_id = $request['warehouse_id'];
+                $profile->firstname = $request['firstname'];
+                $profile->lastname = $request['lastname'];
+                $profile->gender = $request['gender'];
+                $profile->occupation = $request['occupation'];
+                $profile->phone = $request['phone'];
+                $profile->email = $request['email'];
+                $profile->birthdate = $request['birthdate'];
+                $profile->address = $request['address'];
                 $profile->save();
                 // INSERT INTO `laravel`.`profiles` (`user_id`, `warehouse_id`) VALUES (2, 1)
         
-                $token =  $user->createToken('Apptoken')->plainTextToken;
+                
         
                 $user->roles()->sync(($request->roles)); 
                 return response()->json([
                     "success" => true,
                     "message" => "User successfully Created",
-                    "user" =>  $user,
-                    "Token" => $token
+                    "user" =>  $user
+                    
                 ]);
             });
 

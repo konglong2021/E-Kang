@@ -277,6 +277,7 @@ class OrdersController extends Controller
     {
         $sale = Order::where('warehouse_id',$warehouse_id)
                         ->with('orderdetails')
+                        ->orderByDesc('id')
                         ->get();
         return response()->json($sale);
     }
