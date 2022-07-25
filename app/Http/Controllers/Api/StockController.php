@@ -266,30 +266,41 @@ class StockController extends Controller
         $order = DB::table('order_details')
         ->join('products','order_details.product_id','=','products.id')
         ->join('orders','order_details.order_id','=','orders.id')
-        ->select('order_details.product_id','orders.warehouse_id', 'order_details.quantity as qty','order_details.sellprice',DB::raw('order_details.quantity * order_details.sellprice AS o_total'),'products.en_name')
+        ->select('order_details.product_id','orders.warehouse_id', DB::raw('sum(order_details.quantity) as qty'),'order_details.sellprice',DB::raw('sum(order_details.quantity * order_details.sellprice) AS o_total'),'products.en_name')
         ->whereMonth('orders.created_at',$month)
         // ->whereDate('order_details.created_at','<=',$to)
         ->WhereNull('orders.deleted_at')
+        ->orderBy('order_details.product_id')
+        ->groupBy('order_details.product_id')
         ->get();
+
+
+        $orderCount['order'] = $order->count();
 
         // Purchase query Total all products
         $purchase = DB::table('purchase_details')
                     ->join('products','purchase_details.product_id','=','products.id')
                     ->join('purchases','purchase_details.purchase_id','=','purchases.id')
-                    ->select('purchase_details.product_id','purchases.warehouse_id','purchase_details.unitprice','purchase_details.quantity',DB::raw('purchase_details.quantity * purchase_details.unitprice as p_total'),'products.en_name')
+                    ->select('purchase_details.product_id','purchases.warehouse_id','purchase_details.unitprice',DB::raw('sum(purchase_details.quantity) as quantiry'),DB::raw('sum(purchase_details.quantity * purchase_details.unitprice) as p_total'),'products.en_name')
                     ->whereMonth('purchases.created_at',$month)
                     // ->whereDate('purchase_details.created_at','<=',$to)
                     ->WhereNull('purchases.deleted_at')
+                    ->orderBy('purchase_details.product_id')
+                    ->groupBy('purchase_details.product_id')
                     ->get();
+
+
+        $orderCount['purchase'] = $purchase->count();
 
         $stockBalance = DB::table('monthly_stock_balances')
                         ->join('products','monthly_stock_balances.product_id','=','products.id')
                         ->join('stock_balance_dates','monthly_stock_balances.stock_balance_dates_id','=','stock_balance_dates.id')
                         ->select('monthly_stock_balances.id','monthly_stock_balances.product_id','products.en_name','monthly_stock_balances.warehouse_id','stock_balance_dates.stockmonth','monthly_stock_balances.total')
                         ->where('stock_balance_dates.stockmonth','=',($month-1))
+                        ->orderBy('monthly_stock_balances.product_id')
                         ->get();
 
-        $stockTransfer = StockOut::whereMonth('created_at',$month)->get();
+        $stockTransfer = StockOut::whereMonth('created_at',$month)->orderBy('product_id')->get();
 
 
 
