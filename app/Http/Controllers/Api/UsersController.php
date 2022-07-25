@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 class UsersController extends Controller
 {
     /**
@@ -94,10 +94,11 @@ class UsersController extends Controller
                 $profile->address = $request['address'];
                 $profile->save();
                 // INSERT INTO `laravel`.`profiles` (`user_id`, `warehouse_id`) VALUES (2, 1)
-        
-                
-        
-                $user->roles()->sync(($request->roles)); 
+                $roles = json_decode( $request->roles);
+            
+                foreach( $roles as $i=>$role_id ) {
+                    DB::insert("INSERT INTO role_user(`user_id`, `role_id` ) VALUES( ? , ? ) ",[ $user->id, $role_id]);
+                }
                 return response()->json([
                     "success" => true,
                     "message" => "User successfully Created",
@@ -107,6 +108,7 @@ class UsersController extends Controller
             });
 
         } catch (\Throwable $th) {
+            Log::error( $th);
             return response()->json("Data Error");
         }
         //Hash::make($input['password'])
@@ -192,6 +194,11 @@ class UsersController extends Controller
         ])->withCookie($cookie);
     }
 
+    public function  testing(Request $request){
+        $message = "Hello world";
+        Log::info($message);
+        echo "hello world testing...";
+    }
     public function login(Request $request)
     {
         $attr = $request->validate([
@@ -204,7 +211,6 @@ class UsersController extends Controller
                 'required',
             ],
         ]);
-
         $user = User::where('email',$request['email'])
         ->with('profile')->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
