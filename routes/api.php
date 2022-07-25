@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 //Public Route
 Route::post('/login',[App\Http\Controllers\Api\UsersController::class,'login']);
+Route::get('/testing',[App\Http\Controllers\Api\UsersController::class,'testing']);
 
 
 
